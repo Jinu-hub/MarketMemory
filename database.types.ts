@@ -14,6 +14,254 @@ export type Database = {
   }
   public: {
     Tables: {
+      final_reports: {
+        Row: {
+          category: Database["public"]["Enums"]["category"] | null
+          created_at: string
+          html_body: string | null
+          id: string
+          md_body: string
+          metadata: Json | null
+          region: Database["public"]["Enums"]["region"] | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["category"] | null
+          created_at?: string
+          html_body?: string | null
+          id?: string
+          md_body: string
+          metadata?: Json | null
+          region?: Database["public"]["Enums"]["region"] | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["category"] | null
+          created_at?: string
+          html_body?: string | null
+          id?: string
+          md_body?: string
+          metadata?: Json | null
+          region?: Database["public"]["Enums"]["region"] | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      item_contents: {
+        Row: {
+          category_reason: string | null
+          confidence: number | null
+          cost_usd: number | null
+          created_at: string
+          id: string
+          input_hash: string | null
+          item_id: string
+          latency_ms: number | null
+          md_summary: string | null
+          metadata: Json | null
+          model_info: Json | null
+          prompt_id: string | null
+          source_text: string | null
+          summary: string | null
+          tag_reason: Json | null
+          tokens_in: number | null
+          tokens_out: number | null
+        }
+        Insert: {
+          category_reason?: string | null
+          confidence?: number | null
+          cost_usd?: number | null
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          item_id: string
+          latency_ms?: number | null
+          md_summary?: string | null
+          metadata?: Json | null
+          model_info?: Json | null
+          prompt_id?: string | null
+          source_text?: string | null
+          summary?: string | null
+          tag_reason?: Json | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+        }
+        Update: {
+          category_reason?: string | null
+          confidence?: number | null
+          cost_usd?: number | null
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          item_id?: string
+          latency_ms?: number | null
+          md_summary?: string | null
+          metadata?: Json | null
+          model_info?: Json | null
+          prompt_id?: string | null
+          source_text?: string | null
+          summary?: string | null
+          tag_reason?: Json | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_contents_item_id_market_memory_items_id_fk"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "market_memory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_contents_prompt_id_prompt_templates_id_fk"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_embeddings: {
+        Row: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string
+          embedding: string
+          id: string
+          item_id: string
+          model: string | null
+        }
+        Insert: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          embedding: string
+          id?: string
+          item_id: string
+          model?: string | null
+        }
+        Update: {
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          embedding?: string
+          id?: string
+          item_id?: string
+          model?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_embeddings_item_id_market_memory_items_id_fk"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "market_memory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_tags: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          item_id: string
+          source: Database["public"]["Enums"]["tag_source"]
+          tag_id: string
+          updated_at: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          item_id: string
+          source: Database["public"]["Enums"]["tag_source"]
+          tag_id: string
+          updated_at?: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          item_id?: string
+          source?: Database["public"]["Enums"]["tag_source"]
+          tag_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_tags_item_id_market_memory_items_id_fk"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "market_memory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_tags_tag_id_tags_id_fk"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_memory_items: {
+        Row: {
+          category: Database["public"]["Enums"]["category"] | null
+          created_at: string
+          detail: string | null
+          executed_date: string | null
+          executed_id: string | null
+          id: string
+          input_date: string | null
+          notes: string | null
+          raw_log_link: string | null
+          region: Database["public"]["Enums"]["region"] | null
+          source_links: Json | null
+          status: Database["public"]["Enums"]["item_status"]
+          tags: string[] | null
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["category"] | null
+          created_at?: string
+          detail?: string | null
+          executed_date?: string | null
+          executed_id?: string | null
+          id?: string
+          input_date?: string | null
+          notes?: string | null
+          raw_log_link?: string | null
+          region?: Database["public"]["Enums"]["region"] | null
+          source_links?: Json | null
+          status?: Database["public"]["Enums"]["item_status"]
+          tags?: string[] | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["category"] | null
+          created_at?: string
+          detail?: string | null
+          executed_date?: string | null
+          executed_id?: string | null
+          id?: string
+          input_date?: string | null
+          notes?: string | null
+          raw_log_link?: string | null
+          region?: Database["public"]["Enums"]["region"] | null
+          source_links?: Json | null
+          status?: Database["public"]["Enums"]["item_status"]
+          tags?: string[] | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           approved_at: string
@@ -69,6 +317,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          is_admin: boolean
           marketing_consent: boolean
           name: string
           profile_id: string
@@ -77,6 +326,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          is_admin?: boolean
           marketing_consent?: boolean
           name: string
           profile_id: string
@@ -85,10 +335,177 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          is_admin?: boolean
           marketing_consent?: boolean
           name?: string
           profile_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      prompt_releases: {
+        Row: {
+          active_prompt_id: string
+          purpose: string
+          updated_at: string
+        }
+        Insert: {
+          active_prompt_id: string
+          purpose: string
+          updated_at?: string
+        }
+        Update: {
+          active_prompt_id?: string
+          purpose?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_releases_active_prompt_id_prompt_templates_id_fk"
+            columns: ["active_prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompt_templates: {
+        Row: {
+          created_at: string
+          default_model: string | null
+          default_params: Json | null
+          id: string
+          name: string
+          output_schema: Json | null
+          purpose: string
+          status: Database["public"]["Enums"]["prompt_status"]
+          template: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          default_model?: string | null
+          default_params?: Json | null
+          id?: string
+          name: string
+          output_schema?: Json | null
+          purpose: string
+          status: Database["public"]["Enums"]["prompt_status"]
+          template: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          default_model?: string | null
+          default_params?: Json | null
+          id?: string
+          name?: string
+          output_schema?: Json | null
+          purpose?: string
+          status?: Database["public"]["Enums"]["prompt_status"]
+          template?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      report_embeddings: {
+        Row: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string
+          embedding: string
+          id: string
+          model: string | null
+          report_id: string
+        }
+        Insert: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          embedding: string
+          id?: string
+          model?: string | null
+          report_id: string
+        }
+        Update: {
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          embedding?: string
+          id?: string
+          model?: string | null
+          report_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_embeddings_report_id_final_reports_id_fk"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "final_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_items: {
+        Row: {
+          created_at: string
+          item_id: string
+          note: string | null
+          ord: number | null
+          report_id: string
+        }
+        Insert: {
+          created_at?: string
+          item_id: string
+          note?: string | null
+          ord?: number | null
+          report_id: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: string
+          note?: string | null
+          ord?: number | null
+          report_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_items_item_id_market_memory_items_id_fk"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "market_memory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_items_report_id_final_reports_id_fk"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "final_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          aliases: string[] | null
+          created_at: string
+          display_name: string | null
+          id: string
+          slug: string
+          type: string | null
+        }
+        Insert: {
+          aliases?: string[] | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          slug: string
+          type?: string | null
+        }
+        Update: {
+          aliases?: string[] | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          slug?: string
+          type?: string | null
         }
         Relationships: []
       }
@@ -100,7 +517,21 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      category:
+        | "foundation"
+        | "issue"
+        | "research"
+        | "market"
+        | "trend"
+        | "deep_dive"
+        | "column"
+        | "narrative_analysis"
+        | "watchlist"
+      content_type: "summary" | "md_summary" | "source_text"
+      item_status: "ready" | "running" | "done" | "failed"
+      prompt_status: "draft" | "active" | "deprecated"
+      region: "us" | "kr" | "jp" | "eu" | "cn" | "global"
+      tag_source: "ai" | "manual"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -227,6 +658,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      category: [
+        "foundation",
+        "issue",
+        "research",
+        "market",
+        "trend",
+        "deep_dive",
+        "column",
+        "narrative_analysis",
+        "watchlist",
+      ],
+      content_type: ["summary", "md_summary", "source_text"],
+      item_status: ["ready", "running", "done", "failed"],
+      prompt_status: ["draft", "active", "deprecated"],
+      region: ["us", "kr", "jp", "eu", "cn", "global"],
+      tag_source: ["ai", "manual"],
+    },
   },
 } as const
