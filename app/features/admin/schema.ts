@@ -3,7 +3,7 @@
 // DB設計 v0.1 に基づく: Item/Content/Embedding/Report の SSOT 管理
 // RLS: Admin 専用 (profiles.is_admin = true のユーザーのみ)
 
-import { sql } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import {
   date,
   index,
@@ -66,6 +66,14 @@ export const promptStatus = pgEnum("prompt_status", [
 ]);
 
 export const tagSource = pgEnum("tag_source", ["ai", "manual"]);
+
+export const ocrJobStatus = pgEnum("ocr_job_status", [
+  "queued",
+  "running",
+  "success",
+  "failed",
+  "partial",
+]);
 
 /* =========================================================
    RLS Helper: Admin only
@@ -538,6 +546,108 @@ export const reportEmbeddings = pgTable(
       withCheck: isAdmin,
     }),
     pgPolicy("re_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   OCR Jobs (문서 1건 = 1 job, 원본 + 상태 + 최종 머지)
+   ========================================================= */
+export const ocrJobs = pgTable(
+  "ocr_jobs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    source_name: text("source_name").notNull(),
+    source_url: text("source_url"),
+    status: ocrJobStatus("status").notNull().default("queued"),
+
+    page_total: integer("page_total"),
+    merged_text: text("merged_text"),
+
+    last_error: text("last_error"),
+    metadata: jsonb("metadata"),
+
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_ocr_jobs_created_at").on(desc(table.created_at)),
+
+    pgPolicy("oj_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("oj_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("oj_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("oj_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   OCR Job Pages (페이지별 OCR 결과)
+   ========================================================= */
+export const ocrJobPages = pgTable(
+  "ocr_job_pages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    job_id: uuid("job_id")
+      .notNull()
+      .references(() => ocrJobs.id, { onDelete: "cascade" }),
+
+    page_no: integer("page_no").notNull(),
+    file_name: text("file_name"),
+    text: text("text"),
+    error: text("error"),
+
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("ocr_job_pages_job_id_page_no_unique").on(
+      table.job_id,
+      table.page_no,
+    ),
+    index("idx_ocr_job_pages_job_id_page_no").on(table.job_id, table.page_no),
+
+    pgPolicy("ojp_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("ojp_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ojp_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ojp_delete", {
       for: "delete",
       to: authenticatedRole,
       using: isAdmin,

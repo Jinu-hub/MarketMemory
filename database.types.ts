@@ -262,6 +262,83 @@ export type Database = {
         }
         Relationships: []
       }
+      ocr_job_pages: {
+        Row: {
+          created_at: string
+          error: string | null
+          file_name: string | null
+          id: string
+          job_id: string
+          page_no: number
+          text: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          file_name?: string | null
+          id?: string
+          job_id: string
+          page_no: number
+          text?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          file_name?: string | null
+          id?: string
+          job_id?: string
+          page_no?: number
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocr_job_pages_job_id_ocr_jobs_id_fk"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ocr_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocr_jobs: {
+        Row: {
+          created_at: string
+          id: string
+          last_error: string | null
+          merged_text: string | null
+          metadata: Json | null
+          page_total: number | null
+          source_name: string
+          source_url: string | null
+          status: Database["public"]["Enums"]["ocr_job_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          merged_text?: string | null
+          metadata?: Json | null
+          page_total?: number | null
+          source_name: string
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["ocr_job_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          merged_text?: string | null
+          metadata?: Json | null
+          page_total?: number | null
+          source_name?: string
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["ocr_job_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           approved_at: string
@@ -529,6 +606,7 @@ export type Database = {
         | "watchlist"
       content_type: "summary" | "md_summary" | "source_text"
       item_status: "ready" | "running" | "done" | "failed"
+      ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
       prompt_status: "draft" | "active" | "deprecated"
       region: "us" | "kr" | "jp" | "eu" | "cn" | "global"
       tag_source: "ai" | "manual"
@@ -672,6 +750,7 @@ export const Constants = {
       ],
       content_type: ["summary", "md_summary", "source_text"],
       item_status: ["ready", "running", "done", "failed"],
+      ocr_job_status: ["queued", "running", "success", "failed", "partial"],
       prompt_status: ["draft", "active", "deprecated"],
       region: ["us", "kr", "jp", "eu", "cn", "global"],
       tag_source: ["ai", "manual"],
