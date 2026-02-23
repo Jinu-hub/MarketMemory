@@ -554,12 +554,12 @@ export const reportEmbeddings = pgTable(
 );
 
 /* =========================================================
-   OCR Jobs (문서 1건 = 1 job, 원본 + 상태 + 최종 머지)
+   OCR Jobs (문서 1건 = 1 job, job_code PK)
    ========================================================= */
 export const ocrJobs = pgTable(
   "ocr_jobs",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    job_code: text("job_code").primaryKey(),
     source_name: text("source_name").notNull(),
     source_url: text("source_url"),
     status: ocrJobStatus("status").notNull().default("queued"),
@@ -578,6 +578,7 @@ export const ocrJobs = pgTable(
       .notNull(),
   },
   (table) => [
+    index("idx_ocr_jobs_job_code").on(table.job_code),
     index("idx_ocr_jobs_created_at").on(desc(table.created_at)),
 
     pgPolicy("oj_select", {
@@ -605,16 +606,13 @@ export const ocrJobs = pgTable(
 );
 
 /* =========================================================
-   OCR Job Pages (페이지별 OCR 결과)
+   OCR Job Pages (페이지별 OCR 결과, job_code FK)
    ========================================================= */
 export const ocrJobPages = pgTable(
   "ocr_job_pages",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    job_id: uuid("job_id")
-      .notNull()
-      .references(() => ocrJobs.id, { onDelete: "cascade" }),
-
+    job_code: text("job_code").notNull(),
     page_no: integer("page_no").notNull(),
     file_name: text("file_name"),
     text: text("text"),
@@ -625,11 +623,9 @@ export const ocrJobPages = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex("ocr_job_pages_job_id_page_no_unique").on(
-      table.job_id,
-      table.page_no,
-    ),
-    index("idx_ocr_job_pages_job_id_page_no").on(table.job_id, table.page_no),
+    uniqueIndex("ocr_job_pages_unique").on(table.job_code, table.page_no),
+    index("idx_ocr_job_pages_job_code_page_no").on(table.job_code, table.page_no),
+    index("idx_ocr_job_pages_created_at").on(desc(table.created_at)),
 
     pgPolicy("ojp_select", {
       for: "select",

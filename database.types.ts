@@ -268,7 +268,7 @@ export type Database = {
           error: string | null
           file_name: string | null
           id: string
-          job_id: string
+          job_code: string
           page_no: number
           text: string | null
         }
@@ -277,7 +277,7 @@ export type Database = {
           error?: string | null
           file_name?: string | null
           id?: string
-          job_id: string
+          job_code: string
           page_no: number
           text?: string | null
         }
@@ -286,24 +286,16 @@ export type Database = {
           error?: string | null
           file_name?: string | null
           id?: string
-          job_id?: string
+          job_code?: string
           page_no?: number
           text?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "ocr_job_pages_job_id_ocr_jobs_id_fk"
-            columns: ["job_id"]
-            isOneToOne: false
-            referencedRelation: "ocr_jobs"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ocr_jobs: {
         Row: {
           created_at: string
-          id: string
+          job_code: string
           last_error: string | null
           merged_text: string | null
           metadata: Json | null
@@ -315,7 +307,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id?: string
+          job_code: string
           last_error?: string | null
           merged_text?: string | null
           metadata?: Json | null
@@ -327,7 +319,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          id?: string
+          job_code?: string
           last_error?: string | null
           merged_text?: string | null
           metadata?: Json | null
