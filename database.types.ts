@@ -217,10 +217,11 @@ export type Database = {
           executed_id: string | null
           id: string
           input_date: string | null
+          job_code: string | null
           notes: string | null
+          ocr_job_id: string | null
           raw_log_link: string | null
           region: Database["public"]["Enums"]["region"] | null
-          source_links: Json | null
           status: Database["public"]["Enums"]["item_status"]
           tags: string[] | null
           topic: string | null
@@ -234,10 +235,11 @@ export type Database = {
           executed_id?: string | null
           id?: string
           input_date?: string | null
+          job_code?: string | null
           notes?: string | null
+          ocr_job_id?: string | null
           raw_log_link?: string | null
           region?: Database["public"]["Enums"]["region"] | null
-          source_links?: Json | null
           status?: Database["public"]["Enums"]["item_status"]
           tags?: string[] | null
           topic?: string | null
@@ -251,16 +253,25 @@ export type Database = {
           executed_id?: string | null
           id?: string
           input_date?: string | null
+          job_code?: string | null
           notes?: string | null
+          ocr_job_id?: string | null
           raw_log_link?: string | null
           region?: Database["public"]["Enums"]["region"] | null
-          source_links?: Json | null
           status?: Database["public"]["Enums"]["item_status"]
           tags?: string[] | null
           topic?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "market_memory_items_ocr_job_id_ocr_jobs_id_fk"
+            columns: ["ocr_job_id"]
+            isOneToOne: false
+            referencedRelation: "ocr_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ocr_job_pages: {
         Row: {
@@ -295,36 +306,42 @@ export type Database = {
       ocr_jobs: {
         Row: {
           created_at: string
+          id: string
           job_code: string
           last_error: string | null
           merged_text: string | null
           metadata: Json | null
           page_total: number | null
           source_name: string
+          source_type: string
           source_url: string | null
           status: Database["public"]["Enums"]["ocr_job_status"]
           updated_at: string
         }
         Insert: {
           created_at?: string
+          id?: string
           job_code: string
           last_error?: string | null
           merged_text?: string | null
           metadata?: Json | null
           page_total?: number | null
           source_name: string
+          source_type?: string
           source_url?: string | null
           status?: Database["public"]["Enums"]["ocr_job_status"]
           updated_at?: string
         }
         Update: {
           created_at?: string
+          id?: string
           job_code?: string
           last_error?: string | null
           merged_text?: string | null
           metadata?: Json | null
           page_total?: number | null
           source_name?: string
+          source_type?: string
           source_url?: string | null
           status?: Database["public"]["Enums"]["ocr_job_status"]
           updated_at?: string
