@@ -87,10 +87,11 @@ export const marketMemoryItems = pgTable(
   "market_memory_items",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    job_code: text("job_code"),
     input_date: date("input_date"),
     topic: text("topic"),
     detail: text("detail"),
-    source_links: jsonb("source_links"),
+    ocr_job_id: uuid("ocr_job_id").references(() => ocrJobs.id, { onDelete: "set null" }),
     raw_log_link: text("raw_log_link"),
     notes: text("notes"),
     status: itemStatus("status").notNull().default("ready"),
@@ -107,6 +108,7 @@ export const marketMemoryItems = pgTable(
       .notNull(),
   },
   (table) => [
+    uniqueIndex("mmi_job_code_unique").on(table.job_code),
     index("idx_items_status").on(table.status),
     index("idx_items_input_date").on(table.input_date),
     index("idx_items_category").on(table.category),
@@ -138,7 +140,107 @@ export const marketMemoryItems = pgTable(
 );
 
 /* =========================================================
-   3-2) item_contents (생성 결과/추출물)
+   3-1-1) OCR Jobs (문서 1건 = 1 job, job_code PK)
+   ========================================================= */
+   export const ocrJobs = pgTable(
+    "ocr_jobs",
+    {
+      id: uuid("id").defaultRandom().primaryKey(),
+      job_code: text("job_code").notNull(),
+      source_type: text("source_type").notNull().default("pdf"),
+      source_name: text("source_name").notNull(),
+      source_url: text("source_url"),
+      status: ocrJobStatus("status").notNull().default("queued"),
+  
+      page_total: integer("page_total"),
+      merged_text: text("merged_text"),
+  
+      last_error: text("last_error"),
+      metadata: jsonb("metadata"),
+  
+      created_at: timestamp("created_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+      updated_at: timestamp("updated_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    },
+    (table) => [
+      uniqueIndex("ocr_jobs_job_code_unique").on(table.job_code),
+      index("idx_ocr_jobs_created_at").on(desc(table.created_at)),
+  
+      pgPolicy("oj_select", {
+        for: "select",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+      pgPolicy("oj_insert", {
+        for: "insert",
+        to: authenticatedRole,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("oj_update", {
+        for: "update",
+        to: authenticatedRole,
+        using: isAdmin,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("oj_delete", {
+        for: "delete",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+    ],
+  );
+  
+  /* =========================================================
+    3-1-2) OCR Job Pages (페이지별 OCR 결과, job_code FK)
+     ========================================================= */
+  export const ocrJobPages = pgTable(
+    "ocr_job_pages",
+    {
+      id: uuid("id").defaultRandom().primaryKey(),
+      job_code: text("job_code").notNull(),
+      page_no: integer("page_no").notNull(),
+      file_name: text("file_name"),
+      text: text("text"),
+      error: text("error"),
+  
+      created_at: timestamp("created_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    },
+    (table) => [
+      uniqueIndex("ocr_job_pages_unique").on(table.job_code, table.page_no),
+      index("idx_ocr_job_pages_job_code_page_no").on(table.job_code, table.page_no),
+      index("idx_ocr_job_pages_created_at").on(desc(table.created_at)),
+  
+      pgPolicy("ojp_select", {
+        for: "select",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+      pgPolicy("ojp_insert", {
+        for: "insert",
+        to: authenticatedRole,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("ojp_update", {
+        for: "update",
+        to: authenticatedRole,
+        using: isAdmin,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("ojp_delete", {
+        for: "delete",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+    ],
+  );
+
+/* =========================================================
+   3-2-1) prompt_templates (프롬프트 템플릿/버전 관리)
    ========================================================= */
 export const promptTemplates = pgTable(
   "prompt_templates",
@@ -187,6 +289,9 @@ export const promptTemplates = pgTable(
   ],
 );
 
+/* =========================================================
+   3-2-2) item_contents (생성 결과/추출물)
+   ========================================================= */
 export const itemContents = pgTable(
   "item_contents",
   {
@@ -546,104 +651,6 @@ export const reportEmbeddings = pgTable(
       withCheck: isAdmin,
     }),
     pgPolicy("re_delete", {
-      for: "delete",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-  ],
-);
-
-/* =========================================================
-   OCR Jobs (문서 1건 = 1 job, job_code PK)
-   ========================================================= */
-export const ocrJobs = pgTable(
-  "ocr_jobs",
-  {
-    job_code: text("job_code").primaryKey(),
-    source_name: text("source_name").notNull(),
-    source_url: text("source_url"),
-    status: ocrJobStatus("status").notNull().default("queued"),
-
-    page_total: integer("page_total"),
-    merged_text: text("merged_text"),
-
-    last_error: text("last_error"),
-    metadata: jsonb("metadata"),
-
-    created_at: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updated_at: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    index("idx_ocr_jobs_job_code").on(table.job_code),
-    index("idx_ocr_jobs_created_at").on(desc(table.created_at)),
-
-    pgPolicy("oj_select", {
-      for: "select",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-    pgPolicy("oj_insert", {
-      for: "insert",
-      to: authenticatedRole,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("oj_update", {
-      for: "update",
-      to: authenticatedRole,
-      using: isAdmin,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("oj_delete", {
-      for: "delete",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-  ],
-);
-
-/* =========================================================
-   OCR Job Pages (페이지별 OCR 결과, job_code FK)
-   ========================================================= */
-export const ocrJobPages = pgTable(
-  "ocr_job_pages",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    job_code: text("job_code").notNull(),
-    page_no: integer("page_no").notNull(),
-    file_name: text("file_name"),
-    text: text("text"),
-    error: text("error"),
-
-    created_at: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    uniqueIndex("ocr_job_pages_unique").on(table.job_code, table.page_no),
-    index("idx_ocr_job_pages_job_code_page_no").on(table.job_code, table.page_no),
-    index("idx_ocr_job_pages_created_at").on(desc(table.created_at)),
-
-    pgPolicy("ojp_select", {
-      for: "select",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-    pgPolicy("ojp_insert", {
-      for: "insert",
-      to: authenticatedRole,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("ojp_update", {
-      for: "update",
-      to: authenticatedRole,
-      using: isAdmin,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("ojp_delete", {
       for: "delete",
       to: authenticatedRole,
       using: isAdmin,
