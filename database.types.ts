@@ -306,10 +306,12 @@ export type Database = {
       ocr_jobs: {
         Row: {
           created_at: string
+          extraction_notes: Json | null
           id: string
           job_code: string
           last_error: string | null
-          merged_text: string | null
+          merged_text_clean: string | null
+          merged_text_raw: string | null
           metadata: Json | null
           page_total: number | null
           source_name: string
@@ -320,10 +322,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          extraction_notes?: Json | null
           id?: string
           job_code: string
           last_error?: string | null
-          merged_text?: string | null
+          merged_text_clean?: string | null
+          merged_text_raw?: string | null
           metadata?: Json | null
           page_total?: number | null
           source_name: string
@@ -334,10 +338,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          extraction_notes?: Json | null
           id?: string
           job_code?: string
           last_error?: string | null
-          merged_text?: string | null
+          merged_text_clean?: string | null
+          merged_text_raw?: string | null
           metadata?: Json | null
           page_total?: number | null
           source_name?: string
