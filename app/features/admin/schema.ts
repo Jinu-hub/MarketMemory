@@ -153,7 +153,9 @@ export const marketMemoryItems = pgTable(
       status: ocrJobStatus("status").notNull().default("queued"),
   
       page_total: integer("page_total"),
-      merged_text: text("merged_text"),
+      merged_text_raw: text("merged_text_raw"),
+      merged_text_clean: text("merged_text_clean"),
+      extraction_notes: jsonb("extraction_notes"),
   
       last_error: text("last_error"),
       metadata: jsonb("metadata"),
