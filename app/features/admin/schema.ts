@@ -241,6 +241,62 @@ export const marketMemoryItems = pgTable(
     ],
   );
 
+  /* =========================================================
+    3-1-3) normalized_documents — 정규화(클린업/구조화)된 최종 텍스트 저장
+     ========================================================= */
+export const normalizedDocuments = pgTable(
+  "normalized_documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    job_code: text("job_code").notNull(),
+    version: integer("version").notNull().default(1),
+    file_name: text("file_name"),
+    page_count: integer("page_count"),
+    root_block_count: integer("root_block_count"),
+    item_count: integer("item_count"),
+    table_count: integer("table_count"),
+    md_body: text("md_body").notNull(),
+    warnings: text("warnings").array().default(sql`'{}'::text[]`),
+    stats: jsonb("stats").default(sql`'{}'::jsonb`),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("normalized_documents_job_code_version_unique").on(
+      table.job_code,
+      table.version,
+    ),
+    index("idx_normalized_documents_job_code").on(table.job_code),
+    index("idx_normalized_documents_created_at").on(desc(table.created_at)),
+
+    pgPolicy("nd_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("nd_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("nd_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("nd_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
 /* =========================================================
    3-2-1) prompt_templates (프롬프트 템플릿/버전 관리)
    ========================================================= */
