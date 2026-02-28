@@ -273,6 +273,54 @@ export type Database = {
           },
         ]
       }
+      normalized_documents: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          id: string
+          item_count: number | null
+          job_code: string
+          md_body: string
+          page_count: number | null
+          root_block_count: number | null
+          stats: Json | null
+          table_count: number | null
+          updated_at: string
+          version: number
+          warnings: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          item_count?: number | null
+          job_code: string
+          md_body: string
+          page_count?: number | null
+          root_block_count?: number | null
+          stats?: Json | null
+          table_count?: number | null
+          updated_at?: string
+          version?: number
+          warnings?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          item_count?: number | null
+          job_code?: string
+          md_body?: string
+          page_count?: number | null
+          root_block_count?: number | null
+          stats?: Json | null
+          table_count?: number | null
+          updated_at?: string
+          version?: number
+          warnings?: string[] | null
+        }
+        Relationships: []
+      }
       ocr_job_pages: {
         Row: {
           created_at: string

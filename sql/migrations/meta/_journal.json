@@ -71,6 +71,13 @@
       "when": 1772100227531,
       "tag": "0009_young_lila_cheney",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1772266612976,
+      "tag": "0010_volatile_lucky_pierre",
+      "breakpoints": true
     }
   ]
 }
