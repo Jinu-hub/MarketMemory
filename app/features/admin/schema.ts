@@ -92,12 +92,14 @@ export const marketMemoryItems = pgTable(
     topic: text("topic"),
     detail: text("detail"),
     ocr_job_id: uuid("ocr_job_id").references(() => ocrJobs.id, { onDelete: "set null" }),
+    normalized_document_id: uuid("normalized_document_id").references(() => normalizedDocuments.id, { onDelete: "set null" }),
     raw_log_link: text("raw_log_link"),
     notes: text("notes"),
     status: itemStatus("status").notNull().default("ready"),
     category: category("category"),
     region: region("region"),
     tags: text("tags").array(),
+    source_lang: text("source_lang"),
     executed_date: timestamp("executed_date", { withTimezone: true }),
     executed_id: text("executed_id"),
     created_at: timestamp("created_at", { withTimezone: true })
@@ -416,6 +418,7 @@ export const itemEmbeddings = pgTable(
     item_id: uuid("item_id")
       .notNull()
       .references(() => marketMemoryItems.id, { onDelete: "cascade" }),
+    lang_type: text("lang_type").notNull().default("en"),
     content_type: contentType("content_type").notNull(),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
     model: text("model"),
@@ -580,10 +583,10 @@ export const promptReleases = pgTable(
 );
 
 /* =========================================================
-   3-8) final_reports (최종 레포트 저장)
+   3-8) reports (레포트 저장)
    ========================================================= */
-export const finalReports = pgTable(
-  "final_reports",
+export const reports = pgTable(
+  "reports",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     title: text("title").notNull(),
@@ -635,12 +638,14 @@ export const finalReports = pgTable(
 export const reportItems = pgTable(
   "report_items",
   {
+    id: uuid("id").defaultRandom().primaryKey(),
     report_id: uuid("report_id")
       .notNull()
-      .references(() => finalReports.id, { onDelete: "cascade" }),
+      .references(() => reports.id, { onDelete: "cascade" }),
     item_id: uuid("item_id")
-      .notNull()
-      .references(() => marketMemoryItems.id, { onDelete: "cascade" }),
+      .references(() => marketMemoryItems.id, { onDelete: "set null" }),
+    refer_report_id: uuid("refer_report_id")
+      .references(() => reports.id, { onDelete: "set null" }),
     ord: integer("ord"),
     note: text("note"),
     created_at: timestamp("created_at", { withTimezone: true })
@@ -648,7 +653,10 @@ export const reportItems = pgTable(
       .notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.report_id, table.item_id] }),
+    uniqueIndex("report_items_report_id_item_id_unique").on(
+      table.report_id,
+      table.item_id,
+    ),
 
     pgPolicy("ri_select", {
       for: "select",
@@ -683,8 +691,9 @@ export const reportEmbeddings = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     report_id: uuid("report_id")
       .notNull()
-      .references(() => finalReports.id, { onDelete: "cascade" }),
+      .references(() => reports.id, { onDelete: "cascade" }),
     content_type: contentType("content_type").notNull(),
+    lang_type: text("lang_type").notNull().default("en"),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
     model: text("model"),
     created_at: timestamp("created_at", { withTimezone: true })
