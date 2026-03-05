@@ -78,6 +78,20 @@
       "when": 1772266612976,
       "tag": "0010_volatile_lucky_pierre",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1772448203151,
+      "tag": "0011_skinny_jackal",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1772697384158,
+      "tag": "0012_watery_harpoon",
+      "breakpoints": true
     }
   ]
 }

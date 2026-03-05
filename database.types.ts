@@ -14,48 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      final_reports: {
-        Row: {
-          category: Database["public"]["Enums"]["category"] | null
-          created_at: string
-          html_body: string | null
-          id: string
-          md_body: string
-          metadata: Json | null
-          region: Database["public"]["Enums"]["region"] | null
-          summary: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          category?: Database["public"]["Enums"]["category"] | null
-          created_at?: string
-          html_body?: string | null
-          id?: string
-          md_body: string
-          metadata?: Json | null
-          region?: Database["public"]["Enums"]["region"] | null
-          summary?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          category?: Database["public"]["Enums"]["category"] | null
-          created_at?: string
-          html_body?: string | null
-          id?: string
-          md_body?: string
-          metadata?: Json | null
-          region?: Database["public"]["Enums"]["region"] | null
-          summary?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       item_contents: {
         Row: {
           category_reason: string | null
@@ -138,6 +96,7 @@ export type Database = {
           embedding: string
           id: string
           item_id: string
+          lang_type: string
           model: string | null
         }
         Insert: {
@@ -146,6 +105,7 @@ export type Database = {
           embedding: string
           id?: string
           item_id: string
+          lang_type?: string
           model?: string | null
         }
         Update: {
@@ -154,6 +114,7 @@ export type Database = {
           embedding?: string
           id?: string
           item_id?: string
+          lang_type?: string
           model?: string | null
         }
         Relationships: [
@@ -218,10 +179,12 @@ export type Database = {
           id: string
           input_date: string | null
           job_code: string | null
+          normalized_document_id: string | null
           notes: string | null
           ocr_job_id: string | null
           raw_log_link: string | null
           region: Database["public"]["Enums"]["region"] | null
+          source_lang: string | null
           status: Database["public"]["Enums"]["item_status"]
           tags: string[] | null
           topic: string | null
@@ -236,10 +199,12 @@ export type Database = {
           id?: string
           input_date?: string | null
           job_code?: string | null
+          normalized_document_id?: string | null
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
           region?: Database["public"]["Enums"]["region"] | null
+          source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           tags?: string[] | null
           topic?: string | null
@@ -254,16 +219,25 @@ export type Database = {
           id?: string
           input_date?: string | null
           job_code?: string | null
+          normalized_document_id?: string | null
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
           region?: Database["public"]["Enums"]["region"] | null
+          source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           tags?: string[] | null
           topic?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "market_memory_items_normalized_document_id_normalized_documents"
+            columns: ["normalized_document_id"]
+            isOneToOne: false
+            referencedRelation: "normalized_documents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "market_memory_items_ocr_job_id_ocr_jobs_id_fk"
             columns: ["ocr_job_id"]
@@ -554,6 +528,7 @@ export type Database = {
           created_at: string
           embedding: string
           id: string
+          lang_type: string
           model: string | null
           report_id: string
         }
@@ -562,6 +537,7 @@ export type Database = {
           created_at?: string
           embedding: string
           id?: string
+          lang_type?: string
           model?: string | null
           report_id: string
         }
@@ -570,15 +546,16 @@ export type Database = {
           created_at?: string
           embedding?: string
           id?: string
+          lang_type?: string
           model?: string | null
           report_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "report_embeddings_report_id_final_reports_id_fk"
+            foreignKeyName: "report_embeddings_report_id_reports_id_fk"
             columns: ["report_id"]
             isOneToOne: false
-            referencedRelation: "final_reports"
+            referencedRelation: "reports"
             referencedColumns: ["id"]
           },
         ]
@@ -586,23 +563,29 @@ export type Database = {
       report_items: {
         Row: {
           created_at: string
-          item_id: string
+          id: string
+          item_id: string | null
           note: string | null
           ord: number | null
+          refer_report_id: string | null
           report_id: string
         }
         Insert: {
           created_at?: string
-          item_id: string
+          id?: string
+          item_id?: string | null
           note?: string | null
           ord?: number | null
+          refer_report_id?: string | null
           report_id: string
         }
         Update: {
           created_at?: string
-          item_id?: string
+          id?: string
+          item_id?: string | null
           note?: string | null
           ord?: number | null
+          refer_report_id?: string | null
           report_id?: string
         }
         Relationships: [
@@ -614,13 +597,62 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "report_items_report_id_final_reports_id_fk"
+            foreignKeyName: "report_items_refer_report_id_reports_id_fk"
+            columns: ["refer_report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_items_report_id_reports_id_fk"
             columns: ["report_id"]
             isOneToOne: false
-            referencedRelation: "final_reports"
+            referencedRelation: "reports"
             referencedColumns: ["id"]
           },
         ]
+      }
+      reports: {
+        Row: {
+          category: Database["public"]["Enums"]["category"] | null
+          created_at: string
+          html_body: string | null
+          id: string
+          md_body: string
+          metadata: Json | null
+          region: Database["public"]["Enums"]["region"] | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["category"] | null
+          created_at?: string
+          html_body?: string | null
+          id?: string
+          md_body: string
+          metadata?: Json | null
+          region?: Database["public"]["Enums"]["region"] | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["category"] | null
+          created_at?: string
+          html_body?: string | null
+          id?: string
+          md_body?: string
+          metadata?: Json | null
+          region?: Database["public"]["Enums"]["region"] | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       tags: {
         Row: {
