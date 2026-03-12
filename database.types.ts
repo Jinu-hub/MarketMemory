@@ -22,6 +22,7 @@ export type Database = {
           created_at: string
           id: string
           input_hash: string | null
+          is_public: boolean
           item_id: string
           latency_ms: number | null
           md_summary: string | null
@@ -41,6 +42,7 @@ export type Database = {
           created_at?: string
           id?: string
           input_hash?: string | null
+          is_public?: boolean
           item_id: string
           latency_ms?: number | null
           md_summary?: string | null
@@ -60,6 +62,7 @@ export type Database = {
           created_at?: string
           id?: string
           input_hash?: string | null
+          is_public?: boolean
           item_id?: string
           latency_ms?: number | null
           md_summary?: string | null
@@ -618,6 +621,7 @@ export type Database = {
           created_at: string
           html_body: string | null
           id: string
+          is_public: boolean
           md_body: string
           metadata: Json | null
           region: Database["public"]["Enums"]["region"] | null
@@ -631,6 +635,7 @@ export type Database = {
           created_at?: string
           html_body?: string | null
           id?: string
+          is_public?: boolean
           md_body: string
           metadata?: Json | null
           region?: Database["public"]["Enums"]["region"] | null
@@ -644,6 +649,7 @@ export type Database = {
           created_at?: string
           html_body?: string | null
           id?: string
+          is_public?: boolean
           md_body?: string
           metadata?: Json | null
           region?: Database["public"]["Enums"]["region"] | null
@@ -678,6 +684,27 @@ export type Database = {
           id?: string
           slug?: string
           type?: string | null
+        }
+        Relationships: []
+      }
+      vector_documents: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
         }
         Relationships: []
       }
