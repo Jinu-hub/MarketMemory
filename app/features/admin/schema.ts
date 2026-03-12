@@ -5,6 +5,7 @@
 
 import { desc, sql } from "drizzle-orm";
 import {
+  boolean,
   date,
   index,
   integer,
@@ -373,6 +374,7 @@ export const itemContents = pgTable(
     tokens_out: integer("tokens_out"),
     cost_usd: numeric("cost_usd", { precision: 12, scale: 6 }),
     latency_ms: integer("latency_ms"),
+    is_public: boolean("is_public").notNull().default(false),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -597,6 +599,7 @@ export const reports = pgTable(
     region: region("region"),
     tags: text("tags").array(),
     metadata: jsonb("metadata"),
+    is_public: boolean("is_public").notNull().default(true),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -718,6 +721,42 @@ export const reportEmbeddings = pgTable(
       withCheck: isAdmin,
     }),
     pgPolicy("re_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   3-11) vector_documents (임의 텍스트 벡터 저장)
+   ========================================================= */
+export const vectorDocuments = pgTable(
+  "vector_documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    content: text("content"),
+    metadata: jsonb("metadata"),
+    embedding: vector("embedding", { dimensions: 1536 }),
+  },
+  (table) => [
+    pgPolicy("vd_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("vd_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("vd_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("vd_delete", {
       for: "delete",
       to: authenticatedRole,
       using: isAdmin,
