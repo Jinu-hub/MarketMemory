@@ -660,6 +660,44 @@ export type Database = {
         }
         Relationships: []
       }
+      structured_metric_facts: {
+        Row: {
+          created_at: string
+          date_value: string | null
+          id: string
+          metric_data: Json | null
+          metric_key: string | null
+          source_item_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_value?: string | null
+          id?: string
+          metric_data?: Json | null
+          metric_key?: string | null
+          source_item_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_value?: string | null
+          id?: string
+          metric_data?: Json | null
+          metric_key?: string | null
+          source_item_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structured_metric_facts_source_item_id_market_memory_items_id_f"
+            columns: ["source_item_id"]
+            isOneToOne: false
+            referencedRelation: "market_memory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           aliases: string[] | null

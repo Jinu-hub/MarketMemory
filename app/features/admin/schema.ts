@@ -763,3 +763,55 @@ export const vectorDocuments = pgTable(
     }),
   ],
 );
+
+/* =========================================================
+   3-12) structured_metric_facts (구조화된 메트릭 팩트)
+   ========================================================= */
+export const structuredMetricFacts = pgTable(
+  "structured_metric_facts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    source_item_id: uuid("source_item_id").references(
+      () => marketMemoryItems.id,
+      { onDelete: "set null" },
+    ),
+    date_value: date("date_value"),
+    metric_key: text("metric_key"),
+    metric_data: jsonb("metric_data"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_structured_metric_facts_source_item_id").on(
+      table.source_item_id,
+    ),
+    index("idx_structured_metric_facts_date_value").on(table.date_value),
+    index("idx_structured_metric_facts_metric_key").on(table.metric_key),
+
+    pgPolicy("smf_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("smf_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("smf_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("smf_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
