@@ -186,7 +186,7 @@ export type Database = {
           notes: string | null
           ocr_job_id: string | null
           raw_log_link: string | null
-          region: Database["public"]["Enums"]["region"] | null
+          regions: Database["public"]["Enums"]["region"][] | null
           source_lang: string | null
           status: Database["public"]["Enums"]["item_status"]
           tags: string[] | null
@@ -206,7 +206,7 @@ export type Database = {
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
-          region?: Database["public"]["Enums"]["region"] | null
+          regions?: Database["public"]["Enums"]["region"][] | null
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           tags?: string[] | null
@@ -226,7 +226,7 @@ export type Database = {
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
-          region?: Database["public"]["Enums"]["region"] | null
+          regions?: Database["public"]["Enums"]["region"][] | null
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           tags?: string[] | null
@@ -624,7 +624,7 @@ export type Database = {
           is_public: boolean
           md_body: string
           metadata: Json | null
-          region: Database["public"]["Enums"]["region"] | null
+          regions: Database["public"]["Enums"]["region"][] | null
           summary: string | null
           tags: string[] | null
           title: string
@@ -638,7 +638,7 @@ export type Database = {
           is_public?: boolean
           md_body: string
           metadata?: Json | null
-          region?: Database["public"]["Enums"]["region"] | null
+          regions?: Database["public"]["Enums"]["region"][] | null
           summary?: string | null
           tags?: string[] | null
           title: string
@@ -652,7 +652,7 @@ export type Database = {
           is_public?: boolean
           md_body?: string
           metadata?: Json | null
-          region?: Database["public"]["Enums"]["region"] | null
+          regions?: Database["public"]["Enums"]["region"][] | null
           summary?: string | null
           tags?: string[] | null
           title?: string
@@ -768,7 +768,29 @@ export type Database = {
       item_status: "ready" | "running" | "done" | "failed"
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
       prompt_status: "draft" | "active" | "deprecated"
-      region: "us" | "kr" | "jp" | "eu" | "cn" | "global"
+      region:
+        | "us"
+        | "kr"
+        | "jp"
+        | "eu"
+        | "cn"
+        | "global"
+        | "uk"
+        | "tw"
+        | "hk"
+        | "in"
+        | "sg"
+        | "apac"
+        | "asia"
+        | "emea"
+        | "americas"
+        | "latam"
+        | "mena"
+        | "anz"
+        | "sea"
+        | "oceania"
+        | "africa"
+        | "middle_east"
       tag_source: "ai" | "manual"
     }
     CompositeTypes: {
@@ -912,7 +934,30 @@ export const Constants = {
       item_status: ["ready", "running", "done", "failed"],
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
       prompt_status: ["draft", "active", "deprecated"],
-      region: ["us", "kr", "jp", "eu", "cn", "global"],
+      region: [
+        "us",
+        "kr",
+        "jp",
+        "eu",
+        "cn",
+        "global",
+        "uk",
+        "tw",
+        "hk",
+        "in",
+        "sg",
+        "apac",
+        "asia",
+        "emea",
+        "americas",
+        "latam",
+        "mena",
+        "anz",
+        "sea",
+        "oceania",
+        "africa",
+        "middle_east",
+      ],
       tag_source: ["ai", "manual"],
     },
   },
