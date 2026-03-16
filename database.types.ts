@@ -770,16 +770,15 @@ export type Database = {
       prompt_status: "draft" | "active" | "deprecated"
       region:
         | "us"
-        | "kr"
-        | "jp"
-        | "eu"
-        | "cn"
-        | "global"
         | "uk"
-        | "tw"
-        | "hk"
-        | "in"
-        | "sg"
+        | "europe"
+        | "korea"
+        | "japan"
+        | "china"
+        | "taiwan"
+        | "hongkong"
+        | "indonesia"
+        | "singapore"
         | "apac"
         | "asia"
         | "emea"
@@ -791,6 +790,7 @@ export type Database = {
         | "oceania"
         | "africa"
         | "middle_east"
+        | "global"
       tag_source: "ai" | "manual"
     }
     CompositeTypes: {
@@ -936,16 +936,15 @@ export const Constants = {
       prompt_status: ["draft", "active", "deprecated"],
       region: [
         "us",
-        "kr",
-        "jp",
-        "eu",
-        "cn",
-        "global",
         "uk",
-        "tw",
-        "hk",
-        "in",
-        "sg",
+        "europe",
+        "korea",
+        "japan",
+        "china",
+        "taiwan",
+        "hongkong",
+        "indonesia",
+        "singapore",
         "apac",
         "asia",
         "emea",
@@ -957,6 +956,7 @@ export const Constants = {
         "oceania",
         "africa",
         "middle_east",
+        "global",
       ],
       tag_source: ["ai", "manual"],
     },
