@@ -1,0 +1,2 @@
+DROP TYPE "public"."region";--> statement-breakpoint
+CREATE TYPE "public"."region" AS ENUM('us', 'uk', 'europe', 'korea', 'japan', 'china', 'taiwan', 'hongkong', 'indonesia', 'singapore', 'apac', 'asia', 'emea', 'americas', 'latam', 'mena', 'anz', 'sea', 'oceania', 'africa', 'middle_east', 'global');
