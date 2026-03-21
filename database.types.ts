@@ -17,10 +17,11 @@ export type Database = {
       item_contents: {
         Row: {
           category_reason: string | null
-          confidence: number | null
+          confidence: Json | null
           cost_usd: number | null
           created_at: string
           id: string
+          input_date: string | null
           input_hash: string | null
           is_public: boolean
           item_id: string
@@ -37,10 +38,11 @@ export type Database = {
         }
         Insert: {
           category_reason?: string | null
-          confidence?: number | null
+          confidence?: Json | null
           cost_usd?: number | null
           created_at?: string
           id?: string
+          input_date?: string | null
           input_hash?: string | null
           is_public?: boolean
           item_id: string
@@ -57,10 +59,11 @@ export type Database = {
         }
         Update: {
           category_reason?: string | null
-          confidence?: number | null
+          confidence?: Json | null
           cost_usd?: number | null
           created_at?: string
           id?: string
+          input_date?: string | null
           input_hash?: string | null
           is_public?: boolean
           item_id?: string
@@ -770,14 +773,15 @@ export type Database = {
       prompt_status: "draft" | "active" | "deprecated"
       region:
         | "us"
-        | "uk"
-        | "europe"
         | "korea"
         | "japan"
+        | "europe"
         | "china"
+        | "global"
+        | "uk"
         | "taiwan"
-        | "hongkong"
-        | "indonesia"
+        | "hk"
+        | "in"
         | "singapore"
         | "apac"
         | "asia"
@@ -790,7 +794,7 @@ export type Database = {
         | "oceania"
         | "africa"
         | "middle_east"
-        | "global"
+        | "unknown"
       tag_source: "ai" | "manual"
     }
     CompositeTypes: {
@@ -936,14 +940,15 @@ export const Constants = {
       prompt_status: ["draft", "active", "deprecated"],
       region: [
         "us",
-        "uk",
-        "europe",
         "korea",
         "japan",
+        "europe",
         "china",
+        "global",
+        "uk",
         "taiwan",
-        "hongkong",
-        "indonesia",
+        "hk",
+        "in",
         "singapore",
         "apac",
         "asia",
@@ -956,7 +961,7 @@ export const Constants = {
         "oceania",
         "africa",
         "middle_east",
-        "global",
+        "unknown",
       ],
       tag_source: ["ai", "manual"],
     },
