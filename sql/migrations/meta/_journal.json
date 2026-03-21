@@ -141,6 +141,20 @@
       "when": 1774068142406,
       "tag": "0019_supreme_shockwave",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1774078889212,
+      "tag": "0020_chubby_luke_cage",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1774080000000,
+      "tag": "0021_region_macro_expansion",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,17 @@
+ALTER TYPE "public"."region" ADD VALUE 'BENELUX';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'CARIBBEAN';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'CEE';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'CENTRAL_AMERICA';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'CENTRAL_ASIA';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'DACH';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'EAST_ASIA';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'EASTERN_EUROPE';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'GCC';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'NORTH_AFRICA';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'NORTH_AMERICA';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'NORDICS';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'SOUTH_ASIA';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'SUB_SAHARAN_AFRICA';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'UK_AND_IRELAND';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'UNKNOWN';--> statement-breakpoint
+ALTER TYPE "public"."region" ADD VALUE 'WESTERN_EUROPE';--> statement-breakpoint
