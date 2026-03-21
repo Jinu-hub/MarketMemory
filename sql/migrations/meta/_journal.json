@@ -127,6 +127,20 @@
       "when": 1773659353961,
       "tag": "0017_curved_mentor",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1773668909572,
+      "tag": "0018_ambiguous_sinister_six",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1774068142406,
+      "tag": "0019_supreme_shockwave",
+      "breakpoints": true
     }
   ]
 }
