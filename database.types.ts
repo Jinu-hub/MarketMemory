@@ -178,6 +178,7 @@ export type Database = {
       market_memory_items: {
         Row: {
           category: Database["public"]["Enums"]["category"] | null
+          countries: string[] | null
           created_at: string
           detail: string | null
           executed_date: string | null
@@ -198,6 +199,7 @@ export type Database = {
         }
         Insert: {
           category?: Database["public"]["Enums"]["category"] | null
+          countries?: string[] | null
           created_at?: string
           detail?: string | null
           executed_date?: string | null
@@ -218,6 +220,7 @@ export type Database = {
         }
         Update: {
           category?: Database["public"]["Enums"]["category"] | null
+          countries?: string[] | null
           created_at?: string
           detail?: string | null
           executed_date?: string | null
@@ -772,29 +775,36 @@ export type Database = {
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
       prompt_status: "draft" | "active" | "deprecated"
       region:
-        | "us"
-        | "korea"
-        | "japan"
-        | "europe"
-        | "china"
-        | "global"
-        | "uk"
-        | "taiwan"
-        | "hk"
-        | "in"
-        | "singapore"
-        | "apac"
-        | "asia"
-        | "emea"
-        | "americas"
-        | "latam"
-        | "mena"
-        | "anz"
-        | "sea"
-        | "oceania"
-        | "africa"
-        | "middle_east"
-        | "unknown"
+        | "AFRICA"
+        | "AMERICAS"
+        | "ANZ"
+        | "APAC"
+        | "ASIA"
+        | "BENELUX"
+        | "CARIBBEAN"
+        | "CEE"
+        | "CENTRAL_AMERICA"
+        | "CENTRAL_ASIA"
+        | "DACH"
+        | "EAST_ASIA"
+        | "EASTERN_EUROPE"
+        | "EMEA"
+        | "EUROPE"
+        | "GCC"
+        | "GLOBAL"
+        | "LATAM"
+        | "MENA"
+        | "MIDDLE_EAST"
+        | "NORTH_AFRICA"
+        | "NORTH_AMERICA"
+        | "NORDICS"
+        | "OCEANIA"
+        | "SEA"
+        | "SOUTH_ASIA"
+        | "SUB_SAHARAN_AFRICA"
+        | "UK_AND_IRELAND"
+        | "UNKNOWN"
+        | "WESTERN_EUROPE"
       tag_source: "ai" | "manual"
     }
     CompositeTypes: {
@@ -939,29 +949,36 @@ export const Constants = {
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
       prompt_status: ["draft", "active", "deprecated"],
       region: [
-        "us",
-        "korea",
-        "japan",
-        "europe",
-        "china",
-        "global",
-        "uk",
-        "taiwan",
-        "hk",
-        "in",
-        "singapore",
-        "apac",
-        "asia",
-        "emea",
-        "americas",
-        "latam",
-        "mena",
-        "anz",
-        "sea",
-        "oceania",
-        "africa",
-        "middle_east",
-        "unknown",
+        "AFRICA",
+        "AMERICAS",
+        "ANZ",
+        "APAC",
+        "ASIA",
+        "BENELUX",
+        "CARIBBEAN",
+        "CEE",
+        "CENTRAL_AMERICA",
+        "CENTRAL_ASIA",
+        "DACH",
+        "EAST_ASIA",
+        "EASTERN_EUROPE",
+        "EMEA",
+        "EUROPE",
+        "GCC",
+        "GLOBAL",
+        "LATAM",
+        "MENA",
+        "MIDDLE_EAST",
+        "NORTH_AFRICA",
+        "NORTH_AMERICA",
+        "NORDICS",
+        "OCEANIA",
+        "SEA",
+        "SOUTH_ASIA",
+        "SUB_SAHARAN_AFRICA",
+        "UK_AND_IRELAND",
+        "UNKNOWN",
+        "WESTERN_EUROPE",
       ],
       tag_source: ["ai", "manual"],
     },
