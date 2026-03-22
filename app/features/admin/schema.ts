@@ -390,6 +390,7 @@ export const itemContents = pgTable(
       .notNull()
       .references(() => marketMemoryItems.id, { onDelete: "cascade" }),
     source_text: text("source_text"),
+    title: text("title"),
     input_date: date("input_date"),
     md_summary: text("md_summary"),
     summary: text("summary"),

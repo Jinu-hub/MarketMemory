@@ -33,6 +33,7 @@ export type Database = {
           source_text: string | null
           summary: string | null
           tag_reason: Json | null
+          title: string | null
           tokens_in: number | null
           tokens_out: number | null
         }
@@ -54,6 +55,7 @@ export type Database = {
           source_text?: string | null
           summary?: string | null
           tag_reason?: Json | null
+          title?: string | null
           tokens_in?: number | null
           tokens_out?: number | null
         }
@@ -75,6 +77,7 @@ export type Database = {
           source_text?: string | null
           summary?: string | null
           tag_reason?: Json | null
+          title?: string | null
           tokens_in?: number | null
           tokens_out?: number | null
         }
@@ -780,6 +783,24 @@ export type Database = {
         | "ANZ"
         | "APAC"
         | "ASIA"
+        | "EMEA"
+        | "EUROPE"
+        | "GLOBAL"
+        | "LATAM"
+        | "MENA"
+        | "MIDDLE_EAST"
+        | "OCEANIA"
+        | "SEA"
+        | "TEMP_01"
+        | "TEMP_02"
+        | "TEMP_03"
+        | "TEMP_04"
+        | "TEMP_05"
+        | "TEMP_06"
+        | "TEMP_07"
+        | "TEMP_08"
+        | "TEMP_09"
+        | "TEMP_10"
         | "BENELUX"
         | "CARIBBEAN"
         | "CEE"
@@ -788,18 +809,10 @@ export type Database = {
         | "DACH"
         | "EAST_ASIA"
         | "EASTERN_EUROPE"
-        | "EMEA"
-        | "EUROPE"
         | "GCC"
-        | "GLOBAL"
-        | "LATAM"
-        | "MENA"
-        | "MIDDLE_EAST"
         | "NORTH_AFRICA"
         | "NORTH_AMERICA"
         | "NORDICS"
-        | "OCEANIA"
-        | "SEA"
         | "SOUTH_ASIA"
         | "SUB_SAHARAN_AFRICA"
         | "UK_AND_IRELAND"
@@ -954,6 +967,24 @@ export const Constants = {
         "ANZ",
         "APAC",
         "ASIA",
+        "EMEA",
+        "EUROPE",
+        "GLOBAL",
+        "LATAM",
+        "MENA",
+        "MIDDLE_EAST",
+        "OCEANIA",
+        "SEA",
+        "TEMP_01",
+        "TEMP_02",
+        "TEMP_03",
+        "TEMP_04",
+        "TEMP_05",
+        "TEMP_06",
+        "TEMP_07",
+        "TEMP_08",
+        "TEMP_09",
+        "TEMP_10",
         "BENELUX",
         "CARIBBEAN",
         "CEE",
@@ -962,18 +993,10 @@ export const Constants = {
         "DACH",
         "EAST_ASIA",
         "EASTERN_EUROPE",
-        "EMEA",
-        "EUROPE",
         "GCC",
-        "GLOBAL",
-        "LATAM",
-        "MENA",
-        "MIDDLE_EAST",
         "NORTH_AFRICA",
         "NORTH_AMERICA",
         "NORDICS",
-        "OCEANIA",
-        "SEA",
         "SOUTH_ASIA",
         "SUB_SAHARAN_AFRICA",
         "UK_AND_IRELAND",
