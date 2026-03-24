@@ -1,1 +1,0 @@
-ALTER TABLE "market_memory_items" RENAME COLUMN "region" TO "regions";

@@ -1,2 +1,0 @@
-ALTER TABLE "market_memory_items" ADD COLUMN "normalized_document_id" uuid;--> statement-breakpoint
-ALTER TABLE "market_memory_items" ADD CONSTRAINT "market_memory_items_normalized_document_id_normalized_documents_id_fk" FOREIGN KEY ("normalized_document_id") REFERENCES "public"."normalized_documents"("id") ON DELETE set null ON UPDATE no action;

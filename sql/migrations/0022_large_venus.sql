@@ -1,1 +1,0 @@
-ALTER TABLE "item_contents" ADD COLUMN "title" text;
