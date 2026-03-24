@@ -1,1 +1,0 @@
-ALTER TABLE "item_contents" ADD COLUMN "input_date" date;

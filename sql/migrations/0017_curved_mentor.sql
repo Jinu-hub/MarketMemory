@@ -1,1 +1,0 @@
--- 0017_curved_mentor: noop migration (already applied manually)
