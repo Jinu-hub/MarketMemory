@@ -29,6 +29,20 @@
       "when": 1774359076200,
       "tag": "0003_sleepy_zarda",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774361102033,
+      "tag": "0004_common_princess_powerful",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774361524068,
+      "tag": "0005_military_puff_adder",
+      "breakpoints": true
     }
   ]
 }
