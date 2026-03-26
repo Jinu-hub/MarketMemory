@@ -93,6 +93,13 @@ export const promptStatus = pgEnum("prompt_status", [
   "draft",
   "active",
   "deprecated",
+  "archived",
+]);
+
+export const pipelineStatus = pgEnum("pipeline_status", [
+  "draft",
+  "active",
+  "deprecated",
 ]);
 
 export const tagSource = pgEnum("tag_source", ["ai", "manual"]);
@@ -119,30 +126,152 @@ export const reportType = pgEnum("report_type", [
 const isAdmin = sql`exists (select 1 from profiles where profile_id = auth.uid() and is_admin = true)`;
 
 /* =========================================================
-  3-1) prompt_templates (프롬프트 템플릿/버전 관리)
+  3-1) pipelines (파이프라인 정의)
   ========================================================= */
-export const promptTemplates = pgTable(
-  "prompt_templates",
+export const pipelines = pgTable(
+  "pipelines",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    pipeline_key: text("pipeline_key").notNull(),
     name: text("name").notNull(),
-    purpose: text("purpose").notNull(),
-    status: promptStatus("status").notNull(),
-    version: integer("version").notNull(),
-    template: text("template").notNull(),
-    output_schema: jsonb("output_schema"),
-    default_model: text("default_model"),
-    default_params: jsonb("default_params"),
+    description: text("description"),
+    status: pipelineStatus("status").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("pipelines_pipeline_key_unique").on(table.pipeline_key),
+    index("idx_pipelines_status").on(table.status),
+
+    pgPolicy("pl_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("pl_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("pl_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("pl_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+  3-2) pipeline_steps (파이프라인 실행 순서 정의)
+  ========================================================= */
+export const pipelineSteps = pgTable(
+  "pipeline_steps",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    pipeline_key: text("pipeline_key")
+      .notNull()
+      .references(() => pipelines.pipeline_key),
+    step: integer("step").notNull(),
+    agent_key: text("agent_key").notNull(),
+    is_required: boolean("is_required").notNull().default(true),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
   },
   (table) => [
-    index("idx_prompt_templates_purpose_version").on(
-      table.purpose,
+    uniqueIndex("pipeline_steps_pipeline_key_step_unique").on(
+      table.pipeline_key,
+      table.step,
+    ),
+    uniqueIndex("pipeline_steps_pipeline_key_agent_key_unique").on(
+      table.pipeline_key,
+      table.agent_key,
+    ),
+    index("idx_pipeline_steps_pipeline_key_step").on(table.pipeline_key, table.step),
+    index("idx_pipeline_steps_agent_key").on(table.agent_key),
+
+    pgPolicy("ps_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("ps_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ps_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ps_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+  3-3) prompt_templates (프롬프트 템플릿/버전 관리)
+  ========================================================= */
+export const promptTemplates = pgTable(
+  "prompt_templates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    pipeline_key: text("pipeline_key")
+      .notNull()
+      .references(() => pipelines.pipeline_key),
+    agent_key: text("agent_key").notNull(),
+    name: text("name").notNull(),
+    version: integer("version").notNull(),
+    status: promptStatus("status").notNull(),
+    template: text("template").notNull(),
+    input_schema: jsonb("input_schema"),
+    output_schema: jsonb("output_schema"),
+    default_provider: text("default_provider"),
+    default_model: text("default_model"),
+    default_params: jsonb("default_params"),
+    changelog: text("changelog"),
+    is_backward_compatible: boolean("is_backward_compatible")
+      .notNull()
+      .default(true),
+    created_by: text("created_by"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("prompt_templates_pipeline_agent_version_unique").on(
+      table.pipeline_key,
+      table.agent_key,
+      table.version,
+    ),
+    index("idx_prompt_templates_pipeline_agent_version").on(
+      table.pipeline_key,
+      table.agent_key,
       desc(table.version),
     ),
     index("idx_prompt_templates_status").on(table.status),
+    index("idx_prompt_templates_pipeline_key_status").on(
+      table.pipeline_key,
+      table.status,
+    ),
 
     pgPolicy("pt_select", {
       for: "select",
@@ -169,20 +298,33 @@ export const promptTemplates = pgTable(
 );
 
 /* =========================================================
-  3-2) prompt_releases (목적별 active 버전 고정)
+  3-4) prompt_releases (목적별 active 버전 고정)
   ========================================================= */
 export const promptReleases = pgTable(
   "prompt_releases",
   {
-    purpose: text("purpose").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
+    pipeline_key: text("pipeline_key")
+      .notNull()
+      .references(() => pipelines.pipeline_key),
+    agent_key: text("agent_key").notNull(),
+    environment: text("environment").notNull(),
     active_prompt_id: uuid("active_prompt_id")
       .notNull()
       .references(() => promptTemplates.id),
+    release_note: text("release_note"),
+    released_by: text("released_by"),
     updated_at: timestamp("updated_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
   },
-  () => [
+  (table) => [
+    uniqueIndex("prompt_releases_pipeline_agent_env_unique").on(
+      table.pipeline_key,
+      table.agent_key,
+      table.environment,
+    ),
+
     pgPolicy("pr_select", {
       for: "select",
       to: authenticatedRole,
@@ -208,7 +350,7 @@ export const promptReleases = pgTable(
 );
 
 /* =========================================================
-  3-3) market_memory_items (원천 Item: “정체성/판단” 저장)
+  3-5) market_memory_items (원천 Item: “정체성/판단” 저장)
   ========================================================= */
 export const marketMemoryItems = pgTable(
   "market_memory_items",
@@ -268,7 +410,7 @@ export const marketMemoryItems = pgTable(
 );
 
 /* =========================================================
-  3-4) item_contents (생성 결과/추출물: “설명/산출물” 저장)
+  3-6) item_contents (생성 결과/추출물: “설명/산출물” 저장)
   ========================================================= */
 export const itemContents = pgTable(
   "item_contents",
@@ -334,7 +476,7 @@ export const itemContents = pgTable(
 );
 
 /* =========================================================
-  3-5) tags (태그 사전: 정규화)
+  3-7) tags (태그 사전: 정규화)
   ========================================================= */
 export const tags = pgTable(
   "tags",
@@ -377,7 +519,7 @@ export const tags = pgTable(
 );
 
 /* =========================================================
-  3-6) item_tags (Item ↔ Tag N:M)
+  3-8) item_tags (Item ↔ Tag N:M)
   ========================================================= */
 export const itemTags = pgTable(
   "item_tags",
@@ -425,7 +567,7 @@ export const itemTags = pgTable(
 );
 
 /* =========================================================
-  3-7) reports (레포트 저장)
+  3-9) reports (레포트 저장)
   ========================================================= */
 export const reports = pgTable(
   "reports",
@@ -476,7 +618,7 @@ export const reports = pgTable(
 );
 
 /* =========================================================
-  3-8) report_items (Report ↔ Item N:M)
+  3-10) report_items (Report ↔ Item N:M)
   ========================================================= */
 export const reportItems = pgTable(
   "report_items",
@@ -524,7 +666,7 @@ export const reportItems = pgTable(
 );
 
 /* =========================================================
-  3-9) item_embeddings (item 단위 벡터)
+  3-11) item_embeddings (item 단위 벡터)
   ========================================================= */
 export const itemEmbeddings = pgTable(
   "item_embeddings",
@@ -567,7 +709,7 @@ export const itemEmbeddings = pgTable(
 );
 
 /* =========================================================
-  3-10) report_embeddings (Report 벡터)
+  3-12) report_embeddings (Report 벡터)
   ========================================================= */
 export const reportEmbeddings = pgTable(
   "report_embeddings",
@@ -610,7 +752,7 @@ export const reportEmbeddings = pgTable(
 );
 
 /* =========================================================
-   3-11) structured_metric_facts (구조화된 메트릭 팩트)
+   3-13) structured_metric_facts (구조화된 메트릭 팩트)
    ========================================================= */
    export const structuredMetricFacts = pgTable(
     "structured_metric_facts",

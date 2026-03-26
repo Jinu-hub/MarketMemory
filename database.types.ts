@@ -427,6 +427,71 @@ export type Database = {
         }
         Relationships: []
       }
+      pipeline_steps: {
+        Row: {
+          agent_key: string
+          created_at: string
+          id: string
+          is_required: boolean
+          pipeline_key: string
+          step: number
+        }
+        Insert: {
+          agent_key: string
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          pipeline_key: string
+          step: number
+        }
+        Update: {
+          agent_key?: string
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          pipeline_key?: string
+          step?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_steps_pipeline_key_fk"
+            columns: ["pipeline_key"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["pipeline_key"]
+          },
+        ]
+      }
+      pipelines: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          pipeline_key: string
+          status: Database["public"]["Enums"]["pipeline_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          pipeline_key: string
+          status?: Database["public"]["Enums"]["pipeline_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          pipeline_key?: string
+          status?: Database["public"]["Enums"]["pipeline_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -460,67 +525,118 @@ export type Database = {
       prompt_releases: {
         Row: {
           active_prompt_id: string
-          purpose: string
+          agent_key: string
+          environment: string
+          id: string
+          pipeline_key: string
+          release_note: string | null
+          released_by: string | null
           updated_at: string
         }
         Insert: {
           active_prompt_id: string
-          purpose: string
+          agent_key: string
+          environment: string
+          id?: string
+          pipeline_key: string
+          release_note?: string | null
+          released_by?: string | null
           updated_at?: string
         }
         Update: {
           active_prompt_id?: string
-          purpose?: string
+          agent_key?: string
+          environment?: string
+          id?: string
+          pipeline_key?: string
+          release_note?: string | null
+          released_by?: string | null
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "prompt_releases_active_prompt_id_prompt_templates_id_fk"
+            foreignKeyName: "prompt_releases_active_prompt_id_fk"
             columns: ["active_prompt_id"]
             isOneToOne: false
             referencedRelation: "prompt_templates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "prompt_releases_pipeline_key_fk"
+            columns: ["pipeline_key"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["pipeline_key"]
+          },
         ]
       }
       prompt_templates: {
         Row: {
+          agent_key: string
+          changelog: string | null
           created_at: string
+          created_by: string | null
           default_model: string | null
           default_params: Json | null
+          default_provider: string | null
           id: string
+          input_schema: Json | null
+          is_backward_compatible: boolean
           name: string
           output_schema: Json | null
-          purpose: string
+          pipeline_key: string
           status: Database["public"]["Enums"]["prompt_status"]
           template: string
+          updated_at: string
           version: number
         }
         Insert: {
+          agent_key: string
+          changelog?: string | null
           created_at?: string
+          created_by?: string | null
           default_model?: string | null
           default_params?: Json | null
+          default_provider?: string | null
           id?: string
+          input_schema?: Json | null
+          is_backward_compatible?: boolean
           name: string
           output_schema?: Json | null
-          purpose: string
-          status: Database["public"]["Enums"]["prompt_status"]
+          pipeline_key: string
+          status?: Database["public"]["Enums"]["prompt_status"]
           template: string
+          updated_at?: string
           version: number
         }
         Update: {
+          agent_key?: string
+          changelog?: string | null
           created_at?: string
+          created_by?: string | null
           default_model?: string | null
           default_params?: Json | null
+          default_provider?: string | null
           id?: string
+          input_schema?: Json | null
+          is_backward_compatible?: boolean
           name?: string
           output_schema?: Json | null
-          purpose?: string
+          pipeline_key?: string
           status?: Database["public"]["Enums"]["prompt_status"]
           template?: string
+          updated_at?: string
           version?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prompt_templates_pipeline_key_fk"
+            columns: ["pipeline_key"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["pipeline_key"]
+          },
+        ]
       }
       report_embeddings: {
         Row: {
@@ -762,7 +878,8 @@ export type Database = {
       content_type: "summary" | "md_summary" | "source_text"
       item_status: "ready" | "running" | "done" | "failed"
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
-      prompt_status: "draft" | "active" | "deprecated"
+      pipeline_status: "draft" | "active" | "deprecated"
+      prompt_status: "draft" | "active" | "deprecated" | "archived"
       region:
         | "AFRICA"
         | "AMERICAS"
@@ -943,7 +1060,8 @@ export const Constants = {
       content_type: ["summary", "md_summary", "source_text"],
       item_status: ["ready", "running", "done", "failed"],
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
-      prompt_status: ["draft", "active", "deprecated"],
+      pipeline_status: ["draft", "active", "deprecated"],
+      prompt_status: ["draft", "active", "deprecated", "archived"],
       region: [
         "AFRICA",
         "AMERICAS",

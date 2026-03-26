@@ -43,6 +43,13 @@
       "when": 1774361524068,
       "tag": "0005_military_puff_adder",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1774510118009,
+      "tag": "0006_colorful_terrax",
+      "breakpoints": true
     }
   ]
 }
