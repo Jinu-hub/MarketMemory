@@ -120,6 +120,11 @@ export const reportType = pgEnum("report_type", [
   "baseline-report",
 ]);
 
+export const apiMode = pgEnum("api_mode", [
+  "responses",
+  "streaming"
+]);
+
 /* =========================================================
    RLS Helper: Admin only
    ========================================================= */
@@ -239,6 +244,8 @@ export const promptTemplates = pgTable(
     version: integer("version").notNull(),
     status: promptStatus("status").notNull(),
     template: text("template").notNull(),
+    temperature: numeric("temperature", { precision: 5, scale: 4 }),
+    api_mode: apiMode("api_mode").default("responses"),
     input_schema: jsonb("input_schema"),
     output_schema: jsonb("output_schema"),
     default_provider: text("default_provider"),

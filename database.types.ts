@@ -573,6 +573,7 @@ export type Database = {
       prompt_templates: {
         Row: {
           agent_key: string
+          api_mode: Database["public"]["Enums"]["api_mode"] | null
           changelog: string | null
           created_at: string
           created_by: string | null
@@ -586,12 +587,14 @@ export type Database = {
           output_schema: Json | null
           pipeline_key: string
           status: Database["public"]["Enums"]["prompt_status"]
+          temperature: number | null
           template: string
           updated_at: string
           version: number
         }
         Insert: {
           agent_key: string
+          api_mode?: Database["public"]["Enums"]["api_mode"] | null
           changelog?: string | null
           created_at?: string
           created_by?: string | null
@@ -605,12 +608,14 @@ export type Database = {
           output_schema?: Json | null
           pipeline_key: string
           status?: Database["public"]["Enums"]["prompt_status"]
+          temperature?: number | null
           template: string
           updated_at?: string
           version: number
         }
         Update: {
           agent_key?: string
+          api_mode?: Database["public"]["Enums"]["api_mode"] | null
           changelog?: string | null
           created_at?: string
           created_by?: string | null
@@ -624,6 +629,7 @@ export type Database = {
           output_schema?: Json | null
           pipeline_key?: string
           status?: Database["public"]["Enums"]["prompt_status"]
+          temperature?: number | null
           template?: string
           updated_at?: string
           version?: number
@@ -864,6 +870,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      api_mode: "responses" | "streaming"
       category:
         | "foundation"
         | "issue"
@@ -1045,6 +1052,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      api_mode: ["responses", "streaming"],
       category: [
         "foundation",
         "issue",
