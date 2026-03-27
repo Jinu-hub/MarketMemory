@@ -423,7 +423,7 @@ export const itemContents = pgTable(
   "item_contents",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    item_id: uuid("item_id")
+    market_memory_item_id: uuid("market_memory_item_id")
       .notNull()
       .references(() => marketMemoryItems.id, { onDelete: "set null" }),
     is_active: boolean("is_active").notNull().default(true),
@@ -448,14 +448,14 @@ export const itemContents = pgTable(
   },
   (table) => [
     index("idx_item_contents_item_id_created_at").on(
-      table.item_id,
+      table.market_memory_item_id,
       desc(table.created_at),
     ),
     index("idx_item_contents_input_date").on(desc(table.input_date)),
     index("idx_item_contents_category").on(table.category),
     index("idx_item_contents_tags_gin").using("gin", table.tags),
     uniqueIndex("item_contents_one_active_per_item")
-      .on(table.item_id)
+      .on(table.market_memory_item_id)
       .where(sql`${table.is_active} = true`),
 
     pgPolicy("ic_select", {
@@ -533,7 +533,7 @@ export const itemTags = pgTable(
   {
     item_id: uuid("item_id")
       .notNull()
-      .references(() => marketMemoryItems.id, { onDelete: "cascade" }),
+      .references(() => itemContents.id, { onDelete: "cascade" }),
     tag_id: uuid("tag_id")
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
@@ -635,7 +635,7 @@ export const reportItems = pgTable(
       .references(() => reports.id, { onDelete: "cascade" }),
     item_id: uuid("item_id")
       .notNull()
-      .references(() => marketMemoryItems.id, { onDelete: "cascade" }),
+      .references(() => itemContents.id, { onDelete: "cascade" }),
     refer_report_id: uuid("refer_report_id").references(() => reports.id, {
       onDelete: "set null",
     }),
@@ -681,7 +681,7 @@ export const itemEmbeddings = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     item_id: uuid("item_id")
       .notNull()
-      .references(() => marketMemoryItems.id, { onDelete: "cascade" }),
+      .references(() => itemContents.id, { onDelete: "cascade" }),
     lang_type: text("lang_type").notNull().default("en"),
     content_type: contentType("content_type").notNull(),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
@@ -766,7 +766,7 @@ export const reportEmbeddings = pgTable(
     {
       id: uuid("id").defaultRandom().primaryKey(),
       source_item_id: uuid("source_item_id").references(
-        () => marketMemoryItems.id,
+        () => itemContents.id,
         { onDelete: "set null" },
       ),
       date_value: date("date_value"),

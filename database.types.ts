@@ -25,7 +25,7 @@ export type Database = {
           input_hash: string | null
           is_active: boolean
           is_public: boolean
-          item_id: string
+          market_memory_item_id: string
           metadata: Json | null
           pipeline_info: Json | null
           regions: Database["public"]["Enums"]["region"][] | null
@@ -46,7 +46,7 @@ export type Database = {
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
-          item_id: string
+          market_memory_item_id: string
           metadata?: Json | null
           pipeline_info?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
@@ -67,7 +67,7 @@ export type Database = {
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
-          item_id?: string
+          market_memory_item_id?: string
           metadata?: Json | null
           pipeline_info?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
@@ -80,8 +80,8 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "item_contents_item_id_market_memory_items_id_fk"
-            columns: ["item_id"]
+            foreignKeyName: "item_contents_market_memory_item_id_market_memory_items_id_fk"
+            columns: ["market_memory_item_id"]
             isOneToOne: false
             referencedRelation: "market_memory_items"
             referencedColumns: ["id"]
@@ -118,10 +118,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "item_embeddings_item_id_market_memory_items_id_fk"
+            foreignKeyName: "item_embeddings_item_id_item_contents_id_fk"
             columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: "market_memory_items"
+            referencedRelation: "item_contents"
             referencedColumns: ["id"]
           },
         ]
@@ -153,10 +153,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "item_tags_item_id_market_memory_items_id_fk"
+            foreignKeyName: "item_tags_item_id_item_contents_id_fk"
             columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: "market_memory_items"
+            referencedRelation: "item_contents"
             referencedColumns: ["id"]
           },
           {
@@ -702,10 +702,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "report_items_item_id_market_memory_items_id_fk"
+            foreignKeyName: "report_items_item_id_item_contents_id_fk"
             columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: "market_memory_items"
+            referencedRelation: "item_contents"
             referencedColumns: ["id"]
           },
           {
@@ -799,10 +799,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "structured_metric_facts_source_item_id_market_memory_items_id_f"
+            foreignKeyName: "structured_metric_facts_source_item_id_item_contents_id_fk"
             columns: ["source_item_id"]
             isOneToOne: false
-            referencedRelation: "market_memory_items"
+            referencedRelation: "item_contents"
             referencedColumns: ["id"]
           },
         ]
