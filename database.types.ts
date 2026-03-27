@@ -28,7 +28,6 @@ export type Database = {
           item_id: string
           metadata: Json | null
           pipeline_info: Json | null
-          prompt_id: string | null
           regions: Database["public"]["Enums"]["region"][] | null
           report_type: Database["public"]["Enums"]["report_type"] | null
           summary_md: string | null
@@ -50,7 +49,6 @@ export type Database = {
           item_id: string
           metadata?: Json | null
           pipeline_info?: Json | null
-          prompt_id?: string | null
           regions?: Database["public"]["Enums"]["region"][] | null
           report_type?: Database["public"]["Enums"]["report_type"] | null
           summary_md?: string | null
@@ -72,7 +70,6 @@ export type Database = {
           item_id?: string
           metadata?: Json | null
           pipeline_info?: Json | null
-          prompt_id?: string | null
           regions?: Database["public"]["Enums"]["region"][] | null
           report_type?: Database["public"]["Enums"]["report_type"] | null
           summary_md?: string | null
@@ -87,13 +84,6 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "market_memory_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "item_contents_prompt_id_prompt_templates_id_fk"
-            columns: ["prompt_id"]
-            isOneToOne: false
-            referencedRelation: "prompt_templates"
             referencedColumns: ["id"]
           },
         ]

@@ -64,6 +64,13 @@
       "when": 1774590902658,
       "tag": "0008_fast_human_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1774591564493,
+      "tag": "0009_dusty_moonstone",
+      "breakpoints": true
     }
   ]
 }
