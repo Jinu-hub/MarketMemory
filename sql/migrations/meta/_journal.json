@@ -71,6 +71,13 @@
       "when": 1774591564493,
       "tag": "0009_dusty_moonstone",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774592588220,
+      "tag": "0010_bent_zarda",
+      "breakpoints": true
     }
   ]
 }
