@@ -426,7 +426,6 @@ export const itemContents = pgTable(
     item_id: uuid("item_id")
       .notNull()
       .references(() => marketMemoryItems.id, { onDelete: "set null" }),
-    prompt_id: uuid("prompt_id").references(() => promptTemplates.id),
     is_active: boolean("is_active").notNull().default(true),
     is_public: boolean("is_public").notNull().default(false),
     report_type: reportType("report_type"),
@@ -452,7 +451,6 @@ export const itemContents = pgTable(
       table.item_id,
       desc(table.created_at),
     ),
-    index("idx_item_contents_prompt_id").on(table.prompt_id),
     index("idx_item_contents_input_date").on(desc(table.input_date)),
     index("idx_item_contents_category").on(table.category),
     index("idx_item_contents_tags_gin").using("gin", table.tags),
