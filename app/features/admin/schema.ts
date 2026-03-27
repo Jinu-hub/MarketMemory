@@ -427,10 +427,11 @@ export const itemContents = pgTable(
       .notNull()
       .references(() => marketMemoryItems.id, { onDelete: "set null" }),
     prompt_id: uuid("prompt_id").references(() => promptTemplates.id),
-    is_active: boolean("is_active").notNull().default(false),
+    is_active: boolean("is_active").notNull().default(true),
     is_public: boolean("is_public").notNull().default(false),
     report_type: reportType("report_type"),
     title: text("title"),
+    input_date: date("input_date"),
     summary_short: text("summary_short"),
     summary_md: text("summary_md"),
     tags: text("tags").array(),
@@ -452,8 +453,9 @@ export const itemContents = pgTable(
       desc(table.created_at),
     ),
     index("idx_item_contents_prompt_id").on(table.prompt_id),
-    index("idx_items_category").on(table.category),
-    index("idx_items_tags_gin").using("gin", table.tags),
+    index("idx_item_contents_input_date").on(desc(table.input_date)),
+    index("idx_item_contents_category").on(table.category),
+    index("idx_item_contents_tags_gin").using("gin", table.tags),
     uniqueIndex("item_contents_one_active_per_item")
       .on(table.item_id)
       .where(sql`${table.is_active} = true`),

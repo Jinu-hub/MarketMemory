@@ -21,6 +21,7 @@ export type Database = {
           countries: string[] | null
           created_at: string
           id: string
+          input_date: string | null
           input_hash: string | null
           is_active: boolean
           is_public: boolean
@@ -42,6 +43,7 @@ export type Database = {
           countries?: string[] | null
           created_at?: string
           id?: string
+          input_date?: string | null
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
@@ -63,6 +65,7 @@ export type Database = {
           countries?: string[] | null
           created_at?: string
           id?: string
+          input_date?: string | null
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
