@@ -177,6 +177,43 @@ export const pipelines = pgTable(
 );
 
 /* =========================================================
+  3-1.1) agents (에이전트 키 마스터 — pipeline_steps / prompt_templates / prompt_releases FK)
+  ========================================================= */
+  export const agents = pgTable(
+    "agents",
+    {
+      agent_key: text("agent_key").primaryKey(),
+      display_name: text("display_name"),
+      created_at: timestamp("created_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    },
+    (table) => [
+      pgPolicy("ag_select", {
+        for: "select",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+      pgPolicy("ag_insert", {
+        for: "insert",
+        to: authenticatedRole,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("ag_update", {
+        for: "update",
+        to: authenticatedRole,
+        using: isAdmin,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("ag_delete", {
+        for: "delete",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+    ],
+  );
+
+/* =========================================================
   3-2) pipeline_steps (파이프라인 실행 순서 정의)
   ========================================================= */
 export const pipelineSteps = pgTable(
@@ -187,7 +224,9 @@ export const pipelineSteps = pgTable(
       .notNull()
       .references(() => pipelines.pipeline_key),
     step: integer("step").notNull(),
-    agent_key: text("agent_key").notNull(),
+    agent_key: text("agent_key")
+      .notNull()
+      .references(() => agents.agent_key),
     is_required: boolean("is_required").notNull().default(true),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -236,10 +275,9 @@ export const promptTemplates = pgTable(
   "prompt_templates",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    pipeline_key: text("pipeline_key")
+    agent_key: text("agent_key")
       .notNull()
-      .references(() => pipelines.pipeline_key),
-    agent_key: text("agent_key").notNull(),
+      .references(() => agents.agent_key),
     name: text("name").notNull(),
     version: integer("version").notNull(),
     status: promptStatus("status").notNull(),
@@ -264,19 +302,17 @@ export const promptTemplates = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex("prompt_templates_pipeline_agent_version_unique").on(
-      table.pipeline_key,
+    uniqueIndex("prompt_templates_agent_version_unique").on(
       table.agent_key,
       table.version,
     ),
-    index("idx_prompt_templates_pipeline_agent_version").on(
-      table.pipeline_key,
+    index("idx_prompt_templates_agent_version").on(
       table.agent_key,
-      desc(table.version),
+      table.version,
     ),
     index("idx_prompt_templates_status").on(table.status),
-    index("idx_prompt_templates_pipeline_key_status").on(
-      table.pipeline_key,
+    index("idx_prompt_templates_agent_key_status").on(
+      table.agent_key,
       table.status,
     ),
 
@@ -311,10 +347,9 @@ export const promptReleases = pgTable(
   "prompt_releases",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    pipeline_key: text("pipeline_key")
+    agent_key: text("agent_key")
       .notNull()
-      .references(() => pipelines.pipeline_key),
-    agent_key: text("agent_key").notNull(),
+      .references(() => agents.agent_key),
     environment: text("environment").notNull(),
     active_prompt_id: uuid("active_prompt_id")
       .notNull()
@@ -326,8 +361,7 @@ export const promptReleases = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex("prompt_releases_pipeline_agent_env_unique").on(
-      table.pipeline_key,
+    uniqueIndex("prompt_releases_agent_env_unique").on(
       table.agent_key,
       table.environment,
     ),

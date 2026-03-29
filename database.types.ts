@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      agents: {
+        Row: {
+          agent_key: string
+          created_at: string
+          display_name: string | null
+        }
+        Insert: {
+          agent_key: string
+          created_at?: string
+          display_name?: string | null
+        }
+        Update: {
+          agent_key?: string
+          created_at?: string
+          display_name?: string | null
+        }
+        Relationships: []
+      }
       item_contents: {
         Row: {
           category: string | null
@@ -447,6 +465,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "pipeline_steps_agent_key_agents_agent_key_fk"
+            columns: ["agent_key"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["agent_key"]
+          },
+          {
             foreignKeyName: "pipeline_steps_pipeline_key_fk"
             columns: ["pipeline_key"]
             isOneToOne: false
@@ -521,7 +546,6 @@ export type Database = {
           agent_key: string
           environment: string
           id: string
-          pipeline_key: string
           release_note: string | null
           released_by: string | null
           updated_at: string
@@ -531,7 +555,6 @@ export type Database = {
           agent_key: string
           environment: string
           id?: string
-          pipeline_key: string
           release_note?: string | null
           released_by?: string | null
           updated_at?: string
@@ -541,7 +564,6 @@ export type Database = {
           agent_key?: string
           environment?: string
           id?: string
-          pipeline_key?: string
           release_note?: string | null
           released_by?: string | null
           updated_at?: string
@@ -555,11 +577,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "prompt_releases_pipeline_key_fk"
-            columns: ["pipeline_key"]
+            foreignKeyName: "prompt_releases_agent_key_agents_agent_key_fk"
+            columns: ["agent_key"]
             isOneToOne: false
-            referencedRelation: "pipelines"
-            referencedColumns: ["pipeline_key"]
+            referencedRelation: "agents"
+            referencedColumns: ["agent_key"]
           },
         ]
       }
@@ -578,7 +600,6 @@ export type Database = {
           is_backward_compatible: boolean
           name: string
           output_schema: Json | null
-          pipeline_key: string
           status: Database["public"]["Enums"]["prompt_status"]
           temperature: number | null
           template: string
@@ -599,7 +620,6 @@ export type Database = {
           is_backward_compatible?: boolean
           name: string
           output_schema?: Json | null
-          pipeline_key: string
           status?: Database["public"]["Enums"]["prompt_status"]
           temperature?: number | null
           template: string
@@ -620,7 +640,6 @@ export type Database = {
           is_backward_compatible?: boolean
           name?: string
           output_schema?: Json | null
-          pipeline_key?: string
           status?: Database["public"]["Enums"]["prompt_status"]
           temperature?: number | null
           template?: string
@@ -629,11 +648,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "prompt_templates_pipeline_key_fk"
-            columns: ["pipeline_key"]
+            foreignKeyName: "prompt_templates_agent_key_agents_agent_key_fk"
+            columns: ["agent_key"]
             isOneToOne: false
-            referencedRelation: "pipelines"
-            referencedColumns: ["pipeline_key"]
+            referencedRelation: "agents"
+            referencedColumns: ["agent_key"]
           },
         ]
       }
