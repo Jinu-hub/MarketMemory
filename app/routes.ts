@@ -48,8 +48,9 @@ export default [
     route("/auth/confirm", "features/auth/screens/confirm.tsx"),
     index("features/home/screens/home.tsx"),
     route("/error", "core/screens/error.tsx"),
-    route("/samples", "core/components/samples/design-showcase.tsx"),
-    route("/sample-components", "core/components/samples/content-showcase.tsx"),
+    route("/showcase/design", "core/components/samples/design-showcase.tsx"),
+    route("/showcase/content", "core/components/samples/content-showcase.tsx"),
+    route("/showcase/data", "core/components/showcase/data-showcase.tsx"),
     layout("core/layouts/public.layout.tsx", [
       // Routes that should only be visible to unauthenticated users.
       route("/login", "features/auth/screens/login.tsx"),

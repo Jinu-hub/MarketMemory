@@ -399,6 +399,290 @@ When generating UI/code for this project, always:
 5. Separate Base Layer and Content Layer conceptually
 6. Optimize for reading, exploration, and interpretation
 
+## 12. Data Visualization Rules
+
+Data visualization in this project is part of the **Content Layer**, not a separate BI/admin dashboard system.
+
+Charts must help users:
+
+* understand trends
+* compare entities
+* identify changes
+* interpret meaning quickly
+
+Charts are not decorative.
+Charts are not standalone outputs.
+Charts are part of a broader **reading + insight experience**.
+
+### Allowed Data Visualization Patterns
+
+Prefer reusable patterns such as:
+
+* Trend charts
+* Comparison charts
+* Composition/share charts
+* Progress/proportion charts
+* Supporting metric summaries
+* Chart + interpretation blocks
+
+### Avoid
+
+* chart walls with no narrative
+* excessive chart variety without a product reason
+* overly technical financial terminal aesthetics unless explicitly required
+* dense multi-axis visuals unless necessary for comprehension
+
+---
+
+## 13. Chart Composition Rules
+
+When building chart-related UI, prefer composing reusable wrappers instead of rendering raw chart markup directly in pages.
+
+Recommended conceptual structure:
+
+* `ChartContainer`
+* `ChartHeader`
+* `ChartBody`
+* `ChartLegend`
+* `ChartTooltip`
+* `ChartInsight`
+* `ChartState`
+
+These do not all need to exist as separate files immediately, but the UI should be structured as if these responsibilities are distinct.
+
+### ChartContainer Responsibilities
+
+A chart container should usually provide:
+
+* title
+* optional subtitle / helper text
+* chart area
+* supporting explanation
+* optional takeaway / conclusion
+* responsive layout
+* theme compatibility
+
+### Chart Insight Rule
+
+Every important chart should answer at least one of these:
+
+* What changed?
+* Compared to what?
+* Why does it matter?
+* What should the user notice first?
+
+If a chart cannot answer one of these, it is probably incomplete.
+
+### Chart State Rule
+
+Chart-related UI should account for:
+
+* loading state
+* empty state
+* insufficient data state
+* error/fallback state
+
+These states should be treated as first-class UI, not afterthoughts.
+
+---
+
+## 14. Supported Chart Types for Market Memory
+
+Do not try to support every possible chart type equally.
+
+Prefer a focused set of chart types that map well to financial/economic storytelling.
+
+### Primary Chart Types
+
+* LineChart → trends over time
+* AreaChart → cumulative / momentum / directional flow
+* BarChart → category or period comparison
+* PieChart → share/composition (use carefully)
+* RadialBarChart or RadarChart → compact summary / multi-factor comparison
+
+### Secondary / Conditional Chart Types
+
+Use only when meaningfully justified:
+
+* ComposedChart
+* ScatterChart
+* Treemap
+* Timeline-like chart treatments
+
+### Selection Guidance
+
+Use the simplest chart type that communicates the intended meaning clearly.
+
+Examples:
+
+* time-series trend → LineChart
+* quarterly comparison → BarChart
+* contribution / share → PieChart or Treemap
+* compact score / allocation → RadialBarChart
+* multi-dimension comparison → RadarChart
+
+Do not choose a chart because it looks visually impressive.
+Choose it because it improves understanding.
+
+---
+
+## 15. Data Semantics and Visual Meaning Rules
+
+Data visuals should communicate semantic meaning consistently.
+
+### Semantic Signals
+
+When applicable, use consistent visual treatment for:
+
+* positive
+* negative
+* neutral
+* warning
+* comparison delta
+* selected / highlighted series
+* muted / background series
+
+### Important Principle
+
+Do not rely on color alone.
+
+Also use:
+
+* labels
+* icons
+* emphasis hierarchy
+* annotations
+* supporting text
+
+This is especially important across light, dark, and warm themes.
+
+### Comparison Rules
+
+In comparison views:
+
+* primary series should be visually dominant
+* comparison series should be readable but secondary
+* muted series should not compete with the main insight
+* legends should clarify meaning without clutter
+
+---
+
+## 16. Chart Readability Rules
+
+Charts must remain readable in all supported themes.
+
+### Requirements
+
+* axis labels should remain legible
+* grid lines should stay subtle
+* legends should not overpower data
+* tooltip content should be concise and scannable
+* chart containers should preserve breathing room
+* responsive resizing should not collapse meaning
+
+### Warm Theme Consideration
+
+Warm theme is reading-focused.
+
+Charts shown in warm mode should feel:
+
+* soft
+* credible
+* editorial
+* low-fatigue
+
+Avoid harsh contrast combinations in warm mode.
+
+---
+
+## 17. Data + Editorial Integration Rules
+
+Market Memory is not chart-first.
+It is **insight-first**.
+
+This means charts should often appear alongside:
+
+* short narrative explanation
+* key takeaway
+* summary metrics
+* report paragraph context
+* entity references
+* timeline references
+
+Recommended pattern:
+
+1. chart
+2. explanation
+3. implication / takeaway
+
+Whenever possible, integrate charts into reading/report layouts instead of isolating them in dashboard-like sections.
+
+---
+
+## 18. Showcase and Mock Data Rules
+
+For showcase/demo/sample pages such as `data-showcase.tsx`:
+
+* use realistic financial/economic-style mock data
+* avoid meaningless placeholder labels where possible
+* include both chart examples and chart-with-interpretation examples
+* demonstrate reusable patterns, not one-off art pieces
+
+Good example topics for mock data:
+
+* quarterly revenue
+* AI capex trend
+* cloud growth comparison
+* operating margin change
+* market share split
+* segment contribution
+* year-over-year change
+
+### Showcase Goal
+
+A showcase page should demonstrate:
+
+* reusable chart patterns
+* interpretation patterns
+* state handling
+* theme compatibility
+* product-oriented presentation
+
+It should not simply display many unrelated chart types.
+
+---
+
+## 19. Preferred Supporting UI for Data Experiences
+
+When building data-focused interfaces, use supporting primitives intentionally.
+
+Recommended supporting UI patterns include:
+
+* Tabs for time-range switching
+* HoverCard / Tooltip for contextual detail
+* Accordion / Collapsible for extended interpretation
+* Table for exact values and detail views
+* Skeleton for loading previews
+* Badge for signal/status labeling
+* ScrollArea for dense supporting lists
+* Dialog / Sheet for detail drill-down when necessary
+
+These should support comprehension, not add visual noise.
+
+---
+
+## 20. Data Showcase Naming and Layering Guidance
+
+Keep data-focused showcase work conceptually separate from generic UI showcase work.
+
+Suggested layering:
+
+* Base Layer showcase → generic Nex/UI primitives
+* Content Layer showcase → reports, insights, timelines, reading layout
+* Data Layer showcase → charts, metric summaries, comparison blocks, data insight blocks
+
+This separation helps maintain clarity in both implementation and product thinking.
+
 ### Final Goal
 
 The UI should feel like:
