@@ -460,13 +460,14 @@ export const itemContents = pgTable(
     market_memory_item_id: uuid("market_memory_item_id")
       .notNull()
       .references(() => marketMemoryItems.id, { onDelete: "set null" }),
+    lang_code: text("lang_code").notNull().default("ko"),
     is_active: boolean("is_active").notNull().default(true),
     is_public: boolean("is_public").notNull().default(false),
     report_type: reportType("report_type"),
     title: text("title"),
     input_date: date("input_date"),
-    summary_short: text("summary_short"),
-    summary_md: text("summary_md"),
+    summary: text("summary"),
+    content: text("content"),
     tags: text("tags").array(),
     metadata: jsonb("metadata"),
     category: text("category"),
@@ -487,7 +488,11 @@ export const itemContents = pgTable(
     ),
     index("idx_item_contents_input_date").on(desc(table.input_date)),
     index("idx_item_contents_category").on(table.category),
+    index("idx_item_contents_lang_code").on(table.lang_code),
+    index("idx_item_contents_regions_gin").using("gin", table.regions),
+    index("idx_item_contents_countries_gin").using("gin", table.countries),
     index("idx_item_contents_tags_gin").using("gin", table.tags),
+    index("idx_item_contents_metadata_gin").using("gin", table.metadata),
     uniqueIndex("item_contents_one_active_per_item")
       .on(table.market_memory_item_id)
       .where(sql`${table.is_active} = true`),
@@ -615,6 +620,7 @@ export const reports = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     title: text("title").notNull(),
+    lang_code: text("lang_code").notNull().default("en"),
     md_body: text("md_body").notNull(),
     html_body: text("html_body"),
     summary: text("summary"),
@@ -632,7 +638,11 @@ export const reports = pgTable(
   },
   (table) => [
     index("idx_reports_created_at").on(desc(table.created_at)),
+    index("idx_reports_lang_code").on(table.lang_code),
+    index("idx_reports_regions_gin").using("gin", table.regions),
+    index("idx_reports_countries_gin").using("gin", table.countries),
     index("idx_reports_tags_gin").using("gin", table.tags),
+    index("idx_reports_metadata_gin").using("gin", table.metadata),
 
     pgPolicy("fr_select", {
       for: "select",
@@ -716,7 +726,7 @@ export const itemEmbeddings = pgTable(
     item_id: uuid("item_id")
       .notNull()
       .references(() => itemContents.id, { onDelete: "cascade" }),
-    lang_type: text("lang_type").notNull().default("en"),
+    lang_code: text("lang_code").notNull().default("en"),
     content_type: contentType("content_type").notNull(),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
     model: text("model"),
@@ -759,7 +769,7 @@ export const reportEmbeddings = pgTable(
     report_id: uuid("report_id")
       .notNull()
       .references(() => reports.id, { onDelete: "cascade" }),
-    lang_type: text("lang_type").notNull().default("en"),
+    lang_code: text("lang_code").notNull().default("en"),
     content_type: contentType("content_type").notNull(),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
     model: text("model"),
@@ -1011,12 +1021,12 @@ export const normalizedDocuments = pgTable(
 
 /*
  * =========================================================
- * 5. Other Tables
+ * 9. Other Tables
  * =========================================================
  */
 
 /* =========================================================
-   5-1) vector_documents (임의 텍스트 벡터 저장)
+   9-1) vector_documents (임의 텍스트 벡터 저장)
    ========================================================= */
 export const vectorDocuments = pgTable(
   "vector_documents",

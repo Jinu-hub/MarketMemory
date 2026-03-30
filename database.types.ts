@@ -36,6 +36,7 @@ export type Database = {
         Row: {
           category: string | null
           confidence: Json | null
+          content: string | null
           countries: string[] | null
           created_at: string
           id: string
@@ -43,13 +44,13 @@ export type Database = {
           input_hash: string | null
           is_active: boolean
           is_public: boolean
+          lang_code: string
           market_memory_item_id: string
           metadata: Json | null
           pipeline_info: Json | null
           regions: Database["public"]["Enums"]["region"][] | null
           report_type: Database["public"]["Enums"]["report_type"] | null
-          summary_md: string | null
-          summary_short: string | null
+          summary: string | null
           tags: string[] | null
           title: string | null
           tracking: Json | null
@@ -57,6 +58,7 @@ export type Database = {
         Insert: {
           category?: string | null
           confidence?: Json | null
+          content?: string | null
           countries?: string[] | null
           created_at?: string
           id?: string
@@ -64,13 +66,13 @@ export type Database = {
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
+          lang_code?: string
           market_memory_item_id: string
           metadata?: Json | null
           pipeline_info?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
           report_type?: Database["public"]["Enums"]["report_type"] | null
-          summary_md?: string | null
-          summary_short?: string | null
+          summary?: string | null
           tags?: string[] | null
           title?: string | null
           tracking?: Json | null
@@ -78,6 +80,7 @@ export type Database = {
         Update: {
           category?: string | null
           confidence?: Json | null
+          content?: string | null
           countries?: string[] | null
           created_at?: string
           id?: string
@@ -85,13 +88,13 @@ export type Database = {
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
+          lang_code?: string
           market_memory_item_id?: string
           metadata?: Json | null
           pipeline_info?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
           report_type?: Database["public"]["Enums"]["report_type"] | null
-          summary_md?: string | null
-          summary_short?: string | null
+          summary?: string | null
           tags?: string[] | null
           title?: string | null
           tracking?: Json | null
@@ -113,7 +116,7 @@ export type Database = {
           embedding: string
           id: string
           item_id: string
-          lang_type: string
+          lang_code: string
           model: string | null
         }
         Insert: {
@@ -122,7 +125,7 @@ export type Database = {
           embedding: string
           id?: string
           item_id: string
-          lang_type?: string
+          lang_code?: string
           model?: string | null
         }
         Update: {
@@ -131,7 +134,7 @@ export type Database = {
           embedding?: string
           id?: string
           item_id?: string
-          lang_type?: string
+          lang_code?: string
           model?: string | null
         }
         Relationships: [
@@ -662,7 +665,7 @@ export type Database = {
           created_at: string
           embedding: string
           id: string
-          lang_type: string
+          lang_code: string
           model: string | null
           report_id: string
         }
@@ -671,7 +674,7 @@ export type Database = {
           created_at?: string
           embedding: string
           id?: string
-          lang_type?: string
+          lang_code?: string
           model?: string | null
           report_id: string
         }
@@ -680,7 +683,7 @@ export type Database = {
           created_at?: string
           embedding?: string
           id?: string
-          lang_type?: string
+          lang_code?: string
           model?: string | null
           report_id?: string
         }
@@ -750,6 +753,7 @@ export type Database = {
           created_at: string
           html_body: string | null
           id: string
+          lang_code: string
           md_body: string
           metadata: Json | null
           regions: Database["public"]["Enums"]["region"][] | null
@@ -764,6 +768,7 @@ export type Database = {
           created_at?: string
           html_body?: string | null
           id?: string
+          lang_code?: string
           md_body: string
           metadata?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
@@ -778,6 +783,7 @@ export type Database = {
           created_at?: string
           html_body?: string | null
           id?: string
+          lang_code?: string
           md_body?: string
           metadata?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
