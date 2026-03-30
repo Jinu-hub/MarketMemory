@@ -1,64 +1,119 @@
 ---
-alwaysApply: true
+
+## alwaysApply: true
+
+# Nex Design System + Market Memory UI Rules
+
+이 프로젝트는 **Nex Design System**을 기반으로 한 React 컴포넌트 라이브러리를 사용합니다.
+기존 Nex 컴포넌트 규칙을 유지하면서, **Market Memory**를 위한 **콘텐츠 중심 UI 설계 원칙**을 함께 적용합니다.
+
 ---
 
-# Nex Design System - Cursor Rules
+## 1. Core Product Direction
 
-이 프로젝트는 Nex 디자인 시스템을 기반으로 한 React 컴포넌트 라이브러리를 사용합니다.
+Market Memory is **not** a CRUD/admin dashboard.
 
-## 📋 Available Components
+It is a **content + data intelligence platform** where users:
 
-### 🧩 Basic Components
-- **NexButton**: 4가지 변형 (primary, secondary, ghost, gradient), 3가지 크기, 로딩/아이콘 지원
-- **NexInput & NexTextarea**: 3가지 변형 (default, outlined, filled), 에러 처리, 아이콘 지원
-- **NexBadge**: 7가지 변형, 3가지 크기, 아이콘 및 제거 기능
-- **NexAvatar & NexAvatarGroup**: 5가지 크기, 상태 표시기, 그룹 기능
-- **NexProgress & NexCircularProgress**: 선형/원형 진행률, 5가지 변형
+* read AI-generated financial/economic reports
+* explore insights
+* understand trends through data (charts, timelines)
+* navigate relationships between entities (companies, sectors, events)
 
-### 🎴 Card Components
-- **NexCard**: 기본 카드 (4가지 변형, 다양한 패딩)
-- **NexImageCard**: 이미지가 포함된 카드 (배지, 오버레이, 다양한 애스펙트 비율)
-- **NexProductCard**: 상품용 카드 (가격, 별점, 액션 버튼)
+The intended product feel combines qualities of:
 
-### 🎠 Layout Components
-- **NexCarousel**: 자동재생, 무한루프, 반응형 카루셀
-- **NexNavbar**: 3가지 변형, 드롭다운, 사용자 메뉴, 모바일 지원
-- **NexFooter**: 2가지 변형 (default, minimal), 뉴스레터, 소셜 링크
-- **NexHero**: 4가지 변형, 미디어 지원, 소셜 프루프
+* Substack (reading experience)
+* TradingView (data visualization)
+* Obsidian (graph relationships)
+* Linear (clean interface discipline)
 
-## 🎨 Design System Rules
+### Important Principle
+
+Do NOT design primarily for:
+
+* forms
+* settings pages
+* CRUD dashboards
+* generic admin panels
+
+Design for:
+
+* understanding
+* reading
+* exploration
+* interpretation
+* information hierarchy
+
+---
+
+## 2. Design Architecture
+
+You must think in **two layers**.
+
+### A. Base Layer (existing Nex Design System)
+
+Reusable primitives:
+
+* NexButton
+* NexInput / NexTextarea
+* NexBadge
+* NexAvatar / NexAvatarGroup
+* NexProgress / NexCircularProgress
+* NexCard / NexImageCard / NexProductCard
+* NexCarousel
+* NexNavbar
+* NexFooter
+* NexHero
+
+These should remain the default foundation.
+
+### B. Content Layer (new, critical)
+
+Build meaning-driven UI blocks on top of the Base Layer.
+
+Examples:
+
+* ReportBlock
+* InsightCard
+* TimelineComponent
+* DataInsightBlock
+* GraphView
+* ReadingLayout
+
+These are **not generic cards**.
+They are structured content components designed to improve comprehension.
+
+---
+
+## 3. Nex Component Usage Rules
 
 ### Import Guidelines
+
 ```typescript
-// ✅ 올바른 import 방법
+// ✅ Correct
 import { NexButton, NexCard, NexInput } from '~/core/components/nex';
 
-// ❌ 개별 파일에서 직접 import 금지
+// ❌ Do not import from individual component files directly
 import { NexButton } from '~/core/components/nex/nex-button';
 ```
 
-### Color Usage
-- **Primary**: `#5E6AD2` (라이트), `#7C89F9` (다크)
-- **Background**: `#FFFFFF` (라이트), `#0D0E10` → `#1A1B1E` → `#2C2D30` (다크)
-- **Text**: `#0D0E10` (라이트), `#FFFFFF` → `#B4B5B9` → `#6C6F7E` (다크)
-- **Border**: `#E1E4E8` (라이트), `#2C2D30` → `#404040` (다크)
+### Base Component Usage
 
-### Component Usage Rules
+#### Buttons
 
-#### 1. Button Components
+Use `NexButton` instead of raw `<button>` whenever possible.
+
 ```typescript
-// ✅ 올바른 사용법
 <NexButton variant="primary" size="md">Click me</NexButton>
 <NexButton variant="gradient" loading={isLoading}>Submit</NexButton>
 <NexButton variant="secondary" leftIcon={<Icon />}>With Icon</NexButton>
-
-// ❌ 기본 HTML button 대신 NexButton 사용
-<button className="bg-blue-500...">Click me</button>
 ```
 
-#### 2. Form Components
+#### Inputs
+
+Use `NexInput` / `NexTextarea` instead of raw HTML inputs.
+
 ```typescript
-// ✅ 올바른 사용법
 <NexInput
   label="Email"
   placeholder="Enter your email"
@@ -66,200 +121,290 @@ import { NexButton } from '~/core/components/nex/nex-button';
   leftIcon={<MailIcon />}
 />
 
-// ✅ Textarea 사용법
 <NexTextarea
   label="Message"
   rows={4}
   variant="outlined"
 />
-
-// ❌ 기본 HTML input 대신 Nex 컴포넌트 사용
-<input className="border rounded..." />
 ```
 
-#### 3. Card Components
+#### Cards
+
+Use Nex card components as the base UI container, but do not treat all content as identical card blocks.
+
 ```typescript
-// ✅ 기본 카드
 <NexCard variant="elevated" hoverable>
-  <NexCardHeader>
-    <NexCardTitle>Title</NexCardTitle>
-    <NexCardDescription>Description</NexCardDescription>
-  </NexCardHeader>
-  <NexCardContent>Content</NexCardContent>
+  ...
 </NexCard>
-
-// ✅ 이미지 카드
-<NexImageCard
-  image={{ src: "/image.jpg", aspectRatio: "video" }}
-  title="Title"
-  badge={{ text: "New", variant: "success" }}
-  hoverable
-/>
-
-// ✅ 상품 카드
-<NexProductCard
-  image={{ src: "/product.jpg", aspectRatio: "square" }}
-  title="Product Name"
-  price={{ current: "99.99", currency: "$" }}
-  rating={{ value: 4.5, count: 128 }}
-  actionButton={{ text: "Add to Cart", onClick: handleClick }}
-/>
 ```
 
-#### 4. Layout Components
-```typescript
-// ✅ Navbar 사용법
-<NexNavbar
-  brand={{ name: "AppName", href: "/" }}
-  navigation={navigationItems}
-  actions={{
-    user: { name: "User", menu: userMenuItems },
-    notifications: { count: 3 }
-  }}
-/>
+---
 
-// ✅ Hero 섹션
-<NexHero
-  variant="split"
-  title="Welcome"
-  description="Description"
-  actions={{
-    primary: { label: "Get Started", variant: "primary" },
-    secondary: { label: "Learn More", variant: "secondary" }
-  }}
-  media={{ type: "image", src: "/hero.jpg" }}
-/>
+## 4. Market Memory Content Components
 
-// ✅ Footer 사용법
-<NexFooter
-  brand={{ name: "AppName", description: "Description" }}
-  links={footerLinks}
-  social={socialLinks}
-  newsletter={{ title: "Subscribe", onSubmit: handleSubscribe }}
-/>
-```
+### 4.1 ReportBlock
 
-#### 5. Carousel Components
-```typescript
-// ✅ 기본 카루셀
-<NexCarousel autoPlay showDots slidesToShow={3}>
-  <NexCarouselItem>Content 1</NexCarouselItem>
-  <NexCarouselItem>Content 2</NexCarouselItem>
-</NexCarousel>
+A structured report container.
 
-// ✅ 반응형 카루셀
-<NexCarousel
-  slidesToShow={3}
-  responsive={[
-    { breakpoint: 768, settings: { slidesToShow: 2 } },
-    { breakpoint: 480, settings: { slidesToShow: 1 } }
-  ]}
->
-  {items.map(item => (
-    <NexCarouselItem key={item.id}>{item.content}</NexCarouselItem>
-  ))}
-</NexCarousel>
-```
+Must include:
 
-## 🎯 Best Practices
+* headline
+* summary
+* key points
+* detailed analysis
 
-### 1. Dark Mode Support
-- 모든 Nex 컴포넌트는 자동으로 다크 모드를 지원합니다
-- 커스텀 스타일링 시 `dark:` prefix 사용
-- 색상은 테마에서 정의된 값 사용
+Requirements:
 
-### 2. Responsive Design
-```typescript
-// ✅ 반응형 그리드
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {items.map(item => (
-    <NexCard key={item.id}>...</NexCard>
-  ))}
-</div>
+* strong typography hierarchy
+* optimized reading width
+* clean vertical flow
+* should NOT feel like a generic dashboard card
 
-// ✅ 반응형 카루셀
-<NexCarousel
-  responsive={[
-    { breakpoint: 768, settings: { slidesToShow: 2 } }
-  ]}
->
-```
+### 4.2 InsightCard
 
-### 3. Accessibility
-- 모든 Interactive 요소에 적절한 `aria-label` 제공
-- 이미지에 `alt` 텍스트 필수
-- 키보드 내비게이션 지원
+A dense editorial card for a single insight.
 
-### 4. Performance
-```typescript
-// ✅ 이미지 최적화
-<NexImageCard
-  image={{
-    src: "https://images.unsplash.com/photo-id?w=400&h=300&fit=crop",
-    alt: "Descriptive alt text"
-  }}
-/>
+Example:
 
-// ✅ 지연 로딩
-<NexCarousel autoPlay={false} infinite={false}>
-```
+* "AI capex increase → semiconductor upside"
 
-## 🚫 Common Mistakes to Avoid
+Requirements:
 
-1. **❌ 기본 HTML 요소 사용하지 않기**
-   ```typescript
-   // 대신 Nex 컴포넌트 사용
-   <button> → <NexButton>
-   <input> → <NexInput>
-   <div className="card"> → <NexCard>
-   ```
+* concise
+* high-signal
+* visually distinct from default cards
+* optional tags, directional accents, or semantic emphasis
 
-2. **❌ 하드코딩된 색상 사용 금지**
-   ```typescript
-   // ❌ 금지
-   className="bg-blue-500 text-white"
-   
-   // ✅ Nex 컴포넌트 variant 사용
-   <NexButton variant="primary">
-   ```
+### 4.3 TimelineComponent
 
-3. **❌ 인라인 스타일 대신 variant 사용**
-   ```typescript
-   // ❌ 금지
-   <NexButton style={{ backgroundColor: '#blue' }}>
-   
-   // ✅ 권장
-   <NexButton variant="primary">
-   ```
+A narrative time-based component.
 
-4. **❌ 불필요한 커스텀 CSS 작성**
-   ```typescript
-   // ❌ 금지 - 이미 Nex 컴포넌트에 내장됨
-   .custom-button { padding: 12px; border-radius: 8px; }
-   
-   // ✅ 권장
-   <NexButton size="lg">
-   ```
+Requirements:
 
-## 📖 Additional Resources
+* chronological structure
+* date + event + explanation
+* should feel like a story progression
+* mobile should support horizontal scroll when needed
 
-- **Theme Configuration**: `app/core/lib/theme.ts` (nexTheme)
-- **Component Library**: `app/core/components/nex/`
-- **Sample Usage**: `/samples` 페이지 방문
-- **Type Definitions**: 모든 컴포넌트는 완전한 TypeScript 지원
+### 4.4 DataInsightBlock
 
-## 🔧 Development Guidelines
+A combined data + explanation block.
 
-1. **새로운 컴포넌트 필요 시**: Nex 스타일 가이드라인 준수
-2. **커스터마이징**: props를 통한 설정 우선, 필요시 className으로 확장
-3. **테스트**: `/samples` 페이지에서 라이트/다크 모드 모두 테스트
-4. **성능**: 불필요한 리렌더링 방지, useMemo/useCallback 적절히 사용
+Must include:
 
-## 📝 Code Review Checklist
+1. chart or visual area
+2. interpretation/explanation
+3. conclusion
 
-- [ ] Nex 컴포넌트 우선 사용
-- [ ] 다크 모드 호환성 확인
-- [ ] 반응형 디자인 적용
-- [ ] 접근성 고려사항 확인
-- [ ] 타입 안전성 보장
-- [ ] 성능 최적화 적용
+Rules:
+
+* charts must never appear alone
+* every visual should include meaning and takeaway
+
+### 4.5 GraphView
+
+A conceptual graph block inspired by knowledge graphs.
+
+Requirements:
+
+* nodes (company, topic, event)
+* edges (relationships)
+* hover preview
+* click or tap affordance
+* simple mock structure is acceptable when full implementation is unnecessary
+
+### 4.6 ReadingLayout
+
+Long-form reading layout optimized for reports.
+
+Requirements:
+
+* comfortable line length
+* clear spacing rhythm
+* strong heading hierarchy
+* quote/callout support
+* excellent readability in light, dark, and warm themes
+
+---
+
+## 5. Theme System Rules
+
+This UI must **not** be dark-only.
+
+### Required Themes
+
+* Light (default)
+* Dark
+* Warm (reading-focused)
+
+### Theme Philosophy
+
+* Light → default interface
+* Dark → optional power-user mode
+* Warm → paper-like reading mode
+
+Warm theme should feel like:
+
+* paper
+* book
+* research notes
+* editorial reading space
+
+### Example Theme Tokens
+
+Light:
+
+* background: #FAFAFA
+
+Dark:
+
+* background: #0B0F14
+
+Warm:
+
+* background: #FFF8E6
+
+### Implementation Rules
+
+Never hardcode colors like:
+
+* `bg-black`
+* `text-white`
+* `bg-blue-500`
+
+Always prefer semantic theme tokens such as:
+
+* `bg-background`
+* `text-foreground`
+* `border-border`
+* `bg-card`
+* `bg-muted`
+* `text-muted-foreground`
+
+All new UI must work well in:
+
+* light theme
+* dark theme
+* warm theme
+
+### UX Requirement
+
+Report and reading-heavy pages must look especially good in **Warm** theme.
+
+Prioritize:
+
+* long-reading comfort
+* reduced eye fatigue
+* softer contrast balance
+
+---
+
+## 6. Layout Principles
+
+### Desktop
+
+Prefer a 3-panel information layout when appropriate:
+
+* Left: navigation / report list
+* Center: main report content
+* Right: related insights / metadata / graph / timeline
+
+### Mobile
+
+Prefer:
+
+* stacked sections
+* card-based navigation
+* horizontal swipe only where it improves usability
+* progressive disclosure for dense content
+
+---
+
+## 7. Styling Principles
+
+Maintain:
+
+* clean structure
+* restrained modern UI
+* Linear-inspired discipline
+
+But also add:
+
+* stronger typography hierarchy
+* reading-focused spacing
+* content-aware layout rhythm
+* visual distinction by meaning, not decoration
+
+### Important Distinctions
+
+* Report ≠ generic card
+* Insight ≠ generic card
+* Data ≠ generic card
+* Timeline ≠ settings list
+
+Avoid making everything look like the same bordered box.
+
+---
+
+## 8. Accessibility and Responsiveness
+
+* Provide `aria-label` for interactive elements
+* Ensure keyboard accessibility
+* Include `alt` text for images
+* Test layouts in both desktop and mobile
+* Verify behavior in all supported themes
+
+---
+
+## 9. Performance Guidelines
+
+* Use existing Nex components first
+* Avoid unnecessary custom CSS when Nex props/variants solve the need
+* Use memoization only where useful
+* Prefer clean mock data for showcase/demo sections
+* Avoid overengineering interactive samples
+
+---
+
+## 10. Common Mistakes to Avoid
+
+### Do not:
+
+* build generic admin dashboards for content pages
+* use raw HTML button/input when Nex components exist
+* hardcode colors
+* overuse gradients or heavy shadows
+* make charts standalone without explanation
+* treat every UI section as a uniform card grid
+* collapse content hierarchy into repetitive boxes
+
+### Do:
+
+* build on top of Nex Design System
+* create a clear Content Layer
+* optimize for reading and comprehension
+* support light/dark/warm themes
+* prioritize clarity, hierarchy, and meaning over decoration
+
+---
+
+## 11. Output Expectations for AI Generation
+
+When generating UI/code for this project, always:
+
+1. Use React + TypeScript
+2. Prefer Nex components first
+3. Build new content-oriented components on top of the existing system
+4. Keep theme compatibility
+5. Separate Base Layer and Content Layer conceptually
+6. Optimize for reading, exploration, and interpretation
+
+### Final Goal
+
+The UI should feel like:
+
+"A system that helps users understand complex information instantly."
+
+It should NOT feel like:
+
+"A collection of pretty generic components."
