@@ -1018,6 +1018,179 @@ export const normalizedDocuments = pgTable(
   ],
 );
 
+/*
+ * =========================================================
+ * 5. Multi-language Processing
+ * =========================================================
+ */
+
+/* =========================================================
+5-1) item_content_cores (EN Core 저장)
+========================================================= */
+export const itemContentCores = pgTable(
+  "item_content_cores",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    item_content_id: uuid("item_content_id")
+      .notNull()
+      .references(() => itemContents.id, { onDelete: "cascade" }),
+    core_lang: text("core_lang").notNull().default("en"),
+    core_type: text("core_type").notNull(),
+    core_data: jsonb("core_data").notNull(),
+    pipeline_info: jsonb("pipeline_info"),
+    input_hash: text("input_hash"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_item_content_cores_item_content_id").on(table.item_content_id),
+    index("idx_item_content_cores_core_lang").on(table.core_lang),
+    index("idx_item_content_cores_core_type").on(table.core_type),
+    index("idx_item_content_cores_created_at").on(desc(table.created_at)),
+
+    pgPolicy("icc_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("icc_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("icc_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("icc_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+  
+/* =========================================================
+  5-2) item_content_i18n (콘텐츠 다언어 결과)
+  ========================================================= */
+export const itemContentI18n = pgTable(
+  "item_content_i18n",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    item_content_id: uuid("item_content_id")
+      .notNull()
+      .references(() => itemContents.id, { onDelete: "cascade" }),
+    core_id: uuid("core_id").references(() => itemContentCores.id, {
+      onDelete: "set null",
+    }),
+    lang_code: text("lang_code").notNull(),
+    title: text("title"),
+    summary: text("summary"),
+    content: text("content"),
+    is_public: boolean("is_public").notNull().default(false),
+    status: text("status"),
+    pipeline_info: jsonb("pipeline_info"),
+    input_hash: text("input_hash"),
+    tracking: jsonb("tracking"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_item_content_i18n_item_content_id").on(table.item_content_id),
+    index("idx_item_content_i18n_core_id").on(table.core_id),
+    index("idx_item_content_i18n_lang_code").on(table.lang_code),
+    index("idx_item_content_i18n_created_at").on(desc(table.created_at)),
+    index("idx_item_content_i18n_is_public").on(table.is_public),
+    index("idx_item_content_i18n_status").on(table.status),
+
+    pgPolicy("ici_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("ici_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ici_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ici_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+5-3) reports_i18n (리포트 다언어 결과)
+========================================================= */
+export const reportsI18n = pgTable(
+  "reports_i18n",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    report_id: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    lang_code: text("lang_code").notNull(),
+    title: text("title").notNull(),
+    summary_short: text("summary_short"),
+    content_md: text("content_md").notNull(),
+    html_body: text("html_body"),
+    is_public: boolean("is_public").notNull().default(false),
+    status: text("status"),
+    pipeline_info: jsonb("pipeline_info"),
+    input_hash: text("input_hash"),
+    tracking: jsonb("tracking"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("uq_reports_i18n_report_lang").on(table.report_id, table.lang_code),
+    index("idx_reports_i18n_report_id").on(table.report_id),
+    index("idx_reports_i18n_lang_code").on(table.lang_code),
+    index("idx_reports_i18n_created_at").on(desc(table.created_at)),
+    index("idx_reports_i18n_is_public").on(table.is_public),
+    index("idx_reports_i18n_status").on(table.status),
+
+    pgPolicy("ri18n_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("ri18n_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ri18n_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ri18n_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
 
 /*
  * =========================================================

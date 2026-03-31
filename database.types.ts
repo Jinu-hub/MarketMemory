@@ -32,6 +32,116 @@ export type Database = {
         }
         Relationships: []
       }
+      item_content_cores: {
+        Row: {
+          core_data: Json
+          core_lang: string
+          core_type: string
+          created_at: string
+          id: string
+          input_hash: string | null
+          item_content_id: string
+          pipeline_info: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          core_data: Json
+          core_lang?: string
+          core_type: string
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          item_content_id: string
+          pipeline_info?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          core_data?: Json
+          core_lang?: string
+          core_type?: string
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          item_content_id?: string
+          pipeline_info?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_content_cores_item_content_id_item_contents_id_fk"
+            columns: ["item_content_id"]
+            isOneToOne: false
+            referencedRelation: "item_contents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_content_i18n: {
+        Row: {
+          content: string | null
+          core_id: string | null
+          created_at: string
+          id: string
+          input_hash: string | null
+          is_public: boolean
+          item_content_id: string
+          lang_code: string
+          pipeline_info: Json | null
+          status: string | null
+          summary: string | null
+          title: string | null
+          tracking: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          core_id?: string | null
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          is_public?: boolean
+          item_content_id: string
+          lang_code: string
+          pipeline_info?: Json | null
+          status?: string | null
+          summary?: string | null
+          title?: string | null
+          tracking?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          core_id?: string | null
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          is_public?: boolean
+          item_content_id?: string
+          lang_code?: string
+          pipeline_info?: Json | null
+          status?: string | null
+          summary?: string | null
+          title?: string | null
+          tracking?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_content_i18n_core_id_item_content_cores_id_fk"
+            columns: ["core_id"]
+            isOneToOne: false
+            referencedRelation: "item_content_cores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_content_i18n_item_content_id_item_contents_id_fk"
+            columns: ["item_content_id"]
+            isOneToOne: false
+            referencedRelation: "item_contents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_contents: {
         Row: {
           category: string | null
@@ -793,6 +903,65 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reports_i18n: {
+        Row: {
+          content_md: string
+          created_at: string
+          html_body: string | null
+          id: string
+          input_hash: string | null
+          is_public: boolean
+          lang_code: string
+          pipeline_info: Json | null
+          report_id: string
+          status: string | null
+          summary_short: string | null
+          title: string
+          tracking: Json | null
+          updated_at: string
+        }
+        Insert: {
+          content_md: string
+          created_at?: string
+          html_body?: string | null
+          id?: string
+          input_hash?: string | null
+          is_public?: boolean
+          lang_code: string
+          pipeline_info?: Json | null
+          report_id: string
+          status?: string | null
+          summary_short?: string | null
+          title: string
+          tracking?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          content_md?: string
+          created_at?: string
+          html_body?: string | null
+          id?: string
+          input_hash?: string | null
+          is_public?: boolean
+          lang_code?: string
+          pipeline_info?: Json | null
+          report_id?: string
+          status?: string | null
+          summary_short?: string | null
+          title?: string
+          tracking?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_i18n_report_id_reports_id_fk"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       structured_metric_facts: {
         Row: {
