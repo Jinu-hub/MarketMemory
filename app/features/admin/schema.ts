@@ -125,6 +125,12 @@ export const apiMode = pgEnum("api_mode", [
   "streaming"
 ]);
 
+export const targetType = pgEnum("target_type", [
+  "agent",
+  "pipeline",
+  "prompt_template",
+]);
+
 /* =========================================================
    RLS Helper: Admin only
    ========================================================= */
@@ -224,9 +230,9 @@ export const pipelineSteps = pgTable(
       .notNull()
       .references(() => pipelines.pipeline_key),
     step: integer("step").notNull(),
-    agent_key: text("agent_key")
-      .notNull()
-      .references(() => agents.agent_key),
+    target_type: targetType("target_type").notNull().default("agent"),
+    target_key: text("target_key")
+      .notNull(),
     is_required: boolean("is_required").notNull().default(true),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -237,12 +243,12 @@ export const pipelineSteps = pgTable(
       table.pipeline_key,
       table.step,
     ),
-    uniqueIndex("pipeline_steps_pipeline_key_agent_key_unique").on(
+    uniqueIndex("pipeline_steps_pipeline_key_target_key_unique").on(
       table.pipeline_key,
-      table.agent_key,
+      table.target_key,
     ),
     index("idx_pipeline_steps_pipeline_key_step").on(table.pipeline_key, table.step),
-    index("idx_pipeline_steps_agent_key").on(table.agent_key),
+    index("idx_pipeline_steps_target_key").on(table.target_key),
 
     pgPolicy("ps_select", {
       for: "select",

@@ -553,37 +553,33 @@ export type Database = {
       }
       pipeline_steps: {
         Row: {
-          agent_key: string
           created_at: string
           id: string
           is_required: boolean
           pipeline_key: string
           step: number
+          target_key: string
+          target_type: Database["public"]["Enums"]["target_type"]
         }
         Insert: {
-          agent_key: string
           created_at?: string
           id?: string
           is_required?: boolean
           pipeline_key: string
           step: number
+          target_key: string
+          target_type?: Database["public"]["Enums"]["target_type"]
         }
         Update: {
-          agent_key?: string
           created_at?: string
           id?: string
           is_required?: boolean
           pipeline_key?: string
           step?: number
+          target_key?: string
+          target_type?: Database["public"]["Enums"]["target_type"]
         }
         Relationships: [
-          {
-            foreignKeyName: "pipeline_steps_agent_key_agents_agent_key_fk"
-            columns: ["agent_key"]
-            isOneToOne: false
-            referencedRelation: "agents"
-            referencedColumns: ["agent_key"]
-          },
           {
             foreignKeyName: "pipeline_steps_pipeline_key_fk"
             columns: ["pipeline_key"]
@@ -1112,6 +1108,7 @@ export type Database = {
         | "briefing-report"
         | "baseline-report"
       tag_source: "ai" | "manual"
+      target_type: "agent" | "pipeline" | "prompt_template"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1297,6 +1294,7 @@ export const Constants = {
         "baseline-report",
       ],
       tag_source: ["ai", "manual"],
+      target_type: ["agent", "pipeline", "prompt_template"],
     },
   },
 } as const
