@@ -147,6 +147,7 @@ export type Database = {
           category: string | null
           confidence: Json | null
           content: string | null
+          content_sns: string | null
           countries: string[] | null
           created_at: string
           id: string
@@ -169,6 +170,7 @@ export type Database = {
           category?: string | null
           confidence?: Json | null
           content?: string | null
+          content_sns?: string | null
           countries?: string[] | null
           created_at?: string
           id?: string
@@ -191,6 +193,7 @@ export type Database = {
           category?: string | null
           confidence?: Json | null
           content?: string | null
+          content_sns?: string | null
           countries?: string[] | null
           created_at?: string
           id?: string
@@ -855,6 +858,7 @@ export type Database = {
       reports: {
         Row: {
           category: Database["public"]["Enums"]["category"] | null
+          content_sns: string | null
           countries: string[] | null
           created_at: string
           html_body: string | null
@@ -870,6 +874,7 @@ export type Database = {
         }
         Insert: {
           category?: Database["public"]["Enums"]["category"] | null
+          content_sns?: string | null
           countries?: string[] | null
           created_at?: string
           html_body?: string | null
@@ -885,6 +890,7 @@ export type Database = {
         }
         Update: {
           category?: Database["public"]["Enums"]["category"] | null
+          content_sns?: string | null
           countries?: string[] | null
           created_at?: string
           html_body?: string | null
