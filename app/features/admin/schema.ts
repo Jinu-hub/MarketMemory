@@ -473,6 +473,7 @@ export const itemContents = pgTable(
     title: text("title"),
     input_date: date("input_date"),
     summary: text("summary"),
+    summary_meta: jsonb("summary_meta"),
     content: text("content"),
     content_sns: text("content_sns"),
     tags: text("tags").array(),
@@ -500,6 +501,7 @@ export const itemContents = pgTable(
     index("idx_item_contents_countries_gin").using("gin", table.countries),
     index("idx_item_contents_tags_gin").using("gin", table.tags),
     index("idx_item_contents_metadata_gin").using("gin", table.metadata),
+    index("idx_item_contents_summary_meta_gin").using("gin", table.summary_meta),
     uniqueIndex("item_contents_one_active_per_item")
       .on(table.market_memory_item_id)
       .where(sql`${table.is_active} = true`),
@@ -631,6 +633,7 @@ export const reports = pgTable(
     md_body: text("md_body").notNull(),
     html_body: text("html_body"),
     summary: text("summary"),
+    summary_meta: jsonb("summary_meta"),
     content_sns: text("content_sns"),
     category: category("category"),
     regions: region("regions").array(),
@@ -651,6 +654,7 @@ export const reports = pgTable(
     index("idx_reports_countries_gin").using("gin", table.countries),
     index("idx_reports_tags_gin").using("gin", table.tags),
     index("idx_reports_metadata_gin").using("gin", table.metadata),
+    index("idx_reports_summary_meta_gin").using("gin", table.summary_meta),
 
     pgPolicy("fr_select", {
       for: "select",

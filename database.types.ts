@@ -162,6 +162,7 @@ export type Database = {
           regions: Database["public"]["Enums"]["region"][] | null
           report_type: Database["public"]["Enums"]["report_type"] | null
           summary: string | null
+          summary_meta: Json | null
           tags: string[] | null
           title: string | null
           tracking: Json | null
@@ -185,6 +186,7 @@ export type Database = {
           regions?: Database["public"]["Enums"]["region"][] | null
           report_type?: Database["public"]["Enums"]["report_type"] | null
           summary?: string | null
+          summary_meta?: Json | null
           tags?: string[] | null
           title?: string | null
           tracking?: Json | null
@@ -208,6 +210,7 @@ export type Database = {
           regions?: Database["public"]["Enums"]["region"][] | null
           report_type?: Database["public"]["Enums"]["report_type"] | null
           summary?: string | null
+          summary_meta?: Json | null
           tags?: string[] | null
           title?: string | null
           tracking?: Json | null
@@ -868,6 +871,7 @@ export type Database = {
           metadata: Json | null
           regions: Database["public"]["Enums"]["region"][] | null
           summary: string | null
+          summary_meta: Json | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -884,6 +888,7 @@ export type Database = {
           metadata?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
           summary?: string | null
+          summary_meta?: Json | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -900,6 +905,7 @@ export type Database = {
           metadata?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
           summary?: string | null
+          summary_meta?: Json | null
           tags?: string[] | null
           title?: string
           updated_at?: string
