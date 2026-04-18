@@ -116,8 +116,11 @@ export const reportType = pgEnum("report_type", [
   "digest-report",
   "full-report",
   "analysis-report",
+  "thesis-report",
   "briefing-report",
   "baseline-report",
+  "review",
+  "other",
 ]);
 
 export const apiMode = pgEnum("api_mode", [

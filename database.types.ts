@@ -1117,8 +1117,11 @@ export type Database = {
         | "digest-report"
         | "full-report"
         | "analysis-report"
+        | "thesis-report"
         | "briefing-report"
         | "baseline-report"
+        | "review"
+        | "other"
       tag_source: "ai" | "manual"
       target_type: "agent" | "pipeline" | "prompt_template"
     }
@@ -1302,8 +1305,11 @@ export const Constants = {
         "digest-report",
         "full-report",
         "analysis-report",
+        "thesis-report",
         "briefing-report",
         "baseline-report",
+        "review",
+        "other",
       ],
       tag_source: ["ai", "manual"],
       target_type: ["agent", "pipeline", "prompt_template"],
