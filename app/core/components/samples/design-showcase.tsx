@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router";
 import { 
   NexButton, 
   NexCard, 
@@ -28,6 +29,7 @@ export default function SamplesPage() {
   const [inputValue, setInputValue] = useState('');
   const [textareaValue, setTextareaValue] = useState('');
   const [progress, setProgress] = useState(65);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8F9FA] to-[#F1F2F4] dark:from-[#0D0E10] dark:to-[#1A1B1E] py-12 px-4">
@@ -40,6 +42,22 @@ export default function SamplesPage() {
           <p className="text-lg text-[#8B92B5] dark:text-[#6C6F7E] max-w-2xl mx-auto">
             Nex 디자인 시스템을 기반으로 한 재사용 가능한 컴포넌트들을 확인해보세요.
           </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <NexButton
+              variant="secondary"
+              onClick={() => navigate("/showcase/content")}
+              aria-label="콘텐츠 쇼케이스로 이동"
+            >
+              콘텐츠 쇼케이스 보기
+            </NexButton>
+            <NexButton
+              variant="primary"
+              onClick={() => navigate("/showcase/data")}
+              aria-label="데이터 쇼케이스로 이동"
+            >
+              데이터 쇼케이스 보기
+            </NexButton>
+          </div>
         </div>
 
         {/* Buttons Section */}

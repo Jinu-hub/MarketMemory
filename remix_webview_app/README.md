@@ -3,6 +3,8 @@
 Remix 웹앱을 Flutter WebView로 감싸서 앱으로 실행하는 셸입니다.  
 웹에서 `window.Toaster.postMessage()`로 보낸 메시지를 앱에서 SnackBar로 받습니다.
 
+테스트 실행 흐름만 빠르게 보고 싶다면 `TEST_MANUAL.md`를 참고하세요.
+
 ## 사전 요구사항
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) 설치 후 `flutter doctor` 확인
