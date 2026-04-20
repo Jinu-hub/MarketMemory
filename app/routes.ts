@@ -44,12 +44,13 @@ export default [
     ...prefix("/blog", [route("/og", "features/blog/api/og.tsx")]),
   ]),
 
+  // public pages
   layout("core/layouts/navigation.layout.tsx", [
     route("/auth/confirm", "features/auth/screens/confirm.tsx"),
     index("features/home/screens/home.tsx"),
     route("/error", "core/screens/error.tsx"),
-    route("/showcase/design", "core/components/samples/design-showcase.tsx"),
-    route("/showcase/content", "core/components/samples/content-showcase.tsx"),
+    route("/showcase/design", "core/components/showcase/design-showcase.tsx"),
+    route("/showcase/content", "core/components/showcase/content-showcase.tsx"),
     route("/showcase/data", "core/components/showcase/data-showcase.tsx"),
     layout("core/layouts/public.layout.tsx", [
       // Routes that should only be visible to unauthenticated users.
@@ -96,6 +97,7 @@ export default [
     ]),
   ]),
 
+  // private pages
   layout("core/layouts/private.layout.tsx", { id: "private-dashboard" }, [
     layout("features/users/layouts/dashboard.layout.tsx", [
       ...prefix("/dashboard", [
