@@ -1,21 +1,13 @@
 import {
-  AudioWaveformIcon,
   BookOpenIcon,
-  BotIcon,
   BriefcaseIcon,
   BuildingIcon,
-  CommandIcon,
-  FrameIcon,
-  GalleryVerticalEndIcon,
   HeartHandshakeIcon,
   LayoutDashboardIcon,
   LineChartIcon,
-  MapIcon,
   MegaphoneIcon,
-  PieChartIcon,
   RocketIcon,
   Settings2Icon,
-  SquareTerminalIcon,
   Target,
   UsersIcon,
 } from "lucide-react";
@@ -56,21 +48,36 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: LayoutDashboardIcon,
-      isActive: true,
       items: [
         {
           title: "Overview",
           url: "/dashboard",
         },
         {
-          title: "Analytics",
-          url: "#",
+          title: "Payments",
+          url: "/dashboard/payments",
+        },
+      ],
+    },
+    {
+      title: "Item Reports",
+      url: "/item_reports",
+      icon: BookOpenIcon,
+      isActive: true,
+      items: [
+        {
+          title: "All Reports",
+          url: "/item_reports",
         },
         {
-          title: "Reports",
-          url: "#",
+          title: "Explore",
+          url: "/item_reports/explore",
+        },
+        {
+          title: "Timeline",
+          url: "/item_reports/timeline",
         },
       ],
     },

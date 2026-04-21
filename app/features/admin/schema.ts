@@ -514,6 +514,11 @@ export const itemContents = pgTable(
       to: authenticatedRole,
       using: isAdmin,
     }),
+    pgPolicy("ic_select_public", {
+      for: "select",
+      to: authenticatedRole,
+      using: sql`${table.is_public} = true AND ${table.is_active} = true`,
+    }),
     pgPolicy("ic_insert", {
       for: "insert",
       to: authenticatedRole,
@@ -556,6 +561,11 @@ export const tags = pgTable(
       for: "select",
       to: authenticatedRole,
       using: isAdmin,
+    }),
+    pgPolicy("t_select_authenticated", {
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
     }),
     pgPolicy("t_insert", {
       for: "insert",

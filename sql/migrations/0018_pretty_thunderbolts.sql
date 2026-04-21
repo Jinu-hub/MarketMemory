@@ -1,0 +1,2 @@
+CREATE POLICY "ic_select_public" ON "item_contents" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("item_contents"."is_public" = true AND "item_contents"."is_active" = true);--> statement-breakpoint
+CREATE POLICY "t_select_authenticated" ON "tags" AS PERMISSIVE FOR SELECT TO "authenticated" USING (true);

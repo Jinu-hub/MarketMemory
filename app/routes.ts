@@ -105,6 +105,12 @@ export default [
         route("/payments", "features/payments/screens/payments.tsx"),
       ]),
       route("/account/edit", "features/users/screens/account.tsx"),
+      ...prefix("/item_reports", [
+        index("features/item-reports/screens/list.tsx"),
+        route("/explore", "features/item-reports/screens/explore.tsx"),
+        route("/timeline", "features/item-reports/screens/timeline.tsx"),
+        route("/:id", "features/item-reports/screens/detail.tsx"),
+      ]),
     ]),
   ]),
 
