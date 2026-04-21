@@ -1,14 +1,6 @@
 ---
-
-## alwaysApply: true
-
-# Nex Design System + Market Memory UI Rules
-
-이 프로젝트는 **Nex Design System**을 기반으로 한 React 컴포넌트 라이브러리를 사용합니다.
-기존 Nex 컴포넌트 규칙을 유지하면서, **Market Memory**를 위한 **콘텐츠 중심 UI 설계 원칙**을 함께 적용합니다.
-
+alwaysApply: true
 ---
-
 ## 1. Core Product Direction
 
 Market Memory is **not** a CRUD/admin dashboard.
@@ -224,6 +216,43 @@ Requirements:
 * strong heading hierarchy
 * quote/callout support
 * excellent readability in light, dark, and warm themes
+
+### 4.7 Category Semantic Accent System
+
+Report content carries a `category` field (foundation, issue, research, market,
+trend, deep_dive, column, narrative_analysis, review, watchlist). This
+taxonomy drives an internal **visual semantic system** used across the
+Content Layer.
+
+Each category maps to:
+
+* a **directional accent color** (used as a `border-l-[3px]` on cards,
+  insight blocks, timeline nodes, and meta sidebars)
+* a matching **NexBadge variant** (so badge + border share the same language)
+* a **lucide icon** (provides a second, non-color signal — see §15)
+
+Implementation lives at `app/features/item-reports/lib/category-style.ts`
+and exposes `getCategoryStyle(category)`. Always use this helper instead of
+hardcoding per-category colors at call sites. This keeps the entire reading
+experience coherent across the list, detail, explore, and timeline screens.
+
+### 4.8 Item Reports Reference Implementation
+
+The `/item_reports` feature is the reference implementation of the Content
+Layer rules in this document. When building new reading-oriented surfaces,
+prefer extending or composing these components rather than rebuilding the
+same patterns:
+
+* `FeaturedReportBlock` — hero treatment for the most-recent report
+* `ReportCard` — directional-accent card (InsightCard pattern)
+* `ReportSummaryMeta` — Insight Block for `summary_meta` (headline, takeaway, hooks)
+* `ReadingHeader` / `ReadingPullQuote` / `ReadingHighlightBox` / `ShareSummaryBlock`
+* `ReportTimeline` — chronological/narrative timeline
+* `ReportMetaSidebar` — right-rail metadata block
+* `RelatedReports` — category-aware list of neighbouring reports
+
+Each one builds on the NexBadge / NexInput / NexButton primitives so the
+whole feature stays consistent with the Base Layer rules.
 
 ---
 

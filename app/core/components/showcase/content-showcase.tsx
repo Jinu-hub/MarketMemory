@@ -26,6 +26,12 @@ import {
   Cpu,
   DollarSign,
   Building2,
+  Flag,
+  Microscope,
+  LineChart,
+  Compass,
+  PenLine,
+  Eye,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -875,6 +881,155 @@ function ReadingLayoutDemo() {
 }
 
 // ---------------------------------------------------------------------------
+// Section 7: Category Accent System (shared by /item_reports)
+// ---------------------------------------------------------------------------
+
+const CATEGORY_ACCENTS = [
+  {
+    key: 'foundation',
+    label: '기초',
+    icon: BookOpen,
+    borderClass: 'border-l-slate-400 dark:border-l-slate-500',
+    textClass: 'text-slate-600 dark:text-slate-300',
+    bgClass: 'bg-slate-500/5 dark:bg-slate-400/5',
+    badge: 'outline' as const,
+    description: '전반적인 배경·구조 설명',
+  },
+  {
+    key: 'issue',
+    label: '이슈',
+    icon: Flag,
+    borderClass: 'border-l-amber-500 dark:border-l-amber-400',
+    textClass: 'text-amber-600 dark:text-amber-400',
+    bgClass: 'bg-amber-500/5 dark:bg-amber-400/5',
+    badge: 'warning' as const,
+    description: '현재 주목해야 할 이벤트/리스크',
+  },
+  {
+    key: 'research',
+    label: '리서치',
+    icon: Microscope,
+    borderClass: 'border-l-blue-500 dark:border-l-blue-400',
+    textClass: 'text-blue-600 dark:text-blue-400',
+    bgClass: 'bg-blue-500/5 dark:bg-blue-400/5',
+    badge: 'info' as const,
+    description: '심층적인 조사/분석 보고',
+  },
+  {
+    key: 'market',
+    label: '시장',
+    icon: LineChart,
+    borderClass: 'border-l-emerald-500 dark:border-l-emerald-400',
+    textClass: 'text-emerald-600 dark:text-emerald-400',
+    bgClass: 'bg-emerald-500/5 dark:bg-emerald-400/5',
+    badge: 'success' as const,
+    description: '시세/자본 흐름 해석',
+  },
+  {
+    key: 'trend',
+    label: '트렌드',
+    icon: TrendingUp,
+    borderClass: 'border-l-cyan-500 dark:border-l-cyan-400',
+    textClass: 'text-cyan-600 dark:text-cyan-400',
+    bgClass: 'bg-cyan-500/5 dark:bg-cyan-400/5',
+    badge: 'info' as const,
+    description: '장기적인 흐름/테마 변화',
+  },
+  {
+    key: 'deep_dive',
+    label: '심층 분석',
+    icon: Compass,
+    borderClass: 'border-l-indigo-500 dark:border-l-indigo-400',
+    textClass: 'text-indigo-600 dark:text-indigo-400',
+    bgClass: 'bg-indigo-500/5 dark:bg-indigo-400/5',
+    badge: 'secondary' as const,
+    description: '단일 주제의 깊은 해석',
+  },
+  {
+    key: 'column',
+    label: '칼럼',
+    icon: PenLine,
+    borderClass: 'border-l-rose-500 dark:border-l-rose-400',
+    textClass: 'text-rose-600 dark:text-rose-400',
+    bgClass: 'bg-rose-500/5 dark:bg-rose-400/5',
+    badge: 'error' as const,
+    description: '주관적 인사이트/에세이',
+  },
+  {
+    key: 'narrative_analysis',
+    label: '내러티브',
+    icon: Lightbulb,
+    borderClass: 'border-l-purple-500 dark:border-l-purple-400',
+    textClass: 'text-purple-600 dark:text-purple-400',
+    bgClass: 'bg-purple-500/5 dark:bg-purple-400/5',
+    badge: 'secondary' as const,
+    description: '스토리라인 중심 해석',
+  },
+  {
+    key: 'review',
+    label: '리뷰',
+    icon: Activity,
+    borderClass: 'border-l-slate-400 dark:border-l-slate-500',
+    textClass: 'text-muted-foreground',
+    bgClass: 'bg-muted/40',
+    badge: 'default' as const,
+    description: '회고/복기/평가 리포트',
+  },
+  {
+    key: 'watchlist',
+    label: '워치리스트',
+    icon: Eye,
+    borderClass: 'border-l-amber-600 dark:border-l-amber-500',
+    textClass: 'text-amber-700 dark:text-amber-400',
+    bgClass: 'bg-amber-600/5 dark:bg-amber-500/5',
+    badge: 'warning' as const,
+    description: '주기적으로 추적하는 관찰 대상',
+  },
+];
+
+function CategoryAccentDemo() {
+  return (
+    <section className="mb-16">
+      <SectionHeader
+        badge="Semantic System"
+        title="Category Accent System"
+        description="카테고리별로 고유한 좌측 accent 컬러와 lucide 아이콘, NexBadge variant를 매핑해 어떤 화면에서도 동일한 시각 언어가 유지되도록 합니다. 색상만으로 의미를 전달하지 않기 위해 아이콘 + 레이블을 함께 사용합니다."
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {CATEGORY_ACCENTS.map((cat) => {
+          const Icon = cat.icon;
+          return (
+            <div
+              key={cat.key}
+              className={`bg-card border border-border rounded-lg p-4 border-l-[3px] ${cat.borderClass} hover:bg-accent/50 transition-colors`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Icon className={`w-4 h-4 ${cat.textClass}`} />
+                  <span className="text-sm font-semibold text-foreground">
+                    {cat.label}
+                  </span>
+                </div>
+                <NexBadge variant={cat.badge} size="sm">
+                  {cat.key}
+                </NexBadge>
+              </div>
+              <p className="text-xs text-muted-foreground leading-5">
+                {cat.description}
+              </p>
+              <div
+                className={`mt-3 h-1 w-full rounded-full ${cat.bgClass}`}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 
@@ -911,6 +1066,7 @@ export default function SampleComponentsPage() {
         <DataInsightBlockDemo />
         <GraphViewDemo />
         <ReadingLayoutDemo />
+        <CategoryAccentDemo />
 
         {/* Footer Note */}
         <NexCard className="mt-8">
