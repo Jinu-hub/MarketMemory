@@ -134,6 +134,13 @@
       "when": 1776683522149,
       "tag": "0018_pretty_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1777102018386,
+      "tag": "0019_lucky_the_fallen",
+      "breakpoints": true
     }
   ]
 }

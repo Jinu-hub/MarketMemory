@@ -123,6 +123,12 @@ export const reportType = pgEnum("report_type", [
   "other",
 ]);
 
+export const reportTier = pgEnum("report_tier", [
+  "free",
+  "premium",
+  "premium_plus",
+]);
+
 export const apiMode = pgEnum("api_mode", [
   "responses",
   "streaming"
@@ -473,12 +479,14 @@ export const itemContents = pgTable(
     is_active: boolean("is_active").notNull().default(true),
     is_public: boolean("is_public").notNull().default(false),
     report_type: reportType("report_type"),
+    report_tier: reportTier("report_tier").notNull().default("free"),
     title: text("title"),
     input_date: date("input_date"),
     summary: text("summary"),
     summary_meta: jsonb("summary_meta"),
     content: text("content"),
     content_sns: text("content_sns"),
+    html_body: text("html_body"),
     tags: text("tags").array(),
     metadata: jsonb("metadata"),
     category: text("category"),
@@ -643,7 +651,9 @@ export const reports = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     title: text("title").notNull(),
     lang_code: text("lang_code").notNull().default("en"),
-    md_body: text("md_body").notNull(),
+    report_type: reportType("report_type"),
+    report_tier: reportTier("report_tier").notNull().default("premium"),
+    content: text("content").notNull(),
     html_body: text("html_body"),
     summary: text("summary"),
     summary_meta: jsonb("summary_meta"),

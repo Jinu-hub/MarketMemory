@@ -150,6 +150,7 @@ export type Database = {
           content_sns: string | null
           countries: string[] | null
           created_at: string
+          html_body: string | null
           id: string
           input_date: string | null
           input_hash: string | null
@@ -160,6 +161,7 @@ export type Database = {
           metadata: Json | null
           pipeline_info: Json | null
           regions: Database["public"]["Enums"]["region"][] | null
+          report_tier: Database["public"]["Enums"]["report_tier"]
           report_type: Database["public"]["Enums"]["report_type"] | null
           summary: string | null
           summary_meta: Json | null
@@ -174,6 +176,7 @@ export type Database = {
           content_sns?: string | null
           countries?: string[] | null
           created_at?: string
+          html_body?: string | null
           id?: string
           input_date?: string | null
           input_hash?: string | null
@@ -184,6 +187,7 @@ export type Database = {
           metadata?: Json | null
           pipeline_info?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
+          report_tier?: Database["public"]["Enums"]["report_tier"]
           report_type?: Database["public"]["Enums"]["report_type"] | null
           summary?: string | null
           summary_meta?: Json | null
@@ -198,6 +202,7 @@ export type Database = {
           content_sns?: string | null
           countries?: string[] | null
           created_at?: string
+          html_body?: string | null
           id?: string
           input_date?: string | null
           input_hash?: string | null
@@ -208,6 +213,7 @@ export type Database = {
           metadata?: Json | null
           pipeline_info?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
+          report_tier?: Database["public"]["Enums"]["report_tier"]
           report_type?: Database["public"]["Enums"]["report_type"] | null
           summary?: string | null
           summary_meta?: Json | null
@@ -861,15 +867,17 @@ export type Database = {
       reports: {
         Row: {
           category: Database["public"]["Enums"]["category"] | null
+          content: string
           content_sns: string | null
           countries: string[] | null
           created_at: string
           html_body: string | null
           id: string
           lang_code: string
-          md_body: string
           metadata: Json | null
           regions: Database["public"]["Enums"]["region"][] | null
+          report_tier: Database["public"]["Enums"]["report_tier"]
+          report_type: Database["public"]["Enums"]["report_type"] | null
           summary: string | null
           summary_meta: Json | null
           tags: string[] | null
@@ -878,15 +886,17 @@ export type Database = {
         }
         Insert: {
           category?: Database["public"]["Enums"]["category"] | null
+          content: string
           content_sns?: string | null
           countries?: string[] | null
           created_at?: string
           html_body?: string | null
           id?: string
           lang_code?: string
-          md_body: string
           metadata?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
+          report_tier?: Database["public"]["Enums"]["report_tier"]
+          report_type?: Database["public"]["Enums"]["report_type"] | null
           summary?: string | null
           summary_meta?: Json | null
           tags?: string[] | null
@@ -895,15 +905,17 @@ export type Database = {
         }
         Update: {
           category?: Database["public"]["Enums"]["category"] | null
+          content?: string
           content_sns?: string | null
           countries?: string[] | null
           created_at?: string
           html_body?: string | null
           id?: string
           lang_code?: string
-          md_body?: string
           metadata?: Json | null
           regions?: Database["public"]["Enums"]["region"][] | null
+          report_tier?: Database["public"]["Enums"]["report_tier"]
+          report_type?: Database["public"]["Enums"]["report_type"] | null
           summary?: string | null
           summary_meta?: Json | null
           tags?: string[] | null
@@ -1113,6 +1125,7 @@ export type Database = {
         | "UK_AND_IRELAND"
         | "UNKNOWN"
         | "WESTERN_EUROPE"
+      report_tier: "free" | "premium" | "premium_plus"
       report_type:
         | "digest-report"
         | "full-report"
@@ -1301,6 +1314,7 @@ export const Constants = {
         "UNKNOWN",
         "WESTERN_EUROPE",
       ],
+      report_tier: ["free", "premium", "premium_plus"],
       report_type: [
         "digest-report",
         "full-report",
