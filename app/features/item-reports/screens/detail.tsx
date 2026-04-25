@@ -131,11 +131,19 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
           ) : null}
         </article>
 
-        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
-          <div className="hidden lg:block">
+        {/*
+          Aside is bounded to the viewport on lg so its sticky position
+          actually stays inside the screen. The meta block keeps its
+          natural size (`shrink-0`) while RelatedReports flex-fills the
+          remaining space, scrolling inside its own card via Radix
+          ScrollArea. On mobile the aside flows inline and RelatedReports
+          falls back to the default 28rem cap.
+        */}
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:self-start">
+          <div className="hidden shrink-0 lg:block">
             <ReportMetaSidebar report={report} />
           </div>
-          <div className="lg:hidden">
+          <div className="shrink-0 lg:hidden">
             <Accordion
               type="single"
               collapsible
@@ -155,7 +163,11 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
               </AccordionItem>
             </Accordion>
           </div>
-          <RelatedReports reports={related} />
+          <RelatedReports
+            reports={related}
+            className="lg:flex-1"
+            maxHeightClassName="max-h-[28rem] lg:max-h-none"
+          />
         </aside>
       </div>
     </div>
