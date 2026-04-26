@@ -19,25 +19,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/core/components/ui/accordion";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "~/core/components/ui/tabs";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import type { Route } from "./+types/detail";
 import {
   ReadingHeader,
   ReadingHighlightBox,
-  ShareSummaryBlock,
 } from "../components/reading-layout";
 import { RelatedReports } from "../components/related-reports";
+import { ReportDetailTabs } from "../components/report-detail-tabs";
 import { ReportMetaSidebar } from "../components/report-meta-sidebar";
 import { ReportSummaryMeta } from "../components/report-summary-meta";
 import { parseSummaryMeta } from "../lib/format";
-import { ReportMarkdown } from "../lib/markdown";
 import { getRelatedReports, getReport } from "../queries";
 
 export const meta: Route.MetaFunction = ({ data }) => {
@@ -104,38 +97,13 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             </ReadingHighlightBox>
           ) : null}
 
-          {report.content_sns ? (
-            <Tabs
-              defaultValue="content"
-              className="border-border/60 border-t pt-8"
-            >
-              <TabsList variant="line" aria-label="리포트 보기 모드">
-                <TabsTrigger value="content">리포트</TabsTrigger>
-                <TabsTrigger value="share">브리핑</TabsTrigger>
-              </TabsList>
-              <TabsContent
-                value="content"
-                aria-label="본문"
-                className="space-y-4 pt-6"
-              >
-                <ReportMarkdown>{report.content}</ReportMarkdown>
-              </TabsContent>
-              <TabsContent value="share" className="pt-6">
-                <ShareSummaryBlock
-                  category={report.category}
-                  className="my-0"
-                >
-                  {report.content_sns}
-                </ShareSummaryBlock>
-              </TabsContent>
-            </Tabs>
-          ) : (
-            <section aria-label="본문" className="space-y-4">
-              <div className="border-border/60 border-t pt-8">
-                <ReportMarkdown>{report.content}</ReportMarkdown>
-              </div>
-            </section>
-          )}
+          <br />
+
+          <ReportDetailTabs
+            content={report.content}
+            contentSns={report.content_sns}
+            category={report.category}
+          />
 
           {(report.tags?.length ?? 0) > 0 ? (
             <footer className="border-border flex flex-wrap items-center gap-2 border-t pt-6">

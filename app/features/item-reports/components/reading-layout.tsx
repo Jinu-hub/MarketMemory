@@ -56,7 +56,7 @@ export function ReadingHeader({ report, className }: ReadingHeaderProps) {
           <span className="text-muted-foreground text-xs">· {date}</span>
         ) : null}
       </div>
-      <h1 className="text-3xl leading-tight font-bold tracking-tight md:text-4xl lg:text-5xl">
+      <h1 className="text-2xl leading-tight font-bold tracking-tight md:text-3xl lg:text-4xl">
         {report.title ?? "Untitled report"}
       </h1>
     </header>
