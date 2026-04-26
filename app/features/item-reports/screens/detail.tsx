@@ -19,6 +19,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/core/components/ui/accordion";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/core/components/ui/tabs";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import type { Route } from "./+types/detail";
@@ -94,21 +100,42 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
               category={report.category}
               className="my-0"
             >
-              <p className="text-base leading-8 md:text-lg">{report.summary}</p>
+              <p className="text-base leading-8 md:text-lg whitespace-pre-line">{report.summary}</p>
             </ReadingHighlightBox>
           ) : null}
 
-          {report.content ? (
+          {report.content_sns ? (
+            <Tabs
+              defaultValue="content"
+              className="border-border/60 border-t pt-8"
+            >
+              <TabsList variant="line" aria-label="리포트 보기 모드">
+                <TabsTrigger value="content">리포트</TabsTrigger>
+                <TabsTrigger value="share">브리핑</TabsTrigger>
+              </TabsList>
+              <TabsContent
+                value="content"
+                aria-label="본문"
+                className="space-y-4 pt-6"
+              >
+                <ReportMarkdown>{report.content}</ReportMarkdown>
+              </TabsContent>
+              <TabsContent value="share" className="pt-6">
+                <ShareSummaryBlock
+                  category={report.category}
+                  className="my-0"
+                >
+                  {report.content_sns}
+                </ShareSummaryBlock>
+              </TabsContent>
+            </Tabs>
+          ) : (
             <section aria-label="본문" className="space-y-4">
               <div className="border-border/60 border-t pt-8">
                 <ReportMarkdown>{report.content}</ReportMarkdown>
               </div>
             </section>
-          ) : null}
-
-          <ShareSummaryBlock category={report.category}>
-            {report.content_sns}
-          </ShareSummaryBlock>
+          )}
 
           {(report.tags?.length ?? 0) > 0 ? (
             <footer className="border-border flex flex-wrap items-center gap-2 border-t pt-6">

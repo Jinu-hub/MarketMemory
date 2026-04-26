@@ -183,7 +183,9 @@ export function ShareSummaryBlock({
       <ShareIcon className={cn("mt-0.5 size-4 shrink-0", style.accentText)} />
       <div className="min-w-0 space-y-1">
         <p className="text-foreground text-sm font-semibold">공유용 요약</p>
-        <p className="text-foreground/85 text-sm leading-7">{children}</p>
+        <p className="text-foreground/85 text-sm leading-7 whitespace-pre-line">
+          {children}
+        </p>
       </div>
     </section>
   );
