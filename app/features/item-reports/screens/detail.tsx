@@ -9,10 +9,9 @@
  *  - `ShareSummaryBlock`: SNS summary rendered as related-insight callout
  *  - Right-rail `ReportMetaSidebar` + `RelatedReports` (responsive accordion)
  */
-import { ArrowLeftIcon, TagIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { Link, data } from "react-router";
 
-import { NexBadge } from "~/core/components/nex";
 import {
   Accordion,
   AccordionContent,
@@ -28,6 +27,7 @@ import {
 } from "../components/reading-layout";
 import { RelatedReports } from "../components/related-reports";
 import { ReportDetailTabs } from "../components/report-detail-tabs";
+import { ReportEntitiesFooter } from "../components/report-entities-footer";
 import { ReportMetaSidebar } from "../components/report-meta-sidebar";
 import { ReportSummaryMeta } from "../components/report-summary-meta";
 import { parseSummaryMeta } from "../lib/format";
@@ -122,25 +122,7 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             isAdmin={isAdmin}
           />
 
-          {(report.tags?.length ?? 0) > 0 ? (
-            <footer className="border-border flex flex-wrap items-center gap-2 border-t pt-6">
-              <span className="text-muted-foreground mr-1 inline-flex items-center gap-1 text-xs">
-                <TagIcon className="size-3" />
-                Topics
-              </span>
-              {report.tags!.map((tag) => (
-                <Link
-                  key={tag}
-                  to={`/item_reports?tag=${encodeURIComponent(tag)}`}
-                  viewTransition
-                >
-                  <NexBadge variant="outline" size="sm">
-                    #{tag}
-                  </NexBadge>
-                </Link>
-              ))}
-            </footer>
-          ) : null}
+          <ReportEntitiesFooter metadata={report.metadata} />
         </article>
 
         {/*

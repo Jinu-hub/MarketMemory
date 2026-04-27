@@ -5,6 +5,7 @@ import {
   LanguagesIcon,
   LayersIcon,
   MapPinIcon,
+  TagIcon,
 } from "lucide-react";
 import { Link } from "react-router";
 
@@ -157,7 +158,8 @@ export function ReportMetaSidebar({
 
       {(report.tags?.length ?? 0) > 0 ? (
         <div className="border-border/60 space-y-2 border-t pt-4">
-          <div className="text-muted-foreground text-xs tracking-wide uppercase">
+          <div className="text-muted-foreground inline-flex items-center gap-1.5 text-xs tracking-wide uppercase">
+            <TagIcon className="size-3" aria-hidden />
             태그
           </div>
           <div className="flex flex-wrap gap-1.5">
