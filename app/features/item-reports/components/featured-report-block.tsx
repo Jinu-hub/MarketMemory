@@ -17,6 +17,7 @@ import {
   resolveTakeaway,
 } from "../lib/format";
 import type { ReportListItem } from "../types";
+import { ReportTierBadge } from "./report-tier-badge";
 
 type FeaturedReportBlockProps = {
   report: ReportListItem;
@@ -66,6 +67,7 @@ export function FeaturedReportBlock({
                 {style.label}
               </NexBadge>
             ) : null}
+            <ReportTierBadge tier={report.report_tier} />
             <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
               <ClockIcon className="size-3" />
               {readTime} min read

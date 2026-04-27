@@ -5,6 +5,7 @@ import {
   LanguagesIcon,
   LayersIcon,
   MapPinIcon,
+  ShieldCheckIcon,
   TagIcon,
 } from "lucide-react";
 import { Link } from "react-router";
@@ -18,7 +19,9 @@ import {
   formatRegion,
   formatReportType,
 } from "../lib/format";
+import { getTierStyle } from "../lib/tier-style";
 import type { ReportDetail } from "../types";
+import { ReportTierBadge } from "./report-tier-badge";
 
 type ReportMetaSidebarProps = {
   report: ReportDetail;
@@ -75,6 +78,23 @@ export function ReportMetaSidebar({
           className="hover:text-primary underline-offset-4 hover:underline"
         >
           {formatReportType(report.report_type)}
+        </Link>
+      ),
+    });
+  }
+
+  if (report.report_tier) {
+    const tierStyle = getTierStyle(report.report_tier);
+    rows.push({
+      icon: <ShieldCheckIcon className={cn("size-4", tierStyle.accentText)} />,
+      label: "등급",
+      content: (
+        <Link
+          to={`/item_reports?report_tier=${report.report_tier}`}
+          className="inline-flex items-center underline-offset-4 hover:underline"
+          aria-label={`${tierStyle.label} 등급 리포트만 보기`}
+        >
+          <ReportTierBadge tier={report.report_tier} showFree />
         </Link>
       ),
     });

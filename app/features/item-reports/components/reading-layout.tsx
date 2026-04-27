@@ -6,6 +6,7 @@ import { cn } from "~/core/lib/utils";
 import { getCategoryStyle } from "../lib/category-style";
 import { estimateReadingTime, formatDate } from "../lib/format";
 import type { ReportDetail } from "../types";
+import { ReportTierBadge } from "./report-tier-badge";
 
 /**
  * Long-form reading layout for the detail screen.
@@ -48,6 +49,7 @@ export function ReadingHeader({ report, className }: ReadingHeaderProps) {
             {report.report_type.replace(/-report$/u, "")}
           </NexBadge>
         ) : null}
+        <ReportTierBadge tier={report.report_tier} />
         <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
           <span aria-hidden>·</span>
           {readTime} min read

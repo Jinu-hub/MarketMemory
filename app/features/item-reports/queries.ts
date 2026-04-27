@@ -19,7 +19,7 @@ import type {
 } from "./types";
 
 const LIST_COLUMNS =
-  "id,title,summary,summary_meta,category,report_type,regions,countries,tags,input_date,created_at,lang_code";
+  "id,title,summary,summary_meta,category,report_type,report_tier,regions,countries,tags,input_date,created_at,lang_code";
 
 type DB = SupabaseClient<Database>;
 
@@ -49,6 +49,12 @@ export async function getReports(
     query = query.eq(
       "report_type",
       filter.reportType as Database["public"]["Enums"]["report_type"],
+    );
+  }
+  if (filter.reportTier) {
+    query = query.eq(
+      "report_tier",
+      filter.reportTier as Database["public"]["Enums"]["report_tier"],
     );
   }
   if (filter.lang) {
@@ -182,7 +188,7 @@ export async function getRelatedReports(
 export async function getFacets(client: DB): Promise<FacetCounts> {
   const { data, error } = await client
     .from("item_contents")
-    .select("category,report_type,regions,tags,lang_code")
+    .select("category,report_type,report_tier,regions,tags,lang_code")
     .eq("is_public", true)
     .eq("is_active", true)
     .order("created_at", { ascending: false })
@@ -194,6 +200,7 @@ export async function getFacets(client: DB): Promise<FacetCounts> {
 
   const categories: Record<string, number> = {};
   const reportTypes: Record<string, number> = {};
+  const reportTiers: Record<string, number> = {};
   const regions: Record<string, number> = {};
   const languages: Record<string, number> = {};
   const tagCounts: Record<string, number> = {};
@@ -204,6 +211,9 @@ export async function getFacets(client: DB): Promise<FacetCounts> {
     }
     if (row.report_type) {
       reportTypes[row.report_type] = (reportTypes[row.report_type] ?? 0) + 1;
+    }
+    if (row.report_tier) {
+      reportTiers[row.report_tier] = (reportTiers[row.report_tier] ?? 0) + 1;
     }
     if (row.lang_code) {
       languages[row.lang_code] = (languages[row.lang_code] ?? 0) + 1;
@@ -223,7 +233,14 @@ export async function getFacets(client: DB): Promise<FacetCounts> {
     .slice(0, 40)
     .map(([tag, count]) => ({ tag, count }));
 
-  return { categories, reportTypes, regions, languages, topTags };
+  return {
+    categories,
+    reportTypes,
+    reportTiers,
+    regions,
+    languages,
+    topTags,
+  };
 }
 
 /**

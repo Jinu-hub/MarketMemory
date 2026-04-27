@@ -3,6 +3,7 @@ import type { Database } from "database.types";
 export type ReportCategory = Database["public"]["Enums"]["category"];
 export type ReportType = Database["public"]["Enums"]["report_type"];
 export type ReportRegion = Database["public"]["Enums"]["region"];
+export type ReportTier = Database["public"]["Enums"]["report_tier"];
 
 export const REPORT_CATEGORIES: ReportCategory[] = [
   "foundation",
@@ -138,6 +139,20 @@ export const REPORT_REGION_LABELS_KO: Partial<Record<ReportRegion, string>> = {
   ANZ: "호주·뉴질랜드",
   OCEANIA: "오세아니아",
   UNKNOWN: "미상",
+};
+
+export const REPORT_TIERS: ReportTier[] = ["free", "premium", "premium_plus"];
+
+export const REPORT_TIER_LABELS_KO: Record<ReportTier, string> = {
+  free: "무료",
+  premium: "프리미엄",
+  premium_plus: "프리미엄+",
+};
+
+export const REPORT_TIER_LABELS: Record<ReportTier, string> = {
+  free: "Free",
+  premium: "Premium",
+  premium_plus: "Premium+",
 };
 
 export const PAGE_SIZE = 12;

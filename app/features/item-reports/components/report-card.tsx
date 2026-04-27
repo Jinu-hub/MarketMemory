@@ -12,6 +12,7 @@ import {
   resolveTakeaway,
 } from "../lib/format";
 import type { ReportListItem } from "../types";
+import { ReportTierBadge } from "./report-tier-badge";
 
 type ReportCardProps = {
   report: ReportListItem;
@@ -62,6 +63,7 @@ export function ReportCard({
             {formatReportType(report.report_type)}
           </NexBadge>
         ) : null}
+        <ReportTierBadge tier={report.report_tier} className="ml-auto" />
       </div>
 
       <div className="flex-1 space-y-2">

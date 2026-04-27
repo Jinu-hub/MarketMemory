@@ -18,6 +18,8 @@ import {
   REPORT_CATEGORY_LABELS_KO,
   REPORT_REGIONS,
   REPORT_REGION_LABELS_KO,
+  REPORT_TIERS,
+  REPORT_TIER_LABELS_KO,
   REPORT_TYPES,
   REPORT_TYPE_LABELS_KO,
 } from "../constants";
@@ -29,6 +31,7 @@ type ReportFilterPanelProps = {
   facets?: {
     categories: Record<string, number>;
     reportTypes: Record<string, number>;
+    reportTiers: Record<string, number>;
     regions: Record<string, number>;
     languages: Record<string, number>;
   };
@@ -84,6 +87,7 @@ export function ReportFilterPanel({
 
   const selectedCategory = params.get("category") ?? ALL_VALUE;
   const selectedType = params.get("report_type") ?? ALL_VALUE;
+  const selectedTier = params.get("report_tier") ?? ALL_VALUE;
   const selectedRegion = params.get("region") ?? ALL_VALUE;
   const selectedLang = params.get("lang") ?? ALL_VALUE;
 
@@ -133,6 +137,19 @@ export function ReportFilterPanel({
           ...REPORT_TYPES.map((type) => ({
             value: type,
             label: `${REPORT_TYPE_LABELS_KO[type]}${facets?.reportTypes[type] ? ` (${facets.reportTypes[type]})` : ""}`,
+          })),
+        ]}
+      />
+
+      <FilterSelect
+        label="등급"
+        value={selectedTier}
+        onChange={(value) => updateParam("report_tier", value)}
+        options={[
+          { value: ALL_VALUE, label: "전체 등급" },
+          ...REPORT_TIERS.map((tier) => ({
+            value: tier,
+            label: `${REPORT_TIER_LABELS_KO[tier]}${facets?.reportTiers[tier] ? ` (${facets.reportTiers[tier]})` : ""}`,
           })),
         ]}
       />

@@ -25,6 +25,7 @@ export type ReportListItem = Pick<
   | "summary_meta"
   | "category"
   | "report_type"
+  | "report_tier"
   | "regions"
   | "countries"
   | "tags"
@@ -38,6 +39,7 @@ export type ReportDetail = ItemContentRow;
 export type ListFilter = {
   category?: string;
   reportType?: string;
+  reportTier?: string;
   region?: string;
   country?: string;
   tag?: string;
@@ -57,6 +59,7 @@ export type PagedReports = {
 export type FacetCounts = {
   categories: Record<string, number>;
   reportTypes: Record<string, number>;
+  reportTiers: Record<string, number>;
   regions: Record<string, number>;
   languages: Record<string, number>;
   topTags: Array<{ tag: string; count: number }>;

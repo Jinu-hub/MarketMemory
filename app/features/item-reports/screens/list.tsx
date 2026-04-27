@@ -55,6 +55,7 @@ function parseFilter(url: URL): ListFilter {
   return {
     category: url.searchParams.get("category") ?? undefined,
     reportType: url.searchParams.get("report_type") ?? undefined,
+    reportTier: url.searchParams.get("report_tier") ?? undefined,
     region: url.searchParams.get("region") ?? undefined,
     country: url.searchParams.get("country") ?? undefined,
     tag: url.searchParams.get("tag") ?? undefined,
@@ -82,6 +83,7 @@ function hasActiveFilter(filter: ListFilter): boolean {
   return Boolean(
     filter.category ??
       filter.reportType ??
+      filter.reportTier ??
       filter.region ??
       filter.country ??
       filter.tag ??

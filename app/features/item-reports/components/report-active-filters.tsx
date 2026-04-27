@@ -3,11 +3,17 @@ import { useSearchParams } from "react-router";
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
-import { formatCategory, formatRegion, formatReportType } from "../lib/format";
+import {
+  formatCategory,
+  formatRegion,
+  formatReportTier,
+  formatReportType,
+} from "../lib/format";
 
 const CHIP_KEYS = [
   "category",
   "report_type",
+  "report_tier",
   "region",
   "country",
   "tag",
@@ -20,6 +26,7 @@ type ChipKey = (typeof CHIP_KEYS)[number];
 const labels: Record<ChipKey, string> = {
   category: "카테고리",
   report_type: "유형",
+  report_tier: "등급",
   region: "지역",
   country: "국가",
   tag: "태그",
@@ -33,6 +40,8 @@ function renderValue(key: ChipKey, value: string): string {
       return formatCategory(value);
     case "report_type":
       return formatReportType(value);
+    case "report_tier":
+      return formatReportTier(value);
     case "region":
       return formatRegion(value);
     case "lang":
