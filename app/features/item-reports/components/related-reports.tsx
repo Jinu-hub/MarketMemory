@@ -69,7 +69,7 @@ export function RelatedReports({
         </span>
       </div>
 
-      <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-3">
+      <ul className="scrollbar-thin min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-3">
         {reports.map((report) => {
           const takeaway = resolveTakeaway(report.summary, report.summary_meta);
           const style = getCategoryStyle(report.category);

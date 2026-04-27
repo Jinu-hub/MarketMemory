@@ -11,12 +11,16 @@
  *   - chevron rotates 180° instead of swapping icons (less visual noise)
  *   - the trigger is the entire row so the touch target is generous
  *   - a one-line subtitle clarifies what's behind the toggle
- *   - the bottom border of the article keeps the editorial rhythm whether
- *     the disclosure is open or closed
+ *   - admin viewers (profiles.is_admin === true) get a "복사" button next to
+ *     the tab list that copies the **currently active** tab's source text
+ *     (raw markdown for `리포트`, SNS body for `브리핑`) to the clipboard.
+ *     The button is intentionally omitted for non-admin readers so the
+ *     editorial reading experience stays uncluttered.
  */
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 
+import { CopyButton } from "~/core/components/copy-button";
 import {
   Collapsible,
   CollapsibleContent,
@@ -37,14 +41,27 @@ type ReportDetailTabsProps = {
   content?: string | null;
   contentSns?: string | null;
   category?: string | null;
+  /**
+   * When true, an inline "복사" button appears next to the tab list that
+   * copies the active tab's source text to the clipboard. Drive this from
+   * the detail loader using `profiles.is_admin`.
+   */
+  isAdmin?: boolean;
 };
+
+type TabValue = "content" | "share";
 
 export function ReportDetailTabs({
   content,
   contentSns,
   category,
+  isAdmin = false,
 }: ReportDetailTabsProps) {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabValue>("content");
+
+  const activeText = activeTab === "share" ? contentSns : content;
+  const canCopy = isAdmin && Boolean(activeText);
 
   return (
     <Collapsible
@@ -89,19 +106,34 @@ export function ReportDetailTabs({
         )}
       >
         <div className="pt-2 pb-2">
-          <Tabs defaultValue="content">
-            <TabsList variant="line" aria-label="리포트 보기 모드">
-              <TabsTrigger value="content">리포트</TabsTrigger>
-              {contentSns ? (
-                <TabsTrigger value="share">브리핑</TabsTrigger>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as TabValue)}
+          >
+            <div className="flex items-end justify-between gap-3">
+              <TabsList variant="line" aria-label="리포트 보기 모드">
+                <TabsTrigger value="content">리포트</TabsTrigger>
+                {contentSns ? (
+                  <TabsTrigger value="share">브리핑</TabsTrigger>
+                ) : null}
+              </TabsList>
+              {canCopy ? (
+                <CopyButton
+                  text={activeText ?? ""}
+                  label={activeTab === "share" ? "Copy" : "Copy"}
+                  aria-label={`${
+                    activeTab === "share" ? "Copy" : "Copy"
+                  } (관리자 전용)`}
+                  className="cursor-pointer"
+                />
               ) : null}
-            </TabsList>
+            </div>
             <TabsContent
               value="content"
               aria-label="본문"
               className="space-y-4 pt-6"
             >
-              <ReportMarkdown>{content}</ReportMarkdown>
+              <ReportMarkdown category={category}>{content}</ReportMarkdown>
             </TabsContent>
             {contentSns ? (
               <TabsContent value="share" className="pt-6">
@@ -116,3 +148,4 @@ export function ReportDetailTabs({
     </Collapsible>
   );
 }
+
