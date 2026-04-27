@@ -32,6 +32,7 @@ import { ReportMetaSidebar } from "../components/report-meta-sidebar";
 import { ReportSummaryMeta } from "../components/report-summary-meta";
 import { parseSummaryMeta } from "../lib/format";
 import { getRelatedReports, getReport } from "../queries";
+import { getUserProfile } from "~/features/users/queries";
 
 export const meta: Route.MetaFunction = ({ data }) => {
   if (!data) {
@@ -51,20 +52,35 @@ export const meta: Route.MetaFunction = ({ data }) => {
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
-  const report = await getReport(client, params.id);
+  // Fetch the report and the current auth user in parallel — both are
+  // independent of each other, and 404-ing has higher priority than the
+  // admin lookup, so we await the report result first.
+  const [report, authResult] = await Promise.all([
+    getReport(client, params.id),
+    client.auth.getUser(),
+  ]);
   if (!report) {
     throw data(null, { status: 404 });
   }
-  const related = await getRelatedReports(client, {
-    id: report.id,
-    category: report.category,
-    limit: 5,
-  });
-  return { report, related };
+
+  const userId = authResult.data.user?.id ?? null;
+  const [related, profile] = await Promise.all([
+    getRelatedReports(client, {
+      id: report.id,
+      category: report.category,
+      limit: 5,
+    }),
+    userId
+      ? getUserProfile(client, { userId }).catch(() => null)
+      : Promise.resolve(null),
+  ]);
+
+  const isAdmin = profile?.is_admin === true;
+  return { report, related, isAdmin };
 }
 
 export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
-  const { report, related } = loaderData;
+  const { report, related, isAdmin } = loaderData;
 
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">
@@ -103,6 +119,7 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             content={report.content}
             contentSns={report.content_sns}
             category={report.category}
+            isAdmin={isAdmin}
           />
 
           {(report.tags?.length ?? 0) > 0 ? (

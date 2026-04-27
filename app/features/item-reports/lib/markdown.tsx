@@ -5,18 +5,34 @@
  * We use `react-markdown` + `remark-gfm` so reports render with tables,
  * strikethrough, task lists, and autolinked URLs, styled consistently with
  * the MDX blog typography.
+ *
+ * Editorial flourishes (so the report tab feels closer to a published
+ * piece than a generic markdown dump):
+ *   - the body sits on a subtle "paper" surface (card-tinted background,
+ *     soft border, generous padding) to read as an open page rather than
+ *     a markdown dump — pairs especially well with the warm theme
+ *   - the first paragraph reads as a lead (larger size, looser leading,
+ *     stronger weight) to act as a stand-first / dek
+ *   - `---` horizontal rules render as a centred ornament divider tinted
+ *     with the report's category accent
+ *   - `>` blockquotes upgrade to a pull-quote with category accent border
+ *     and a soft Quote glyph, mirroring `ReadingPullQuote`
  */
+import { QuoteIcon } from "lucide-react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { cn } from "~/core/lib/utils";
 
+import { getCategoryStyle } from "./category-style";
+
 type ReportMarkdownProps = {
   children?: string | null;
+  category?: string | null;
   className?: string;
 };
 
-const components: Components = {
+const baseComponents: Components = {
   h1: ({ children, ...props }) => (
     <h1
       className="mt-10 scroll-m-20 text-3xl font-bold tracking-tight first:mt-0 md:text-4xl"
@@ -72,14 +88,6 @@ const components: Components = {
       {children}
     </li>
   ),
-  blockquote: ({ children, ...props }) => (
-    <blockquote
-      className="border-border text-muted-foreground my-6 border-l-2 pl-6 italic"
-      {...props}
-    >
-      {children}
-    </blockquote>
-  ),
   a: ({ children, ...props }) => (
     <a
       className="text-primary hover:text-primary/80 underline underline-offset-4"
@@ -116,7 +124,6 @@ const components: Components = {
       {children}
     </pre>
   ),
-  hr: (props) => <hr className="border-border my-10" {...props} />,
   table: ({ children, ...props }) => (
     <div className="my-6 w-full overflow-x-auto">
       <table
@@ -149,10 +156,69 @@ const components: Components = {
   ),
 };
 
-export function ReportMarkdown({ children, className }: ReportMarkdownProps) {
+export function ReportMarkdown({
+  children,
+  category,
+  className,
+}: ReportMarkdownProps) {
   if (!children) return null;
+  const style = getCategoryStyle(category);
+  const CategoryIcon = style.icon;
+
+  const components: Components = {
+    ...baseComponents,
+    hr: () => (
+      <div
+        role="separator"
+        aria-hidden
+        className="my-12 flex items-center gap-4"
+      >
+        <span className="bg-border/60 h-px flex-1" />
+        <CategoryIcon
+          className={cn("size-3.5 opacity-70", style.accentText)}
+        />
+        <span className="bg-border/60 h-px flex-1" />
+      </div>
+    ),
+    blockquote: ({ children: quoteChildren, ...props }) => (
+      <blockquote
+        className={cn(
+          "relative my-8 border-l-[3px] py-4 pr-2 pl-7",
+          style.accentBorder,
+          // Pull-quote treatment for the inner paragraph(s).
+          "[&>p]:text-foreground/90 [&>p]:text-lg [&>p]:leading-relaxed [&>p]:font-medium [&>p]:italic",
+          "[&>p:not(:first-child)]:mt-3",
+        )}
+        {...props}
+      >
+        <QuoteIcon
+          aria-hidden
+          className={cn(
+            "absolute -top-2 -left-3 size-6 opacity-25",
+            style.accentText,
+          )}
+        />
+        {quoteChildren}
+      </blockquote>
+    ),
+  };
+
   return (
-    <div className={cn("max-w-none text-base md:text-[1.05rem]", className)}>
+    <div
+      className={cn(
+        "max-w-none text-base md:text-[1.05rem]",
+        // Paper container — subtle elevated reading surface that pairs
+        // with the briefing card as a visual sibling without competing
+        // with it (no category accent here; the body's lead/divider/
+        // pull-quote treatments already carry the category language).
+        "bg-card/40 border-border/40 rounded-xl border",
+        "px-5 py-7 md:px-10 md:py-12",
+        // Lead paragraph treatment — first top-level <p> reads as a dek.
+        "[&>p:first-of-type]:text-foreground [&>p:first-of-type]:text-lg [&>p:first-of-type]:font-medium [&>p:first-of-type]:leading-9",
+        "md:[&>p:first-of-type]:text-xl md:[&>p:first-of-type]:leading-10",
+        className,
+      )}
+    >
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {children}
       </ReactMarkdown>
