@@ -15,6 +15,11 @@ type ReportTimelineProps = {
    * text, denser spacing). Default is `false` (standalone page variant).
    */
   compact?: boolean;
+  /**
+   * When `false`, hides the per-month `N건` next to group headings (e.g. when
+   * the parent surface already shows the total count).
+   */
+  showGroupCounts?: boolean;
 };
 
 type TimelineGroup = {
@@ -52,6 +57,7 @@ export function ReportTimeline({
   reports,
   className,
   compact = false,
+  showGroupCounts = true,
 }: ReportTimelineProps) {
   const groups = groupByMonth(reports);
   if (groups.length === 0) {
@@ -75,9 +81,11 @@ export function ReportTimeline({
             >
               {group.label}
             </h3>
-            <span className="text-muted-foreground text-xs">
-              {group.reports.length}건
-            </span>
+            {showGroupCounts ? (
+              <span className="text-muted-foreground text-xs">
+                {group.reports.length}건
+              </span>
+            ) : null}
           </div>
 
           <div className="relative">
