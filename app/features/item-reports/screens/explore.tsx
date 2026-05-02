@@ -4,7 +4,8 @@
  * Editorial discovery page combining:
  *  - Featured hero (most-recent report) promoted via `FeaturedReportBlock`
  *  - Collapsible recent-report timeline below hero
- *  - Tab shell: controls on top strip; results in left-accent panel (scope heading)
+ *  - Tab shell: controls on top strip; results in left-accent panel
+ *  - Tags tab: top N as cards, rest in collapsible chips
  *
  * Goal: feel like a content hub (Substack + Obsidian), not a dashboard.
  */
@@ -43,16 +44,26 @@ import {
   REPORT_CATEGORIES,
   REPORT_CATEGORY_LABELS_KO,
   REPORT_REGION_LABELS_KO,
+  REPORT_TYPE_EXPLORE_INTRO_KO,
   REPORT_TYPE_LABELS_KO,
   type ReportRegion,
   type ReportType,
 } from "../constants";
 import { getCategoryStyle } from "../lib/category-style";
 import {
+  getRegionCardTitle,
+  getRegionExploreIcon,
+  getRegionExploreIntro,
+} from "../lib/report-region-explore";
+import { getReportTypeExploreIcon } from "../lib/report-type-explore";
+import {
   getCategoryHighlights,
   getFacets,
   getRecentReports,
 } from "../queries";
+
+/** 태그 탭: 상위 N개는 카드, 이후는 접기 영역의 칩 */
+const EXPLORE_TAG_CARD_LEADING = 6;
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -75,7 +86,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const [highlights, recent] = await Promise.all([
     getCategoryHighlights(client, {
       categories: activeCategories,
-      perCategory: 3,
+      perCategory: 6,
     }),
     getRecentReports(client, 10),
   ]);
@@ -98,6 +109,9 @@ export default function ItemReportsExplore({
   const topTypes = Object.entries(facets.reportTypes).sort(
     (a, b) => b[1] - a[1],
   );
+
+  const tagFeatured = facets.topTags.slice(0, EXPLORE_TAG_CARD_LEADING);
+  const tagMore = facets.topTags.slice(EXPLORE_TAG_CARD_LEADING);
 
   return (
     <div className="flex flex-1 flex-col gap-10 px-4 pt-2 pb-16 md:px-8">
@@ -228,8 +242,8 @@ export default function ItemReportsExplore({
                 <div className="space-y-6">
                   <TabScopeHeading
                     scope="카테고리별"
-                    title="하이라이트"
-                    description="카테고리마다 가장 최근의 대표 리포트를 모았습니다."
+                    title=""
+                    description="카테고리별 리포트 목록입니다."
                   />
 
                   {activeCategories.length === 0 ? (
@@ -265,10 +279,16 @@ export default function ItemReportsExplore({
                                 <ArrowRightIcon className="size-3.5" />
                               </Link>
                             </div>
-                            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
-                              {rows.map((report) => (
-                                <li key={report.id}>
-                                  <ReportCard report={report} />
+                            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+                              {rows.map((report, index) => (
+                                <li
+                                  key={report.id}
+                                  className={index >= 3 ? "max-md:hidden" : undefined}
+                                >
+                                  <ReportCard
+                                    report={report}
+                                    density="compact"
+                                  />
                                 </li>
                               ))}
                             </ul>
@@ -286,28 +306,69 @@ export default function ItemReportsExplore({
                   title="포맷별 바로가기"
                   description="작성 포맷에 따라 목록으로 이동합니다."
                 />
-                <FacetPanel embedded hideHeader>
-                  <div className="flex flex-wrap gap-2">
-                    {topTypes.length === 0 ? (
-                      <EmptyFacet>데이터가 아직 부족합니다.</EmptyFacet>
-                    ) : (
-                      topTypes.map(([type, count]) => (
-                        <Link
-                          key={type}
-                          to={`/item_reports?report_type=${type}`}
-                          className="border-border hover:border-primary/40 bg-background inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors"
-                        >
-                          <span className="font-medium">
-                            {REPORT_TYPE_LABELS_KO[type as ReportType] ?? type}
-                          </span>
-                          <span className="text-muted-foreground text-xs">
-                            {count}
-                          </span>
-                        </Link>
-                      ))
-                    )}
-                  </div>
-                </FacetPanel>
+                {topTypes.length === 0 ? (
+                  <p className="text-muted-foreground mt-3 text-sm">
+                    데이터가 아직 부족합니다.
+                  </p>
+                ) : (
+                  <ul
+                    className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                    role="list"
+                  >
+                    {topTypes.map(([type, count]) => {
+                      const label =
+                        REPORT_TYPE_LABELS_KO[type as ReportType] ?? type;
+                      const TypeIcon = getReportTypeExploreIcon(type);
+                      const cardTitle =
+                        type === "full-report"
+                          ? "풀 리포트"
+                          : `${label} 리포트`;
+                      const intro =
+                        REPORT_TYPE_EXPLORE_INTRO_KO[type as ReportType] ??
+                        "이 유형의 공개 리포트만 모아서 볼 수 있습니다.";
+                      return (
+                        <li key={type}>
+                          <Link
+                            to={`/item_reports?report_type=${type}`}
+                            viewTransition
+                            aria-label={`${cardTitle} 목록 보기`}
+                            className={cn(
+                              "group bg-card border-border hover:border-primary/40 flex h-full min-h-[9rem] flex-col gap-3 rounded-xl border p-4 shadow-xs transition-all",
+                              "hover:-translate-y-0.5 hover:shadow-md",
+                            )}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex min-w-0 items-center gap-2.5">
+                                <span className="bg-muted text-muted-foreground group-hover:text-primary/90 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors">
+                                  <TypeIcon
+                                    className="size-4"
+                                    aria-hidden
+                                  />
+                                </span>
+                                <span className="text-foreground text-base font-semibold leading-snug tracking-tight">
+                                  {cardTitle}
+                                </span>
+                              </div>
+                              <NexBadge variant="outline" size="sm" className="shrink-0">
+                                {count}건
+                              </NexBadge>
+                            </div>
+                            <p className="text-muted-foreground flex-1 text-xs leading-relaxed">
+                              {intro}
+                            </p>
+                            <span className="text-primary inline-flex items-center gap-1 text-xs font-medium">
+                              목록 열기
+                              <ArrowRightIcon
+                                className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                                aria-hidden
+                              />
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </TabsContent>
 
               <TabsContent value="region" className="mt-0 outline-none">
@@ -316,55 +377,196 @@ export default function ItemReportsExplore({
                   title="권역별 바로가기"
                   description="국가·권역 기준으로 목록을 엽니다."
                 />
-                <FacetPanel embedded hideHeader>
-                  <div className="flex flex-wrap gap-2">
-                    {topRegions.length === 0 ? (
-                      <EmptyFacet>등록된 지역 데이터가 없습니다.</EmptyFacet>
-                    ) : (
-                      topRegions.map(([region, count]) => (
-                        <Link
-                          key={region}
-                          to={`/item_reports?region=${region}`}
-                          className="border-border hover:border-primary/40 bg-background inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors"
-                        >
-                          <span className="font-medium">
-                            {REPORT_REGION_LABELS_KO[region as ReportRegion] ??
-                              region}
-                          </span>
-                          <span className="text-muted-foreground text-xs">
-                            {count}
-                          </span>
-                        </Link>
-                      ))
-                    )}
-                  </div>
-                </FacetPanel>
+                {topRegions.length === 0 ? (
+                  <p className="text-muted-foreground mt-3 text-sm">
+                    등록된 지역 데이터가 없습니다.
+                  </p>
+                ) : (
+                  <ul
+                    className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                    role="list"
+                  >
+                    {topRegions.map(([region, count]) => {
+                      const labelKo =
+                        REPORT_REGION_LABELS_KO[region as ReportRegion] ??
+                        region;
+                      const RegionIcon = getRegionExploreIcon(region);
+                      const cardTitle = getRegionCardTitle(region, labelKo);
+                      const intro = getRegionExploreIntro(region);
+                      return (
+                        <li key={region}>
+                          <Link
+                            to={`/item_reports?region=${region}`}
+                            viewTransition
+                            aria-label={`${cardTitle} 리포트 목록 보기`}
+                            className={cn(
+                              "group bg-card border-border hover:border-primary/40 flex h-full min-h-[9rem] flex-col gap-3 rounded-xl border p-4 shadow-xs transition-all",
+                              "hover:-translate-y-0.5 hover:shadow-md",
+                            )}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex min-w-0 items-center gap-2.5">
+                                <span className="bg-muted text-muted-foreground group-hover:text-primary/90 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors">
+                                  <RegionIcon
+                                    className="size-4"
+                                    aria-hidden
+                                  />
+                                </span>
+                                <span className="text-foreground text-base font-semibold leading-snug tracking-tight">
+                                  {cardTitle}
+                                </span>
+                              </div>
+                              <NexBadge variant="outline" size="sm" className="shrink-0">
+                                {count}건
+                              </NexBadge>
+                            </div>
+                            <p className="text-muted-foreground flex-1 text-xs leading-relaxed">
+                              {intro}
+                            </p>
+                            <span className="text-primary inline-flex items-center gap-1 text-xs font-medium">
+                              목록 열기
+                              <ArrowRightIcon
+                                className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                                aria-hidden
+                              />
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </TabsContent>
 
               <TabsContent value="tags" className="mt-0 space-y-4 outline-none">
                 <TabScopeHeading
                   scope="태그별"
                   title="자주 등장하는 태그"
-                  description="특정 주제·키워드로 빠르게 진입하세요."
+                  description="특정 주제·키워드로 빠르게 진입하세요. 상위 태그는 카드, 그 외는 아래에서 펼쳐 볼 수 있습니다."
                 />
                 {facets.topTags.length === 0 ? (
                   <div className="border-border text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm">
                     아직 수집된 태그가 없습니다.
                   </div>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {facets.topTags.map(({ tag, count }) => (
-                      <Link
-                        key={tag}
-                        to={`/item_reports?tag=${encodeURIComponent(tag)}`}
-                        className="bg-muted/60 hover:bg-muted inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm transition-colors"
+                  <div className="space-y-8">
+                    <section
+                      className="space-y-3"
+                      aria-labelledby="explore-tags-featured-heading"
+                    >
+                      <div>
+                        <h4
+                          id="explore-tags-featured-heading"
+                          className="text-foreground text-sm font-semibold tracking-tight"
+                        >
+                          인기 태그
+                        </h4>
+                        <p className="text-muted-foreground mt-0.5 text-xs">
+                          최근 샘플 기준 빈도가 높은 상위 {tagFeatured.length}개입니다.
+                        </p>
+                      </div>
+                      <ul
+                        className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                        role="list"
                       >
-                        <span>#{tag}</span>
-                        <span className="text-muted-foreground text-xs">
-                          {count}
-                        </span>
-                      </Link>
-                    ))}
+                        {tagFeatured.map(({ tag, count }) => (
+                          <li key={tag}>
+                            <Link
+                              to={`/item_reports?tag=${encodeURIComponent(tag)}`}
+                              viewTransition
+                              aria-label={`#${tag} 태그 리포트 목록 보기`}
+                              className={cn(
+                                "group bg-card border-border hover:border-primary/40 flex h-full min-h-[9rem] flex-col gap-3 rounded-xl border p-4 shadow-xs transition-all",
+                                "hover:-translate-y-0.5 hover:shadow-md",
+                              )}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex min-w-0 flex-1 items-start gap-2.5">
+                                  <span className="bg-muted text-muted-foreground group-hover:text-primary/90 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors">
+                                    <HashIcon
+                                      className="size-4"
+                                      aria-hidden
+                                    />
+                                  </span>
+                                  <span className="text-foreground line-clamp-2 min-w-0 break-all text-base font-semibold leading-snug tracking-tight">
+                                    #{tag}
+                                  </span>
+                                </div>
+                                <NexBadge
+                                  variant="outline"
+                                  size="sm"
+                                  className="shrink-0"
+                                >
+                                  {count}건
+                                </NexBadge>
+                              </div>
+                              <p className="text-muted-foreground flex-1 text-xs leading-relaxed">
+                                이 키워드가 붙은 공개 리포트만 모아서 볼 수
+                                있습니다.
+                              </p>
+                              <span className="text-primary inline-flex items-center gap-1 text-xs font-medium">
+                                목록 열기
+                                <ArrowRightIcon
+                                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                                  aria-hidden
+                                />
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+
+                    {tagMore.length > 0 ? (
+                      <Collapsible
+                        defaultOpen={false}
+                        className="group/more-tags"
+                      >
+                        <CollapsibleTrigger
+                          type="button"
+                          className={cn(
+                            "border-border bg-muted/20 hover:bg-muted/40 flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors",
+                            "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+                          )}
+                          aria-label={`나머지 태그 ${tagMore.length}개 펼치기 또는 접기`}
+                        >
+                          <span>
+                            <span className="text-foreground font-medium">
+                              나머지 태그
+                            </span>
+                            <span className="text-muted-foreground ml-1.5 font-normal">
+                              {tagMore.length}개
+                            </span>
+                          </span>
+                          <ChevronDownIcon
+                            className="text-muted-foreground size-4 shrink-0 transition-transform duration-200 group-data-[state=open]/more-tags:rotate-180"
+                            aria-hidden
+                          />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent
+                          className={cn(
+                            "overflow-hidden",
+                            "data-[state=closed]:animate-collapsible-up",
+                            "data-[state=open]:animate-collapsible-down",
+                          )}
+                        >
+                          <div className="border-border/60 flex flex-wrap gap-2 border-t pt-4">
+                            {tagMore.map(({ tag, count }) => (
+                              <Link
+                                key={tag}
+                                to={`/item_reports?tag=${encodeURIComponent(tag)}`}
+                                className="bg-muted/60 hover:bg-muted inline-flex max-w-full min-w-0 items-center gap-2 rounded-full px-3 py-1 text-sm transition-colors"
+                              >
+                                <span className="truncate">#{tag}</span>
+                                <span className="text-muted-foreground shrink-0 text-xs">
+                                  {count}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ) : null}
                   </div>
                 )}
               </TabsContent>
@@ -398,43 +600,4 @@ function TabScopeHeading({
       ) : null}
     </header>
   );
-}
-
-function FacetPanel({
-  title,
-  description,
-  children,
-  embedded = false,
-  hideHeader = false,
-}: {
-  title?: string;
-  description?: string;
-  children: React.ReactNode;
-  embedded?: boolean;
-  hideHeader?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "space-y-3",
-        embedded
-          ? "border-border/70 bg-background/40 mt-3 rounded-lg border p-4"
-          : "border-border bg-card/60 rounded-xl border p-5",
-      )}
-    >
-      {!hideHeader && title ? (
-        <div>
-          <h2 className="text-base font-semibold tracking-tight">{title}</h2>
-          {description ? (
-            <p className="text-muted-foreground text-xs">{description}</p>
-          ) : null}
-        </div>
-      ) : null}
-      {children}
-    </div>
-  );
-}
-
-function EmptyFacet({ children }: { children: React.ReactNode }) {
-  return <p className="text-muted-foreground text-sm">{children}</p>;
 }

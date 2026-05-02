@@ -77,6 +77,26 @@ export const REPORT_TYPE_LABELS_KO: Record<ReportType, string> = {
   other: "기타",
 };
 
+/** Explore hub — 카드 본문 한 줄 코멘트 (제목에 「○○ 리포트」가 붙으므로 유형명 반복은 최소화) */
+export const REPORT_TYPE_EXPLORE_INTRO_KO: Record<ReportType, string> = {
+  "digest-report":
+    "핵심만 압축해 한눈에 흐름을 잡기 좋습니다. 바쁜 날 먼저 훑기에 적합합니다.",
+  "full-report":
+    "맥락과 근거가 길게 이어지며, 천천히 읽으며 이해를 쌓기 좋습니다.",
+  "analysis-report":
+    "수치·논리로 이슈를 풀어 줍니다. 판단 근거를 다지고 싶을 때입니다.",
+  "thesis-report":
+    "하나의 명확한 주장과 방향을 정리하는 데 초점을 둔 포맷입니다.",
+  "briefing-report":
+    "짧은 분량으로 이슈 스냅샷만 필요할 때 읽기 좋습니다.",
+  "baseline-report":
+    "비교·추적의 기준점으로 삼거나, 전후 맥락을 맞출 때 쓰기 좋습니다.",
+  review:
+    "지나간 사건·성과를 되짚으며 교훈과 시사점을 남깁니다.",
+  other:
+    "위 분류에 딱 맞지 않거나, 여러 포맷이 섞인 성격에 가깝습니다.",
+};
+
 export const REPORT_REGIONS: ReportRegion[] = [
   "GLOBAL",
   "AMERICAS",
