@@ -1,6 +1,6 @@
 import {
   LightbulbIcon,
-  QuoteIcon,
+  MessageSquareTextIcon,
   SparklesIcon,
   TargetIcon,
 } from "lucide-react";
@@ -10,6 +10,7 @@ import { cn } from "~/core/lib/utils";
 
 import { parseSummaryMeta } from "../lib/format";
 import { getCategoryStyle } from "../lib/category-style";
+import { TalkingPointsCarousel } from "./talking-points-carousel";
 
 type ReportSummaryMetaProps = {
   value: unknown;
@@ -23,8 +24,8 @@ type ReportSummaryMetaProps = {
  * Structure inspired by the `DataInsightBlock` showcase pattern:
  *   1. Badge + headline_angle (the angle the author wants to emphasize)
  *   2. Key takeaway highlight (with Target icon) — the "conclusion"
- *   3. Hooks list (numbered, dense) — the "key points"
- *   4. Pull-quote for summary_sns_short — the "editorial note"
+ *   3. Talking points (hooks) — carousel, accent bar + question line (no `"` )
+ *   4. summary_sns_short — one-line share blurb, MessageSquare + italic (distinct motif)
  *
  * Returns null if `summary_meta` has no usable content so the detail page
  * doesn't show an empty scaffold.
@@ -100,43 +101,41 @@ export function ReportSummaryMeta({
             style.accentBg,
           )}
         >
-          <div className="mb-3 flex items-center gap-2">
-            <LightbulbIcon className={cn("size-4", style.accentText)} />
-            <h3 className="text-foreground text-xs font-semibold tracking-wider uppercase">
-              Hooks
-            </h3>
+          <div className="mb-4 flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+            <div className="flex items-center gap-2">
+              <LightbulbIcon className={cn("size-4", style.accentText)} />
+              {/* "Hooks" is the raw schema key; "Talking Points" is the
+                  surface copy — the angles a reader should walk away
+                  ready to discuss. */}
+              <h3 className="text-foreground text-xs font-semibold tracking-wider uppercase">
+                Talking Points
+              </h3>
+            </div>
           </div>
-          <ol className="space-y-2.5">
-            {hooks.map((hook, idx) => (
-              <li
-                key={`${idx}-${hook.slice(0, 12)}`}
-                className="flex gap-3 text-sm leading-7 md:text-base"
-              >
-                <span
-                  className={cn(
-                    "mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-semibold",
-                    "bg-background border-border border",
-                    style.accentText,
-                  )}
-                >
-                  {idx + 1}
-                </span>
-                <span className="text-foreground/90">{hook}</span>
-              </li>
-            ))}
-          </ol>
+          <TalkingPointsCarousel
+            points={hooks}
+            style={style}
+            aria-label="이 리포트의 주목 포인트"
+          />
         </div>
       ) : null}
 
       {sns ? (
-        <figure className="border-border bg-muted/20 relative border-t px-6 py-5 md:px-8">
-          <QuoteIcon className="text-muted-foreground absolute top-3 left-4 size-5 opacity-20" />
-          <blockquote className="text-foreground/80 relative pl-6 text-sm leading-7 italic md:text-base">
-            {sns}
-          </blockquote>
-          <figcaption className="text-muted-foreground mt-2 pl-6 text-[11px] tracking-wide uppercase not-italic">
-            — SNS / Editorial summary
-          </figcaption>
+        <figure className="border-border bg-muted/20 border-t px-6 py-5 md:px-8">
+          <div className="flex gap-3">
+            <MessageSquareTextIcon
+              className="text-muted-foreground mt-0.5 size-4 shrink-0 opacity-60"
+              aria-hidden
+            />
+            <div className="min-w-0">
+              <blockquote className="text-foreground/80 text-sm leading-7 italic md:text-base">
+                {sns}
+              </blockquote>
+              <figcaption className="text-muted-foreground mt-2 text-[11px] tracking-wide uppercase not-italic">
+                — Editorial summary
+              </figcaption>
+            </div>
+          </div>
         </figure>
       ) : null}
     </section>

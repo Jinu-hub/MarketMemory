@@ -31,6 +31,7 @@ import { ReportEntitiesFooter } from "../components/report-entities-footer";
 import { ReportMetaSidebar } from "../components/report-meta-sidebar";
 import { ReportSummaryMeta } from "../components/report-summary-meta";
 import { parseSummaryMeta } from "../lib/format";
+import { isPremiumTier } from "../lib/tier-style";
 import { getRelatedReports, getReport } from "../queries";
 import { getUserProfile } from "~/features/users/queries";
 
@@ -98,10 +99,16 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
         <article className="mx-auto w-full max-w-[72ch] min-w-0 space-y-8">
           <ReadingHeader report={report} />
 
-          <ReportSummaryMeta
-            value={report.summary_meta}
-            category={report.category}
-          />
+          {/* summary_meta (헤드라인 앵글 + 훅 + 한 줄 요약)는 편집팀이
+              가공한 부가가치 정보라 프리미엄 등급(premium / premium_plus)
+              이상에서만 노출. free 등급은 본문 → 요약 → 본문 토글로
+              충분하다고 판단. */}
+          {isPremiumTier(report.report_tier) ? (
+            <ReportSummaryMeta
+              value={report.summary_meta}
+              category={report.category}
+            />
+          ) : null}
 
           {report.summary ? (
             <ReadingHighlightBox
