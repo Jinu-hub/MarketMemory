@@ -8,6 +8,7 @@ import {
   MegaphoneIcon,
   RocketIcon,
   Settings2Icon,
+  ShieldIcon,
   Target,
   UsersIcon,
 } from "lucide-react";
@@ -164,6 +165,7 @@ const data = {
 
 export default function DashboardSidebar({
   user,
+  isAdmin = false,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user: {
@@ -171,14 +173,32 @@ export default function DashboardSidebar({
     email: string;
     avatarUrl: string;
   };
+  isAdmin?: boolean;
 }) {
+  const navMain = isAdmin
+    ? [
+        {
+          title: "Admin",
+          url: "/admin",
+          icon: ShieldIcon,
+          items: [
+            { title: "관리자 홈", url: "/admin" },
+            { title: "파이프라인", url: "/admin/pipelines" },
+            { title: "에이전트", url: "/admin/agents" },
+            { title: "프롬프트", url: "/admin/prompts" },
+          ],
+        },
+        ...data.navMain,
+      ]
+    : data.navMain;
+
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMain items={data.navMain} />
+        <SidebarMain items={navMain} />
         <SidebarProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

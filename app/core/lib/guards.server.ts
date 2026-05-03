@@ -11,8 +11,11 @@
  * - HTTP method guard to ensure requests use the correct HTTP method
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "database.types";
 
 import { data } from "react-router";
+
+import { getUserProfile } from "~/features/users/queries";
 
 /**
  * Require user authentication for a route or action
@@ -40,6 +43,21 @@ export async function requireAuthentication(client: SupabaseClient) {
   } = await client.auth.getUser();
   if (!user) {
     throw data(null, { status: 401 });
+  }
+}
+
+/**
+ * Require an authenticated user whose profile has `is_admin === true`.
+ * Relies on Supabase session + `profiles` row (same checks as RLS expects).
+ */
+export async function requireAdmin(client: SupabaseClient<Database>) {
+  await requireAuthentication(client);
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  const profile = await getUserProfile(client, { userId: user!.id });
+  if (!profile?.is_admin) {
+    throw data(null, { status: 403 });
   }
 }
 

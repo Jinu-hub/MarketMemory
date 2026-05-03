@@ -10,22 +10,28 @@ import {
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import DashboardSidebar from "../components/dashboard-sidebar";
+import { getUserProfile } from "../queries";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   const {
     data: { user },
   } = await client.auth.getUser();
+  const profile = user
+    ? await getUserProfile(client, { userId: user.id }).catch(() => null)
+    : null;
   return {
     user,
+    isAdmin: profile?.is_admin === true,
   };
 }
 
 export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
-  const { user } = loaderData;
+  const { user, isAdmin } = loaderData;
   return (
     <SidebarProvider>
       <DashboardSidebar
+        isAdmin={isAdmin}
         user={{
           name: user?.user_metadata.name ?? "",
           avatarUrl: user?.user_metadata.avatar_url ?? "",

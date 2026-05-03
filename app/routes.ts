@@ -112,6 +112,27 @@ export default [
         route("/:id", "features/item-reports/screens/detail.tsx"),
       ]),
     ]),
+    ...prefix("/admin", [
+      layout("features/admin/layouts/admin.layout.tsx", [
+        index("features/admin/screens/index.tsx"),
+        ...prefix("/pipelines", [
+          index("features/admin/screens/pipelines.tsx"),
+          route("/new", "features/admin/screens/pipeline-new.tsx"),
+          route("/:pipelineKey", "features/admin/screens/pipeline-detail.tsx"),
+        ]),
+        ...prefix("/agents", [
+          index("features/admin/screens/agents.tsx"),
+        ]),
+        ...prefix("/prompts", [
+          index("features/admin/screens/prompts.tsx"),
+          route("/:id", "features/admin/screens/prompt-detail.tsx"),
+        ]),
+        route(
+          "/prompt-releases",
+          "features/admin/screens/prompt-releases.tsx",
+        ),
+      ]),
+    ]),
   ]),
 
   ...prefix("/legal", [route("/:slug", "features/legal/screens/policy.tsx")]),
