@@ -122,9 +122,11 @@ export default [
         ]),
         ...prefix("/agents", [
           index("features/admin/screens/agents.tsx"),
+          route("/new", "features/admin/screens/agent-new.tsx"),
         ]),
         ...prefix("/prompts", [
           index("features/admin/screens/prompts.tsx"),
+          route("/new", "features/admin/screens/prompt-new.tsx"),
           route("/:id", "features/admin/screens/prompt-detail.tsx"),
         ]),
         route(

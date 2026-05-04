@@ -1,8 +1,9 @@
 import type { ComponentProps } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { BotIcon, LayoutGridIcon } from "lucide-react";
+import { BotIcon, LayoutGridIcon, SearchIcon } from "lucide-react";
 
-import { NexBadge, NexCard } from "~/core/components/nex";
+import { NexBadge, NexCard, NexInput } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 export function AdminPageHeader({
@@ -112,6 +113,167 @@ export const adminTextareaClassName = cn(
   "shadow-sm outline-none transition-[border-color,box-shadow]",
   "focus-visible:border-ring focus-visible:ring-ring/40 focus-visible:ring-[3px]",
 );
+
+export type AdminAgentOption = {
+  agent_key: string;
+  display_name: string | null;
+};
+
+/**
+ * Native select + instant filter (agent_key / display_name). Filter field is not submitted.
+ * Select is controlled so the choice resets when it falls outside the filtered set.
+ */
+export function AdminAgentSelectWithFilter({
+  agents,
+  selectName = "agent_key",
+  selectAriaLabel = "에이전트",
+  filterPlaceholder = "에이전트 검색…",
+}: {
+  agents: AdminAgentOption[];
+  selectName?: string;
+  selectAriaLabel?: string;
+  filterPlaceholder?: string;
+}) {
+  const [filter, setFilter] = useState("");
+  const [agentKey, setAgentKey] = useState("");
+
+  const filteredAgents = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    if (q.length === 0) {
+      return agents;
+    }
+    return agents.filter((a) => {
+      const haystack = [a.agent_key, a.display_name ?? ""].join(" ").toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [agents, filter]);
+
+  useEffect(() => {
+    if (agentKey && !filteredAgents.some((a) => a.agent_key === agentKey)) {
+      setAgentKey("");
+    }
+  }, [filteredAgents, agentKey]);
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-3">
+      <div className="min-w-0 flex-1">
+        <select
+          name={selectName}
+          required
+          value={agentKey}
+          onChange={(e) => setAgentKey(e.target.value)}
+          className={adminSelectClassName}
+          aria-label={selectAriaLabel}
+        >
+          <option value="" disabled>
+            선택…
+          </option>
+          {filteredAgents.map((a) => (
+            <option key={a.agent_key} value={a.agent_key}>
+              {a.agent_key}
+              {a.display_name ? ` — ${a.display_name}` : ""}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="w-full min-w-[10rem] shrink-0 sm:max-w-xs sm:self-center">
+        <NexInput
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder={filterPlaceholder}
+          aria-label="에이전트 목록 필터"
+          inputSize="lg"
+          autoComplete="off"
+          leftIcon={<SearchIcon className="size-4 opacity-70" aria-hidden />}
+        />
+      </div>
+    </div>
+  );
+}
+
+export type AdminPromptTemplateOption = {
+  id: string;
+  name: string;
+  version: number;
+  agent_key: string;
+};
+
+function formatPromptTemplateOptionLabel(t: AdminPromptTemplateOption) {
+  return `${t.name} v${t.version} (${t.agent_key})`;
+}
+
+/**
+ * Template picker with instant filter (name / version / agent_key / id label text).
+ */
+export function AdminPromptTemplateSelectWithFilter({
+  templates,
+  selectName = "active_prompt_id",
+  selectAriaLabel = "활성 프롬프트 템플릿",
+  filterPlaceholder = "템플릿 검색…",
+}: {
+  templates: AdminPromptTemplateOption[];
+  selectName?: string;
+  selectAriaLabel?: string;
+  filterPlaceholder?: string;
+}) {
+  const [filter, setFilter] = useState("");
+  const [templateId, setTemplateId] = useState("");
+
+  const filteredTemplates = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    if (q.length === 0) {
+      return templates;
+    }
+    return templates.filter((t) => {
+      const label = formatPromptTemplateOptionLabel(t);
+      const haystack = [t.name, t.agent_key, String(t.version), t.id, label]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [templates, filter]);
+
+  useEffect(() => {
+    if (templateId && !filteredTemplates.some((t) => t.id === templateId)) {
+      setTemplateId("");
+    }
+  }, [filteredTemplates, templateId]);
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-3">
+      <div className="min-w-0 flex-1">
+        <select
+          name={selectName}
+          required
+          value={templateId}
+          onChange={(e) => setTemplateId(e.target.value)}
+          className={adminSelectClassName}
+          aria-label={selectAriaLabel}
+        >
+          <option value="" disabled>
+            선택…
+          </option>
+          {filteredTemplates.map((t) => (
+            <option key={t.id} value={t.id}>
+              {formatPromptTemplateOptionLabel(t)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="w-full min-w-[10rem] shrink-0 sm:max-w-xs sm:self-center">
+        <NexInput
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder={filterPlaceholder}
+          aria-label="프롬프트 템플릿 목록 필터"
+          inputSize="lg"
+          autoComplete="off"
+          leftIcon={<SearchIcon className="size-4 opacity-70" aria-hidden />}
+        />
+      </div>
+    </div>
+  );
+}
 
 export function AdminErrorAlert({ message }: { message: string }) {
   return (

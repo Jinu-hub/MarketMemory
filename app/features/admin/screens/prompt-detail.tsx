@@ -159,7 +159,7 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
   const busy = navigation.state !== "idle";
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
+    <div className="mx-auto flex w-full max-w-none min-w-0 flex-col gap-10">
       <div className="border-border/80 space-y-4 border-b pb-8">
         <Link
           to="/admin/prompts"
@@ -196,19 +196,22 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
         title="템플릿 편집"
         description="본문과 스키마 JSON은 저장 시 검증됩니다. 버전 번호는 이 화면에서 바꾸지 않습니다."
       >
-        <AdminPanel padding="lg">
-          <Form method="post" className="grid gap-6">
+        <AdminPanel padding="lg" className="w-full min-w-0">
+          <Form method="post" className="grid w-full min-w-0 gap-6">
             <input type="hidden" name="intent" value="update" />
             <input type="hidden" name="id" value={template.id} />
             <NexInput name="name" label="이름" required defaultValue={template.name} />
-            <label className="flex flex-col gap-2 text-sm">
+            <label className="flex min-w-0 w-full flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">템플릿</span>
               <textarea
                 name="template"
                 required
-                rows={12}
+                rows={16}
                 defaultValue={template.template}
-                className={adminTextareaClassName}
+                className={cn(
+                  adminTextareaClassName,
+                  "block min-h-[min(48vh,28rem)] resize-y",
+                )}
               />
             </label>
             <label className="flex flex-col gap-2 text-sm">
@@ -303,7 +306,10 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
         </AdminPanel>
       </AdminSection>
 
-      <AdminPanel padding="lg" className="border-destructive/25 bg-destructive/5 border">
+      <AdminPanel
+        padding="lg"
+        className="border-destructive/25 bg-destructive/5 w-full min-w-0 border"
+      >
         <Form method="post" className="space-y-4">
           <input type="hidden" name="intent" value="delete" />
           <input type="hidden" name="id" value={template.id} />
