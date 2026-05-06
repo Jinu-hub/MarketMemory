@@ -1,6 +1,12 @@
+import { ChevronDownIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import { NexBadge } from "~/core/components/nex";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/core/components/ui/collapsible";
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
@@ -71,41 +77,65 @@ export function ReportTimeline({
   return (
     <div className={cn("space-y-10", className)}>
       {groups.map((group) => (
-        <section key={group.key} aria-label={group.label}>
-          <div className="mb-4 flex items-baseline gap-3">
-            <h3
+        <Collapsible
+          key={group.key}
+          defaultOpen
+          className="group/month space-y-4"
+        >
+          <section aria-label={group.label}>
+            <CollapsibleTrigger
               className={cn(
-                "font-semibold tracking-tight",
-                compact ? "text-sm" : "text-base md:text-lg",
+                "hover:bg-muted/40 focus-visible:ring-ring -mx-2 flex w-[calc(100%+1rem)] items-center justify-between rounded-lg px-2 py-1.5 text-left transition-colors outline-none",
+                "focus-visible:ring-2 cursor-pointer",
               )}
+              aria-controls={`timeline-month-${group.key}`}
             >
-              {group.label}
-            </h3>
-            {showGroupCounts ? (
-              <span className="text-muted-foreground text-xs">
-                {group.reports.length}건
-              </span>
-            ) : null}
-          </div>
+              <div className="flex items-baseline gap-3">
+                <h3
+                  className={cn(
+                    "font-semibold tracking-tight",
+                    compact ? "text-sm" : "text-base md:text-lg",
+                  )}
+                >
+                  {group.label}
+                </h3>
+                {showGroupCounts ? (
+                  <span className="text-muted-foreground text-xs">
+                    {group.reports.length}건
+                  </span>
+                ) : null}
+              </div>
+              <ChevronDownIcon className="text-muted-foreground size-4 shrink-0 transition-transform duration-200 group-data-[state=open]/month:rotate-180" />
+            </CollapsibleTrigger>
 
-          <div className="relative">
-            <div className="bg-border absolute top-2 bottom-2 left-[7px] w-px md:left-[9px]" />
-            <ul
+            <CollapsibleContent
+              id={`timeline-month-${group.key}`}
               className={cn(
-                "space-y-6",
-                compact ? "space-y-4" : "space-y-6 md:space-y-7",
+                "overflow-hidden",
+                "data-[state=closed]:animate-collapsible-up",
+                "data-[state=open]:animate-collapsible-down",
               )}
             >
-              {group.reports.map((report) => (
-                <TimelineRow
-                  key={report.id}
-                  report={report}
-                  compact={compact}
-                />
-              ))}
-            </ul>
-          </div>
-        </section>
+              <div className="relative pt-1">
+                <div className="bg-border absolute top-3 bottom-2 left-[7px] w-px md:left-[9px]" />
+                <ul
+                  className={cn(
+                    "space-y-6",
+                    compact ? "space-y-4" : "space-y-6 md:space-y-7",
+                  )}
+                >
+                  {group.reports.map((report) => (
+                    <TimelineRow
+                      key={report.id}
+                      report={report}
+                      compact={compact}
+                    />
+                  ))}
+                </ul>
+              </div>
+            </CollapsibleContent>
+          </section>
+        </Collapsible>
       ))}
     </div>
   );
