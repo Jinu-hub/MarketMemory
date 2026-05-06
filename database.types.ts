@@ -269,6 +269,60 @@ export type Database = {
           },
         ]
       }
+      item_similarity_edges: {
+        Row: {
+          created_at: string | null
+          final_score: number | null
+          id: string
+          method_version: string | null
+          reason: string | null
+          shared_tags: Json | null
+          source_item_id: string
+          tag_score: number | null
+          target_item_id: string
+          vector_score: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          final_score?: number | null
+          id?: string
+          method_version?: string | null
+          reason?: string | null
+          shared_tags?: Json | null
+          source_item_id: string
+          tag_score?: number | null
+          target_item_id: string
+          vector_score?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          final_score?: number | null
+          id?: string
+          method_version?: string | null
+          reason?: string | null
+          shared_tags?: Json | null
+          source_item_id?: string
+          tag_score?: number | null
+          target_item_id?: string
+          vector_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_similarity_edges_source_item_id_item_contents_id_fk"
+            columns: ["source_item_id"]
+            isOneToOne: false
+            referencedRelation: "item_contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_similarity_edges_target_item_id_item_contents_id_fk"
+            columns: ["target_item_id"]
+            isOneToOne: false
+            referencedRelation: "item_contents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_tags: {
         Row: {
           confidence: number | null
@@ -1074,7 +1128,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      compute_item_similarity_edges: {
+        Args: { p_method_version?: string; p_source_item_id: string }
+        Returns: {
+          final_score: number
+          shared_tag_ids: Json
+          tag_score: number
+          target_item_id: string
+          vector_score: number
+        }[]
+      }
     }
     Enums: {
       api_mode: "responses" | "streaming"

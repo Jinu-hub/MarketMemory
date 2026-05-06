@@ -133,6 +133,10 @@ export default [
           "/prompt-releases",
           "features/admin/screens/prompt-releases.tsx",
         ),
+        route(
+          "/item-similarities",
+          "features/admin/screens/item-similarities.tsx",
+        ),
       ]),
     ]),
   ]),

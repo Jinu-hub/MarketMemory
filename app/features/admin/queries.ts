@@ -3,6 +3,42 @@ import type { Database } from "database.types";
 
 type DB = SupabaseClient<Database>;
 
+/** PostgREST `.in()` 안전 상한 — 한 번에 조회할 source id 개수 */
+const SOURCE_ID_IN_CHUNK = 120;
+
+export type ItemSimilarityListFilters = {
+  /** `true` / `false`만 필터; `undefined`면 조건 없음(전체) */
+  isActive?: boolean;
+  isPublic?: boolean;
+};
+
+export type ItemContentSimilarityListRow = Pick<
+  Database["public"]["Tables"]["item_contents"]["Row"],
+  | "id"
+  | "title"
+  | "lang_code"
+  | "category"
+  | "report_type"
+  | "report_tier"
+  | "input_date"
+  | "is_active"
+  | "is_public"
+  | "created_at"
+>;
+
+export type SimilarityEdgeListRow = Pick<
+  Database["public"]["Tables"]["item_similarity_edges"]["Row"],
+  "source_item_id" | "target_item_id" | "final_score" | "vector_score" | "tag_score"
+>;
+
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    out.push(arr.slice(i, i + size));
+  }
+  return out;
+}
+
 /**
  * Admin 에이전트 전체 목록을 조회한다.
  *
@@ -155,4 +191,90 @@ export async function listPromptReleases(client: DB) {
     .select("*")
     .order("agent_key", { ascending: true })
     .order("environment", { ascending: true });
+}
+
+/**
+ * 유사도 리스트 화면용 `item_contents` 행을 조회한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param filters `is_active` / `is_public` 선택 필터(미지정 시 전체)
+ * @returns 목록용 컬럼만 포함, `created_at` 내림차순
+ */
+export async function listItemContentsForSimilarity(
+  client: DB,
+  filters: ItemSimilarityListFilters,
+) {
+  let q = client
+    .from("item_contents")
+    .select(
+      "id, title, lang_code, category, report_type, report_tier, input_date, is_active, is_public, created_at",
+    )
+    .order("created_at", { ascending: false });
+
+  if (filters.isActive !== undefined) {
+    q = q.eq("is_active", filters.isActive);
+  }
+  if (filters.isPublic !== undefined) {
+    q = q.eq("is_public", filters.isPublic);
+  }
+
+  return q;
+}
+
+/**
+ * 하이브리드 유사도 RPC의 source 후보가 되는 `item_id` 목록을 구한다.
+ * `get_item_similarity.sql`과 동일한 임베딩 조건을 사용한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @returns 중복 제거된 `item_contents.id` 배열
+ */
+export async function fetchEmbeddingSourceItemIds(client: DB) {
+  const { data, error } = await client
+    .from("item_embeddings")
+    .select("item_id")
+    .eq("content_type", "summary")
+    .eq("lang_code", "en")
+    .eq("model", "text-embedding-3-large");
+
+  if (error) {
+    return { ids: [] as string[], error };
+  }
+
+  const ids = [...new Set((data ?? []).map((r) => r.item_id))];
+  return { ids, error: null };
+}
+
+/**
+ * 여러 source에 대한 `item_similarity_edges` 행을 묶어서 조회한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param sourceIds `source_item_id` 목록
+ * @param methodVersion `method_version` 일치 행만
+ * @returns 화면 요약용 엣지 필드 배열
+ */
+export async function listSimilarityEdgesForSources(
+  client: DB,
+  sourceIds: string[],
+  methodVersion: string,
+) {
+  if (sourceIds.length === 0) {
+    return { data: [] as SimilarityEdgeListRow[], error: null };
+  }
+
+  const all: SimilarityEdgeListRow[] = [];
+
+  for (const chunk of chunkArray(sourceIds, SOURCE_ID_IN_CHUNK)) {
+    const { data, error } = await client
+      .from("item_similarity_edges")
+      .select("source_item_id, target_item_id, final_score, vector_score, tag_score")
+      .eq("method_version", methodVersion)
+      .in("source_item_id", chunk);
+
+    if (error) {
+      return { data: null, error };
+    }
+    all.push(...((data ?? []) as SimilarityEdgeListRow[]));
+  }
+
+  return { data: all, error: null };
 }

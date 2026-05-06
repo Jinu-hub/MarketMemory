@@ -643,7 +643,59 @@ export const itemTags = pgTable(
 );
 
 /* =========================================================
-  3-9) reports (레포트 저장)
+  3-9) item_similarity_edges (아이템 유사도 엣지)
+  ========================================================= */
+export const itemSimilarityEdges = pgTable(
+  "item_similarity_edges",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    source_item_id: uuid("source_item_id")
+      .notNull()
+      .references(() => itemContents.id),
+    target_item_id: uuid("target_item_id")
+      .notNull()
+      .references(() => itemContents.id),
+    vector_score: numeric("vector_score"),
+    tag_score: numeric("tag_score"),
+    final_score: numeric("final_score"),
+    shared_tags: jsonb("shared_tags"),
+    reason: text("reason"),
+    method_version: text("method_version").default("hybrid_v1"),
+    created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("idx_item_similarity_edges_source_target_method").on(
+      table.source_item_id,
+      table.target_item_id,
+      table.method_version,
+    ),
+
+    pgPolicy("ise_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("ise_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ise_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("ise_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+  3-10) reports (레포트 저장)
   ========================================================= */
 export const reports = pgTable(
   "reports",

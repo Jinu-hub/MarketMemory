@@ -5,6 +5,7 @@ import {
   ClipboardListIcon,
   GitBranchIcon,
   PackageIcon,
+  Share2Icon,
   SparklesIcon,
 } from "lucide-react";
 import { Link } from "react-router";
@@ -45,6 +46,12 @@ const cards = [
     description: "환경별 활성 프롬프트를 고정합니다.",
     to: "/admin/prompt-releases",
     icon: PackageIcon,
+  },
+  {
+    title: "리포트 유사도",
+    description: "item_contents 기준 유사도 엣지를 보고 재생성합니다.",
+    to: "/admin/item-similarities",
+    icon: Share2Icon,
   },
 ] as const;
 

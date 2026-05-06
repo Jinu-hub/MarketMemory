@@ -1,7 +1,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database, Json } from "database.types";
+import type { Database, Json, TablesInsert } from "database.types";
+
+import { fetchEmbeddingSourceItemIds } from "./queries";
 
 type DB = SupabaseClient<Database>;
+
+/** `item_similarity_edges.method_version` 기본값 — RPC 시그니처와 동일 */
+export const DEFAULT_SIMILARITY_METHOD_VERSION = "hybrid_v1" as const;
+
+function numericFieldToDb(value: number | null | undefined): number | null {
+  if (value == null || Number.isNaN(value)) {
+    return null;
+  }
+  return value;
+}
 
 /**
  * 새 에이전트를 생성한다.
@@ -272,4 +284,150 @@ export async function upsertPromptRelease(
  */
 export async function deletePromptReleaseById(client: DB, id: string) {
   return client.from("prompt_releases").delete().eq("id", id);
+}
+
+/**
+ * 특정 source·버전에 해당하는 유사도 엣지를 모두 삭제한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param sourceItemId `item_contents.id` (source)
+ * @param methodVersion 스코어링 버전 키
+ * @returns delete 실행 결과
+ */
+export async function deleteSimilarityEdgesBySource(
+  client: DB,
+  sourceItemId: string,
+  methodVersion: string,
+) {
+  return client
+    .from("item_similarity_edges")
+    .delete()
+    .eq("source_item_id", sourceItemId)
+    .eq("method_version", methodVersion);
+}
+
+/**
+ * 유사도 엣지를 일괄 삽입한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param rows 삽입 행 배열
+ * @returns insert 실행 결과(빈 배열이면 no-op)
+ */
+export async function insertSimilarityEdges(
+  client: DB,
+  rows: TablesInsert<"item_similarity_edges">[],
+) {
+  if (rows.length === 0) {
+    return { error: null };
+  }
+  return client.from("item_similarity_edges").insert(rows);
+}
+
+/**
+ * RPC로 후보를 계산한 뒤, 해당 source의 기존 엣지를 지우고 새로 저장한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param sourceItemId 기준 `item_contents.id`
+ * @param methodVersion `method_version` (기본 hybrid_v1)
+ * @returns 삽입된 엣지 수와 오류
+ */
+export async function regenerateItemSimilarityEdges(
+  client: DB,
+  sourceItemId: string,
+  methodVersion: string = DEFAULT_SIMILARITY_METHOD_VERSION,
+): Promise<{ inserted: number; error: { message: string } | null }> {
+  const { data: rows, error: fnErr } = await client.rpc("compute_item_similarity_edges", {
+    p_source_item_id: sourceItemId,
+    p_method_version: methodVersion,
+  });
+
+  if (fnErr) {
+    return { inserted: 0, error: fnErr };
+  }
+
+  const { error: delErr } = await deleteSimilarityEdgesBySource(
+    client,
+    sourceItemId,
+    methodVersion,
+  );
+  if (delErr) {
+    return { inserted: 0, error: delErr };
+  }
+
+  const list = rows ?? [];
+  if (list.length === 0) {
+    return { inserted: 0, error: null };
+  }
+
+  const targetIds = [...new Set(list.map((r) => r.target_item_id))];
+  const { data: activeTargets, error: activeErr } = await client
+    .from("item_contents")
+    .select("id")
+    .eq("is_active", true)
+    .in("id", targetIds);
+  if (activeErr) {
+    return { inserted: 0, error: activeErr };
+  }
+
+  const activeTargetIdSet = new Set((activeTargets ?? []).map((r) => r.id));
+  const filtered = list.filter((r) => activeTargetIdSet.has(r.target_item_id));
+  if (filtered.length === 0) {
+    return { inserted: 0, error: null };
+  }
+
+  const insertRows: TablesInsert<"item_similarity_edges">[] = filtered.map((r) => ({
+    source_item_id: sourceItemId,
+    target_item_id: r.target_item_id,
+    vector_score: numericFieldToDb(r.vector_score),
+    tag_score: numericFieldToDb(r.tag_score),
+    final_score: numericFieldToDb(r.final_score),
+    shared_tags: (r.shared_tag_ids ?? null) as Json | null,
+    method_version: methodVersion,
+  }));
+
+  const { error: insErr } = await insertSimilarityEdges(client, insertRows);
+  if (insErr) {
+    return { inserted: 0, error: insErr };
+  }
+
+  return { inserted: filtered.length, error: null };
+}
+
+/**
+ * 임베딩 조건을 만족하는 모든 source에 대해 `regenerateItemSimilarityEdges`를 순차 실행한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param methodVersion 엣지 버전 키
+ * @returns 처리 건수·총 삽입 수·개별 오류 목록
+ */
+export async function regenerateAllItemSimilarityEdges(
+  client: DB,
+  methodVersion: string = DEFAULT_SIMILARITY_METHOD_VERSION,
+): Promise<{
+  processed: number;
+  totalInserted: number;
+  errors: { sourceItemId: string; message: string }[];
+}> {
+  const { ids, error: idErr } = await fetchEmbeddingSourceItemIds(client);
+  if (idErr) {
+    return {
+      processed: 0,
+      totalInserted: 0,
+      errors: [{ sourceItemId: "_fetch", message: idErr.message }],
+    };
+  }
+
+  const errors: { sourceItemId: string; message: string }[] = [];
+  let totalInserted = 0;
+
+  for (const id of ids) {
+    const { inserted, error } = await regenerateItemSimilarityEdges(client, id, methodVersion);
+    if (error) {
+      errors.push({ sourceItemId: id, message: error.message });
+    } else {
+      totalInserted += inserted;
+    }
+  }
+
+  return { processed: ids.length, totalInserted, errors };
 }

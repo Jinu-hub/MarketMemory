@@ -6,6 +6,7 @@ import {
   GitBranchIcon,
   HomeIcon,
   PackageIcon,
+  Share2Icon,
   SparklesIcon,
 } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
@@ -20,6 +21,7 @@ const nav = [
   { to: "/admin/agents", label: "에이전트", icon: SparklesIcon },
   { to: "/admin/prompts", label: "프롬프트", icon: ClipboardListIcon },
   { to: "/admin/prompt-releases", label: "프롬프트 릴리스", icon: PackageIcon },
+  { to: "/admin/item-similarities", label: "유사도", icon: Share2Icon },
 ] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
