@@ -35,6 +35,12 @@ import {
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
+import { deletePromptReleaseById, upsertPromptRelease } from "../mutations";
+import {
+  listAgentsWithDisplayName,
+  listPromptReleases,
+  listPromptTemplatesForSelector,
+} from "../queries";
 
 export const meta: Route.MetaFunction = () => [
   { title: `프롬프트 릴리스 | ${import.meta.env.VITE_APP_NAME}` },
@@ -73,13 +79,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const [{ data: releases, error: re }, { data: agents }, { data: templates }] =
     await Promise.all([
-      client
-        .from("prompt_releases")
-        .select("*")
-        .order("agent_key", { ascending: true })
-        .order("environment", { ascending: true }),
-      client.from("agents").select("agent_key, display_name").order("agent_key"),
-      client.from("prompt_templates").select("id, name, version, agent_key").order("agent_key"),
+      listPromptReleases(client),
+      listAgentsWithDisplayName(client),
+      listPromptTemplatesForSelector(client),
     ]);
 
   if (re) {
@@ -115,7 +117,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const v = parsed.data;
   if (v.intent === "delete") {
-    const { error } = await client.from("prompt_releases").delete().eq("id", v.id);
+    const { error } = await deletePromptReleaseById(client, v.id);
     if (error) {
       return data({ message: error.message }, { status: 400 });
     }
@@ -135,9 +137,7 @@ export async function action({ request }: Route.ActionArgs) {
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await client.from("prompt_releases").upsert(row, {
-    onConflict: "agent_key,environment",
-  });
+  const { error } = await upsertPromptRelease(client, row);
 
   if (error) {
     return data({ message: error.message }, { status: 400 });

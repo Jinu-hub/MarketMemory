@@ -32,6 +32,8 @@ import {
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
+import { deleteAgentByKey, updateAgentDisplayName } from "../mutations";
+import { listAgents } from "../queries";
 
 export const meta: Route.MetaFunction = () => [
   { title: `에이전트 | ${import.meta.env.VITE_APP_NAME}` },
@@ -58,10 +60,7 @@ type SortKey = "agent_key" | "display_name";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
-  const { data: rows, error } = await client
-    .from("agents")
-    .select("*")
-    .order("agent_key", { ascending: true });
+  const { data: rows, error } = await listAgents(client);
   if (error) {
     throw new Error(error.message);
   }
@@ -82,18 +81,16 @@ export async function action({ request }: Route.ActionArgs) {
 
   const v = parsed.data;
   if (v.intent === "update") {
-    const { error } = await client
-      .from("agents")
-      .update({
-        display_name: v.display_name?.trim() || null,
-      })
-      .eq("agent_key", v.agent_key);
+    const { error } = await updateAgentDisplayName(client, {
+      agent_key: v.agent_key,
+      display_name: v.display_name?.trim() || null,
+    });
     if (error) {
       return data({ message: error.message }, { status: 400 });
     }
     return data({ ok: true });
   }
-  const { error } = await client.from("agents").delete().eq("agent_key", v.agent_key);
+  const { error } = await deleteAgentByKey(client, v.agent_key);
   if (error) {
     return data({ message: error.message }, { status: 400 });
   }

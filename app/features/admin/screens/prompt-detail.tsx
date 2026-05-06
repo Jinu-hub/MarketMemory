@@ -21,6 +21,8 @@ import { NexBadge, NexButton, NexInput } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
+import { deletePromptTemplateById, updatePromptTemplateById } from "../mutations";
+import { getPromptTemplateById } from "../queries";
 
 function jsonOrNull(raw: string | undefined): Json | null {
   if (raw === undefined) {
@@ -64,11 +66,7 @@ export const meta: Route.MetaFunction = () => [
 export async function loader({ request, params }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   const id = params.id;
-  const { data: row, error } = await client
-    .from("prompt_templates")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+  const { data: row, error } = await getPromptTemplateById(client, id);
   if (error || !row) {
     throw data(null, { status: 404 });
   }
@@ -94,7 +92,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (v.id !== id) {
       return data({ message: "ID 불일치" }, { status: 400 });
     }
-    const { error } = await client.from("prompt_templates").delete().eq("id", id);
+    const { error } = await deletePromptTemplateById(client, id);
     if (error) {
       return data({ message: error.message }, { status: 400 });
     }
@@ -124,24 +122,21 @@ export async function action({ request, params }: Route.ActionArgs) {
     return data({ message: "temperature는 숫자여야 합니다." }, { status: 400 });
   }
 
-  const { error } = await client
-    .from("prompt_templates")
-    .update({
-      name: v.name.trim(),
-      template: v.template,
-      status: v.status,
-      temperature: temp,
-      api_mode: v.api_mode,
-      changelog: v.changelog?.trim() || null,
-      default_provider: v.default_provider?.trim() || null,
-      default_model: v.default_model?.trim() || null,
-      input_schema,
-      output_schema,
-      default_params,
-      is_backward_compatible: v.is_backward_compatible === "true",
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  const { error } = await updatePromptTemplateById(client, id, {
+    name: v.name.trim(),
+    template: v.template,
+    status: v.status,
+    temperature: temp,
+    api_mode: v.api_mode,
+    changelog: v.changelog?.trim() || null,
+    default_provider: v.default_provider?.trim() || null,
+    default_model: v.default_model?.trim() || null,
+    input_schema,
+    output_schema,
+    default_params,
+    is_backward_compatible: v.is_backward_compatible === "true",
+    updated_at: new Date().toISOString(),
+  });
 
   if (error) {
     return data({ message: error.message }, { status: 400 });

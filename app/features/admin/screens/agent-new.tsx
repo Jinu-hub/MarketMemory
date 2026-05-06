@@ -12,6 +12,7 @@ import {
 import { NexButton, NexInput } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
+import { createAgent } from "../mutations";
 
 const createSchema = z.object({
   agent_key: z.string().min(1, "agent_key 필수"),
@@ -41,7 +42,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const v = parsed.data;
-  const { error } = await client.from("agents").insert({
+  const { error } = await createAgent(client, {
     agent_key: v.agent_key.trim(),
     display_name: v.display_name?.trim() || null,
   });

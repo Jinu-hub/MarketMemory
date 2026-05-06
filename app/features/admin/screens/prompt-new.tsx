@@ -17,6 +17,8 @@ import { NexButton, NexInput } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
+import { createPromptTemplate } from "../mutations";
+import { getLatestPromptTemplateByAgentKey, listAgentsWithDisplayName } from "../queries";
 
 const createSchema = z.object({
   agent_key: z.string().min(1),
@@ -39,10 +41,7 @@ export const meta: Route.MetaFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
-  const { data: agents, error } = await client
-    .from("agents")
-    .select("agent_key, display_name")
-    .order("agent_key");
+  const { data: agents, error } = await listAgentsWithDisplayName(client);
   if (error) {
     throw new Error(error.message);
   }
@@ -65,26 +64,28 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const v = parsed.data;
-  const { data: maxRow } = await client
-    .from("prompt_templates")
-    .select("version")
-    .eq("agent_key", v.agent_key.trim())
-    .order("version", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const { data: prevTemplate } = await getLatestPromptTemplateByAgentKey(client, v.agent_key.trim());
 
-  const nextVersion = (maxRow?.version ?? 0) + 1;
+  const nextVersion = (prevTemplate?.version ?? 0) + 1;
 
   const {
     data: { user },
   } = await client.auth.getUser();
 
-  const { error } = await client.from("prompt_templates").insert({
+  const { error } = await createPromptTemplate(client, {
     agent_key: v.agent_key.trim(),
     name: v.name.trim(),
     template: v.template,
     version: nextVersion,
     status: v.status,
+    temperature: prevTemplate?.temperature ?? null,
+    api_mode: prevTemplate?.api_mode ?? "responses",
+    input_schema: prevTemplate?.input_schema ?? null,
+    output_schema: prevTemplate?.output_schema ?? null,
+    default_provider: prevTemplate?.default_provider ?? null,
+    default_model: prevTemplate?.default_model ?? null,
+    default_params: prevTemplate?.default_params ?? null,
+    is_backward_compatible: prevTemplate?.is_backward_compatible ?? true,
     changelog: v.changelog?.trim() || null,
     created_by: user?.id ?? null,
     updated_at: new Date().toISOString(),

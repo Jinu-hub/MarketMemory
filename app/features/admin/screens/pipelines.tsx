@@ -35,6 +35,8 @@ import {
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
+import { deletePipelineById } from "../mutations";
+import { listPipelines } from "../queries";
 
 export const meta: Route.MetaFunction = () => [
   { title: `파이프라인 | ${import.meta.env.VITE_APP_NAME}` },
@@ -53,10 +55,7 @@ type SortKey = "pipeline_key" | "name" | "status";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
-  const { data: rows, error } = await client
-    .from("pipelines")
-    .select("*")
-    .order("name", { ascending: true });
+  const { data: rows, error } = await listPipelines(client);
   if (error) {
     throw new Error(error.message);
   }
@@ -75,7 +74,7 @@ export async function action({ request }: Route.ActionArgs) {
     return data({ message: "유효하지 않은 입력입니다." }, { status: 400 });
   }
 
-  const { error } = await client.from("pipelines").delete().eq("id", parsed.data.id);
+  const { error } = await deletePipelineById(client, parsed.data.id);
   if (error) {
     return data({ message: error.message }, { status: 400 });
   }

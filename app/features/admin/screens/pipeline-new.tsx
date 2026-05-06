@@ -13,6 +13,7 @@ import {
 import { NexButton, NexInput } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
+import { createPipeline } from "../mutations";
 
 const createSchema = z.object({
   pipeline_key: z.string().min(1, "pipeline_key 필수"),
@@ -44,7 +45,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const v = parsed.data;
-  const { error } = await client.from("pipelines").insert({
+  const { error } = await createPipeline(client, {
     pipeline_key: v.pipeline_key.trim(),
     name: v.name.trim(),
     description: v.description?.trim() || null,

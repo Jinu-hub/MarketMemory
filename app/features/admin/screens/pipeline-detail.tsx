@@ -27,6 +27,21 @@ import {
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
+import {
+  createPipelineStep,
+  createPipelineStepsBulk,
+  deletePipelineStepById,
+  deletePipelineStepsByPipelineKey,
+  updatePipelineByKey,
+} from "../mutations";
+import {
+  getLastPipelineStepByKey,
+  getPipelineByKey,
+  listAgentsWithDisplayName,
+  listPipelineStepsByKey,
+  listPipelinesForSelector,
+  listPromptTemplatesForSelector,
+} from "../queries";
 
 export const meta: Route.MetaFunction = () => [
   { title: `파이프라인 상세 | ${import.meta.env.VITE_APP_NAME}` },
@@ -74,21 +89,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const [{ data: pipeline, error: pe }, agentsResult, pipelinesResult, templatesResult] =
     await Promise.all([
-      client.from("pipelines").select("*").eq("pipeline_key", pipelineKey).maybeSingle(),
-      client.from("agents").select("agent_key, display_name").order("agent_key"),
-      client.from("pipelines").select("pipeline_key, name").order("name"),
-      client.from("prompt_templates").select("id, name, version, agent_key").order("agent_key"),
+      getPipelineByKey(client, pipelineKey),
+      listAgentsWithDisplayName(client),
+      listPipelinesForSelector(client),
+      listPromptTemplatesForSelector(client),
     ]);
 
   if (pe || !pipeline) {
     throw data(null, { status: 404 });
   }
 
-  const { data: steps, error: se } = await client
-    .from("pipeline_steps")
-    .select("*")
-    .eq("pipeline_key", pipelineKey)
-    .order("step", { ascending: true });
+  const { data: steps, error: se } = await listPipelineStepsByKey(client, pipelineKey);
 
   if (se) {
     throw new Error(se.message);
@@ -126,15 +137,12 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (v.pipeline_key !== pipeline_key) {
       return data({ message: "pipeline_key 불일치" }, { status: 400 });
     }
-    const { error } = await client
-      .from("pipelines")
-      .update({
-        name: v.name.trim(),
-        description: v.description?.trim() || null,
-        status: v.status,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("pipeline_key", pipeline_key);
+    const { error } = await updatePipelineByKey(client, pipeline_key, {
+      name: v.name.trim(),
+      description: v.description?.trim() || null,
+      status: v.status,
+      updated_at: new Date().toISOString(),
+    });
     if (error) {
       return data({ message: error.message }, { status: 400 });
     }
@@ -145,15 +153,9 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (v.pipeline_key !== pipeline_key) {
       return data({ message: "pipeline_key 불일치" }, { status: 400 });
     }
-    const { data: existing } = await client
-      .from("pipeline_steps")
-      .select("step")
-      .eq("pipeline_key", pipeline_key)
-      .order("step", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const { data: existing } = await getLastPipelineStepByKey(client, pipeline_key);
     const nextStep = (existing?.step ?? 0) + 1;
-    const { error } = await client.from("pipeline_steps").insert({
+    const { error } = await createPipelineStep(client, {
       pipeline_key,
       step: nextStep,
       target_type: v.target_type,
@@ -170,7 +172,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (v.pipeline_key !== pipeline_key) {
       return data({ message: "pipeline_key 불일치" }, { status: 400 });
     }
-    const { error } = await client.from("pipeline_steps").delete().eq("id", v.step_id);
+    const { error } = await deletePipelineStepById(client, v.step_id);
     if (error) {
       return data({ message: error.message }, { status: 400 });
     }
@@ -181,11 +183,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (v.pipeline_key !== pipeline_key) {
     return data({ message: "pipeline_key 불일치" }, { status: 400 });
   }
-  const { data: rows, error: le } = await client
-    .from("pipeline_steps")
-    .select("*")
-    .eq("pipeline_key", pipeline_key)
-    .order("step", { ascending: true });
+  const { data: rows, error: le } = await listPipelineStepsByKey(client, pipeline_key);
   if (le || !rows) {
     return data({ message: le?.message ?? "단계 조회 실패" }, { status: 400 });
   }
@@ -202,10 +200,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   next[idx] = next[swapWith]!;
   next[swapWith] = t;
 
-  const { error: delErr } = await client
-    .from("pipeline_steps")
-    .delete()
-    .eq("pipeline_key", pipeline_key);
+  const { error: delErr } = await deletePipelineStepsByPipelineKey(client, pipeline_key);
   if (delErr) {
     return data({ message: delErr.message }, { status: 400 });
   }
@@ -217,7 +212,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     target_key: row.target_key,
     is_required: row.is_required,
   }));
-  const { error: insErr } = await client.from("pipeline_steps").insert(inserts);
+  const { error: insErr } = await createPipelineStepsBulk(client, inserts);
   if (insErr) {
     return data({ message: insErr.message }, { status: 400 });
   }

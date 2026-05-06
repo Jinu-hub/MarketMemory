@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "~/core/components/ui/table";
 import { cn } from "~/core/lib/utils";
+import { listPromptTemplates } from "../queries";
 
 export const meta: Route.MetaFunction = () => [
   { title: `프롬프트 | ${import.meta.env.VITE_APP_NAME}` },
@@ -43,10 +44,7 @@ type SortKey = "agent_key" | "name" | "version" | "status" | "updated_at";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
-  const { data: templates, error } = await client
-    .from("prompt_templates")
-    .select("*")
-    .order("updated_at", { ascending: false });
+  const { data: templates, error } = await listPromptTemplates(client);
   if (error) {
     throw new Error(error.message);
   }
