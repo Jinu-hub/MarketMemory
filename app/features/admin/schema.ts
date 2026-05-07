@@ -140,6 +140,20 @@ export const targetType = pgEnum("target_type", [
   "prompt_template",
 ]);
 
+export const similarityStatus = pgEnum("similarity_status", [
+  "ready",
+  "done",
+  "nothing",
+  "pending",
+]);
+
+export const similarityLevel = pgEnum("similarity_level", [
+  "weak",
+  "medium",
+  "high",
+  "strong",
+]);
+
 /* =========================================================
    RLS Helper: Admin only
    ========================================================= */
@@ -428,6 +442,7 @@ export const marketMemoryItems = pgTable(
     raw_log_link: text("raw_log_link"),
     executed_date: timestamp("executed_date", { withTimezone: true }),
     executed_id: text("executed_id"),
+    similarity_status: similarityStatus("similarity_status").notNull().default("ready"),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -658,6 +673,8 @@ export const itemSimilarityEdges = pgTable(
     vector_score: numeric("vector_score"),
     tag_score: numeric("tag_score"),
     final_score: numeric("final_score"),
+    ranking: integer("ranking").notNull().default(1),
+    similarity_level: similarityLevel("similarity_level").notNull().default("medium"),
     shared_tags: jsonb("shared_tags"),
     reason: text("reason"),
     method_version: text("method_version").default("hybrid_v1"),

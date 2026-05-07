@@ -16,12 +16,29 @@ function parseNum(s: number | string | null | undefined): number | null {
  */
 export function SimilaritySummaryCell({
   edges,
+  similarityStatus,
   className,
 }: {
   edges: SimilarityEdgeListRow[];
+  similarityStatus: "ready" | "done" | "nothing" | "pending";
   className?: string;
 }) {
   if (edges.length === 0) {
+    const noEdgeLabel =
+      similarityStatus === "ready"
+        ? "미생성"
+        : similarityStatus === "nothing"
+          ? "생성됨(결과 없음)"
+          : "엣지 없음";
+    const noEdgeHint =
+      similarityStatus === "ready"
+        ? "아직 유사도 생성을 한 번도 하지 않았습니다"
+        : similarityStatus === "nothing"
+          ? "생성을 수행했지만 기준 점수 이상 후보가 없습니다"
+          : similarityStatus === "pending"
+            ? "유사도 생성 대기 상태입니다"
+            : "유사도 생성으로 다시 채울 수 있습니다";
+
     return (
       <div
         className={cn(
@@ -30,9 +47,9 @@ export function SimilaritySummaryCell({
         )}
       >
         <span className="border-border text-muted-foreground rounded-md border border-dashed px-2 py-1 font-medium">
-          엣지 없음
+          {noEdgeLabel}
         </span>
-        <span className="text-muted-foreground/80 hidden sm:inline">유사도 생성으로 채울 수 있습니다</span>
+        <span className="text-muted-foreground/80 hidden sm:inline">{noEdgeHint}</span>
       </div>
     );
   }

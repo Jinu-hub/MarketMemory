@@ -275,8 +275,10 @@ export type Database = {
           final_score: number | null
           id: string
           method_version: string | null
+          ranking: number
           reason: string | null
           shared_tags: Json | null
+          similarity_level: Database["public"]["Enums"]["similarity_level"]
           source_item_id: string
           tag_score: number | null
           target_item_id: string
@@ -287,8 +289,10 @@ export type Database = {
           final_score?: number | null
           id?: string
           method_version?: string | null
+          ranking?: number
           reason?: string | null
           shared_tags?: Json | null
+          similarity_level?: Database["public"]["Enums"]["similarity_level"]
           source_item_id: string
           tag_score?: number | null
           target_item_id: string
@@ -299,8 +303,10 @@ export type Database = {
           final_score?: number | null
           id?: string
           method_version?: string | null
+          ranking?: number
           reason?: string | null
           shared_tags?: Json | null
+          similarity_level?: Database["public"]["Enums"]["similarity_level"]
           source_item_id?: string
           tag_score?: number | null
           target_item_id?: string
@@ -379,6 +385,7 @@ export type Database = {
           notes: string | null
           ocr_job_id: string | null
           raw_log_link: string | null
+          similarity_status: Database["public"]["Enums"]["similarity_status"]
           source_lang: string | null
           status: Database["public"]["Enums"]["item_status"]
           topic: string | null
@@ -397,6 +404,7 @@ export type Database = {
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
+          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           topic?: string | null
@@ -415,6 +423,7 @@ export type Database = {
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
+          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           topic?: string | null
@@ -1198,6 +1207,8 @@ export type Database = {
         | "baseline-report"
         | "review"
         | "other"
+      similarity_level: "weak" | "medium" | "high" | "strong"
+      similarity_status: "ready" | "done" | "nothing" | "pending"
       tag_source: "ai" | "manual"
       target_type: "agent" | "pipeline" | "prompt_template"
     }
@@ -1388,6 +1399,8 @@ export const Constants = {
         "review",
         "other",
       ],
+      similarity_level: ["weak", "medium", "high", "strong"],
+      similarity_status: ["ready", "done", "nothing", "pending"],
       tag_source: ["ai", "manual"],
       target_type: ["agent", "pipeline", "prompt_template"],
     },

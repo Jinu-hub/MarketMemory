@@ -15,6 +15,40 @@ function numericFieldToDb(value: number | null | undefined): number | null {
   return value;
 }
 
+function toSimilarityLevel(
+  score: number | null | undefined,
+): Database["public"]["Enums"]["similarity_level"] {
+  const n = score ?? 0;
+  if (n >= 0.8) return "strong";
+  if (n >= 0.7) return "high";
+  if (n >= 0.6) return "medium";
+  return "weak";
+}
+
+async function updateSimilarityStatusBySourceContentId(
+  client: DB,
+  sourceItemContentId: string,
+  status: Database["public"]["Enums"]["similarity_status"],
+) {
+  const { data: sourceContent, error: sourceErr } = await client
+    .from("item_contents")
+    .select("market_memory_item_id")
+    .eq("id", sourceItemContentId)
+    .maybeSingle();
+  if (sourceErr) {
+    return { error: sourceErr };
+  }
+  if (!sourceContent?.market_memory_item_id) {
+    return { error: null };
+  }
+
+  const { error } = await client
+    .from("market_memory_items")
+    .update({ similarity_status: status })
+    .eq("id", sourceContent.market_memory_item_id);
+  return { error };
+}
+
 /**
  * 새 에이전트를 생성한다.
  *
@@ -356,6 +390,14 @@ export async function regenerateItemSimilarityEdges(
 
   const list = rows ?? [];
   if (list.length === 0) {
+    const { error: statusErr } = await updateSimilarityStatusBySourceContentId(
+      client,
+      sourceItemId,
+      "nothing",
+    );
+    if (statusErr) {
+      return { inserted: 0, error: statusErr };
+    }
     return { inserted: 0, error: null };
   }
 
@@ -372,6 +414,14 @@ export async function regenerateItemSimilarityEdges(
   const activeTargetIdSet = new Set((activeTargets ?? []).map((r) => r.id));
   const filtered = list.filter((r) => activeTargetIdSet.has(r.target_item_id));
   if (filtered.length === 0) {
+    const { error: statusErr } = await updateSimilarityStatusBySourceContentId(
+      client,
+      sourceItemId,
+      "nothing",
+    );
+    if (statusErr) {
+      return { inserted: 0, error: statusErr };
+    }
     return { inserted: 0, error: null };
   }
 
@@ -381,6 +431,7 @@ export async function regenerateItemSimilarityEdges(
     vector_score: numericFieldToDb(r.vector_score),
     tag_score: numericFieldToDb(r.tag_score),
     final_score: numericFieldToDb(r.final_score),
+    similarity_level: toSimilarityLevel(r.final_score),
     shared_tags: (r.shared_tag_ids ?? null) as Json | null,
     method_version: methodVersion,
   }));
@@ -388,6 +439,15 @@ export async function regenerateItemSimilarityEdges(
   const { error: insErr } = await insertSimilarityEdges(client, insertRows);
   if (insErr) {
     return { inserted: 0, error: insErr };
+  }
+
+  const { error: statusErr } = await updateSimilarityStatusBySourceContentId(
+    client,
+    sourceItemId,
+    "done",
+  );
+  if (statusErr) {
+    return { inserted: 0, error: statusErr };
   }
 
   return { inserted: filtered.length, error: null };

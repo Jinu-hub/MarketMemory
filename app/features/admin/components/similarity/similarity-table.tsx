@@ -29,6 +29,7 @@ import { cn } from "~/core/lib/utils";
 export type SimilarityRowModel = {
   content: ItemContentSimilarityListRow;
   edges: SimilarityEdgeListRow[];
+  similarityStatus: "ready" | "done" | "nothing" | "pending";
 };
 
 function parseFinalScore(s: number | string | null | undefined): number {
@@ -344,7 +345,7 @@ export function SimilarityTable({
                       {c.input_date ?? "—"}
                     </TableCell>
                     <TableCell className={cn(adminTdClass, "align-top")}>
-                      <SimilaritySummaryCell edges={row.edges} />
+                      <SimilaritySummaryCell edges={row.edges} similarityStatus={row.similarityStatus} />
                     </TableCell>
                     <TableCell
                       className={cn(

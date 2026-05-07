@@ -23,12 +23,18 @@ export type ItemContentSimilarityListRow = Pick<
   | "input_date"
   | "is_active"
   | "is_public"
+  | "market_memory_item_id"
   | "created_at"
 >;
 
 export type SimilarityEdgeListRow = Pick<
   Database["public"]["Tables"]["item_similarity_edges"]["Row"],
   "source_item_id" | "target_item_id" | "final_score" | "vector_score" | "tag_score"
+>;
+
+export type MarketItemSimilarityStatusRow = Pick<
+  Database["public"]["Tables"]["market_memory_items"]["Row"],
+  "id" | "similarity_status"
 >;
 
 function chunkArray<T>(arr: T[], size: number): T[][] {
@@ -207,7 +213,7 @@ export async function listItemContentsForSimilarity(
   let q = client
     .from("item_contents")
     .select(
-      "id, title, lang_code, category, report_type, report_tier, input_date, is_active, is_public, created_at",
+      "id, title, lang_code, category, report_type, report_tier, input_date, is_active, is_public, market_memory_item_id, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -219,6 +225,26 @@ export async function listItemContentsForSimilarity(
   }
 
   return q;
+}
+
+/**
+ * `market_memory_items`의 유사도 생성 상태를 조회한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param marketMemoryItemIds 대상 `market_memory_items.id` 목록
+ * @returns id -> similarity_status 매핑에 사용할 행 배열
+ */
+export async function listSimilarityStatusesByMarketItemIds(
+  client: DB,
+  marketMemoryItemIds: string[],
+) {
+  if (marketMemoryItemIds.length === 0) {
+    return { data: [] as MarketItemSimilarityStatusRow[], error: null };
+  }
+  return client
+    .from("market_memory_items")
+    .select("id, similarity_status")
+    .in("id", marketMemoryItemIds);
 }
 
 /**
