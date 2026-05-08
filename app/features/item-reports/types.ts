@@ -34,6 +34,11 @@ export type ReportListItem = Pick<
   | "lang_code"
 >;
 
+export type RelatedReportItem = ReportListItem & {
+  final_score?: number | null;
+  similarity_level?: Database["public"]["Enums"]["similarity_level"] | null;
+};
+
 export type ReportDetail = ItemContentRow;
 
 export type ListFilter = {

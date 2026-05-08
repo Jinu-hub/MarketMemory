@@ -2,13 +2,14 @@ import { ArrowRightIcon, Link2Icon } from "lucide-react";
 import { Link } from "react-router";
 
 import { cn } from "~/core/lib/utils";
+import { NexBadge } from "~/core/components/nex";
 
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate, resolveTakeaway } from "../lib/format";
-import type { ReportListItem } from "../types";
+import type { RelatedReportItem } from "../types";
 
 type RelatedReportsProps = {
-  reports: ReportListItem[];
+  reports: RelatedReportItem[];
   className?: string;
   /**
    * Tailwind height utility applied to the outer `<section>`.
@@ -52,6 +53,16 @@ export function RelatedReports({
   maxHeightClassName = "max-h-[28rem]",
 }: RelatedReportsProps) {
   if (!reports || reports.length === 0) return null;
+  const sortedReports = [...reports].sort((a, b) => (b.final_score ?? -1) - (a.final_score ?? -1));
+
+  const similarityToneClass = (level: RelatedReportItem["similarity_level"]) =>
+    level === "strong"
+      ? "border-violet-500/60 bg-violet-500/15 text-violet-700 dark:text-violet-300"
+      : level === "high"
+        ? "border-blue-500/60 bg-blue-500/15 text-blue-700 dark:text-blue-300"
+        : level === "medium"
+          ? "border-emerald-500/60 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+          : "border-muted-foreground/35 bg-muted/55 text-muted-foreground";
 
   return (
     <section
@@ -64,16 +75,30 @@ export function RelatedReports({
       <div className="border-border/60 flex shrink-0 items-center gap-2 border-b px-5 py-4">
         <Link2Icon className="text-muted-foreground size-4" />
         <h3 className="text-sm font-semibold tracking-tight">관련 리포트</h3>
-        <span className="text-muted-foreground ml-auto text-[11px] font-medium tabular-nums">
+        <NexBadge
+          variant="secondary"
+          size="sm"
+          className="ml-auto h-6 px-2.5 text-[11px] font-semibold tabular-nums"
+        >
           {reports.length}
-        </span>
+        </NexBadge>
       </div>
 
       <ul className="scrollbar-thin min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-3">
-        {reports.map((report) => {
+        {sortedReports.map((report) => {
           const takeaway = resolveTakeaway(report.summary, report.summary_meta);
           const style = getCategoryStyle(report.category);
           const CategoryIcon = style.icon;
+          const similarityLabel =
+            report.similarity_level === "strong"
+              ? "Strong"
+              : report.similarity_level === "high"
+                ? "High"
+                : report.similarity_level === "medium"
+                  ? "Medium"
+                  : report.similarity_level === "weak"
+                    ? "Weak"
+                    : null;
           return (
             <li key={report.id}>
               <Link
@@ -89,6 +114,21 @@ export function RelatedReports({
                   <span>{style.label}</span>
                   <span aria-hidden>·</span>
                   <span>{resolveDisplayDate(report)}</span>
+                  {similarityLabel ? (
+                    <>
+                      <span aria-hidden>·</span>
+                      <NexBadge
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "h-5 px-2 py-0 text-[10px] font-semibold tracking-wide",
+                          similarityToneClass(report.similarity_level ?? null),
+                        )}
+                      >
+                        {similarityLabel}
+                      </NexBadge>
+                    </>
+                  ) : null}
                 </div>
                 <div className="group-hover:text-primary line-clamp-2 text-sm leading-snug font-medium transition-colors">
                   {report.title ?? "Untitled"}

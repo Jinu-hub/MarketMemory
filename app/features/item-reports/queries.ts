@@ -15,6 +15,7 @@ import type {
   ListFilter,
   PagedReports,
   ReportDetail,
+  RelatedReportItem,
   ReportListItem,
 } from "./types";
 
@@ -141,41 +142,82 @@ export async function getReport(
   return data ?? null;
 }
 
+const DEFAULT_SIMILARITY_METHOD_VERSION = "hybrid_v1";
+
 /**
- * Fetch related reports by category, excluding the current id.
+ * Fetch related reports from `item_similarity_edges` (source -> target).
  * Used in the detail screen right column.
  */
 export async function getRelatedReports(
   client: DB,
   {
     id,
-    category,
+    category: _category,
     limit = 5,
   }: { id: string; category?: string | null; limit?: number },
-): Promise<ReportListItem[]> {
-  let query = client
+): Promise<RelatedReportItem[]> {
+  const { data: edgeRows, error: edgeError } = await client
+    .from("item_similarity_edges")
+    .select("target_item_id, final_score, similarity_level")
+    .eq("source_item_id", id)
+    .eq("method_version", DEFAULT_SIMILARITY_METHOD_VERSION)
+    .order("final_score", { ascending: false })
+    .limit(Math.max(limit * 3, 12));
+
+  if (edgeError) throw edgeError;
+  if (!edgeRows || edgeRows.length === 0) return [];
+
+  const rankedTargetIds = edgeRows
+    .map((r) => r.target_item_id)
+    .filter((targetId): targetId is string => targetId !== id);
+  if (rankedTargetIds.length === 0) return [];
+
+  const { data: reports, error: reportError } = await client
     .from("item_contents")
     .select(LIST_COLUMNS)
+    .in("id", rankedTargetIds)
     .eq("is_public", true)
     .eq("is_active", true)
-    .neq("id", id);
-
-  if (category) {
-    query = query.eq(
-      "category",
-      category as Database["public"]["Enums"]["category"],
-    );
-  }
-
-  const { data, error } = await query
-    .order("input_date", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
     .limit(limit);
 
-  if (error) {
-    throw error;
-  }
-  return (data ?? []) as unknown as ReportListItem[];
+  if (reportError) throw reportError;
+  if (!reports || reports.length === 0) return [];
+
+  const rankMap = new Map<string, number>();
+  const edgeMetaMap = new Map<
+    string,
+    {
+      final_score: number | null;
+      similarity_level: Database["public"]["Enums"]["similarity_level"] | null;
+    }
+  >();
+  rankedTargetIds.forEach((targetId, idx) => {
+    if (!rankMap.has(targetId)) rankMap.set(targetId, idx);
+  });
+  edgeRows.forEach((row) => {
+    if (!edgeMetaMap.has(row.target_item_id)) {
+      edgeMetaMap.set(row.target_item_id, {
+        final_score: row.final_score,
+        similarity_level: row.similarity_level,
+      });
+    }
+  });
+
+  return [...(reports as unknown as ReportListItem[])]
+    .map((report) => {
+      const edgeMeta = edgeMetaMap.get(report.id);
+      return {
+        ...report,
+        final_score: edgeMeta?.final_score ?? null,
+        similarity_level: edgeMeta?.similarity_level ?? null,
+      } satisfies RelatedReportItem;
+    })
+    .sort((a, b) => {
+      const byScore = (b.final_score ?? -1) - (a.final_score ?? -1);
+      if (byScore !== 0) return byScore;
+      return (rankMap.get(a.id) ?? 9999) - (rankMap.get(b.id) ?? 9999);
+    })
+    .slice(0, limit);
 }
 
 /**
