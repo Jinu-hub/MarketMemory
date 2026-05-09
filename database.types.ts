@@ -1147,6 +1147,17 @@ export type Database = {
           vector_score: number
         }[]
       }
+      process_ready_similarity_queue: {
+        Args: { p_batch_limit?: number; p_method_version?: string }
+        Returns: Json
+      }
+      regenerate_similarity_edges_once: {
+        Args: { p_method_version?: string; p_source_item_id: string }
+        Returns: {
+          inserted_count: number
+          top_target_ids: string[]
+        }[]
+      }
     }
     Enums: {
       api_mode: "responses" | "streaming"
