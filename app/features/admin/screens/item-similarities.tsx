@@ -20,7 +20,6 @@ import {
 import {
   fetchEmbeddingSourceItemIds,
   listItemContentsForSimilarity,
-  listSimilarityStatusesByMarketItemIds,
   listSimilarityEdgesForSources,
   type SimilarityEdgeListRow,
 } from "../queries";
@@ -101,18 +100,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const contentRows = contents ?? [];
   const contentIds = contentRows.map((r) => r.id);
-  const marketMemoryItemIds = [
-    ...new Set(contentRows.map((r) => r.market_memory_item_id).filter((id): id is string => !!id)),
-  ];
 
   const [
     { data: edgeRows, error: ee },
     { ids: embeddingIds, error: embErr },
-    { data: statusRows, error: se },
   ] = await Promise.all([
     listSimilarityEdgesForSources(client, contentIds, DEFAULT_SIMILARITY_METHOD_VERSION),
     fetchEmbeddingSourceItemIds(client),
-    listSimilarityStatusesByMarketItemIds(client, marketMemoryItemIds),
   ]);
 
   if (ee) {
@@ -121,18 +115,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (embErr) {
     throw new Error(embErr.message);
   }
-  if (se) {
-    throw new Error(se.message);
-  }
 
   const edgeMap = groupEdgesBySource(edgeRows ?? []);
-  const statusMap = new Map((statusRows ?? []).map((s) => [s.id, s.similarity_status]));
   const rows: SimilarityRowModel[] = contentRows.map((c) => ({
     content: c,
     edges: edgeMap.get(c.id) ?? [],
-    similarityStatus: c.market_memory_item_id
-      ? (statusMap.get(c.market_memory_item_id) ?? "ready")
-      : "ready",
+    similarityStatus: c.similarity_status,
   }));
 
   return {

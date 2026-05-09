@@ -442,7 +442,6 @@ export const marketMemoryItems = pgTable(
     raw_log_link: text("raw_log_link"),
     executed_date: timestamp("executed_date", { withTimezone: true }),
     executed_id: text("executed_id"),
-    similarity_status: similarityStatus("similarity_status").notNull().default("ready"),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -511,6 +510,7 @@ export const itemContents = pgTable(
     confidence: jsonb("confidence"),
     input_hash: text("input_hash"),
     tracking: jsonb("tracking"),
+    similarity_status: similarityStatus("similarity_status").notNull().default("ready"),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

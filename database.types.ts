@@ -163,6 +163,7 @@ export type Database = {
           regions: Database["public"]["Enums"]["region"][] | null
           report_tier: Database["public"]["Enums"]["report_tier"]
           report_type: Database["public"]["Enums"]["report_type"] | null
+          similarity_status: Database["public"]["Enums"]["similarity_status"]
           summary: string | null
           summary_meta: Json | null
           tags: string[] | null
@@ -189,6 +190,7 @@ export type Database = {
           regions?: Database["public"]["Enums"]["region"][] | null
           report_tier?: Database["public"]["Enums"]["report_tier"]
           report_type?: Database["public"]["Enums"]["report_type"] | null
+          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           summary?: string | null
           summary_meta?: Json | null
           tags?: string[] | null
@@ -215,6 +217,7 @@ export type Database = {
           regions?: Database["public"]["Enums"]["region"][] | null
           report_tier?: Database["public"]["Enums"]["report_tier"]
           report_type?: Database["public"]["Enums"]["report_type"] | null
+          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           summary?: string | null
           summary_meta?: Json | null
           tags?: string[] | null
@@ -385,7 +388,6 @@ export type Database = {
           notes: string | null
           ocr_job_id: string | null
           raw_log_link: string | null
-          similarity_status: Database["public"]["Enums"]["similarity_status"]
           source_lang: string | null
           status: Database["public"]["Enums"]["item_status"]
           topic: string | null
@@ -404,7 +406,6 @@ export type Database = {
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
-          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           topic?: string | null
@@ -423,7 +424,6 @@ export type Database = {
           notes?: string | null
           ocr_job_id?: string | null
           raw_log_link?: string | null
-          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           topic?: string | null

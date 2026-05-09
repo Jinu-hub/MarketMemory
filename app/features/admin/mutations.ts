@@ -30,22 +30,10 @@ async function updateSimilarityStatusBySourceContentId(
   sourceItemContentId: string,
   status: Database["public"]["Enums"]["similarity_status"],
 ) {
-  const { data: sourceContent, error: sourceErr } = await client
-    .from("item_contents")
-    .select("market_memory_item_id")
-    .eq("id", sourceItemContentId)
-    .maybeSingle();
-  if (sourceErr) {
-    return { error: sourceErr };
-  }
-  if (!sourceContent?.market_memory_item_id) {
-    return { error: null };
-  }
-
   const { error } = await client
-    .from("market_memory_items")
+    .from("item_contents")
     .update({ similarity_status: status })
-    .eq("id", sourceContent.market_memory_item_id);
+    .eq("id", sourceItemContentId);
   return { error };
 }
 
