@@ -112,3 +112,5 @@ $$;
 
 comment on function public.compute_item_similarity_edges(uuid, text) is
   'Returns top similarity edge candidates for item_contents.id; used by admin regenerate flow.';
+
+grant execute on function public.compute_item_similarity_edges(uuid, text) to authenticated;

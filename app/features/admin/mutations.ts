@@ -389,18 +389,36 @@ export async function regenerateItemSimilarityEdges(
     return { inserted: 0, error: null };
   }
 
+  const { data: sourceContent, error: sourceErr } = await client
+    .from("item_contents")
+    .select("market_memory_item_id")
+    .eq("id", sourceItemId)
+    .maybeSingle();
+  if (sourceErr) {
+    return { inserted: 0, error: sourceErr };
+  }
+
   const targetIds = [...new Set(list.map((r) => r.target_item_id))];
   const { data: activeTargets, error: activeErr } = await client
     .from("item_contents")
-    .select("id")
+    .select("id, market_memory_item_id")
     .eq("is_active", true)
     .in("id", targetIds);
   if (activeErr) {
     return { inserted: 0, error: activeErr };
   }
 
-  const activeTargetIdSet = new Set((activeTargets ?? []).map((r) => r.id));
-  const filtered = list.filter((r) => activeTargetIdSet.has(r.target_item_id));
+  const sourceMarketMemoryItemId = sourceContent?.market_memory_item_id ?? null;
+  const validTargetIdSet = new Set(
+    (activeTargets ?? [])
+      .filter((t) =>
+        sourceMarketMemoryItemId == null
+          ? true
+          : t.market_memory_item_id !== sourceMarketMemoryItemId,
+      )
+      .map((t) => t.id),
+  );
+  const filtered = list.filter((r) => validTargetIdSet.has(r.target_item_id));
   if (filtered.length === 0) {
     const { error: statusErr } = await updateSimilarityStatusBySourceContentId(
       client,
