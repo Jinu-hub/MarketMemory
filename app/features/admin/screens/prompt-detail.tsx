@@ -5,8 +5,9 @@ type PromptDetailLoaderData = {
   template: Database["public"]["Tables"]["prompt_templates"]["Row"];
 };
 
-import { Trash2Icon } from "lucide-react";
-import { Form, Link, data, redirect, useActionData, useNavigation } from "react-router";
+import { CheckIcon, ClipboardCopyIcon, EyeIcon, PencilLineIcon, Trash2Icon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Form, Link, data, redirect, useActionData, useNavigation, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import {
@@ -60,7 +61,7 @@ const deleteSchema = z.object({
 const actionSchema = z.discriminatedUnion("intent", [updateSchema, deleteSchema]);
 
 export const meta: Route.MetaFunction = () => [
-  { title: `프롬프트 편집 | ${import.meta.env.VITE_APP_NAME}` },
+  { title: `프롬프트 상세 | ${import.meta.env.VITE_APP_NAME}` },
 ];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -141,7 +142,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (error) {
     return data({ message: error.message }, { status: 400 });
   }
-  return redirect(`/admin/prompts/${id}`);
+  return redirect(`/admin/prompts/${id}?mode=read`);
 }
 
 export default function PromptDetail({ loaderData }: Route.ComponentProps) {
@@ -151,7 +152,27 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
   const { template } = loaderData as PromptDetailLoaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const [searchParams] = useSearchParams();
   const busy = navigation.state !== "idle";
+  const [mode, setMode] = useState<"read" | "edit">(
+    searchParams.get("mode") === "edit" ? "edit" : "read",
+  );
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const urlMode = searchParams.get("mode") === "edit" ? "edit" : "read";
+    setMode(urlMode);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = window.setTimeout(() => setCopied(false), 1400);
+    return () => window.clearTimeout(t);
+  }, [copied]);
+
+  const templateText = useMemo(() => template.template ?? "", [template.template]);
+  const canEdit = mode === "edit";
+  const canCopy = mode === "read";
 
   return (
     <div className="mx-auto flex w-full max-w-none min-w-0 flex-col gap-10">
@@ -172,7 +193,29 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
               <NexBadge variant="outline" size="sm" className="font-mono">
                 v{template.version}
               </NexBadge>
+              <NexBadge variant="secondary" size="sm" className="capitalize">
+                {mode === "read" ? "열람" : "편집"}
+              </NexBadge>
             </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <NexButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              leftIcon={
+                mode === "read" ? (
+                  <PencilLineIcon className="size-3.5" aria-hidden />
+                ) : (
+                  <EyeIcon className="size-3.5" aria-hidden />
+                )
+              }
+              disabled={busy}
+              onClick={() => setMode((m) => (m === "read" ? "edit" : "read"))}
+              aria-label={mode === "read" ? "편집 모드로 전환" : "열람 모드로 전환"}
+            >
+              {mode === "read" ? "편집 모드" : "열람 모드"}
+            </NexButton>
           </div>
           <p className="text-muted-foreground font-mono text-xs leading-relaxed break-all sm:max-w-[min(100%,280px)] sm:text-end">
             {template.agent_key}
@@ -188,24 +231,64 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
       )}
 
       <AdminSection
-        title="템플릿 편집"
-        description="본문과 스키마 JSON은 저장 시 검증됩니다. 버전 번호는 이 화면에서 바꾸지 않습니다."
+        title={mode === "read" ? "템플릿 상세" : "템플릿 편집"}
+        description={
+          mode === "read"
+            ? "기본은 열람 모드입니다. 복사 후 사용할 수 있고, 편집 모드에서만 저장·삭제가 가능합니다."
+            : "본문과 스키마 JSON은 저장 시 검증됩니다. 버전 번호는 이 화면에서 바꾸지 않습니다."
+        }
       >
         <AdminPanel padding="lg" className="w-full min-w-0">
           <Form method="post" className="grid w-full min-w-0 gap-6">
             <input type="hidden" name="intent" value="update" />
             <input type="hidden" name="id" value={template.id} />
-            <NexInput name="name" label="이름" required defaultValue={template.name} />
+            <NexInput
+              name="name"
+              label="이름"
+              required
+              defaultValue={template.name}
+              disabled={!canEdit}
+            />
             <label className="flex min-w-0 w-full flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">템플릿</span>
+              {canCopy ? (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <NexButton
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={
+                      copied ? (
+                        <CheckIcon className="size-3.5" aria-hidden />
+                      ) : (
+                        <ClipboardCopyIcon className="size-3.5" aria-hidden />
+                      )
+                    }
+                    disabled={busy}
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(templateText);
+                        setCopied(true);
+                      } catch {
+                        // no-op: clipboard may be blocked by browser permissions
+                      }
+                    }}
+                    aria-label="템플릿 본문 복사"
+                  >
+                    {copied ? "복사됨" : "복사"}
+                  </NexButton>
+                </div>
+              ) : null}
               <textarea
                 name="template"
                 required
                 rows={16}
-                defaultValue={template.template}
+                defaultValue={templateText}
+                readOnly={!canEdit}
                 className={cn(
                   adminTextareaClassName,
                   "block min-h-[min(48vh,28rem)] resize-y",
+                  !canEdit && "bg-muted/20",
                 )}
               />
             </label>
@@ -216,6 +299,7 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
                 className={adminSelectClassName}
                 defaultValue={template.status}
                 aria-label="템플릿 상태"
+                disabled={!canEdit}
               >
                 <option value="draft">draft</option>
                 <option value="active">active</option>
@@ -227,6 +311,7 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
               name="temperature"
               label="temperature (선택)"
               defaultValue={template.temperature != null ? String(template.temperature) : ""}
+              disabled={!canEdit}
             />
             <label className="flex flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">api_mode</span>
@@ -235,18 +320,30 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
                 className={adminSelectClassName}
                 defaultValue={template.api_mode ?? "responses"}
                 aria-label="API 모드"
+                disabled={!canEdit}
               >
                 <option value="responses">responses</option>
                 <option value="streaming">streaming</option>
               </select>
             </label>
-            <NexInput name="changelog" label="changelog" defaultValue={template.changelog ?? ""} />
+            <NexInput
+              name="changelog"
+              label="changelog"
+              defaultValue={template.changelog ?? ""}
+              disabled={!canEdit}
+            />
             <NexInput
               name="default_provider"
               label="default_provider"
               defaultValue={template.default_provider ?? ""}
+              disabled={!canEdit}
             />
-            <NexInput name="default_model" label="default_model" defaultValue={template.default_model ?? ""} />
+            <NexInput
+              name="default_model"
+              label="default_model"
+              defaultValue={template.default_model ?? ""}
+              disabled={!canEdit}
+            />
             <label className="flex flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">input_schema (JSON)</span>
               <textarea
@@ -256,6 +353,7 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
                   template.input_schema != null ? JSON.stringify(template.input_schema, null, 2) : ""
                 }
                 className={cn(adminTextareaClassName, "min-h-[100px] text-xs")}
+                readOnly={!canEdit}
               />
             </label>
             <label className="flex flex-col gap-2 text-sm">
@@ -267,6 +365,7 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
                   template.output_schema != null ? JSON.stringify(template.output_schema, null, 2) : ""
                 }
                 className={cn(adminTextareaClassName, "min-h-[100px] text-xs")}
+                readOnly={!canEdit}
               />
             </label>
             <label className="flex flex-col gap-2 text-sm">
@@ -278,6 +377,7 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
                   template.default_params != null ? JSON.stringify(template.default_params, null, 2) : ""
                 }
                 className={cn(adminTextareaClassName, "min-h-[100px] text-xs")}
+                readOnly={!canEdit}
               />
             </label>
             <label className="flex flex-col gap-2 text-sm">
@@ -287,42 +387,47 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
                 className={adminSelectClassName}
                 defaultValue={template.is_backward_compatible ? "true" : "false"}
                 aria-label="하위 호환 여부"
+                disabled={!canEdit}
               >
                 <option value="true">예</option>
                 <option value="false">아니오</option>
               </select>
             </label>
-            <div className="border-border flex flex-wrap gap-3 border-t pt-6">
-              <NexButton type="submit" variant="primary" loading={busy} disabled={busy}>
-                저장
-              </NexButton>
-            </div>
+            {canEdit ? (
+              <div className="border-border flex flex-wrap gap-3 border-t pt-6">
+                <NexButton type="submit" variant="primary" loading={busy} disabled={busy}>
+                  저장
+                </NexButton>
+              </div>
+            ) : null}
           </Form>
         </AdminPanel>
       </AdminSection>
 
-      <AdminPanel
-        padding="lg"
-        className="border-destructive/25 bg-destructive/5 w-full min-w-0 border"
-      >
-        <Form method="post" className="space-y-4">
-          <input type="hidden" name="intent" value="delete" />
-          <input type="hidden" name="id" value={template.id} />
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            프롬프트 릴리스에서 이 버전을 참조 중이면 삭제가 거부될 수 있습니다.
-          </p>
-          <NexButton
-            type="submit"
-            variant="secondary"
-            leftIcon={<Trash2Icon className="size-3.5" aria-hidden />}
-            className="border-destructive/35 text-destructive hover:bg-destructive/10"
-            loading={busy}
-            disabled={busy}
-          >
-            이 템플릿 삭제
-          </NexButton>
-        </Form>
-      </AdminPanel>
+      {canEdit ? (
+        <AdminPanel
+          padding="lg"
+          className="border-destructive/25 bg-destructive/5 w-full min-w-0 border"
+        >
+          <Form method="post" className="space-y-4">
+            <input type="hidden" name="intent" value="delete" />
+            <input type="hidden" name="id" value={template.id} />
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              프롬프트 릴리스에서 이 버전을 참조 중이면 삭제가 거부될 수 있습니다.
+            </p>
+            <NexButton
+              type="submit"
+              variant="secondary"
+              leftIcon={<Trash2Icon className="size-3.5" aria-hidden />}
+              className="border-destructive/35 text-destructive hover:bg-destructive/10"
+              loading={busy}
+              disabled={busy}
+            >
+              이 템플릿 삭제
+            </NexButton>
+          </Form>
+        </AdminPanel>
+      ) : null}
     </div>
   );
 }

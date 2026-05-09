@@ -1,6 +1,7 @@
 import type { Route } from "./+types/pipeline-detail";
 
-import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDownIcon, ArrowUpIcon, SearchIcon, Trash2Icon } from "lucide-react";
 import { Form, Link, data, redirect, useActionData, useNavigation } from "react-router";
 import { z } from "zod";
 
@@ -224,6 +225,44 @@ export default function PipelineDetail({ loaderData }: Route.ComponentProps) {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
+  const [targetType, setTargetType] = useState<"agent" | "pipeline" | "prompt_template">("agent");
+  const [targetKey, setTargetKey] = useState("");
+  const [targetQuery, setTargetQuery] = useState("");
+
+  const targetOptions = useMemo(() => {
+    if (targetType === "agent") {
+      return agents.map((a) => ({
+        value: a.agent_key,
+        label: `${a.agent_key}${a.display_name ? ` — ${a.display_name}` : ""}`,
+      }));
+    }
+    if (targetType === "pipeline") {
+      return pipelinesList.map((p) => ({
+        value: p.pipeline_key,
+        label: `${p.pipeline_key} — ${p.name}`,
+      }));
+    }
+    return promptTemplates.map((t) => ({
+      value: t.id,
+      label: `${t.id.slice(0, 8)}… v${t.version} ${t.name} (${t.agent_key})`,
+    }));
+  }, [agents, pipelinesList, promptTemplates, targetType]);
+
+  const filteredTargetOptions = useMemo(() => {
+    const q = targetQuery.trim().toLowerCase();
+    if (q.length === 0) {
+      return targetOptions;
+    }
+    return targetOptions.filter((o) =>
+      `${o.value} ${o.label}`.toLowerCase().includes(q),
+    );
+  }, [targetOptions, targetQuery]);
+
+  useEffect(() => {
+    if (targetKey && !filteredTargetOptions.some((o) => o.value === targetKey)) {
+      setTargetKey("");
+    }
+  }, [filteredTargetOptions, targetKey]);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
@@ -383,7 +422,7 @@ export default function PipelineDetail({ loaderData }: Route.ComponentProps) {
           </Table>
         </AdminTableShell>
 
-        <AdminPanel padding="lg" className="max-w-xl">
+        <AdminPanel padding="lg" className="max-w-4xl">
           <Form method="post" className="grid gap-5">
             <input type="hidden" name="intent" value="add_step" />
             <input type="hidden" name="pipeline_key" value={pipeline.pipeline_key} />
@@ -393,7 +432,8 @@ export default function PipelineDetail({ loaderData }: Route.ComponentProps) {
                 name="target_type"
                 required
                 className={adminSelectClassName}
-                defaultValue="agent"
+                value={targetType}
+                onChange={(e) => setTargetType(e.target.value as "agent" | "pipeline" | "prompt_template")}
                 aria-label="단계 대상 유형"
               >
                 <option value="agent">agent</option>
@@ -403,39 +443,43 @@ export default function PipelineDetail({ loaderData }: Route.ComponentProps) {
             </label>
             <label className="flex flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">대상 선택</span>
-              <select
-                name="target_key"
-                required
-                className={adminSelectClassName}
-                defaultValue=""
-                aria-label="대상 키 또는 ID"
-              >
-                <option value="" disabled>
-                  선택…
-                </option>
-                <optgroup label="agents">
-                  {agents.map((a) => (
-                    <option key={a.agent_key} value={a.agent_key}>
-                      {a.agent_key}
-                      {a.display_name ? ` — ${a.display_name}` : ""}
+              <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-3">
+                <div className="min-w-0 flex-1">
+                  <select
+                    name="target_key"
+                    required
+                    value={targetKey}
+                    onChange={(e) => setTargetKey(e.target.value)}
+                    className={adminSelectClassName}
+                    aria-label="대상 키 또는 ID"
+                  >
+                    <option value="" disabled>
+                      선택…
                     </option>
-                  ))}
-                </optgroup>
-                <optgroup label="pipelines">
-                  {pipelinesList.map((p) => (
-                    <option key={p.pipeline_key} value={p.pipeline_key}>
-                      {p.pipeline_key} — {p.name}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="prompt_templates (id)">
-                  {promptTemplates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.id.slice(0, 8)}… v{t.version} {t.name} ({t.agent_key})
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
+                    {filteredTargetOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                    {filteredTargetOptions.length === 0 ? (
+                      <option value="" disabled>
+                        검색 결과 없음
+                      </option>
+                    ) : null}
+                  </select>
+                </div>
+                <div className="w-full min-w-[10rem] shrink-0 sm:max-w-xs sm:self-center">
+                  <NexInput
+                    value={targetQuery}
+                    onChange={(e) => setTargetQuery(e.target.value)}
+                    placeholder="대상 검색…"
+                    aria-label="대상 목록 필터"
+                    inputSize="lg"
+                    autoComplete="off"
+                    leftIcon={<SearchIcon className="size-4 opacity-70" aria-hidden />}
+                  />
+                </div>
+              </div>
             </label>
             <p className="text-muted-foreground text-xs leading-relaxed">
               선택한 유형과 일치하는 대상만 지정하세요. 다른 조합은 실행 시 오류가 날 수 있습니다.

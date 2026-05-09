@@ -6,7 +6,7 @@ import {
   ArrowDownIcon,
   ArrowUpDownIcon,
   ArrowUpIcon,
-  PencilLineIcon,
+  EyeIcon,
   PlusCircleIcon,
   SearchIcon,
 } from "lucide-react";
@@ -271,7 +271,7 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
                       className="text-muted-foreground flex min-h-[3rem] items-center justify-end px-4 py-3.5 pr-5 text-xs font-semibold tracking-wider uppercase"
                       role="columnheader"
                     >
-                      편집
+                      상세
                     </div>
                   </TableHead>
                 </TableRow>
@@ -324,9 +324,9 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
                             type="button"
                             variant="secondary"
                             size="sm"
-                            leftIcon={<PencilLineIcon className="size-3.5" aria-hidden />}
+                            leftIcon={<EyeIcon className="size-3.5" aria-hidden />}
                           >
-                            편집
+                            상세
                           </NexButton>
                         </Link>
                       </TableCell>
