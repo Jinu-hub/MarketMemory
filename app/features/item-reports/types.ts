@@ -35,6 +35,7 @@ export type ReportListItem = Pick<
 >;
 
 export type RelatedReportItem = ReportListItem & {
+  ranking?: number | null;
   final_score?: number | null;
   similarity_level?: Database["public"]["Enums"]["similarity_level"] | null;
 };

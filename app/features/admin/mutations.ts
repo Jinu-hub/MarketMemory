@@ -431,13 +431,21 @@ export async function regenerateItemSimilarityEdges(
     return { inserted: 0, error: null };
   }
 
-  const insertRows: TablesInsert<"item_similarity_edges">[] = filtered.map((r) => ({
+  const ranked = [...filtered].sort((a, b) => {
+    const af = a.final_score ?? Number.NEGATIVE_INFINITY;
+    const bf = b.final_score ?? Number.NEGATIVE_INFINITY;
+    if (bf !== af) return bf - af;
+    return a.target_item_id.localeCompare(b.target_item_id);
+  });
+
+  const insertRows: TablesInsert<"item_similarity_edges">[] = ranked.map((r, idx) => ({
     source_item_id: sourceItemId,
     target_item_id: r.target_item_id,
     vector_score: numericFieldToDb(r.vector_score),
     tag_score: numericFieldToDb(r.tag_score),
     final_score: numericFieldToDb(r.final_score),
     similarity_level: toSimilarityLevel(r.final_score),
+    ranking: idx + 1,
     shared_tags: (r.shared_tag_ids ?? null) as Json | null,
     method_version: methodVersion,
   }));
@@ -456,7 +464,7 @@ export async function regenerateItemSimilarityEdges(
     return { inserted: 0, error: statusErr };
   }
 
-  return { inserted: filtered.length, error: null };
+  return { inserted: ranked.length, error: null };
 }
 
 /**

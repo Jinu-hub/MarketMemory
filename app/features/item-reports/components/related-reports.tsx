@@ -53,7 +53,12 @@ export function RelatedReports({
   maxHeightClassName = "max-h-[28rem]",
 }: RelatedReportsProps) {
   if (!reports || reports.length === 0) return null;
-  const sortedReports = [...reports].sort((a, b) => (b.final_score ?? -1) - (a.final_score ?? -1));
+  const sortedReports = [...reports].sort((a, b) => {
+    const rankA = a.ranking ?? 9999;
+    const rankB = b.ranking ?? 9999;
+    if (rankA !== rankB) return rankA - rankB;
+    return (b.final_score ?? -1) - (a.final_score ?? -1);
+  });
 
   const similarityToneClass = (level: RelatedReportItem["similarity_level"]) =>
     level === "strong"
