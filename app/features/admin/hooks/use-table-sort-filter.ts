@@ -2,6 +2,14 @@ import { useCallback, useMemo, useState } from "react";
 
 export type SortDir = "asc" | "desc";
 
+export type TableSortOptions<K extends string> = {
+  /**
+   * 다른 컬럼을 처음 선택했을 때의 방향. 기본 `"asc"`.
+   * 날짜 컬럼만 최신 우선(desc)으로 시작하고 싶을 때 함수로 분기할 수 있다.
+   */
+  sortDirWhenChangingColumn?: SortDir | ((key: K) => SortDir);
+};
+
 /**
  * 테이블 헤더 정렬 토글용 상태.
  *
@@ -11,6 +19,7 @@ export type SortDir = "asc" | "desc";
 export function useTableSortState<K extends string>(
   initialKey: K,
   initialDir: SortDir = "desc",
+  options?: TableSortOptions<K>,
 ) {
   const [sortKey, setSortKey] = useState<K>(initialKey);
   const [sortDir, setSortDir] = useState<SortDir>(initialDir);
@@ -21,10 +30,14 @@ export function useTableSortState<K extends string>(
         setSortDir((d) => (d === "asc" ? "desc" : "asc"));
       } else {
         setSortKey(key);
-        setSortDir("asc");
+        const next =
+          typeof options?.sortDirWhenChangingColumn === "function"
+            ? options.sortDirWhenChangingColumn(key)
+            : options?.sortDirWhenChangingColumn ?? "asc";
+        setSortDir(next);
       }
     },
-    [sortKey],
+    [sortKey, options?.sortDirWhenChangingColumn],
   );
 
   return { sortKey, sortDir, toggleSort, setSortKey, setSortDir };

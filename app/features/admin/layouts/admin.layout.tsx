@@ -1,28 +1,13 @@
 import type { Route } from "./+types/admin.layout";
 
-import {
-  ArrowLeftIcon,
-  ClipboardListIcon,
-  GitBranchIcon,
-  HomeIcon,
-  PackageIcon,
-  Share2Icon,
-  SparklesIcon,
-} from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
 
 import { requireAdmin } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
 
-const nav = [
-  { to: "/admin", end: true, label: "개요", icon: HomeIcon },
-  { to: "/admin/pipelines", label: "파이프라인", icon: GitBranchIcon },
-  { to: "/admin/agents", label: "에이전트", icon: SparklesIcon },
-  { to: "/admin/prompts", label: "프롬프트", icon: ClipboardListIcon },
-  { to: "/admin/prompt-releases", label: "프롬프트 릴리스", icon: PackageIcon },
-  { to: "/admin/item-similarities", label: "유사도", icon: Share2Icon },
-] as const;
+import { ADMIN_NAV_ITEMS } from "../lib/admin-nav";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
@@ -47,7 +32,7 @@ export default function AdminLayout() {
           </NavLink>
         </div>
         <nav className="flex flex-col gap-0.5" aria-label="관리자 메뉴">
-          {nav.map(({ to, label, icon: Icon, ...rest }) => (
+          {ADMIN_NAV_ITEMS.map(({ to, label, icon: Icon, ...rest }) => (
             <NavLink
               key={to}
               to={to}

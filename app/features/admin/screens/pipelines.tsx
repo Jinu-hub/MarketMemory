@@ -2,27 +2,21 @@ import type { Route } from "./+types/pipelines";
 import type { Database } from "database.types";
 
 import { useMemo, useState } from "react";
-import {
-  ArrowDownIcon,
-  ArrowUpDownIcon,
-  ArrowUpIcon,
-  PencilLineIcon,
-  PlusCircleIcon,
-  SearchIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { PencilLineIcon, PlusCircleIcon, SearchIcon, Trash2Icon } from "lucide-react";
 import { Form, Link, data, useActionData, useNavigation } from "react-router";
 import { z } from "zod";
 
 import {
   AdminErrorAlert,
   AdminPageHeader,
-  AdminPanel,
   AdminSection,
+  AdminSortAffix,
   AdminTableShell,
   PipelineStatusBadge,
+  adminSortColumnButtonClass,
   adminTdClass,
 } from "../components/admin-ui";
+import { useTableSortState } from "../hooks/use-table-sort-filter";
 import { NexButton, NexInput } from "~/core/components/nex";
 import {
   Table,
@@ -81,28 +75,6 @@ export async function action({ request }: Route.ActionArgs) {
   return data({ ok: true });
 }
 
-function SortAffix({
-  active,
-  dir,
-}: {
-  active: boolean;
-  dir: "asc" | "desc";
-}) {
-  if (!active) {
-    return (
-      <ArrowUpDownIcon
-        className="text-muted-foreground size-4 shrink-0 opacity-45"
-        aria-hidden
-      />
-    );
-  }
-  return dir === "asc" ? (
-    <ArrowUpIcon className="text-foreground size-4 shrink-0" aria-hidden />
-  ) : (
-    <ArrowDownIcon className="text-foreground size-4 shrink-0" aria-hidden />
-  );
-}
-
 export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
   if (!loaderData) {
     return null;
@@ -113,8 +85,10 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
   const busy = navigation.state !== "idle";
 
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const { sortKey, sortDir, toggleSort } = useTableSortState<SortKey>(
+    "name",
+    "asc",
+  );
 
   const filteredSorted = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -146,19 +120,6 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
       }
     });
   }, [pipelines, query, sortKey, sortDir]);
-
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
-  }
-
-  /** Matches body `adminTdClass`: first col pl-5, last col pr-5 */
-  const sortBtnBase =
-    "hover:bg-muted/55 text-muted-foreground hover:text-foreground flex min-h-[3rem] w-full items-center gap-2 border-0 bg-transparent text-xs font-semibold tracking-wider uppercase transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none";
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
@@ -201,7 +162,7 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
                 <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                   <button
                     type="button"
-                    className={cn(sortBtnBase, "justify-start pl-5 pr-4 py-3.5 text-left")}
+                    className={cn(adminSortColumnButtonClass, "justify-start pl-5 pr-4 py-3.5 text-left")}
                     onClick={() => toggleSort("pipeline_key")}
                     aria-sort={
                       sortKey === "pipeline_key"
@@ -212,13 +173,13 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
                     }
                   >
                     pipeline_key
-                    <SortAffix active={sortKey === "pipeline_key"} dir={sortDir} />
+                    <AdminSortAffix active={sortKey === "pipeline_key"} dir={sortDir} />
                   </button>
                 </TableHead>
                 <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                   <button
                     type="button"
-                    className={cn(sortBtnBase, "justify-start px-4 py-3.5 text-left")}
+                    className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
                     onClick={() => toggleSort("name")}
                     aria-sort={
                       sortKey === "name"
@@ -229,13 +190,13 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
                     }
                   >
                     이름
-                    <SortAffix active={sortKey === "name"} dir={sortDir} />
+                    <AdminSortAffix active={sortKey === "name"} dir={sortDir} />
                   </button>
                 </TableHead>
                 <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                   <button
                     type="button"
-                    className={cn(sortBtnBase, "justify-start px-4 py-3.5 text-left")}
+                    className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
                     onClick={() => toggleSort("status")}
                     aria-sort={
                       sortKey === "status"
@@ -246,7 +207,7 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
                     }
                   >
                     상태
-                    <SortAffix active={sortKey === "status"} dir={sortDir} />
+                    <AdminSortAffix active={sortKey === "status"} dir={sortDir} />
                   </button>
                 </TableHead>
                 <TableHead className="text-muted-foreground h-auto !p-0 align-middle">

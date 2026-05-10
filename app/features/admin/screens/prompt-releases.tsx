@@ -2,13 +2,7 @@ import type { Route } from "./+types/prompt-releases";
 import type { Database } from "database.types";
 
 import { useMemo, useState } from "react";
-import {
-  ArrowDownIcon,
-  ArrowUpDownIcon,
-  ArrowUpIcon,
-  SearchIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { SearchIcon, Trash2Icon } from "lucide-react";
 import { Form, data, useActionData, useNavigate, useNavigation } from "react-router";
 import { z } from "zod";
 
@@ -19,10 +13,13 @@ import {
   AdminPanel,
   AdminPromptTemplateSelectWithFilter,
   AdminSection,
+  AdminSortAffix,
   AdminTableShell,
   EnvironmentBadge,
+  adminSortColumnButtonClass,
   adminTdClass,
 } from "../components/admin-ui";
+import { useTableSortState } from "../hooks/use-table-sort-filter";
 import { NexButton, NexInput } from "~/core/components/nex";
 import {
   Table,
@@ -147,28 +144,6 @@ export async function action({ request }: Route.ActionArgs) {
 
 type ReleaseSortKey = "agent_key" | "environment" | "template";
 
-function SortAffix({
-  active,
-  dir,
-}: {
-  active: boolean;
-  dir: "asc" | "desc";
-}) {
-  if (!active) {
-    return (
-      <ArrowUpDownIcon
-        className="text-muted-foreground size-4 shrink-0 opacity-45"
-        aria-hidden
-      />
-    );
-  }
-  return dir === "asc" ? (
-    <ArrowUpIcon className="text-foreground size-4 shrink-0" aria-hidden />
-  ) : (
-    <ArrowDownIcon className="text-foreground size-4 shrink-0" aria-hidden />
-  );
-}
-
 export default function PromptReleases({ loaderData }: Route.ComponentProps) {
   if (!loaderData) {
     return null;
@@ -181,8 +156,8 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
   const busy = navigation.state !== "idle";
 
   const [tableQuery, setTableQuery] = useState("");
-  const [sortKey, setSortKey] = useState<ReleaseSortKey>("agent_key");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const { sortKey, sortDir, toggleSort } =
+    useTableSortState<ReleaseSortKey>("agent_key", "asc");
 
   const filteredSortedReleases = useMemo(() => {
     const q = tableQuery.trim().toLowerCase();
@@ -231,18 +206,6 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
       return a.environment.localeCompare(b.environment, "ko") * m;
     });
   }, [releases, tableQuery, sortKey, sortDir, templateLabel]);
-
-  function toggleSort(key: ReleaseSortKey) {
-    if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
-  }
-
-  const sortBtnBase =
-    "hover:bg-muted/55 text-muted-foreground hover:text-foreground flex min-h-[3rem] w-full items-center gap-2 border-0 bg-transparent text-xs font-semibold tracking-wider uppercase transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none";
 
   return (
     <div className="mx-auto flex w-full max-w-none min-w-0 flex-col gap-10">
@@ -311,7 +274,10 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                   <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                     <button
                       type="button"
-                      className={cn(sortBtnBase, "justify-start pl-5 pr-4 py-3.5 text-left")}
+                      className={cn(
+                        adminSortColumnButtonClass,
+                        "justify-start pl-5 pr-4 py-3.5 text-left",
+                      )}
                       onClick={() => toggleSort("agent_key")}
                       aria-sort={
                         sortKey === "agent_key"
@@ -322,13 +288,16 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                       }
                     >
                       에이전트
-                      <SortAffix active={sortKey === "agent_key"} dir={sortDir} />
+                      <AdminSortAffix active={sortKey === "agent_key"} dir={sortDir} />
                     </button>
                   </TableHead>
                   <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                     <button
                       type="button"
-                      className={cn(sortBtnBase, "justify-start px-4 py-3.5 text-left")}
+                      className={cn(
+                        adminSortColumnButtonClass,
+                        "justify-start px-4 py-3.5 text-left",
+                      )}
                       onClick={() => toggleSort("environment")}
                       aria-sort={
                         sortKey === "environment"
@@ -339,14 +308,14 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                       }
                     >
                       환경
-                      <SortAffix active={sortKey === "environment"} dir={sortDir} />
+                      <AdminSortAffix active={sortKey === "environment"} dir={sortDir} />
                     </button>
                   </TableHead>
                   <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                     <button
                       type="button"
                       className={cn(
-                        sortBtnBase,
+                        adminSortColumnButtonClass,
                         "min-w-[200px] justify-start px-4 py-3.5 text-left",
                       )}
                       onClick={() => toggleSort("template")}
@@ -359,7 +328,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                       }
                     >
                       활성 템플릿
-                      <SortAffix active={sortKey === "template"} dir={sortDir} />
+                      <AdminSortAffix active={sortKey === "template"} dir={sortDir} />
                     </button>
                   </TableHead>
                   <TableHead className="text-muted-foreground h-auto !p-0 align-middle">

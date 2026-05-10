@@ -13,6 +13,10 @@ import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
 import {
+  groupSimilarityEdgesBySource,
+  parseTriStateQueryParam,
+} from "../lib/item-similarity-utils";
+import {
   DEFAULT_SIMILARITY_METHOD_VERSION,
   regenerateAllItemSimilarityEdges,
   regenerateItemSimilarityEdges,
@@ -23,7 +27,6 @@ import {
   fetchEmbeddingSourceItemIds,
   listItemContentsForSimilarity,
   listSimilarityEdgesForSources,
-  type SimilarityEdgeListRow,
 } from "../queries";
 
 export const meta: Route.MetaFunction = () => [
@@ -69,30 +72,13 @@ function mergeFilterHref(parts: {
   return q ? `/admin/item-similarities?${q}` : "/admin/item-similarities";
 }
 
-function parseFilterParam(v: string | null): "all" | "1" | "0" {
-  if (v === "1" || v === "0") {
-    return v;
-  }
-  return "all";
-}
-
-function groupEdgesBySource(edges: SimilarityEdgeListRow[]): Map<string, SimilarityEdgeListRow[]> {
-  const m = new Map<string, SimilarityEdgeListRow[]>();
-  for (const e of edges) {
-    const list = m.get(e.source_item_id) ?? [];
-    list.push(e);
-    m.set(e.source_item_id, list);
-  }
-  return m;
-}
-
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   await requireAdmin(client);
 
   const url = new URL(request.url);
-  const activeFilter = parseFilterParam(url.searchParams.get("active"));
-  const publicFilter = parseFilterParam(url.searchParams.get("public"));
+  const activeFilter = parseTriStateQueryParam(url.searchParams.get("active"));
+  const publicFilter = parseTriStateQueryParam(url.searchParams.get("public"));
 
   const filters = {
     isActive: activeFilter === "all" ? undefined : activeFilter === "1",
@@ -127,7 +113,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw new Error(readyCntErr.message);
   }
 
-  const edgeMap = groupEdgesBySource(edgeRows ?? []);
+  const edgeMap = groupSimilarityEdgesBySource(edgeRows ?? []);
   const rows: SimilarityRowModel[] = contentRows.map((c) => ({
     content: c,
     edges: edgeMap.get(c.id) ?? [],

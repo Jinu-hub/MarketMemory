@@ -1,14 +1,11 @@
 import { useMemo, useState } from "react";
-import {
-  ArrowDownIcon,
-  ArrowUpDownIcon,
-  ArrowUpIcon,
-  SearchIcon,
-} from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import {
+  AdminSortAffix,
   AdminTableShell,
+  adminSortColumnButtonClass,
   adminTdClass,
 } from "../admin-ui";
 import { RegenerateRowForm } from "./regenerate-row-form";
@@ -54,22 +51,6 @@ type SortKey =
   | "input_date"
   | "edge_count"
   | "top_score";
-
-function SortAffix({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
-  if (!active) {
-    return (
-      <ArrowUpDownIcon
-        className="text-muted-foreground size-4 shrink-0 opacity-45"
-        aria-hidden
-      />
-    );
-  }
-  return dir === "asc" ? (
-    <ArrowUpIcon className="text-foreground size-4 shrink-0" aria-hidden />
-  ) : (
-    <ArrowDownIcon className="text-foreground size-4 shrink-0" aria-hidden />
-  );
-}
 
 /**
  * `item_contents` + 유사도 엣지 요약 테이블. 검색·정렬은 클라이언트에서 처리한다.
@@ -154,9 +135,6 @@ export function SimilarityTable({
     });
   }, [filtered, sortKey, sortDir]);
 
-  const sortBtnBase =
-    "hover:bg-muted/55 text-muted-foreground hover:text-foreground flex min-h-[3rem] w-full items-center gap-2 border-0 bg-transparent text-xs font-semibold tracking-wider uppercase transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none";
-
   return (
     <div className="space-y-4">
       <NexInput
@@ -176,7 +154,7 @@ export function SimilarityTable({
               <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                 <button
                   type="button"
-                  className={cn(sortBtnBase, "justify-start pl-5 pr-4 py-3.5 text-left")}
+                  className={cn(adminSortColumnButtonClass, "justify-start pl-5 pr-4 py-3.5 text-left")}
                   onClick={() => toggleSort("title")}
                   aria-sort={
                     sortKey === "title"
@@ -187,13 +165,13 @@ export function SimilarityTable({
                   }
                 >
                   제목
-                  <SortAffix active={sortKey === "title"} dir={sortDir} />
+                  <AdminSortAffix active={sortKey === "title"} dir={sortDir} />
                 </button>
               </TableHead>
               <TableHead className="text-muted-foreground hidden h-auto !p-0 align-middle sm:table-cell">
                 <button
                   type="button"
-                  className={cn(sortBtnBase, "justify-start px-4 py-3.5 text-left")}
+                  className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
                   onClick={() => toggleSort("lang_code")}
                   aria-sort={
                     sortKey === "lang_code"
@@ -204,13 +182,13 @@ export function SimilarityTable({
                   }
                 >
                   언어
-                  <SortAffix active={sortKey === "lang_code"} dir={sortDir} />
+                  <AdminSortAffix active={sortKey === "lang_code"} dir={sortDir} />
                 </button>
               </TableHead>
               <TableHead className="text-muted-foreground hidden h-auto !p-0 align-middle md:table-cell">
                 <button
                   type="button"
-                  className={cn(sortBtnBase, "justify-start px-4 py-3.5 text-left")}
+                  className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
                   onClick={() => toggleSort("category")}
                   aria-sort={
                     sortKey === "category"
@@ -221,13 +199,13 @@ export function SimilarityTable({
                   }
                 >
                   카테고리
-                  <SortAffix active={sortKey === "category"} dir={sortDir} />
+                  <AdminSortAffix active={sortKey === "category"} dir={sortDir} />
                 </button>
               </TableHead>
               <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                 <button
                   type="button"
-                  className={cn(sortBtnBase, "justify-start px-4 py-3.5 text-left")}
+                  className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
                   onClick={() => toggleSort("input_date")}
                   aria-sort={
                     sortKey === "input_date"
@@ -238,13 +216,13 @@ export function SimilarityTable({
                   }
                 >
                   input_date
-                  <SortAffix active={sortKey === "input_date"} dir={sortDir} />
+                  <AdminSortAffix active={sortKey === "input_date"} dir={sortDir} />
                 </button>
               </TableHead>
               <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                 <button
                   type="button"
-                  className={cn(sortBtnBase, "min-w-[140px] justify-start px-4 py-3.5 text-left")}
+                  className={cn(adminSortColumnButtonClass, "min-w-[140px] justify-start px-4 py-3.5 text-left")}
                   onClick={() => toggleSort("edge_count")}
                   aria-sort={
                     sortKey === "edge_count"
@@ -255,13 +233,13 @@ export function SimilarityTable({
                   }
                 >
                   유사도
-                  <SortAffix active={sortKey === "edge_count"} dir={sortDir} />
+                  <AdminSortAffix active={sortKey === "edge_count"} dir={sortDir} />
                 </button>
               </TableHead>
               <TableHead className="text-muted-foreground hidden h-auto !p-0 align-middle lg:table-cell">
                 <button
                   type="button"
-                  className={cn(sortBtnBase, "justify-start px-4 py-3.5 text-left")}
+                  className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
                   onClick={() => toggleSort("top_score")}
                   aria-sort={
                     sortKey === "top_score"
@@ -272,7 +250,7 @@ export function SimilarityTable({
                   }
                 >
                   top 점수
-                  <SortAffix active={sortKey === "top_score"} dir={sortDir} />
+                  <AdminSortAffix active={sortKey === "top_score"} dir={sortDir} />
                 </button>
               </TableHead>
               <TableHead className="text-muted-foreground h-auto !p-0 align-middle">

@@ -1,10 +1,46 @@
 import type { ComponentProps } from "react";
 import { useEffect, useMemo, useState } from "react";
 
-import { BotIcon, LayoutGridIcon, SearchIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpDownIcon,
+  ArrowUpIcon,
+  BotIcon,
+  LayoutGridIcon,
+  SearchIcon,
+} from "lucide-react";
 
 import { NexBadge, NexCard, NexInput } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
+
+/** 정렬 가능 컬럼 헤더 버튼 — 목록 화면 테이블에서 공통 사용 */
+export const adminSortColumnButtonClass =
+  "hover:bg-muted/55 text-muted-foreground hover:text-foreground flex min-h-[3rem] w-full items-center gap-2 border-0 bg-transparent text-xs font-semibold tracking-wider uppercase transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none";
+
+/**
+ * 정렬 활성/방향을 나타내는 아이콘 (비활성: 위아래 화살표).
+ */
+export function AdminSortAffix({
+  active,
+  dir,
+}: {
+  active: boolean;
+  dir: "asc" | "desc";
+}) {
+  if (!active) {
+    return (
+      <ArrowUpDownIcon
+        className="text-muted-foreground size-4 shrink-0 opacity-45"
+        aria-hidden
+      />
+    );
+  }
+  return dir === "asc" ? (
+    <ArrowUpIcon className="text-foreground size-4 shrink-0" aria-hidden />
+  ) : (
+    <ArrowDownIcon className="text-foreground size-4 shrink-0" aria-hidden />
+  );
+}
 
 export function AdminPageHeader({
   title,
