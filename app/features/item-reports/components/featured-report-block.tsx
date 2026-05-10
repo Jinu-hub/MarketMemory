@@ -10,12 +10,11 @@ import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
-import {
-  estimateReadingTime,
-  formatRegion,
-  resolveDisplayDate,
-  resolveTakeaway,
-} from "../lib/format";
+import { resolveDisplayDate } from "../lib/dates";
+import { formatRegion } from "../lib/labels";
+import { estimateReadingTime } from "../lib/reading-time";
+import { resolveTakeaway } from "../lib/summary-meta";
+import { itemReportsDetailHref, itemReportsListHref } from "../lib/item-reports-urls";
 import type { ReportListItem } from "../types";
 import { ReportTierBadge } from "./report-tier-badge";
 
@@ -82,7 +81,7 @@ export function FeaturedReportBlock({
 
           <h2 className="text-2xl leading-tight font-bold tracking-tight md:text-3xl lg:text-4xl">
             <Link
-              to={`/item_reports/${report.id}`}
+              to={itemReportsDetailHref(report.id)}
               viewTransition
               className="hover:text-primary transition-colors"
             >
@@ -98,7 +97,7 @@ export function FeaturedReportBlock({
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
-              to={`/item_reports/${report.id}`}
+              to={itemReportsDetailHref(report.id)}
               viewTransition
               className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors"
             >
@@ -110,7 +109,7 @@ export function FeaturedReportBlock({
                 {topTags.map((tag) => (
                   <Link
                     key={tag}
-                    to={`/item_reports?tag=${encodeURIComponent(tag)}`}
+                    to={itemReportsListHref({ tag })}
                     className="text-muted-foreground bg-muted/60 hover:bg-muted rounded-md px-2 py-1 text-xs transition-colors"
                   >
                     #{tag}

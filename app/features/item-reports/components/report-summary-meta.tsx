@@ -8,7 +8,7 @@ import {
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
-import { parseSummaryMeta } from "../lib/format";
+import { parseSummaryMeta } from "../lib/summary-meta";
 import { getCategoryStyle } from "../lib/category-style";
 import { TalkingPointsCarousel } from "./talking-points-carousel";
 

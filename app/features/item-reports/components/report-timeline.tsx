@@ -10,7 +10,9 @@ import {
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
-import { formatDate, resolveTakeaway } from "../lib/format";
+import { resolveDisplayDate } from "../lib/dates";
+import { resolveTakeaway } from "../lib/summary-meta";
+import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import type { ReportListItem } from "../types";
 
 type ReportTimelineProps = {
@@ -151,7 +153,7 @@ function TimelineRow({
   const style = getCategoryStyle(report.category);
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
   const CategoryIcon = style.icon;
-  const date = formatDate(report.input_date ?? report.created_at);
+  const date = resolveDisplayDate(report);
 
   return (
     <li className="relative flex gap-5 md:gap-6">
@@ -181,7 +183,7 @@ function TimelineRow({
         </div>
 
         <Link
-          to={`/item_reports/${report.id}`}
+          to={itemReportsDetailHref(report.id)}
           viewTransition
           className="group block"
         >

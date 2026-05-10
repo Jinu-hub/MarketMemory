@@ -2,8 +2,7 @@
  * Item Reports — Explore Hub (/item_reports/explore)
  *
  * Editorial discovery page combining:
- *  - Featured hero (most-recent report) promoted via `FeaturedReportBlock`
- *  - Collapsible recent-report timeline below hero
+ *  - Collapsible recent-report timeline below the header
  *  - Tab shell: controls on top strip; results in left-accent panel
  *  - Tags tab: top N as cards, rest in collapsible chips
  *
@@ -19,6 +18,7 @@ import {
   MapPinnedIcon,
   SparklesIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 import { NexBadge } from "~/core/components/nex";
@@ -37,12 +37,11 @@ import { cn } from "~/core/lib/utils";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import type { Route } from "./+types/explore";
-import { FeaturedReportBlock } from "../components/featured-report-block";
+import { ExploreFacetLinkCard } from "../components/explore-facet-link-card";
 import { ReportCard } from "../components/report-card";
 import { ReportTimeline } from "../components/report-timeline";
 import {
   REPORT_CATEGORIES,
-  REPORT_CATEGORY_LABELS_KO,
   REPORT_REGION_LABELS_KO,
   REPORT_TYPE_EXPLORE_INTRO_KO,
   REPORT_TYPE_LABELS_KO,
@@ -50,6 +49,10 @@ import {
   type ReportType,
 } from "../constants";
 import { getCategoryStyle } from "../lib/category-style";
+import {
+  itemReportsListHref,
+  itemReportsTimelineHref,
+} from "../lib/item-reports-urls";
 import {
   getRegionCardTitle,
   getRegionExploreIcon,
@@ -99,7 +102,6 @@ export default function ItemReportsExplore({
 }: Route.ComponentProps) {
   const { facets, highlights, activeCategories, recent } = loaderData;
 
-  //const featured = recent[0] ?? null;
   const timelineRows = recent.slice(0, 7);
 
   const topRegions = Object.entries(facets.regions)
@@ -135,9 +137,6 @@ export default function ItemReportsExplore({
           </NexBadge>
         </div>
       </header>
-      {/* Featured Report Block 
-      {featured ? <FeaturedReportBlock report={featured} /> : null}
-      */}
       {timelineRows.length > 0 ? (
         <Collapsible defaultOpen className="group/collapsible">
           <section
@@ -169,7 +168,7 @@ export default function ItemReportsExplore({
                 </NexBadge>
               </CollapsibleTrigger>
               <Link
-                to="/item_reports/timeline"
+                to={itemReportsTimelineHref({})}
                 viewTransition
                 className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center gap-1 pt-1 text-xs font-medium"
               >
@@ -247,9 +246,9 @@ export default function ItemReportsExplore({
                   />
 
                   {activeCategories.length === 0 ? (
-                    <div className="border-border text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm">
+                    <ExploreEmptyHint>
                       아직 공개된 리포트가 없습니다.
-                    </div>
+                    </ExploreEmptyHint>
                   ) : (
                     <div className="flex flex-col gap-10">
                       {activeCategories.map((category) => {
@@ -265,14 +264,14 @@ export default function ItemReportsExplore({
                                   className={`size-5 ${style.accentText}`}
                                 />
                                 <h4 className="text-base font-semibold tracking-tight md:text-lg">
-                                  {REPORT_CATEGORY_LABELS_KO[category]}
+                                  {style.label}
                                 </h4>
                                 <NexBadge variant="outline" size="sm">
                                   {facets.categories[category] ?? 0}건
                                 </NexBadge>
                               </div>
                               <Link
-                                to={`/item_reports?category=${category}`}
+                                to={itemReportsListHref({ category })}
                                 className="text-primary hover:text-primary/80 inline-flex items-center gap-1 text-sm font-medium"
                               >
                                 전체 보기
@@ -328,42 +327,16 @@ export default function ItemReportsExplore({
                         "이 유형의 공개 리포트만 모아서 볼 수 있습니다.";
                       return (
                         <li key={type}>
-                          <Link
-                            to={`/item_reports?report_type=${type}`}
-                            viewTransition
-                            aria-label={`${cardTitle} 목록 보기`}
-                            className={cn(
-                              "group bg-card border-border hover:border-primary/40 flex h-full min-h-[9rem] flex-col gap-3 rounded-xl border p-4 shadow-xs transition-all",
-                              "hover:-translate-y-0.5 hover:shadow-md",
-                            )}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex min-w-0 items-center gap-2.5">
-                                <span className="bg-muted text-muted-foreground group-hover:text-primary/90 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors">
-                                  <TypeIcon
-                                    className="size-4"
-                                    aria-hidden
-                                  />
-                                </span>
-                                <span className="text-foreground text-base font-semibold leading-snug tracking-tight">
-                                  {cardTitle}
-                                </span>
-                              </div>
-                              <NexBadge variant="outline" size="sm" className="shrink-0">
-                                {count}건
-                              </NexBadge>
-                            </div>
-                            <p className="text-muted-foreground flex-1 text-xs leading-relaxed">
-                              {intro}
-                            </p>
-                            <span className="text-primary inline-flex items-center gap-1 text-xs font-medium">
-                              목록 열기
-                              <ArrowRightIcon
-                                className="size-3.5 transition-transform group-hover:translate-x-0.5"
-                                aria-hidden
-                              />
-                            </span>
-                          </Link>
+                          <ExploreFacetLinkCard
+                            to={itemReportsListHref({ report_type: type })}
+                            ariaLabel={`${cardTitle} 목록 보기`}
+                            icon={
+                              <TypeIcon className="size-4" aria-hidden />
+                            }
+                            title={cardTitle}
+                            count={count}
+                            description={intro}
+                          />
                         </li>
                       );
                     })}
@@ -395,42 +368,16 @@ export default function ItemReportsExplore({
                       const intro = getRegionExploreIntro(region);
                       return (
                         <li key={region}>
-                          <Link
-                            to={`/item_reports?region=${region}`}
-                            viewTransition
-                            aria-label={`${cardTitle} 리포트 목록 보기`}
-                            className={cn(
-                              "group bg-card border-border hover:border-primary/40 flex h-full min-h-[9rem] flex-col gap-3 rounded-xl border p-4 shadow-xs transition-all",
-                              "hover:-translate-y-0.5 hover:shadow-md",
-                            )}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex min-w-0 items-center gap-2.5">
-                                <span className="bg-muted text-muted-foreground group-hover:text-primary/90 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors">
-                                  <RegionIcon
-                                    className="size-4"
-                                    aria-hidden
-                                  />
-                                </span>
-                                <span className="text-foreground text-base font-semibold leading-snug tracking-tight">
-                                  {cardTitle}
-                                </span>
-                              </div>
-                              <NexBadge variant="outline" size="sm" className="shrink-0">
-                                {count}건
-                              </NexBadge>
-                            </div>
-                            <p className="text-muted-foreground flex-1 text-xs leading-relaxed">
-                              {intro}
-                            </p>
-                            <span className="text-primary inline-flex items-center gap-1 text-xs font-medium">
-                              목록 열기
-                              <ArrowRightIcon
-                                className="size-3.5 transition-transform group-hover:translate-x-0.5"
-                                aria-hidden
-                              />
-                            </span>
-                          </Link>
+                          <ExploreFacetLinkCard
+                            to={itemReportsListHref({ region })}
+                            ariaLabel={`${cardTitle} 리포트 목록 보기`}
+                            icon={
+                              <RegionIcon className="size-4" aria-hidden />
+                            }
+                            title={cardTitle}
+                            count={count}
+                            description={intro}
+                          />
                         </li>
                       );
                     })}
@@ -445,9 +392,9 @@ export default function ItemReportsExplore({
                   description="특정 주제·키워드로 빠르게 진입하세요. 상위 태그는 카드, 그 외는 아래에서 펼쳐 볼 수 있습니다."
                 />
                 {facets.topTags.length === 0 ? (
-                  <div className="border-border text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm">
+                  <ExploreEmptyHint>
                     아직 수집된 태그가 없습니다.
-                  </div>
+                  </ExploreEmptyHint>
                 ) : (
                   <div className="space-y-8">
                     <section
@@ -471,47 +418,17 @@ export default function ItemReportsExplore({
                       >
                         {tagFeatured.map(({ tag, count }) => (
                           <li key={tag}>
-                            <Link
-                              to={`/item_reports?tag=${encodeURIComponent(tag)}`}
-                              viewTransition
-                              aria-label={`#${tag} 태그 리포트 목록 보기`}
-                              className={cn(
-                                "group bg-card border-border hover:border-primary/40 flex h-full min-h-[9rem] flex-col gap-3 rounded-xl border p-4 shadow-xs transition-all",
-                                "hover:-translate-y-0.5 hover:shadow-md",
-                              )}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex min-w-0 flex-1 items-start gap-2.5">
-                                  <span className="bg-muted text-muted-foreground group-hover:text-primary/90 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors">
-                                    <HashIcon
-                                      className="size-4"
-                                      aria-hidden
-                                    />
-                                  </span>
-                                  <span className="text-foreground line-clamp-2 min-w-0 break-all text-base font-semibold leading-snug tracking-tight">
-                                    #{tag}
-                                  </span>
-                                </div>
-                                <NexBadge
-                                  variant="outline"
-                                  size="sm"
-                                  className="shrink-0"
-                                >
-                                  {count}건
-                                </NexBadge>
-                              </div>
-                              <p className="text-muted-foreground flex-1 text-xs leading-relaxed">
-                                이 키워드가 붙은 공개 리포트만 모아서 볼 수
-                                있습니다.
-                              </p>
-                              <span className="text-primary inline-flex items-center gap-1 text-xs font-medium">
-                                목록 열기
-                                <ArrowRightIcon
-                                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
-                                  aria-hidden
-                                />
-                              </span>
-                            </Link>
+                            <ExploreFacetLinkCard
+                              to={itemReportsListHref({ tag })}
+                              ariaLabel={`#${tag} 태그 리포트 목록 보기`}
+                              variant="tag"
+                              icon={
+                                <HashIcon className="size-4" aria-hidden />
+                              }
+                              title={`#${tag}`}
+                              count={count}
+                              description="이 키워드가 붙은 공개 리포트만 모아서 볼 수 있습니다."
+                            />
                           </li>
                         ))}
                       </ul>
@@ -554,7 +471,7 @@ export default function ItemReportsExplore({
                             {tagMore.map(({ tag, count }) => (
                               <Link
                                 key={tag}
-                                to={`/item_reports?tag=${encodeURIComponent(tag)}`}
+                                to={itemReportsListHref({ tag })}
                                 className="bg-muted/60 hover:bg-muted inline-flex max-w-full min-w-0 items-center gap-2 rounded-full px-3 py-1 text-sm transition-colors"
                               >
                                 <span className="truncate">#{tag}</span>
@@ -574,6 +491,14 @@ export default function ItemReportsExplore({
           </div>
         </Tabs>
       </section>
+    </div>
+  );
+}
+
+function ExploreEmptyHint({ children }: { children: ReactNode }) {
+  return (
+    <div className="border-border text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm">
+      {children}
     </div>
   );
 }

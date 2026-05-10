@@ -5,7 +5,9 @@ import { cn } from "~/core/lib/utils";
 import { NexBadge } from "~/core/components/nex";
 
 import { getCategoryStyle } from "../lib/category-style";
-import { resolveDisplayDate, resolveTakeaway } from "../lib/format";
+import { resolveDisplayDate } from "../lib/dates";
+import { resolveTakeaway } from "../lib/summary-meta";
+import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import type { RelatedReportItem } from "../types";
 
 type RelatedReportsProps = {
@@ -107,7 +109,7 @@ export function RelatedReports({
           return (
             <li key={report.id}>
               <Link
-                to={`/item_reports/${report.id}`}
+                to={itemReportsDetailHref(report.id)}
                 viewTransition
                 className={cn(
                   "hover:bg-accent/50 group flex flex-col gap-1 rounded-md border-l-[3px] px-3 py-2.5 transition-colors",

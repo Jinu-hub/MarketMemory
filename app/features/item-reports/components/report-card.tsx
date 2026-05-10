@@ -5,12 +5,13 @@ import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
+import { resolveDisplayDate } from "../lib/dates";
 import {
   formatRegion,
   formatReportType,
-  resolveDisplayDate,
-  resolveTakeaway,
-} from "../lib/format";
+} from "../lib/labels";
+import { itemReportsDetailHref } from "../lib/item-reports-urls";
+import { resolveTakeaway } from "../lib/summary-meta";
 import type { ReportListItem } from "../types";
 import { ReportTierBadge } from "./report-tier-badge";
 
@@ -42,7 +43,7 @@ export function ReportCard({
 
   return (
     <Link
-      to={`/item_reports/${report.id}`}
+      to={itemReportsDetailHref(report.id)}
       viewTransition
       className={cn(
         "group bg-card border-border hover:border-primary/30 flex h-full flex-col rounded-xl border border-l-[3px]",

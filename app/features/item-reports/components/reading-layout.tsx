@@ -4,7 +4,8 @@ import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
-import { estimateReadingTime, formatDate } from "../lib/format";
+import { formatDate } from "../lib/dates";
+import { estimateReadingTime } from "../lib/reading-time";
 import type { ReportDetail } from "../types";
 import { ReportTierBadge } from "./report-tier-badge";
 

@@ -8,7 +8,7 @@ import {
   formatRegion,
   formatReportTier,
   formatReportType,
-} from "../lib/format";
+} from "../lib/labels";
 
 const CHIP_KEYS = [
   "category",

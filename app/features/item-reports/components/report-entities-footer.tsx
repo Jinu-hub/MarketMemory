@@ -37,7 +37,7 @@ import type { ReactNode } from "react";
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
-import { parseReportEntities, type ReportEntities } from "../lib/format";
+import { parseReportEntities, type ReportEntities } from "../lib/entities";
 
 type EntityKey = keyof ReportEntities;
 

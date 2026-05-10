@@ -36,6 +36,7 @@ import { ReportCard } from "../components/report-card";
 import { ReportEmptyState } from "../components/report-empty-state";
 import { ReportFilterPanel } from "../components/report-filter-panel";
 import { PAGE_SIZE } from "../constants";
+import { itemReportsListPath } from "../lib/item-reports-urls";
 import { getFacets, getReports } from "../queries";
 import type { ListFilter } from "../types";
 
@@ -125,8 +126,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
     } else {
       next.set("page", String(nextPage));
     }
-    const qs = next.toString();
-    return qs ? `/item_reports?${qs}` : "/item_reports";
+    return itemReportsListPath(next.toString());
   };
 
   return (

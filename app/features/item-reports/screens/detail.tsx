@@ -9,8 +9,7 @@
  *  - `ShareSummaryBlock`: SNS summary rendered as related-insight callout
  *  - Right-rail `ReportMetaSidebar` + `RelatedReports` (responsive accordion)
  */
-import { ArrowLeftIcon } from "lucide-react";
-import { Link, data } from "react-router";
+import { data } from "react-router";
 
 import {
   Accordion,
@@ -21,6 +20,7 @@ import {
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import type { Route } from "./+types/detail";
+import { ItemReportsNavLink } from "../components/item-reports-nav-link";
 import {
   ReadingHeader,
   ReadingHighlightBox,
@@ -30,7 +30,7 @@ import { ReportDetailTabs } from "../components/report-detail-tabs";
 import { ReportEntitiesFooter } from "../components/report-entities-footer";
 import { ReportMetaSidebar } from "../components/report-meta-sidebar";
 import { ReportSummaryMeta } from "../components/report-summary-meta";
-import { parseSummaryMeta } from "../lib/format";
+import { resolveTakeaway } from "../lib/summary-meta";
 import { isPremiumTier } from "../lib/tier-style";
 import { getRelatedReports, getReport } from "../queries";
 import { getUserProfile } from "~/features/users/queries";
@@ -40,10 +40,8 @@ export const meta: Route.MetaFunction = ({ data }) => {
     return [{ title: `Not Found | ${import.meta.env.VITE_APP_NAME}` }];
   }
   const title = data.report.title ?? "Item Report";
-  const meta = parseSummaryMeta(data.report.summary_meta);
   const description =
-    meta?.one_line_takeaway ??
-    data.report.summary?.split(/\n+/)[0] ??
+    resolveTakeaway(data.report.summary, data.report.summary_meta) ||
     "Market Memory report";
   return [
     { title: `${title} | ${import.meta.env.VITE_APP_NAME}` },
@@ -69,7 +67,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     getRelatedReports(client, {
       id: report.id,
       category: report.category,
-      limit: 5,
+      limit: 10,
     }),
     userId
       ? getUserProfile(client, { userId }).catch(() => null)
@@ -86,13 +84,7 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">
       <nav className="mb-6">
-        <Link
-          to="/item_reports"
-          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
-        >
-          <ArrowLeftIcon className="size-4" />
-          리포트 라이브러리
-        </Link>
+        <ItemReportsNavLink to="/item_reports">리포트 라이브러리</ItemReportsNavLink>
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">

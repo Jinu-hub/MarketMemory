@@ -14,11 +14,9 @@ import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
-import {
-  formatDate,
-  formatRegion,
-  formatReportType,
-} from "../lib/format";
+import { resolveDisplayDate } from "../lib/dates";
+import { formatRegion, formatReportType } from "../lib/labels";
+import { itemReportsListHref } from "../lib/item-reports-urls";
 import { getTierStyle } from "../lib/tier-style";
 import type { ReportDetail } from "../types";
 import { ReportTierBadge } from "./report-tier-badge";
@@ -49,7 +47,7 @@ export function ReportMetaSidebar({
   rows.push({
     icon: <CalendarIcon className="size-4" />,
     label: "발행",
-    content: formatDate(report.input_date ?? report.created_at) || "—",
+    content: resolveDisplayDate(report) || "—",
   });
 
   if (report.category) {
@@ -58,7 +56,7 @@ export function ReportMetaSidebar({
       label: "카테고리",
       content: (
         <Link
-          to={`/item_reports?category=${report.category}`}
+          to={itemReportsListHref({ category: report.category })}
           className="inline-flex items-center gap-1.5 underline-offset-4 hover:underline"
         >
           <CategoryIcon className={cn("size-3.5", style.accentText)} />
@@ -74,7 +72,7 @@ export function ReportMetaSidebar({
       label: "유형",
       content: (
         <Link
-          to={`/item_reports?report_type=${report.report_type}`}
+          to={itemReportsListHref({ report_type: report.report_type })}
           className="hover:text-primary underline-offset-4 hover:underline"
         >
           {formatReportType(report.report_type)}
@@ -90,7 +88,7 @@ export function ReportMetaSidebar({
       label: "등급",
       content: (
         <Link
-          to={`/item_reports?report_tier=${report.report_tier}`}
+          to={itemReportsListHref({ report_tier: report.report_tier })}
           className="inline-flex items-center underline-offset-4 hover:underline"
           aria-label={`${tierStyle.label} 등급 리포트만 보기`}
         >
@@ -109,7 +107,7 @@ export function ReportMetaSidebar({
           {report.regions!.map((region) => (
             <Link
               key={region}
-              to={`/item_reports?region=${region}`}
+              to={itemReportsListHref({ region })}
               className="hover:border-primary/40 bg-background border-border rounded-md border px-2 py-0.5 text-xs transition-colors"
             >
               {formatRegion(region)}
@@ -129,7 +127,7 @@ export function ReportMetaSidebar({
           {report.countries!.map((country) => (
             <Link
               key={country}
-              to={`/item_reports?country=${country}`}
+              to={itemReportsListHref({ country })}
               className="hover:border-primary/40 bg-background border-border rounded-md border px-2 py-0.5 text-xs transition-colors"
             >
               {country}
@@ -186,7 +184,7 @@ export function ReportMetaSidebar({
             {report.tags!.map((tag) => (
               <Link
                 key={tag}
-                to={`/item_reports?tag=${encodeURIComponent(tag)}`}
+                to={itemReportsListHref({ tag })}
                 className="bg-muted/60 hover:bg-muted rounded-md px-2 py-0.5 text-xs transition-colors"
               >
                 #{tag}

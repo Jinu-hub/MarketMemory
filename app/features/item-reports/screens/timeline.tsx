@@ -5,7 +5,7 @@
  * Each entry is grouped by month and rendered through the `ReportTimeline`
  * component so users can track how the research story evolves over time.
  */
-import { ArrowLeftIcon, ChevronDownIcon, ClockIcon } from "lucide-react";
+import { ChevronDownIcon, ClockIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import { NexBadge, NexButton } from "~/core/components/nex";
@@ -18,15 +18,11 @@ import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
 
 import type { Route } from "./+types/timeline";
+import { ItemReportsNavLink } from "../components/item-reports-nav-link";
 import { ReportTimeline } from "../components/report-timeline";
+import { parseCalendarYear } from "../lib/dates";
+import { itemReportsTimelineHref } from "../lib/item-reports-urls";
 import { getRecentReports } from "../queries";
-
-function resolveReportYear(rawDate?: string | null): number | null {
-  if (!rawDate) return null;
-  const date = new Date(rawDate);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.getFullYear();
-}
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -48,7 +44,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     new Set(
       reports
         .map((report) =>
-          resolveReportYear(report.input_date ?? report.created_at),
+          parseCalendarYear(report.input_date ?? report.created_at),
         )
         .filter((year): year is number => year !== null),
     ),
@@ -64,7 +60,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     selectedYear === null
       ? reports
       : reports.filter((report) => {
-          const year = resolveReportYear(report.input_date ?? report.created_at);
+          const year = parseCalendarYear(report.input_date ?? report.created_at);
           return year === selectedYear;
         });
 
@@ -84,13 +80,7 @@ export default function ItemReportsTimeline({
   return (
     <div className="flex flex-1 flex-col gap-8 px-4 pt-2 pb-16 md:px-8">
       <nav className="flex items-center justify-between">
-        <Link
-          to="/item_reports"
-          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
-        >
-          <ArrowLeftIcon className="size-4" />
-          라이브러리
-        </Link>
+        <ItemReportsNavLink to="/item_reports">라이브러리</ItemReportsNavLink>
         <Link to="/item_reports/explore" viewTransition>
           <NexButton variant="ghost" size="sm">
             Explore
@@ -147,7 +137,7 @@ export default function ItemReportsTimeline({
           >
             <div className="flex flex-wrap gap-2 pt-3">
               <Link
-                to="/item_reports/timeline"
+                to={itemReportsTimelineHref({})}
                 viewTransition
                 className={cn(
                   "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors",
@@ -171,7 +161,7 @@ export default function ItemReportsTimeline({
               {years.map((year) => (
                 <Link
                   key={year}
-                  to={`/item_reports/timeline?year=${year}`}
+                  to={itemReportsTimelineHref({ year })}
                   viewTransition
                   className={cn(
                     "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors",
