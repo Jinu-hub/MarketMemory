@@ -16,8 +16,10 @@ import {
   DEFAULT_SIMILARITY_METHOD_VERSION,
   regenerateAllItemSimilarityEdges,
   regenerateItemSimilarityEdges,
+  regenerateReadyItemSimilarityEdges,
 } from "../mutations";
 import {
+  countItemContentsBySimilarityStatus,
   fetchEmbeddingSourceItemIds,
   listItemContentsForSimilarity,
   listSimilarityEdgesForSources,
@@ -36,6 +38,10 @@ const actionSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("regenerate_all"),
+    return_search: z.string().optional(),
+  }),
+  z.object({
+    intent: z.literal("regenerate_ready"),
     return_search: z.string().optional(),
   }),
 ]);
@@ -104,9 +110,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   const [
     { data: edgeRows, error: ee },
     { ids: embeddingIds, error: embErr },
+    { count: readyCount, error: readyCntErr },
   ] = await Promise.all([
     listSimilarityEdgesForSources(client, contentIds, DEFAULT_SIMILARITY_METHOD_VERSION),
     fetchEmbeddingSourceItemIds(client),
+    countItemContentsBySimilarityStatus(client, "ready"),
   ]);
 
   if (ee) {
@@ -114,6 +122,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
   if (embErr) {
     throw new Error(embErr.message);
+  }
+  if (readyCntErr) {
+    throw new Error(readyCntErr.message);
   }
 
   const edgeMap = groupEdgesBySource(edgeRows ?? []);
@@ -127,6 +138,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     rows,
     returnSearch: url.search,
     embeddingCandidateCount: embeddingIds.length,
+    readySimilarityCount: readyCount ?? 0,
     activeFilter,
     publicFilter,
   };
@@ -155,6 +167,28 @@ export async function action({ request }: Route.ActionArgs) {
       return data({ message: error.message }, { status: 400 });
     }
     return redirect(`/admin/item-similarities${suffix}`);
+  }
+
+  if (parsed.data.intent === "regenerate_ready") {
+    const summary = await regenerateReadyItemSimilarityEdges(
+      client,
+      DEFAULT_SIMILARITY_METHOD_VERSION,
+    );
+
+    if (summary.processed === 0 && summary.errors.length > 0) {
+      return data(
+        { message: summary.errors[0]?.message ?? "대기 항목 유사도 작성에 실패했습니다." },
+        { status: 400 },
+      );
+    }
+
+    const sp = new URLSearchParams(suffix.startsWith("?") ? suffix.slice(1) : suffix);
+    sp.set("ready_ok", "1");
+    sp.set("ready_processed", String(summary.processed));
+    sp.set("ready_inserted", String(summary.totalInserted));
+    sp.set("ready_errors", String(summary.errors.length));
+    const next = sp.toString();
+    return redirect(`/admin/item-similarities${next ? `?${next}` : ""}`);
   }
 
   const summary = await regenerateAllItemSimilarityEdges(
@@ -249,6 +283,7 @@ export default function AdminItemSimilarities({ loaderData }: Route.ComponentPro
     rows,
     returnSearch,
     embeddingCandidateCount,
+    readySimilarityCount,
     activeFilter,
     publicFilter,
   } = loaderData;
@@ -269,6 +304,17 @@ export default function AdminItemSimilarities({ loaderData }: Route.ComponentPro
     return { processed, inserted, errN };
   }, [location.search]);
 
+  const readyBanner = useMemo(() => {
+    const sp = new URLSearchParams(location.search);
+    if (sp.get("ready_ok") !== "1") {
+      return null;
+    }
+    const processed = sp.get("ready_processed") ?? "0";
+    const inserted = sp.get("ready_inserted") ?? "0";
+    const errN = sp.get("ready_errors") ?? "0";
+    return { processed, inserted, errN };
+  }, [location.search]);
+
   const returnSearchForForms = returnSearch.startsWith("?")
     ? returnSearch.slice(1)
     : returnSearch.replace(/^\?/, "");
@@ -277,7 +323,7 @@ export default function AdminItemSimilarities({ loaderData }: Route.ComponentPro
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
       <AdminPageHeader
         title="리포트 유사도"
-        description="item_contents를 기준으로 item_similarity_edges를 좌측 외부 조인해 표시합니다. 행마다 유사도를 재계산하거나, 상단에서 임베딩 후보 전체를 일괄 갱신할 수 있습니다."
+        description="item_contents를 기준으로 item_similarity_edges를 좌측 외부 조인해 표시합니다. 행마다 유사도를 재계산하거나, 상단에서 임베딩 후보 일괄·유사도 대기(ready) 항목만 갱신할 수 있습니다."
       />
 
       {actionData && "message" in actionData && actionData.message ? (
@@ -298,8 +344,23 @@ export default function AdminItemSimilarities({ loaderData }: Route.ComponentPro
         </div>
       ) : null}
 
+      {readyBanner ? (
+        <div className="border-border bg-muted/30 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3 text-sm">
+          <NexBadge variant="outline" size="sm">
+            대기 항목 완료
+          </NexBadge>
+          <span className="text-muted-foreground">
+            처리 {readyBanner.processed}건 · 삽입 엣지 합계 {readyBanner.inserted}
+            {Number(readyBanner.errN) > 0 ? (
+              <span className="text-destructive"> · 오류 {readyBanner.errN}건</span>
+            ) : null}
+          </span>
+        </div>
+      ) : null}
+
       <BulkRegenerateCard
         candidateCount={embeddingCandidateCount}
+        readyCount={readySimilarityCount}
         returnSearch={returnSearchForForms}
         busy={busy}
       />

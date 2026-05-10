@@ -223,6 +223,37 @@ export async function listItemContentsForSimilarity(
 }
 
 /**
+ * `similarity_status`가 지정 값인 `item_contents` 행 수를 head count로 조회한다.
+ */
+export async function countItemContentsBySimilarityStatus(
+  client: DB,
+  status: Database["public"]["Enums"]["similarity_status"],
+) {
+  return client
+    .from("item_contents")
+    .select("*", { count: "exact", head: true })
+    .eq("similarity_status", status);
+}
+
+/**
+ * 유사도 작성 대기(`similarity_status = ready`)인 `item_contents.id` 목록을 오래된 순으로 조회한다.
+ */
+export async function fetchReadyItemContentIds(client: DB) {
+  const { data, error } = await client
+    .from("item_contents")
+    .select("id")
+    .eq("similarity_status", "ready")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    return { ids: [] as string[], error };
+  }
+
+  const ids = (data ?? []).map((r) => r.id);
+  return { ids, error: null };
+}
+
+/**
  * 하이브리드 유사도 RPC의 source 후보가 되는 `item_id` 목록을 구한다.
  * `get_item_similarity.sql`과 동일한 임베딩 조건을 사용한다.
  *

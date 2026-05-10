@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json, TablesInsert } from "database.types";
 
-import { fetchEmbeddingSourceItemIds } from "./queries";
+import { fetchEmbeddingSourceItemIds, fetchReadyItemContentIds } from "./queries";
 
 type DB = SupabaseClient<Database>;
 
@@ -483,6 +483,44 @@ export async function regenerateAllItemSimilarityEdges(
   errors: { sourceItemId: string; message: string }[];
 }> {
   const { ids, error: idErr } = await fetchEmbeddingSourceItemIds(client);
+  if (idErr) {
+    return {
+      processed: 0,
+      totalInserted: 0,
+      errors: [{ sourceItemId: "_fetch", message: idErr.message }],
+    };
+  }
+
+  const errors: { sourceItemId: string; message: string }[] = [];
+  let totalInserted = 0;
+
+  for (const id of ids) {
+    const { inserted, error } = await regenerateItemSimilarityEdges(client, id, methodVersion);
+    if (error) {
+      errors.push({ sourceItemId: id, message: error.message });
+    } else {
+      totalInserted += inserted;
+    }
+  }
+
+  return { processed: ids.length, totalInserted, errors };
+}
+
+/**
+ * `similarity_status = ready`인 `item_contents`에 대해서만 유사도 엣지를 재작성한다.
+ *
+ * @param client Supabase 서버 클라이언트
+ * @param methodVersion 엣지 버전 키
+ */
+export async function regenerateReadyItemSimilarityEdges(
+  client: DB,
+  methodVersion: string = DEFAULT_SIMILARITY_METHOD_VERSION,
+): Promise<{
+  processed: number;
+  totalInserted: number;
+  errors: { sourceItemId: string; message: string }[];
+}> {
+  const { ids, error: idErr } = await fetchReadyItemContentIds(client);
   if (idErr) {
     return {
       processed: 0,
