@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { SearchIcon } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import {
   AdminSortAffix,
@@ -64,7 +64,9 @@ export function SimilarityTable({
   returnSearch: string;
   busy: boolean;
 }) {
-  const [query, setQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get("q")?.trim() ?? "";
+  const [query, setQuery] = useState(initialQuery);
   const { sortKey, sortDir, toggleSort } = useTableSortState<SortKey>("input_date", "desc");
 
   const filtered = useFilteredList(rows, query, (row, qLower) => {

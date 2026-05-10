@@ -1,8 +1,9 @@
-import { ArrowRightIcon, Link2Icon } from "lucide-react";
-import { Link } from "react-router";
+import { useEffect } from "react";
+import { ArrowRightIcon, Link2Icon, PenLineIcon } from "lucide-react";
+import { Link, useFetcher, useRevalidator } from "react-router";
 
 import { cn } from "~/core/lib/utils";
-import { NexBadge } from "~/core/components/nex";
+import { NexBadge, NexButton } from "~/core/components/nex";
 
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
@@ -12,6 +13,10 @@ import type { RelatedReportItem } from "../types";
 
 type RelatedReportsProps = {
   reports: RelatedReportItem[];
+  /** When true, show a link to admin similarity tooling for this source report. */
+  isAdmin?: boolean;
+  /** Source `item_contents.id` for the admin deep link (required when `isAdmin`). */
+  sourceReportId?: string;
   className?: string;
   /**
    * Tailwind height utility applied to the outer `<section>`.
@@ -49,18 +54,79 @@ type RelatedReportsProps = {
  *   - Soft top/bottom fades hint that more rows exist beyond the viewport
  *     (rule §15 — never rely on color alone to convey state).
  */
+
+type RelatedRegenerateActionData =
+  | { ok: true; inserted: number }
+  | { message: string };
+
+function AdminRelatedRegenerateButton({ sourceReportId }: { sourceReportId: string }) {
+  const fetcher = useFetcher<RelatedRegenerateActionData>();
+  const revalidator = useRevalidator();
+  const busy = fetcher.state !== "idle";
+
+  useEffect(() => {
+    if (fetcher.state !== "idle") return;
+    const d = fetcher.data;
+    if (d && "ok" in d && d.ok) {
+      revalidator.revalidate();
+    }
+  }, [fetcher.state, fetcher.data, revalidator]);
+
+  const errorMessage =
+    fetcher.data && "message" in fetcher.data ? fetcher.data.message : null;
+  const success =
+    fetcher.state === "idle" && fetcher.data && "ok" in fetcher.data && fetcher.data.ok
+      ? fetcher.data
+      : null;
+
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <fetcher.Form method="post" className="w-full">
+        <input type="hidden" name="intent" value="regenerate_related" />
+        <input type="hidden" name="source_item_id" value={sourceReportId} />
+        <NexButton
+          type="submit"
+          variant="secondary"
+          size="sm"
+          className="w-full"
+          loading={busy}
+          disabled={busy}
+          leftIcon={<PenLineIcon className="size-4" aria-hidden />}
+          aria-label="이 리포트의 관련 리포트 유사도를 계산해 반영합니다"
+        >
+          관련성 작성
+        </NexButton>
+      </fetcher.Form>
+      {errorMessage ? (
+        <p className="text-destructive px-0.5 text-xs leading-snug" role="alert">
+          {errorMessage}
+        </p>
+      ) : null}
+      {success ? (
+        <p className="text-muted-foreground px-0.5 text-xs tabular-nums">
+          반영 완료 · 연결 {success.inserted}건
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export function RelatedReports({
   reports,
+  isAdmin = false,
+  sourceReportId,
   className,
   maxHeightClassName = "max-h-[28rem]",
 }: RelatedReportsProps) {
-  if (!reports || reports.length === 0) return null;
-  const sortedReports = [...reports].sort((a, b) => {
+  const list = reports ?? [];
+  const sortedReports = [...list].sort((a, b) => {
     const rankA = a.ranking ?? 9999;
     const rankB = b.ranking ?? 9999;
     if (rankA !== rankB) return rankA - rankB;
     return (b.final_score ?? -1) - (a.final_score ?? -1);
   });
+
+  const showAdminLink = isAdmin === true && Boolean(sourceReportId);
 
   const similarityToneClass = (level: RelatedReportItem["similarity_level"]) =>
     level === "strong"
@@ -79,18 +145,36 @@ export function RelatedReports({
         className,
       )}
     >
-      <div className="border-border/60 flex shrink-0 items-center gap-2 border-b px-5 py-4">
-        <Link2Icon className="text-muted-foreground size-4" />
-        <h3 className="text-sm font-semibold tracking-tight">관련 리포트</h3>
-        <NexBadge
-          variant="secondary"
-          size="sm"
-          className="ml-auto h-6 px-2.5 text-[11px] font-semibold tabular-nums"
-        >
-          {reports.length}
-        </NexBadge>
+      <div className="border-border/60 flex shrink-0 flex-col gap-3 border-b px-5 py-4">
+        <div className="flex items-center gap-2">
+          <Link2Icon className="text-muted-foreground size-4 shrink-0" />
+          <h3 className="text-sm font-semibold tracking-tight">관련 리포트</h3>
+          <NexBadge
+            variant="secondary"
+            size="sm"
+            className="ml-auto h-6 shrink-0 px-2.5 text-[11px] font-semibold tabular-nums"
+          >
+            {list.length}
+          </NexBadge>
+        </div>
+        {showAdminLink && sourceReportId ? (
+          <AdminRelatedRegenerateButton sourceReportId={sourceReportId} />
+        ) : null}
       </div>
 
+      {list.length === 0 ? (
+        <div className="flex min-h-[8rem] flex-col items-center justify-center gap-2 px-5 py-8 text-center">
+          <p className="text-muted-foreground max-w-[240px] text-sm leading-relaxed">
+            아직 표시할 관련 리포트가 없습니다. 같은 주제나 유사한 후속 분석이 연결되면 여기에
+            나타납니다.
+          </p>
+          {!showAdminLink ? (
+            <p className="text-muted-foreground/80 text-xs">
+              유사도 파이프라인이 아직 반영되지 않았을 수 있습니다.
+            </p>
+          ) : null}
+        </div>
+      ) : (
       <ul className="scrollbar-thin min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-3">
         {sortedReports.map((report) => {
           const takeaway = resolveTakeaway(report.summary, report.summary_meta);
@@ -151,6 +235,7 @@ export function RelatedReports({
           );
         })}
       </ul>
+      )}
     </section>
   );
 }

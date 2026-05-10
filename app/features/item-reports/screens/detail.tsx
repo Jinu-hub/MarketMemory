@@ -17,7 +17,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/core/components/ui/accordion";
+import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
+import {
+  DEFAULT_SIMILARITY_METHOD_VERSION,
+  regenerateItemSimilarityEdges,
+} from "~/features/admin/mutations";
 
 import type { Route } from "./+types/detail";
 import { ItemReportsNavLink } from "../components/item-reports-nav-link";
@@ -76,6 +81,35 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const isAdmin = profile?.is_admin === true;
   return { report, related, isAdmin };
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  requireMethod("POST")(request);
+  const [client] = makeServerClient(request);
+  await requireAdmin(client);
+
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  const sourceItemId = formData.get("source_item_id");
+
+  if (intent !== "regenerate_related" || typeof sourceItemId !== "string" || !sourceItemId) {
+    return data({ message: "유효하지 않은 요청입니다." }, { status: 400 });
+  }
+  if (sourceItemId !== params.id) {
+    return data({ message: "요청한 리포트와 페이지가 일치하지 않습니다." }, { status: 400 });
+  }
+
+  const { inserted, error } = await regenerateItemSimilarityEdges(
+    client,
+    sourceItemId,
+    DEFAULT_SIMILARITY_METHOD_VERSION,
+  );
+
+  if (error) {
+    return data({ message: error.message }, { status: 400 });
+  }
+
+  return data({ ok: true as const, inserted });
 }
 
 export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
@@ -158,6 +192,8 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
           </div>
           <RelatedReports
             reports={related}
+            isAdmin={isAdmin}
+            sourceReportId={report.id}
             className="lg:flex-1"
             maxHeightClassName="max-h-[28rem] lg:max-h-none"
           />
