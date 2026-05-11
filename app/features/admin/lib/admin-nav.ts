@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  ActivityIcon,
   ClipboardListIcon,
   GitBranchIcon,
   HomeIcon,
@@ -45,6 +46,14 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     label: "프롬프트 릴리스",
     icon: PackageIcon,
     dashboardDescription: "환경별 활성 프롬프트를 고정합니다.",
+  },
+  {
+    to: "/admin/api-tests",
+    label: "API 테스트",
+    icon: ActivityIcon,
+    dashboardTitle: "API 테스트",
+    dashboardDescription:
+      "외부 연동 API를 수동 검증합니다. 현재는 마켓 스냅샷 테스트를 제공합니다.",
   },
   {
     to: "/admin/item-similarities",

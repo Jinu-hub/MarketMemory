@@ -40,7 +40,10 @@ export default [
         "features/users/api/disconnect-provider.tsx",
       ),
     ]),
-    ...prefix("/cron", [route("/mailer", "features/cron/api/mailer.tsx")]),
+    ...prefix("/cron", [
+      route("/mailer", "features/cron/api/mailer.tsx"),
+      route("/market-snapshot", "features/cron/api/market-snapshot.tsx"),
+    ]),
     ...prefix("/blog", [route("/og", "features/blog/api/og.tsx")]),
   ]),
 
@@ -129,6 +132,7 @@ export default [
           route("/new", "features/admin/screens/prompt-new.tsx"),
           route("/:id", "features/admin/screens/prompt-detail.tsx"),
         ]),
+        route("/api-tests", "features/admin/screens/api-tests.tsx"),
         route(
           "/prompt-releases",
           "features/admin/screens/prompt-releases.tsx",
@@ -136,6 +140,10 @@ export default [
         route(
           "/item-similarities",
           "features/admin/screens/item-similarities.tsx",
+        ),
+        route(
+          "/market-snapshot-test",
+          "features/admin/screens/market-snapshot-test.tsx",
         ),
       ]),
     ]),
