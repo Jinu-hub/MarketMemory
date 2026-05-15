@@ -1,31 +1,39 @@
 import { fetchFearGreedSnapshot as fetchCryptoFearGreedSnapshot } from "./providers/crypto-fear-greed-provider";
 import { fetchFmpMarketItems } from "./providers/fmp-market-provider";
+import { fetchFmpTreasuryItems } from "./providers/fmp-treasury-provider";
 import { fetchFearGreedSnapshot as fetchRapidApiFearGreedSnapshot } from "./providers/rapidapi-provider";
+import { fetchRapidApiMarketItems } from "./providers/rapidapi-quote-provider";
 import { fetchTwelveMarketItems } from "./providers/twelve-market-provider";
+import {
+  fearGreedSourceForTarget,
+  quoteConfigsForProvider,
+} from "./market-snapshot.config";
 
 import type {
-  MarketItemConfig,
+  FearGreedSnapshot,
   MarketSnapshotItem,
   MarketSnapshotPayload,
 } from "./market-snapshot.types";
 
 export type {
   FearGreedSnapshot,
+  MarketFearGreedProvider,
+  MarketFearGreedSourceConfig,
+  MarketFearGreedTarget,
+  MarketItemConfig,
+  MarketQuoteItemConfig,
+  MarketQuoteProvider,
   MarketSnapshotItem,
   MarketSnapshotItemId,
   MarketSnapshotPayload,
 } from "./market-snapshot.types";
 
-const fmpMarketConfigs: MarketItemConfig[] = [
-  { id: "sp500", label: "S&P 500", symbol: "^GSPC" },
-  { id: "nasdaq", label: "NASDAQ", symbol: "^IXIC" },
-  { id: "dow", label: "DOW", symbol: "^DJI" },
-  { id: "bitcoin", label: "Bitcoin", symbol: "BTCUSD" },
-];
-
-const twelveMarketConfigs: MarketItemConfig[] = [
-  { id: "gold", label: "Gold", symbol: "XAU/USD" },
-];
+export {
+  MARKET_FEAR_GREED_SOURCES,
+  MARKET_SNAPSHOT_QUOTE_SOURCES,
+  fearGreedSourceForTarget,
+  quoteConfigsForProvider,
+} from "./market-snapshot.config";
 
 function mergeSettledResults(
   results: PromiseSettledResult<MarketSnapshotItem>[],
@@ -38,7 +46,6 @@ function mergeSettledResults(
       continue;
     }
 
-    // Provider failures should be visible in server logs for ops/debug.
     console.error("[market-snapshot] provider fetch failed", result.reason);
     errors.push(
       result.reason instanceof Error
@@ -71,20 +78,45 @@ function withStaleMetadata(items: MarketSnapshotItem[]): MarketSnapshotItem[] {
   });
 }
 
+async function fetchFearGreedForTarget(
+  target: "market" | "crypto",
+): Promise<FearGreedSnapshot | null> {
+  const source = fearGreedSourceForTarget(target);
+  if (!source) {
+    throw new Error(`No Fear & Greed source configured for target: ${target}`);
+  }
+
+  switch (source.provider) {
+    case "rapidapi":
+      return fetchRapidApiFearGreedSnapshot();
+    case "alternative-me":
+      return fetchCryptoFearGreedSnapshot();
+    default: {
+      const _exhaustive: never = source.provider;
+      throw new Error(`Unsupported Fear & Greed provider: ${_exhaustive}`);
+    }
+  }
+}
+
 export async function getMarketSnapshot(): Promise<MarketSnapshotPayload> {
-  const [fmpResults, twelveResults] = await Promise.all([
-    fetchFmpMarketItems(fmpMarketConfigs),
-    fetchTwelveMarketItems(twelveMarketConfigs),
-  ]);
+  const [fmpResults, fmpTreasuryResults, twelveResults, rapidResults] =
+    await Promise.all([
+      fetchFmpMarketItems(quoteConfigsForProvider("fmp")),
+      fetchFmpTreasuryItems(quoteConfigsForProvider("fmp-treasury")),
+      fetchTwelveMarketItems(quoteConfigsForProvider("twelve")),
+      fetchRapidApiMarketItems(quoteConfigsForProvider("rapidapi")),
+    ]);
 
   const items: MarketSnapshotItem[] = [];
   const errors: string[] = [];
   mergeSettledResults(fmpResults, items, errors);
+  mergeSettledResults(fmpTreasuryResults, items, errors);
   mergeSettledResults(twelveResults, items, errors);
+  mergeSettledResults(rapidResults, items, errors);
 
-  let cryptoFearGreed = null;
+  let cryptoFearGreed: FearGreedSnapshot | null = null;
   try {
-    cryptoFearGreed = await fetchCryptoFearGreedSnapshot();
+    cryptoFearGreed = await fetchFearGreedForTarget("crypto");
   } catch (error) {
     console.error("[market-snapshot] crypto fear-greed fetch failed", error);
     errors.push(
@@ -94,9 +126,9 @@ export async function getMarketSnapshot(): Promise<MarketSnapshotPayload> {
     );
   }
 
-  let marketFearGreed = null;
+  let marketFearGreed: FearGreedSnapshot | null = null;
   try {
-    marketFearGreed = await fetchRapidApiFearGreedSnapshot();
+    marketFearGreed = await fetchFearGreedForTarget("market");
   } catch (error) {
     console.error("[market-snapshot] market fear-greed fetch failed", error);
     errors.push(

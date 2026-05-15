@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { MarketItemConfig, MarketSnapshotItem } from "../market-snapshot.types";
+import type { MarketQuoteItemConfig, MarketSnapshotItem } from "../market-snapshot.types";
 
 const fmpQuoteSchema = z
   .object({
@@ -61,7 +61,9 @@ function derivePercentFromPriceAndChange(
   return (change / previousClose) * 100;
 }
 
-async function fetchFmpQuote(config: MarketItemConfig): Promise<MarketSnapshotItem> {
+async function fetchFmpQuote(
+  config: MarketQuoteItemConfig,
+): Promise<MarketSnapshotItem> {
   const apiKey = process.env.FMP_API_KEY;
   if (!apiKey || apiKey.trim() === "") {
     throw new Error("Missing FMP_API_KEY");
@@ -121,7 +123,7 @@ async function fetchFmpQuote(config: MarketItemConfig): Promise<MarketSnapshotIt
 }
 
 export async function fetchFmpMarketItems(
-  configs: MarketItemConfig[],
+  configs: MarketQuoteItemConfig[],
 ): Promise<PromiseSettledResult<MarketSnapshotItem>[]> {
   return Promise.allSettled(configs.map((config) => fetchFmpQuote(config)));
 }

@@ -43,6 +43,10 @@ export default [
     ...prefix("/cron", [
       route("/mailer", "features/cron/api/mailer.tsx"),
       route("/market-snapshot", "features/cron/api/market-snapshot.tsx"),
+      route(
+        "/daily-market-memory",
+        "features/cron/api/daily-market-memory.tsx",
+      ),
     ]),
     ...prefix("/blog", [route("/og", "features/blog/api/og.tsx")]),
   ]),
@@ -144,6 +148,10 @@ export default [
         route(
           "/market-snapshot-test",
           "features/admin/screens/market-snapshot-test.tsx",
+        ),
+        route(
+          "/daily-market-memory-test",
+          "features/admin/screens/daily-market-memory-test.tsx",
         ),
       ]),
     ]),

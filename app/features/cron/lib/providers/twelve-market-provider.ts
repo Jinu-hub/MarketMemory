@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { MarketItemConfig, MarketSnapshotItem } from "../market-snapshot.types";
+import type { MarketQuoteItemConfig, MarketSnapshotItem } from "../market-snapshot.types";
 
 const twelveDataQuoteSchema = z
   .object({
@@ -31,7 +31,9 @@ function toIsoFromTimestamp(value: number | undefined): string | null {
   return new Date(value * 1000).toISOString();
 }
 
-async function fetchTwelveQuote(config: MarketItemConfig): Promise<MarketSnapshotItem> {
+async function fetchTwelveQuote(
+  config: MarketQuoteItemConfig,
+): Promise<MarketSnapshotItem> {
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey || apiKey.trim() === "") {
     throw new Error("Missing TWELVE_DATA_API_KEY");
@@ -78,7 +80,7 @@ async function fetchTwelveQuote(config: MarketItemConfig): Promise<MarketSnapsho
 }
 
 export async function fetchTwelveMarketItems(
-  configs: MarketItemConfig[],
+  configs: MarketQuoteItemConfig[],
 ): Promise<PromiseSettledResult<MarketSnapshotItem>[]> {
   return Promise.allSettled(configs.map((config) => fetchTwelveQuote(config)));
 }
