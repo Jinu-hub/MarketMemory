@@ -169,6 +169,13 @@
       "when": 1778308186582,
       "tag": "0023_long_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1778674785181,
+      "tag": "0024_big_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

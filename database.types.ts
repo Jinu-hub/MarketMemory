@@ -32,6 +32,195 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_market_memories: {
+        Row: {
+          core_lang_code: string
+          coverage_end_at: string | null
+          coverage_start_at: string | null
+          created_at: string
+          finalized_at: string | null
+          generated_at: string
+          generation_timezone: string
+          id: string
+          input_context: Json | null
+          market_date: string
+          market_scope: string
+          market_snapshot: Json | null
+          model_info: Json | null
+          risk_signals: Json | null
+          source_report_count: number
+          status: string
+          top_entities: Json | null
+          top_tags: Json | null
+          updated_at: string
+        }
+        Insert: {
+          core_lang_code?: string
+          coverage_end_at?: string | null
+          coverage_start_at?: string | null
+          created_at?: string
+          finalized_at?: string | null
+          generated_at?: string
+          generation_timezone?: string
+          id?: string
+          input_context?: Json | null
+          market_date: string
+          market_scope: string
+          market_snapshot?: Json | null
+          model_info?: Json | null
+          risk_signals?: Json | null
+          source_report_count?: number
+          status?: string
+          top_entities?: Json | null
+          top_tags?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          core_lang_code?: string
+          coverage_end_at?: string | null
+          coverage_start_at?: string | null
+          created_at?: string
+          finalized_at?: string | null
+          generated_at?: string
+          generation_timezone?: string
+          id?: string
+          input_context?: Json | null
+          market_date?: string
+          market_scope?: string
+          market_snapshot?: Json | null
+          model_info?: Json | null
+          risk_signals?: Json | null
+          source_report_count?: number
+          status?: string
+          top_entities?: Json | null
+          top_tags?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      daily_market_memory_i18n: {
+        Row: {
+          core_summary: string | null
+          created_at: string
+          daily_market_memory_id: string
+          display_subtitle: string | null
+          display_title: string | null
+          id: string
+          lang_code: string
+          localization_status: string
+          market_mood_label: string | null
+          market_mood_summary: string | null
+          market_mood_type: string | null
+          model_info: Json | null
+          source_lang_code: string | null
+          top_themes: Json | null
+          updated_at: string
+        }
+        Insert: {
+          core_summary?: string | null
+          created_at?: string
+          daily_market_memory_id: string
+          display_subtitle?: string | null
+          display_title?: string | null
+          id?: string
+          lang_code: string
+          localization_status?: string
+          market_mood_label?: string | null
+          market_mood_summary?: string | null
+          market_mood_type?: string | null
+          model_info?: Json | null
+          source_lang_code?: string | null
+          top_themes?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          core_summary?: string | null
+          created_at?: string
+          daily_market_memory_id?: string
+          display_subtitle?: string | null
+          display_title?: string | null
+          id?: string
+          lang_code?: string
+          localization_status?: string
+          market_mood_label?: string | null
+          market_mood_summary?: string | null
+          market_mood_type?: string | null
+          model_info?: Json | null
+          source_lang_code?: string | null
+          top_themes?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_market_memory_i18n_daily_market_memory_id_daily_market_me"
+            columns: ["daily_market_memory_id"]
+            isOneToOne: false
+            referencedRelation: "daily_market_memories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_market_memory_sources: {
+        Row: {
+          created_at: string
+          daily_market_memory_id: string
+          id: string
+          inclusion_reason: string | null
+          item_content_id: string
+          lang_code: string | null
+          market_memory_item_id: string | null
+          report_title_snapshot: string | null
+          report_type: string | null
+          source_weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          daily_market_memory_id: string
+          id?: string
+          inclusion_reason?: string | null
+          item_content_id: string
+          lang_code?: string | null
+          market_memory_item_id?: string | null
+          report_title_snapshot?: string | null
+          report_type?: string | null
+          source_weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          daily_market_memory_id?: string
+          id?: string
+          inclusion_reason?: string | null
+          item_content_id?: string
+          lang_code?: string | null
+          market_memory_item_id?: string | null
+          report_title_snapshot?: string | null
+          report_type?: string | null
+          source_weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_market_memory_sources_daily_market_memory_id_daily_market"
+            columns: ["daily_market_memory_id"]
+            isOneToOne: false
+            referencedRelation: "daily_market_memories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_market_memory_sources_item_content_id_item_contents_id_fk"
+            columns: ["item_content_id"]
+            isOneToOne: false
+            referencedRelation: "item_contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_market_memory_sources_market_memory_item_id_market_memory"
+            columns: ["market_memory_item_id"]
+            isOneToOne: false
+            referencedRelation: "market_memory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_content_cores: {
         Row: {
           core_data: Json
