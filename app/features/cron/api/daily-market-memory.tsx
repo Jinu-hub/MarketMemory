@@ -58,6 +58,7 @@ export async function action({ request }: Route.ActionArgs) {
       coverageStartAt,
       coverageEndAt,
       visibility,
+      persistToDb: true,
     });
     return data(result, { status: 200 });
   } catch (error) {

@@ -20,6 +20,7 @@ const formSchema = z.object({
   coverageStartAt: z.string().optional(),
   coverageEndAt: z.string().optional(),
   publicOnly: z.enum(["on"]).optional(),
+  saveToDb: z.enum(["on"]).optional(),
 });
 
 export const meta: Route.MetaFunction = () => [
@@ -64,6 +65,7 @@ export async function action({ request }: Route.ActionArgs) {
       coverageStartAt,
       coverageEndAt,
       visibility,
+      persistToDb: parsed.data.saveToDb === "on",
     });
     return data({ ok: true as const, result });
   } catch (e) {
@@ -110,7 +112,7 @@ export default function DailyMarketMemoryTestScreen({
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
         <AdminPageHeader
           title="데일리 마켓 메모리 파이프라인"
-          description="Step 1~4: 시장 스냅샷 → 리포트 조회 → 코어 집계 → AI 입력 JSON. DB는 관리자 세션으로 실행합니다."
+          description="Step 1~4: 시장 스냅샷 → 리포트 조회 → 코어 집계 → AI 입력 JSON. DB 저장은 체크 시 service role로 저장합니다."
         />
 
         <AdminSection
@@ -170,6 +172,10 @@ export default function DailyMarketMemoryTestScreen({
               <input type="checkbox" name="publicOnly" className="size-4 rounded" />
               공개 리포트만 (is_public = true)
             </label>
+            <label className="text-muted-foreground flex items-center gap-2 text-sm">
+              <input type="checkbox" name="saveToDb" className="size-4 rounded" />
+              결과를 DB에 저장 (daily_market_memories · sources)
+            </label>
             <NexButton
               type="submit"
               variant="primary"
@@ -197,6 +203,19 @@ export default function DailyMarketMemoryTestScreen({
             </NexCard>
           ) : "ok" in fetcher.data && fetcher.data.ok ? (
             <NexCard variant="default" padding="md" className="border-border">
+              <div className="mb-3 space-y-1 text-sm">
+                <p className="text-foreground">
+                  <span className="font-medium">DB 저장:</span>{" "}
+                  {fetcher.data.result.savedToDb
+                    ? `완료 (${fetcher.data.result.dailyMarketMemoryId})`
+                    : "안 함"}
+                </p>
+                {fetcher.data.result.errors.length > 0 && (
+                  <p className="text-amber-600 text-xs">
+                    경고/오류 {fetcher.data.result.errors.length}건 — JSON 하단 참고
+                  </p>
+                )}
+              </div>
               <div className="mb-2 flex items-center justify-between gap-3">
                 <p className="text-foreground text-sm font-semibold">Raw JSON</p>
                 <NexButton

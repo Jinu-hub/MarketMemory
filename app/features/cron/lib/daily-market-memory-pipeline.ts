@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "database.types";
 
 import adminClient from "~/core/lib/supa-admin-client.server";
+import { persistDailyMarketMemoryToDb } from "~/features/cron/lib/daily-market-memory-persist.server";
 import { getMarketSnapshot } from "~/features/cron/lib/market-snapshot";
 import type {
   MarketSnapshotItem,
@@ -20,6 +21,10 @@ export interface RunDailyMarketMemoryPipelineParams {
   coverageEndAt?: string | null;
   langCode?: string;
   visibility?: DailyMarketMemoryVisibility;
+  /** 시장 범위 (예: global, us). 미지정 시 env `DAILY_MARKET_MEMORY_SCOPE` 또는 `global`. */
+  marketScope?: string;
+  /** true이면 `daily_market_memories` / `daily_market_memory_sources`에 저장. */
+  persistToDb?: boolean;
   /** 주입 가능한 클라이언트(테스트용). 미지정 시 service role admin 클라이언트 사용. */
   db?: SupabaseClient<Database>;
 }
@@ -95,6 +100,8 @@ export interface DailyMarketMemoryPipelineResult {
   reports: AggregatedReportRow[];
   aiInput: DailyMarketMemoryAiInputV1;
   errors: string[];
+  savedToDb: boolean;
+  dailyMarketMemoryId: string | null;
 }
 
 function toDateOnly(iso: string): string | null {
@@ -396,18 +403,7 @@ export async function runDailyMarketMemoryPipeline(
 
   const aiInput = buildAiInput(params.marketDate, marketSnapshot, reports);
 
-  // Step 5 (planned): n8n 웹훅 — 일일 파이프라인 완료 후 워크플로 트리거
-  // 예시:
-  // const url = process.env.N8N_DAILY_MARKET_MEMORY_WEBHOOK_URL;
-  // if (url) {
-  //   await fetch(url, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ event: "daily_market_memory.pipeline.completed", ranAt, marketDate: params.marketDate }),
-  //   });
-  // }
-
-  return {
+  const pipelineResult: DailyMarketMemoryPipelineResult = {
     ranAt,
     marketDate: params.marketDate,
     coverageStartAt: params.coverageStartAt ?? null,
@@ -418,7 +414,36 @@ export async function runDailyMarketMemoryPipeline(
     reports,
     aiInput,
     errors,
+    savedToDb: false,
+    dailyMarketMemoryId: null,
   };
+
+  if (params.persistToDb) {
+    try {
+      const persisted = await persistDailyMarketMemoryToDb(db, params, pipelineResult);
+      pipelineResult.savedToDb = true;
+      pipelineResult.dailyMarketMemoryId = persisted.dailyMarketMemoryId;
+    } catch (error) {
+      errors.push(
+        error instanceof Error
+          ? `DB 저장 실패: ${error.message}`
+          : "DB 저장 실패: unknown error",
+      );
+    }
+  }
+
+  // Step 6 (planned): n8n 웹훅 — 일일 파이프라인 완료 후 워크플로 트리거
+  // 예시:
+  // const url = process.env.N8N_DAILY_MARKET_MEMORY_WEBHOOK_URL;
+  // if (url) {
+  //   await fetch(url, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ event: "daily_market_memory.pipeline.completed", ranAt, marketDate: params.marketDate }),
+  //   });
+  // }
+
+  return pipelineResult;
 }
 
 /** 크론 기본 타임존(데일리 마켓 메모리 스키마와 동일). */
