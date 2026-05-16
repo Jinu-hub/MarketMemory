@@ -70,9 +70,6 @@ export interface DailyMarketMemoryAiInputV1 {
     marketMemoryItemId: string;
     reportType: ItemContentRow["report_type"];
     inputDate: ItemContentRow["input_date"];
-    langCode: string;
-    title: string | null;
-    summary: string | null;
     category: string | null;
     regions: ItemContentRow["regions"];
     countries: ItemContentRow["countries"];
@@ -254,9 +251,6 @@ function buildAiInput(
       marketMemoryItemId: r.market_memory_item_id,
       reportType: r.report_type,
       inputDate: r.input_date,
-      langCode: r.lang_code,
-      title: r.title,
-      summary: r.summary,
       category: r.category,
       regions: r.regions,
       countries: r.countries,

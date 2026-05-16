@@ -47,6 +47,7 @@ export const dailyMarketMemories = pgTable(
     source_report_count: integer("source_report_count").notNull().default(0),
     core_lang_code: text("core_lang_code").notNull().default("en"),
     market_snapshot: jsonb("market_snapshot"),
+    core_data: jsonb("core_data"),
     top_tags: jsonb("top_tags"),
     top_entities: jsonb("top_entities"),
     risk_signals: jsonb("risk_signals"),

@@ -176,6 +176,13 @@
       "when": 1778674785181,
       "tag": "0024_big_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1778851931892,
+      "tag": "0025_mixed_exiles",
+      "breakpoints": true
     }
   ]
 }

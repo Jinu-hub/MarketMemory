@@ -34,6 +34,7 @@ export type Database = {
       }
       daily_market_memories: {
         Row: {
+          core_data: Json | null
           core_lang_code: string
           coverage_end_at: string | null
           coverage_start_at: string | null
@@ -55,6 +56,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          core_data?: Json | null
           core_lang_code?: string
           coverage_end_at?: string | null
           coverage_start_at?: string | null
@@ -76,6 +78,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          core_data?: Json | null
           core_lang_code?: string
           coverage_end_at?: string | null
           coverage_start_at?: string | null
