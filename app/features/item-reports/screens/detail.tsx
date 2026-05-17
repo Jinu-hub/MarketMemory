@@ -109,7 +109,12 @@ export async function action({ request, params }: Route.ActionArgs) {
     return data({ message: error.message }, { status: 400 });
   }
 
-  return data({ ok: true as const, inserted });
+  const related = await getRelatedReports(client, {
+    id: sourceItemId,
+    limit: 10,
+  });
+
+  return data({ ok: true as const, inserted, related });
 }
 
 export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {

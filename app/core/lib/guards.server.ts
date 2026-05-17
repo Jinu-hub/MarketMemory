@@ -10,7 +10,7 @@
  * - Authentication guard to ensure a user is logged in
  * - HTTP method guard to ensure requests use the correct HTTP method
  */
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import type { Database } from "database.types";
 
 import { data } from "react-router";
@@ -37,13 +37,14 @@ import { getUserProfile } from "~/features/users/queries";
  * @param client - The Supabase client instance to use for authentication check
  * @throws {Response} 401 Unauthorized if no user is authenticated
  */
-export async function requireAuthentication(client: SupabaseClient) {
+export async function requireAuthentication(client: SupabaseClient): Promise<User> {
   const {
     data: { user },
   } = await client.auth.getUser();
   if (!user) {
     throw data(null, { status: 401 });
   }
+  return user;
 }
 
 /**
@@ -51,11 +52,8 @@ export async function requireAuthentication(client: SupabaseClient) {
  * Relies on Supabase session + `profiles` row (same checks as RLS expects).
  */
 export async function requireAdmin(client: SupabaseClient<Database>) {
-  await requireAuthentication(client);
-  const {
-    data: { user },
-  } = await client.auth.getUser();
-  const profile = await getUserProfile(client, { userId: user!.id });
+  const user = await requireAuthentication(client);
+  const profile = await getUserProfile(client, { userId: user.id });
   if (!profile?.is_admin) {
     throw data(null, { status: 403 });
   }

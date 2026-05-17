@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRightIcon, Link2Icon, PenLineIcon } from "lucide-react";
-import { Link, useFetcher, useRevalidator } from "react-router";
+import { Link, useFetcher } from "react-router";
 
 import { cn } from "~/core/lib/utils";
 import { NexBadge, NexButton } from "~/core/components/nex";
@@ -56,21 +56,26 @@ type RelatedReportsProps = {
  */
 
 type RelatedRegenerateActionData =
-  | { ok: true; inserted: number }
+  | { ok: true; inserted: number; related: RelatedReportItem[] }
   | { message: string };
 
-function AdminRelatedRegenerateButton({ sourceReportId }: { sourceReportId: string }) {
+function AdminRelatedRegenerateButton({
+  sourceReportId,
+  onRelatedUpdated,
+}: {
+  sourceReportId: string;
+  onRelatedUpdated: (related: RelatedReportItem[]) => void;
+}) {
   const fetcher = useFetcher<RelatedRegenerateActionData>();
-  const revalidator = useRevalidator();
   const busy = fetcher.state !== "idle";
 
   useEffect(() => {
     if (fetcher.state !== "idle") return;
     const d = fetcher.data;
     if (d && "ok" in d && d.ok) {
-      revalidator.revalidate();
+      onRelatedUpdated(d.related);
     }
-  }, [fetcher.state, fetcher.data, revalidator]);
+  }, [fetcher.state, fetcher.data, onRelatedUpdated]);
 
   const errorMessage =
     fetcher.data && "message" in fetcher.data ? fetcher.data.message : null;
@@ -118,7 +123,13 @@ export function RelatedReports({
   className,
   maxHeightClassName = "max-h-[28rem]",
 }: RelatedReportsProps) {
-  const list = reports ?? [];
+  const [displayReports, setDisplayReports] = useState(reports ?? []);
+
+  useEffect(() => {
+    setDisplayReports(reports ?? []);
+  }, [reports]);
+
+  const list = displayReports;
   const sortedReports = [...list].sort((a, b) => {
     const rankA = a.ranking ?? 9999;
     const rankB = b.ranking ?? 9999;
@@ -158,7 +169,10 @@ export function RelatedReports({
           </NexBadge>
         </div>
         {showAdminLink && sourceReportId ? (
-          <AdminRelatedRegenerateButton sourceReportId={sourceReportId} />
+          <AdminRelatedRegenerateButton
+            sourceReportId={sourceReportId}
+            onRelatedUpdated={setDisplayReports}
+          />
         ) : null}
       </div>
 
