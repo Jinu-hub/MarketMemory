@@ -57,6 +57,50 @@ export async function regenerateItemSimilarityEdges(
   };
 }
 
+export type RegenerateItemSimilarityWithSecondaryResult = {
+  inserted: number;
+  secondaryRewrites: number;
+  topTargetIds: string[];
+  error: { message: string } | null;
+};
+
+/**
+ * 소스 1건 유사도 재생성 + top-5 1차 이웃 2차 재작성.
+ * DB `regenerate_similarity_edges_with_secondary` — cron `process_ready_similarity_queue` 항목과 동일.
+ */
+export async function regenerateItemSimilarityEdgesWithSecondary(
+  client: AdminDb,
+  sourceItemId: string,
+  methodVersion: string = DEFAULT_SIMILARITY_METHOD_VERSION,
+): Promise<RegenerateItemSimilarityWithSecondaryResult> {
+  const { data, error } = await client.rpc("regenerate_similarity_edges_with_secondary", {
+    p_source_item_id: sourceItemId,
+    p_method_version: methodVersion,
+  });
+
+  if (error) {
+    return {
+      inserted: 0,
+      secondaryRewrites: 0,
+      topTargetIds: [],
+      error,
+    };
+  }
+
+  const payload = data as {
+    inserted_count?: number;
+    secondary_rewrites?: number;
+    top_target_ids?: string[];
+  } | null;
+
+  return {
+    inserted: payload?.inserted_count ?? 0,
+    secondaryRewrites: payload?.secondary_rewrites ?? 0,
+    topTargetIds: payload?.top_target_ids ?? [],
+    error: null,
+  };
+}
+
 export async function regenerateAllItemSimilarityEdges(
   client: AdminDb,
   methodVersion: string = DEFAULT_SIMILARITY_METHOD_VERSION,

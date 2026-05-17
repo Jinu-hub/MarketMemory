@@ -21,7 +21,7 @@ import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import {
   DEFAULT_SIMILARITY_METHOD_VERSION,
-  regenerateItemSimilarityEdges,
+  regenerateItemSimilarityEdgesWithSecondary,
 } from "~/features/admin/mutations";
 
 import type { Route } from "./+types/detail";
@@ -99,7 +99,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     return data({ message: "요청한 리포트와 페이지가 일치하지 않습니다." }, { status: 400 });
   }
 
-  const { inserted, error } = await regenerateItemSimilarityEdges(
+  const { inserted, error } = await regenerateItemSimilarityEdgesWithSecondary(
     client,
     sourceItemId,
     DEFAULT_SIMILARITY_METHOD_VERSION,

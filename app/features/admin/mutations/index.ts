@@ -33,5 +33,6 @@ export {
   insertSimilarityEdges,
   regenerateAllItemSimilarityEdges,
   regenerateItemSimilarityEdges,
+  regenerateItemSimilarityEdgesWithSecondary,
   regenerateReadyItemSimilarityEdges,
 } from "./similarity";

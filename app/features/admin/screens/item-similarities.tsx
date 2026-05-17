@@ -19,7 +19,7 @@ import {
 import {
   DEFAULT_SIMILARITY_METHOD_VERSION,
   regenerateAllItemSimilarityEdges,
-  regenerateItemSimilarityEdges,
+  regenerateItemSimilarityEdgesWithSecondary,
   regenerateReadyItemSimilarityEdges,
 } from "../mutations";
 import {
@@ -144,7 +144,7 @@ export async function action({ request }: Route.ActionArgs) {
   const suffix = buildRedirectSuffix(parsed.data.return_search);
 
   if (parsed.data.intent === "regenerate_one") {
-    const { error } = await regenerateItemSimilarityEdges(
+    const { error } = await regenerateItemSimilarityEdgesWithSecondary(
       client,
       parsed.data.source_item_id,
       DEFAULT_SIMILARITY_METHOD_VERSION,

@@ -1346,6 +1346,10 @@ export type Database = {
         Args: { p_batch_limit?: number; p_method_version?: string }
         Returns: Json
       }
+      regenerate_similarity_edges_with_secondary: {
+        Args: { p_method_version?: string; p_source_item_id: string }
+        Returns: Json
+      }
       regenerate_similarity_edges_once: {
         Args: { p_method_version?: string; p_source_item_id: string }
         Returns: {

@@ -104,6 +104,45 @@ $$;
 comment on function public.regenerate_similarity_edges_once(uuid, text) is
   'Regenerates item_similarity_edges for one source item and returns inserted count and top-5 targets.';
 
+create or replace function public.regenerate_similarity_edges_with_secondary(
+  p_source_item_id uuid,
+  p_method_version text default 'hybrid_v1'
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_regen_result record;
+  v_top_target_id uuid;
+  v_secondary_rewrites integer := 0;
+begin
+  select *
+  into v_regen_result
+  from public.regenerate_similarity_edges_once(p_source_item_id, p_method_version);
+
+  if coalesce(v_regen_result.inserted_count, 0) > 0 then
+    foreach v_top_target_id in array coalesce(v_regen_result.top_target_ids, '{}'::uuid[])
+    loop
+      perform public.regenerate_similarity_edges_once(v_top_target_id, p_method_version);
+      v_secondary_rewrites := v_secondary_rewrites + 1;
+    end loop;
+  end if;
+
+  return jsonb_build_object(
+    'source_item_id', p_source_item_id,
+    'inserted_count', coalesce(v_regen_result.inserted_count, 0),
+    'top_target_ids', coalesce(v_regen_result.top_target_ids, '{}'::uuid[]),
+    'secondary_rewrites', v_secondary_rewrites,
+    'method_version', p_method_version
+  );
+end;
+$$;
+
+comment on function public.regenerate_similarity_edges_with_secondary(uuid, text) is
+  'Regenerates edges for one source and one-hop top-5 secondary rewrites (same as cron queue item).';
+
 create or replace function public.process_ready_similarity_queue(
   p_batch_limit integer default 20,
   p_method_version text default 'hybrid_v1'
@@ -115,8 +154,7 @@ set search_path = public
 as $$
 declare
   v_ready_source_id uuid;
-  v_top_target_id uuid;
-  v_regen_result record;
+  v_item_result jsonb;
   v_processed_ready integer := 0;
   v_total_inserted integer := 0;
   v_secondary_rewrites integer := 0;
@@ -131,19 +169,14 @@ begin
   loop
     v_processed_ready := v_processed_ready + 1;
 
-    select *
-    into v_regen_result
-    from public.regenerate_similarity_edges_once(v_ready_source_id, p_method_version);
+    v_item_result := public.regenerate_similarity_edges_with_secondary(
+      v_ready_source_id,
+      p_method_version
+    );
 
-    v_total_inserted := v_total_inserted + coalesce(v_regen_result.inserted_count, 0);
-
-    if coalesce(v_regen_result.inserted_count, 0) > 0 then
-      foreach v_top_target_id in array coalesce(v_regen_result.top_target_ids, '{}'::uuid[])
-      loop
-        perform public.regenerate_similarity_edges_once(v_top_target_id, p_method_version);
-        v_secondary_rewrites := v_secondary_rewrites + 1;
-      end loop;
-    end if;
+    v_total_inserted := v_total_inserted + coalesce((v_item_result->>'inserted_count')::integer, 0);
+    v_secondary_rewrites := v_secondary_rewrites
+      + coalesce((v_item_result->>'secondary_rewrites')::integer, 0);
   end loop;
 
   return jsonb_build_object(
@@ -159,4 +192,5 @@ $$;
 comment on function public.process_ready_similarity_queue(integer, text) is
   'Processes ready similarity queue and runs one-hop top-5 secondary rewrites without recursion.';
 
+grant execute on function public.regenerate_similarity_edges_with_secondary(uuid, text) to authenticated;
 grant execute on function public.process_ready_similarity_queue(integer, text) to authenticated;
