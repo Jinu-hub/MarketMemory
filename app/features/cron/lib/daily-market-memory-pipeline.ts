@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "database.types";
 
 import adminClient from "~/core/lib/supa-admin-client.server";
+import { notifyDailyMarketMemoryN8n } from "~/features/cron/lib/daily-market-memory-n8n.server";
 import { persistDailyMarketMemoryToDb } from "~/features/cron/lib/daily-market-memory-persist.server";
 import { getMarketSnapshot } from "~/features/cron/lib/market-snapshot";
 import type {
@@ -426,16 +427,30 @@ export async function runDailyMarketMemoryPipeline(
     }
   }
 
-  // Step 6 (planned): n8n 웹훅 — 일일 파이프라인 완료 후 워크플로 트리거
-  // 예시:
-  // const url = process.env.N8N_DAILY_MARKET_MEMORY_WEBHOOK_URL;
-  // if (url) {
-  //   await fetch(url, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ event: "daily_market_memory.pipeline.completed", ranAt, marketDate: params.marketDate }),
-  //   });
-  // }
+  // Step 6: n8n 웹훅 (옵션 A, 복수 URL)
+  // — `persistToDb`로 draft 저장에 성공하고 `dailyMarketMemoryId`가 있을 때만 호출합니다.
+  // — URL은 `daily-market-memory-n8n.config.ts`의 `DAILY_MARKET_MEMORY_N8N_WEBHOOKS`에서 설정합니다.
+  // — 2번째 URL부터는 이전 호출 전 5초 대기. URL이 비어 있으면 스킵. 실패는 `errors`에만 기록합니다.
+  if (pipelineResult.savedToDb && pipelineResult.dailyMarketMemoryId) {
+    try {
+      await notifyDailyMarketMemoryN8n({
+        event: "daily_market_memory.pipeline.completed",
+        ranAt: pipelineResult.ranAt,
+        marketDate: pipelineResult.marketDate,
+        dailyMarketMemoryId: pipelineResult.dailyMarketMemoryId,
+        savedToDb: true,
+        reportCount: pipelineResult.reports.length,
+        errors: [...pipelineResult.errors],
+        aiInput: pipelineResult.aiInput,
+      });
+    } catch (error) {
+      errors.push(
+        error instanceof Error
+          ? `n8n 웹훅 실패: ${error.message}`
+          : "n8n 웹훅 실패: unknown error",
+      );
+    }
+  }
 
   return pipelineResult;
 }

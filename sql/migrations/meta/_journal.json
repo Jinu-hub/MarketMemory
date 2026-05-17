@@ -183,6 +183,13 @@
       "when": 1778851931892,
       "tag": "0025_mixed_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1778923060145,
+      "tag": "0026_slimy_karen_page",
+      "breakpoints": true
     }
   ]
 }

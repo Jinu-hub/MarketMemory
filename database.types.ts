@@ -48,6 +48,7 @@ export type Database = {
           market_scope: string
           market_snapshot: Json | null
           model_info: Json | null
+          pipeline_info: Json | null
           risk_signals: Json | null
           source_report_count: number
           status: string
@@ -70,6 +71,7 @@ export type Database = {
           market_scope: string
           market_snapshot?: Json | null
           model_info?: Json | null
+          pipeline_info?: Json | null
           risk_signals?: Json | null
           source_report_count?: number
           status?: string
@@ -92,6 +94,7 @@ export type Database = {
           market_scope?: string
           market_snapshot?: Json | null
           model_info?: Json | null
+          pipeline_info?: Json | null
           risk_signals?: Json | null
           source_report_count?: number
           status?: string

@@ -53,6 +53,7 @@ export const dailyMarketMemories = pgTable(
     risk_signals: jsonb("risk_signals"),
     input_context: jsonb("input_context"),
     model_info: jsonb("model_info"),
+    pipeline_info: jsonb("pipeline_info"),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
