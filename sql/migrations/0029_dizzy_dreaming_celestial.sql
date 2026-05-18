@@ -1,0 +1,1 @@
+ALTER TABLE "daily_market_memories" ADD COLUMN "metadata" jsonb;

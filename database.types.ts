@@ -48,6 +48,7 @@ export type Database = {
           market_mood_type: string | null
           market_scope: string
           market_snapshot: Json | null
+          metadata: Json | null
           model_info: Json | null
           pipeline_info: Json | null
           risk_signals: Json | null
@@ -72,6 +73,7 @@ export type Database = {
           market_mood_type?: string | null
           market_scope: string
           market_snapshot?: Json | null
+          metadata?: Json | null
           model_info?: Json | null
           pipeline_info?: Json | null
           risk_signals?: Json | null
@@ -96,6 +98,7 @@ export type Database = {
           market_mood_type?: string | null
           market_scope?: string
           market_snapshot?: Json | null
+          metadata?: Json | null
           model_info?: Json | null
           pipeline_info?: Json | null
           risk_signals?: Json | null
