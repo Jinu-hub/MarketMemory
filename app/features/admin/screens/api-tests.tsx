@@ -1,17 +1,26 @@
 import type { Route } from "./+types/api-tests";
 
-import { ActivityIcon, ArrowUpRightIcon, CalendarDaysIcon } from "lucide-react";
+import {
+  ActivityIcon,
+  ArrowUpRightIcon,
+  CalendarDaysIcon,
+  WebhookIcon,
+} from "lucide-react";
 import { Link } from "react-router";
 
 import { AdminPageHeader, AdminSection } from "../components/admin-ui";
 import { NexCard } from "~/core/components/nex";
+import { requireAdmin } from "~/core/lib/guards.server";
+import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
 
 export const meta: Route.MetaFunction = () => [
   { title: `API 테스트 | ${import.meta.env.VITE_APP_NAME}` },
 ];
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const [client] = makeServerClient(request);
+  await requireAdmin(client);
   return {};
 }
 
@@ -56,6 +65,38 @@ export default function AdminApiTestsScreen() {
                 </h2>
                 <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
                   시장 스냅샷·리포트 집계·AI 입력 JSON까지 하루 1회 프로세스를 수동 실행합니다.
+                </p>
+              </NexCard>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin/daily-market-memory-n8n-test"
+              className="group block h-full rounded-xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              <NexCard
+                variant="elevated"
+                padding="lg"
+                hoverable
+                className={cn(
+                  "border-border bg-card text-card-foreground h-full border shadow-md",
+                  "transition-[transform,box-shadow] duration-200",
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="bg-muted/80 text-muted-foreground group-hover:bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors">
+                    <WebhookIcon className="size-5" aria-hidden />
+                  </div>
+                  <ArrowUpRightIcon
+                    className="text-muted-foreground group-hover:text-foreground size-4 shrink-0 opacity-0 transition-all group-hover:opacity-100"
+                    aria-hidden
+                  />
+                </div>
+                <h2 className="text-foreground mt-4 text-lg font-semibold tracking-tight">
+                  n8n 웹훅 테스트
+                </h2>
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  daily-market-memory n8n Webhook을 config 기준으로 수동 POST합니다.
                 </p>
               </NexCard>
             </Link>

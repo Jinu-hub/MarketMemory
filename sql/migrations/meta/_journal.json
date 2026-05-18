@@ -190,6 +190,20 @@
       "when": 1778923060145,
       "tag": "0026_slimy_karen_page",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1779074681802,
+      "tag": "0027_glossy_skaar",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1779081271364,
+      "tag": "0028_past_thunderball",
+      "breakpoints": true
     }
   ]
 }

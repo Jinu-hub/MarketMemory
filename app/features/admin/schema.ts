@@ -832,6 +832,7 @@ export const itemEmbeddings = pgTable(
       .references(() => itemContents.id, { onDelete: "cascade" }),
     lang_code: text("lang_code").notNull().default("en"),
     content_type: contentType("content_type").notNull(),
+    embedding_text: text("embedding_text"),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
     model: text("model"),
     created_at: timestamp("created_at", { withTimezone: true })
@@ -875,6 +876,7 @@ export const reportEmbeddings = pgTable(
       .references(() => reports.id, { onDelete: "cascade" }),
     lang_code: text("lang_code").notNull().default("en"),
     content_type: contentType("content_type").notNull(),
+    embedding_text: text("embedding_text"),
     embedding: vector("embedding", { dimensions: 1536 }).notNull(),
     model: text("model"),
     created_at: timestamp("created_at", { withTimezone: true })

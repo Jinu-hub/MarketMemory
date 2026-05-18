@@ -1,0 +1,1 @@
+ALTER TABLE "daily_market_memory_embeddings" ALTER COLUMN "embedding" SET DATA TYPE vector(1536);

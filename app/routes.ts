@@ -153,6 +153,10 @@ export default [
           "/daily-market-memory-test",
           "features/admin/screens/daily-market-memory-test.tsx",
         ),
+        route(
+          "/daily-market-memory-n8n-test",
+          "features/admin/screens/daily-market-memory-n8n-test.tsx",
+        ),
       ]),
     ]),
   ]),

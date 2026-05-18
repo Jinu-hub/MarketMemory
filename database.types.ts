@@ -45,6 +45,7 @@ export type Database = {
           id: string
           input_context: Json | null
           market_date: string
+          market_mood_type: string | null
           market_scope: string
           market_snapshot: Json | null
           model_info: Json | null
@@ -68,6 +69,7 @@ export type Database = {
           id?: string
           input_context?: Json | null
           market_date: string
+          market_mood_type?: string | null
           market_scope: string
           market_snapshot?: Json | null
           model_info?: Json | null
@@ -91,6 +93,7 @@ export type Database = {
           id?: string
           input_context?: Json | null
           market_date?: string
+          market_mood_type?: string | null
           market_scope?: string
           market_snapshot?: Json | null
           model_info?: Json | null
@@ -104,6 +107,53 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_market_memory_embeddings: {
+        Row: {
+          content_type: string
+          created_at: string
+          daily_market_memory_id: string
+          embedding: string
+          embedding_text: string | null
+          id: string
+          lang_code: string
+          model: string | null
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          daily_market_memory_id: string
+          embedding: string
+          embedding_text?: string | null
+          id?: string
+          lang_code: string
+          model?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          daily_market_memory_id?: string
+          embedding?: string
+          embedding_text?: string | null
+          id?: string
+          lang_code?: string
+          model?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_market_memory_embeddings_daily_market_memory_id_daily_mar"
+            columns: ["daily_market_memory_id"]
+            isOneToOne: false
+            referencedRelation: "daily_market_memories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_market_memory_i18n: {
         Row: {
           core_summary: string | null
@@ -114,9 +164,7 @@ export type Database = {
           id: string
           lang_code: string
           localization_status: string
-          market_mood_label: string | null
           market_mood_summary: string | null
-          market_mood_type: string | null
           model_info: Json | null
           source_lang_code: string | null
           top_themes: Json | null
@@ -131,9 +179,7 @@ export type Database = {
           id?: string
           lang_code: string
           localization_status?: string
-          market_mood_label?: string | null
           market_mood_summary?: string | null
-          market_mood_type?: string | null
           model_info?: Json | null
           source_lang_code?: string | null
           top_themes?: Json | null
@@ -148,9 +194,7 @@ export type Database = {
           id?: string
           lang_code?: string
           localization_status?: string
-          market_mood_label?: string | null
           market_mood_summary?: string | null
-          market_mood_type?: string | null
           model_info?: Json | null
           source_lang_code?: string | null
           top_themes?: Json | null
@@ -160,6 +204,125 @@ export type Database = {
           {
             foreignKeyName: "daily_market_memory_i18n_daily_market_memory_id_daily_market_me"
             columns: ["daily_market_memory_id"]
+            isOneToOne: false
+            referencedRelation: "daily_market_memories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_market_memory_recall_i18n: {
+        Row: {
+          created_at: string
+          display_label: string | null
+          id: string
+          lang_code: string
+          similarity_edge_id: string
+          similarity_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_label?: string | null
+          id?: string
+          lang_code: string
+          similarity_edge_id: string
+          similarity_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_label?: string | null
+          id?: string
+          lang_code?: string
+          similarity_edge_id?: string
+          similarity_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_market_memory_recall_i18n_similarity_edge_id_daily_market"
+            columns: ["similarity_edge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_market_memory_similarity_edges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_market_memory_similarity_edges: {
+        Row: {
+          created_at: string
+          entity_score: number | null
+          final_score: number | null
+          id: string
+          is_visible: boolean
+          matched_entities: Json | null
+          matched_risk_signals: Json | null
+          matched_tags: Json | null
+          matched_themes: Json | null
+          mood_risk_score: number | null
+          similarity_method: string | null
+          similarity_rank: number | null
+          source_daily_market_memory_id: string
+          source_snapshot: Json | null
+          tag_score: number | null
+          target_daily_market_memory_id: string
+          target_snapshot: Json | null
+          updated_at: string
+          vector_score: number | null
+        }
+        Insert: {
+          created_at?: string
+          entity_score?: number | null
+          final_score?: number | null
+          id?: string
+          is_visible?: boolean
+          matched_entities?: Json | null
+          matched_risk_signals?: Json | null
+          matched_tags?: Json | null
+          matched_themes?: Json | null
+          mood_risk_score?: number | null
+          similarity_method?: string | null
+          similarity_rank?: number | null
+          source_daily_market_memory_id: string
+          source_snapshot?: Json | null
+          tag_score?: number | null
+          target_daily_market_memory_id: string
+          target_snapshot?: Json | null
+          updated_at?: string
+          vector_score?: number | null
+        }
+        Update: {
+          created_at?: string
+          entity_score?: number | null
+          final_score?: number | null
+          id?: string
+          is_visible?: boolean
+          matched_entities?: Json | null
+          matched_risk_signals?: Json | null
+          matched_tags?: Json | null
+          matched_themes?: Json | null
+          mood_risk_score?: number | null
+          similarity_method?: string | null
+          similarity_rank?: number | null
+          source_daily_market_memory_id?: string
+          source_snapshot?: Json | null
+          tag_score?: number | null
+          target_daily_market_memory_id?: string
+          target_snapshot?: Json | null
+          updated_at?: string
+          vector_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_market_memory_similarity_edges_source_daily_market_memory"
+            columns: ["source_daily_market_memory_id"]
+            isOneToOne: false
+            referencedRelation: "daily_market_memories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_market_memory_similarity_edges_target_daily_market_memory"
+            columns: ["target_daily_market_memory_id"]
             isOneToOne: false
             referencedRelation: "daily_market_memories"
             referencedColumns: ["id"]
@@ -434,6 +597,7 @@ export type Database = {
           content_type: Database["public"]["Enums"]["content_type"]
           created_at: string
           embedding: string
+          embedding_text: string | null
           id: string
           item_id: string
           lang_code: string
@@ -443,6 +607,7 @@ export type Database = {
           content_type: Database["public"]["Enums"]["content_type"]
           created_at?: string
           embedding: string
+          embedding_text?: string | null
           id?: string
           item_id: string
           lang_code?: string
@@ -452,6 +617,7 @@ export type Database = {
           content_type?: Database["public"]["Enums"]["content_type"]
           created_at?: string
           embedding?: string
+          embedding_text?: string | null
           id?: string
           item_id?: string
           lang_code?: string
@@ -1040,6 +1206,7 @@ export type Database = {
           content_type: Database["public"]["Enums"]["content_type"]
           created_at: string
           embedding: string
+          embedding_text: string | null
           id: string
           lang_code: string
           model: string | null
@@ -1049,6 +1216,7 @@ export type Database = {
           content_type: Database["public"]["Enums"]["content_type"]
           created_at?: string
           embedding: string
+          embedding_text?: string | null
           id?: string
           lang_code?: string
           model?: string | null
@@ -1058,6 +1226,7 @@ export type Database = {
           content_type?: Database["public"]["Enums"]["content_type"]
           created_at?: string
           embedding?: string
+          embedding_text?: string | null
           id?: string
           lang_code?: string
           model?: string | null
@@ -1346,16 +1515,16 @@ export type Database = {
         Args: { p_batch_limit?: number; p_method_version?: string }
         Returns: Json
       }
-      regenerate_similarity_edges_with_secondary: {
-        Args: { p_method_version?: string; p_source_item_id: string }
-        Returns: Json
-      }
       regenerate_similarity_edges_once: {
         Args: { p_method_version?: string; p_source_item_id: string }
         Returns: {
           inserted_count: number
           top_target_ids: string[]
         }[]
+      }
+      regenerate_similarity_edges_with_secondary: {
+        Args: { p_method_version?: string; p_source_item_id: string }
+        Returns: Json
       }
     }
     Enums: {

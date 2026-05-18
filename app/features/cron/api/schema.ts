@@ -4,6 +4,7 @@
 
 import { desc, sql } from "drizzle-orm";
 import {
+  boolean,
   date,
   index,
   integer,
@@ -15,6 +16,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  vector,
 } from "drizzle-orm/pg-core";
 import { authenticatedRole } from "drizzle-orm/supabase";
 
@@ -47,6 +49,7 @@ export const dailyMarketMemories = pgTable(
     source_report_count: integer("source_report_count").notNull().default(0),
     core_lang_code: text("core_lang_code").notNull().default("en"),
     market_snapshot: jsonb("market_snapshot"),
+    market_mood_type: text("market_mood_type"),
     core_data: jsonb("core_data"),
     top_tags: jsonb("top_tags"),
     top_entities: jsonb("top_entities"),
@@ -111,8 +114,6 @@ export const dailyMarketMemoryI18n = pgTable(
     display_subtitle: text("display_subtitle"),
     core_summary: text("core_summary"),
     top_themes: jsonb("top_themes"),
-    market_mood_type: text("market_mood_type"),
-    market_mood_label: text("market_mood_label"),
     market_mood_summary: text("market_mood_summary"),
     localization_status: text("localization_status").notNull().default("draft"),
     source_lang_code: text("source_lang_code"),
@@ -208,6 +209,190 @@ export const dailyMarketMemorySources = pgTable(
       withCheck: isAdmin,
     }),
     pgPolicy("dms_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   daily_market_memory_embeddings — 일별 시장 메모리 벡터
+   ========================================================= */
+export const dailyMarketMemoryEmbeddings = pgTable(
+  "daily_market_memory_embeddings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    daily_market_memory_id: uuid("daily_market_memory_id")
+      .notNull()
+      .references(() => dailyMarketMemories.id, { onDelete: "cascade" }),
+    content_type: text("content_type").notNull(),
+    lang_code: text("lang_code").notNull(),
+    embedding_text: text("embedding_text"),
+    embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+    model: text("model"),
+    version: text("version"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_daily_market_memory_embeddings_memory_id").on(
+      table.daily_market_memory_id,
+    ),
+    index("idx_daily_market_memory_embeddings_content_lang").on(
+      table.content_type,
+      table.lang_code,
+    ),
+
+    pgPolicy("dmme_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("dmme_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmme_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmme_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   daily_market_memory_similarity_edges — Memory Recall 유사도
+   ========================================================= */
+export const dailyMarketMemorySimilarityEdges = pgTable(
+  "daily_market_memory_similarity_edges",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    source_daily_market_memory_id: uuid("source_daily_market_memory_id")
+      .notNull()
+      .references(() => dailyMarketMemories.id, { onDelete: "cascade" }),
+    target_daily_market_memory_id: uuid("target_daily_market_memory_id")
+      .notNull()
+      .references(() => dailyMarketMemories.id, { onDelete: "cascade" }),
+    final_score: numeric("final_score"),
+    vector_score: numeric("vector_score"),
+    tag_score: numeric("tag_score"),
+    entity_score: numeric("entity_score"),
+    mood_risk_score: numeric("mood_risk_score"),
+    similarity_rank: integer("similarity_rank"),
+    similarity_method: text("similarity_method"),
+    matched_tags: jsonb("matched_tags"),
+    matched_entities: jsonb("matched_entities"),
+    matched_themes: jsonb("matched_themes"),
+    matched_risk_signals: jsonb("matched_risk_signals"),
+    source_snapshot: jsonb("source_snapshot"),
+    target_snapshot: jsonb("target_snapshot"),
+    is_visible: boolean("is_visible").notNull().default(true),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_daily_market_memory_similarity_edges_source_rank").on(
+      table.source_daily_market_memory_id,
+      table.similarity_rank,
+    ),
+    index("idx_daily_market_memory_similarity_edges_source_visible_rank").on(
+      table.source_daily_market_memory_id,
+      table.is_visible,
+      table.similarity_rank,
+    ),
+    index("idx_daily_market_memory_similarity_edges_target").on(
+      table.target_daily_market_memory_id,
+    ),
+    index("idx_daily_market_memory_similarity_edges_score").on(
+      desc(table.final_score),
+    ),
+
+    pgPolicy("dmmse_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("dmmse_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmmse_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmmse_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   daily_market_memory_recall_i18n — Memory Recall 유사 이유 (i18n)
+   ========================================================= */
+export const dailyMarketMemoryRecallI18n = pgTable(
+  "daily_market_memory_recall_i18n",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    similarity_edge_id: uuid("similarity_edge_id")
+      .notNull()
+      .references(() => dailyMarketMemorySimilarityEdges.id, {
+        onDelete: "cascade",
+      }),
+    lang_code: text("lang_code").notNull(),
+    display_label: text("display_label"),
+    similarity_reason: text("similarity_reason"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_daily_market_memory_recall_i18n_edge_lang").on(
+      table.similarity_edge_id,
+      table.lang_code,
+    ),
+    index("idx_daily_market_memory_recall_i18n_lang").on(table.lang_code),
+
+    pgPolicy("dmmri_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("dmmri_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmmri_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmmri_delete", {
       for: "delete",
       to: authenticatedRole,
       using: isAdmin,

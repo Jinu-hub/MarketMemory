@@ -6,6 +6,7 @@
  * `secret`: Header Auth 사용 시 Authorization 값 (미사용이면 null)
  */
 export interface DailyMarketMemoryN8nWebhookConfig {
+  label: string;
   url: string;
   secret?: string | null;
 }
@@ -13,6 +14,7 @@ export interface DailyMarketMemoryN8nWebhookConfig {
 export const DAILY_MARKET_MEMORY_N8N_WEBHOOKS: DailyMarketMemoryN8nWebhookConfig[] =
   [
     {
+      label: "n8n-daily-market-memory",
       url: "https://n8n.nex.it.com/webhook/db6e33fd-656f-4738-8639-a0606c12f0b0",
       secret: null,
     },
