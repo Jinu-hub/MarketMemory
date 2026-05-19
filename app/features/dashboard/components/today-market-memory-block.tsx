@@ -108,76 +108,102 @@ export function TodayMarketMemoryBlock({
         </div>
       </header>
 
+      {/*
+       * Two-row content layout (lg+):
+       *
+       *  ┌──────────────────────────┬───────────────────┐
+       *  │ 1. 핵심 요약              │ 3. 시장 분위기     │   ← row 1
+       *  ├──────────────────────────┴───────────────────┤
+       *  │ 2. 오늘의 주요 테마 (풀폭 3-col 그리드)         │   ← row 2
+       *  └──────────────────────────────────────────────┘
+       *
+       * DOM order intentionally follows the product spec (요약 → 테마 → 분위기)
+       * so the mobile single-column stack reads in narrative order. On `lg+`
+       * we use grid `order` utilities to lift mood up next to the summary
+       * and push themes full-width below.
+       */}
       <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr]">
-        {/* ───── Left: Core Summary + Themes ───── */}
-        <div className="space-y-6 px-5 py-5 sm:space-y-7 sm:px-6 sm:py-6 md:space-y-8 md:px-8 md:py-8">
-          {/* 1. 핵심 요약 */}
-          <section aria-labelledby="memory-summary-heading" className="space-y-3">
-            <SectionLabel
-              id="memory-summary-heading"
-              icon={SparklesIcon}
-              label="핵심 요약"
-              hint="오늘 시장을 어떻게 봐야 하는지에 대한 해석"
-            />
-            {memory.core_summary ? (
-              <ReadingProse>{memory.core_summary}</ReadingProse>
-            ) : (
-              <ReadingEmpty>핵심 요약이 아직 준비되지 않았습니다.</ReadingEmpty>
-            )}
-            {memory.top_tags && memory.top_tags.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {memory.top_tags.slice(0, 6).map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-muted-foreground bg-muted/60 inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[11px]"
-                  >
-                    <HashIcon className="size-2.5" aria-hidden />
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-          </section>
+        {/* 1. 핵심 요약 — row 1 col 1 */}
+        <section
+          aria-labelledby="memory-summary-heading"
+          className="space-y-3 px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8"
+        >
+          <SectionLabel
+            id="memory-summary-heading"
+            icon={SparklesIcon}
+            label="핵심 요약"
+            hint="오늘 시장을 어떻게 봐야 하는지에 대한 해석"
+          />
+          {memory.core_summary ? (
+            <ReadingProse>{memory.core_summary}</ReadingProse>
+          ) : (
+            <ReadingEmpty>핵심 요약이 아직 준비되지 않았습니다.</ReadingEmpty>
+          )}
+          {memory.top_tags && memory.top_tags.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {memory.top_tags.slice(0, 6).map((tag) => (
+                <span
+                  key={tag}
+                  className="text-muted-foreground bg-muted/60 inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[11px]"
+                >
+                  <HashIcon className="size-2.5" aria-hidden />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </section>
 
-          {/* 2. 오늘의 주요 테마 3 */}
-          <section aria-labelledby="memory-themes-heading" className="space-y-3">
-            <SectionLabel
-              id="memory-themes-heading"
-              icon={BrainCircuitIcon}
-              label="오늘의 주요 테마"
-              hint="현재 시장에서 의미 있는 흐름 3가지"
-            />
-            {themes.length === 0 ? (
-              <ReadingEmpty>
-                오늘 추출된 주요 테마가 없습니다.
-              </ReadingEmpty>
-            ) : (
-              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {themes.map((theme, index) => (
-                  <li
-                    key={resolveThemeKey(theme, index)}
-                    className={cn(
-                      // On `sm` (2-col) the 3rd card sits alone on its row —
-                      // span it across both columns so it doesn't look orphaned.
-                      index === 2 ? "sm:col-span-2 lg:col-span-1" : null,
-                    )}
-                  >
-                    <ThemeCard theme={theme} index={index} locale={locale} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
+        {/* 2. 오늘의 주요 테마 — row 2 (full width on lg+) */}
+        <section
+          aria-labelledby="memory-themes-heading"
+          className={cn(
+            "border-border space-y-3 border-t px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8",
+            "lg:order-3 lg:col-span-2",
+          )}
+        >
+          <SectionLabel
+            id="memory-themes-heading"
+            icon={BrainCircuitIcon}
+            label="오늘의 주요 테마"
+            hint="현재 시장에서 의미 있는 흐름 3가지"
+          />
+          {themes.length === 0 ? (
+            <ReadingEmpty>오늘 추출된 주요 테마가 없습니다.</ReadingEmpty>
+          ) : (
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {themes.map((theme, index) => (
+                <li
+                  key={resolveThemeKey(theme, index)}
+                  className={cn(
+                    // On `sm` (2-col) the 3rd card sits alone on its row —
+                    // span it across both columns so it doesn't look orphaned.
+                    index === 2 ? "sm:col-span-2 md:col-span-1" : null,
+                  )}
+                >
+                  <ThemeCard theme={theme} index={index} locale={locale} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
-        {/* ───── Right: Market Mood ───── */}
+        {/* 3. 시장 분위기 — row 1 col 2 on lg+, stacks under themes on mobile
+         *
+         * The mood panel reads as a *companion* of the summary, not as a
+         * louder peer. Color identity is restricted to:
+         *  - a 3px accent border on the column edge (lg+) / left edge (mobile)
+         *  - a small accent-tinted pill that names the mood
+         * Everything else stays in the neutral content-layer tone so the
+         * page's visual weight stays on the core summary + themes.
+         */}
         <aside
           aria-labelledby="memory-mood-heading"
           className={cn(
-            "border-border flex flex-col gap-3.5 border-t px-5 pt-0 pb-5 sm:gap-4 sm:px-6 sm:pb-6 md:px-8 md:pb-8 lg:border-t-0 lg:border-l",
+            "border-border flex flex-col gap-3.5 border-t px-5 py-5 sm:gap-4 sm:px-6 sm:py-6 md:px-8 md:py-8",
+            "lg:order-2 lg:border-t-0 lg:border-l",
             "border-l-[3px]",
             moodStyle.accentBorder,
-            moodStyle.accentBg,
           )}
         >
           <SectionLabel
@@ -185,25 +211,20 @@ export function TodayMarketMemoryBlock({
             icon={MoodIcon}
             label="시장 분위기"
             hint="지수·자산·테마·리스크를 종합한 AI 해석"
-            variant="panel"
-            accentText={moodStyle.accentText}
-            accentBg={moodStyle.accentBg}
-          />
-          <div className="space-y-2 sm:space-y-2.5">
-            <div className="flex flex-wrap items-center gap-2">
+            trailing={
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold sm:text-sm",
-                  "bg-background border-border border",
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold sm:text-sm",
+                  "border-border",
+                  moodStyle.accentBg,
                   moodStyle.accentText,
                 )}
               >
                 {moodLabel}
               </span>
-              <span className="text-muted-foreground text-[11px] sm:text-xs">
-                {moodDescription}
-              </span>
-            </div>
+            }
+          />
+          <div className="space-y-2 sm:space-y-2.5">
             {moodStyle.key ? (
               <p className="text-muted-foreground text-[11px] leading-5 sm:text-xs md:text-sm md:leading-6">
                 {moodSubdescription}
@@ -265,7 +286,7 @@ function ThemeCard({
         {title}
       </h3>
       {summary ? (
-        <p className="text-muted-foreground line-clamp-3 text-xs leading-5 sm:text-sm sm:leading-6">
+        <p className="text-muted-foreground text-xs leading-5 sm:text-sm sm:leading-6">
           {summary}
         </p>
       ) : null}
@@ -297,72 +318,26 @@ function SectionLabel({
   icon: Icon,
   label,
   hint,
-  variant = "default",
-  accentText,
-  accentBg,
+  trailing,
 }: {
   id?: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   hint?: string;
-  /** `panel` — sidebar column; stronger section title + bottom divider. */
-  variant?: "default" | "panel";
-  accentText?: string;
-  accentBg?: string;
+  trailing?: React.ReactNode;
 }) {
-  if (variant === "panel") {
-    return (
-      <header
-        className={cn(
-          "border-border/60 -mx-5 space-y-3 border-b px-5 pt-5 pb-4 sm:-mx-6 sm:px-6 sm:pt-6 md:-mx-8 md:px-8",
-          accentBg,
-        )}
-      >
-        <p
-          className={cn(
-            "text-[11px] font-semibold tracking-widest uppercase sm:text-xs",
-            accentText ?? "text-primary",
-          )}
-        >
-          Market Mood
-        </p>
-        <div className="flex items-start gap-2.5 sm:gap-3">
-          <div
-            className={cn(
-              "border-border/60 bg-background flex size-9 shrink-0 items-center justify-center rounded-xl border shadow-xs sm:size-10",
-              accentText,
-            )}
-            aria-hidden
-          >
-            <Icon className="size-4 sm:size-5" />
-          </div>
-          <div className="min-w-0 flex-1 space-y-1 sm:space-y-1.5">
-            <h3
-              id={id}
-              className="text-foreground text-base leading-tight font-bold tracking-tight sm:text-lg md:text-xl"
-            >
-              {label}
-            </h3>
-            {hint ? (
-              <p className="text-muted-foreground text-[11px] leading-5 sm:text-xs md:text-sm">
-                {hint}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </header>
-    );
-  }
-
   return (
     <div className="space-y-0.5">
-      <h3
-        id={id}
-        className="text-foreground inline-flex items-center gap-1.5 text-sm font-semibold tracking-tight"
-      >
-        <Icon className="text-muted-foreground size-3.5" aria-hidden />
-        {label}
-      </h3>
+      <div className="flex items-center justify-between gap-3">
+        <h3
+          id={id}
+          className="text-foreground inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold tracking-tight"
+        >
+          <Icon className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
+          {label}
+        </h3>
+        {trailing ? <div className="shrink-0">{trailing}</div> : null}
+      </div>
       {hint ? (
         <p className="text-muted-foreground text-xs">{hint}</p>
       ) : null}

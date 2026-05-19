@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
 
 import { NexBadge } from "~/core/components/nex";
@@ -77,68 +78,182 @@ export function ReportTimeline({
   }
 
   return (
-    <div className={cn("space-y-10", className)}>
+    <div className={cn(compact ? "space-y-3" : "space-y-10", className)}>
       {groups.map((group) => (
-        <Collapsible
+        <TimelineMonthGroup
           key={group.key}
-          defaultOpen
-          className="group/month space-y-4"
-        >
-          <section aria-label={group.label}>
-            <CollapsibleTrigger
-              className={cn(
-                "hover:bg-muted/40 focus-visible:ring-ring -mx-2 flex w-[calc(100%+1rem)] items-center justify-between rounded-lg px-2 py-1.5 text-left transition-colors outline-none",
-                "focus-visible:ring-2 cursor-pointer",
-              )}
-              aria-controls={`timeline-month-${group.key}`}
-            >
-              <div className="flex items-baseline gap-3">
-                <h3
-                  className={cn(
-                    "font-semibold tracking-tight",
-                    compact ? "text-sm" : "text-base md:text-lg",
-                  )}
-                >
-                  {group.label}
-                </h3>
-                {showGroupCounts ? (
-                  <span className="text-muted-foreground text-xs">
-                    {group.reports.length}건
-                  </span>
-                ) : null}
-              </div>
-              <ChevronDownIcon className="text-muted-foreground size-4 shrink-0 transition-transform duration-200 group-data-[state=open]/month:rotate-180" />
-            </CollapsibleTrigger>
-
-            <CollapsibleContent
-              id={`timeline-month-${group.key}`}
-              className={cn(
-                "overflow-hidden",
-                "data-[state=closed]:animate-collapsible-up",
-                "data-[state=open]:animate-collapsible-down",
-              )}
-            >
-              <div className="relative pt-1">
-                <div className="bg-border absolute top-3 bottom-2 left-[7px] w-px md:left-[9px]" />
-                <ul
-                  className={cn(
-                    "space-y-6",
-                    compact ? "space-y-4" : "space-y-6 md:space-y-7",
-                  )}
-                >
-                  {group.reports.map((report) => (
-                    <TimelineRow
-                      key={report.id}
-                      report={report}
-                      compact={compact}
-                    />
-                  ))}
-                </ul>
-              </div>
-            </CollapsibleContent>
-          </section>
-        </Collapsible>
+          group={group}
+          compact={compact}
+          showGroupCounts={showGroupCounts}
+          collapsible={!compact || groups.length > 1}
+        />
       ))}
+    </div>
+  );
+}
+
+function TimelineMonthGroup({
+  group,
+  compact,
+  showGroupCounts,
+  collapsible,
+}: {
+  group: TimelineGroup;
+  compact: boolean;
+  showGroupCounts: boolean;
+  collapsible: boolean;
+}) {
+  const [open, setOpen] = useState(true);
+  const panelId = `timeline-month-${group.key}`;
+  const countLabel = showGroupCounts ? `, ${group.reports.length}건` : "";
+
+  if (compact && !collapsible) {
+    return (
+      <section aria-label={group.label} className="space-y-2">
+        <h3 className="text-muted-foreground text-xs font-semibold tracking-tight">
+          {group.label}
+        </h3>
+        <TimelineMonthList group={group} compact />
+      </section>
+    );
+  }
+
+  if (compact) {
+    return (
+      <Collapsible open={open} onOpenChange={setOpen} className="space-y-2">
+        <section aria-label={group.label}>
+          <CollapsibleTrigger
+            type="button"
+            className={cn(
+              "group/trigger -mx-1 flex w-[calc(100%+0.5rem)] items-center justify-between gap-2 rounded-md px-1 py-0.5 text-left transition-colors outline-none",
+              "hover:bg-muted/40 focus-visible:bg-muted/40",
+              "focus-visible:ring-ring focus-visible:ring-2",
+            )}
+            aria-controls={panelId}
+            aria-label={`${group.label}${countLabel}, ${open ? "접기" : "펼치기"}`}
+          >
+            <div className="flex min-w-0 items-baseline gap-2">
+              <h3 className="text-muted-foreground text-xs font-semibold tracking-tight">
+                {group.label}
+              </h3>
+              {showGroupCounts ? (
+                <span className="text-muted-foreground/80 text-[11px] tabular-nums">
+                  {group.reports.length}건
+                </span>
+              ) : null}
+            </div>
+            <ChevronDownIcon
+              className={cn(
+                "text-muted-foreground size-3.5 shrink-0 transition-transform duration-200",
+                "group-hover/trigger:text-foreground",
+                open && "rotate-180",
+              )}
+              aria-hidden
+            />
+          </CollapsibleTrigger>
+
+          <CollapsibleContent
+            id={panelId}
+            className={cn(
+              "overflow-hidden",
+              "data-[state=closed]:animate-collapsible-up",
+              "data-[state=open]:animate-collapsible-down",
+            )}
+          >
+            <TimelineMonthList group={group} compact />
+          </CollapsibleContent>
+        </section>
+      </Collapsible>
+    );
+  }
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className="space-y-4">
+      <section aria-label={group.label} className="space-y-4">
+        <CollapsibleTrigger
+          type="button"
+          className={cn(
+            "group/trigger -mx-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left transition-colors outline-none",
+            "hover:bg-muted/40 focus-visible:bg-muted/40",
+            "focus-visible:ring-ring focus-visible:ring-2",
+          )}
+          aria-controls={panelId}
+          aria-label={`${group.label}${countLabel}, ${open ? "접기" : "펼치기"}`}
+        >
+          <div className="flex min-w-0 items-baseline gap-2 sm:gap-3">
+            <h3 className="text-base font-semibold tracking-tight md:text-lg">
+              {group.label}
+            </h3>
+            {showGroupCounts ? (
+              <span className="text-muted-foreground text-xs tabular-nums">
+                {group.reports.length}건
+              </span>
+            ) : null}
+          </div>
+
+          <span className="text-muted-foreground flex shrink-0 items-center gap-2">
+            <span
+              className={cn(
+                "hidden text-xs font-medium sm:inline",
+                "group-hover/trigger:text-foreground transition-colors",
+              )}
+              aria-hidden
+            >
+              {open ? "접기" : "펼치기"}
+            </span>
+            <span
+              className={cn(
+                "border-border/70 bg-background flex items-center justify-center rounded-full border",
+                "group-hover/trigger:border-primary/30 group-hover/trigger:text-primary transition-colors",
+                "size-8",
+              )}
+              aria-hidden
+            >
+              <ChevronDownIcon
+                className={cn(
+                  "size-4 transition-transform duration-200 ease-out",
+                  open && "rotate-180",
+                )}
+              />
+            </span>
+          </span>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent
+          id={panelId}
+          className={cn(
+            "overflow-hidden",
+            "data-[state=closed]:animate-collapsible-up",
+            "data-[state=open]:animate-collapsible-down",
+          )}
+        >
+          <TimelineMonthList group={group} compact={false} />
+        </CollapsibleContent>
+      </section>
+    </Collapsible>
+  );
+}
+
+function TimelineMonthList({
+  group,
+  compact,
+}: {
+  group: TimelineGroup;
+  compact: boolean;
+}) {
+  return (
+    <div className={cn("relative", compact ? "pt-0.5" : "pt-1")}>
+      <div
+        className={cn(
+          "bg-border absolute top-3 bottom-2 w-px",
+          "left-[7px] md:left-[9px]",
+        )}
+      />
+      <ul className={cn(compact ? "space-y-4" : "space-y-6 md:space-y-7")}>
+        {group.reports.map((report) => (
+          <TimelineRow key={report.id} report={report} compact={compact} />
+        ))}
+      </ul>
     </div>
   );
 }
@@ -156,7 +271,7 @@ function TimelineRow({
   const date = resolveDisplayDate(report);
 
   return (
-    <li className="relative flex gap-5 md:gap-6">
+    <li className={cn("relative flex", compact ? "gap-3" : "gap-5 md:gap-6")}>
       <div className="relative z-10 flex-shrink-0">
         <div
           className={cn(

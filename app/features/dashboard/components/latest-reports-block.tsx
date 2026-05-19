@@ -54,7 +54,7 @@ export function LatestReportsBlock({
           viewTransition
           className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center gap-1 pt-0.5 text-[11px] font-medium sm:text-xs"
         >
-          전체
+          전체보기
           <ArrowRightIcon className="size-3" />
         </Link>
       </header>
