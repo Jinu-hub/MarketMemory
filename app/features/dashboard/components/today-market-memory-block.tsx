@@ -9,6 +9,7 @@ import { NexBadge } from "~/core/components/nex";
 import { ContentTagList } from "~/core/components/content/content-tag-list";
 import { cn } from "~/core/lib/utils";
 
+import { pickDashboardUi } from "../i18n";
 import { formatMarketDate } from "../lib/dates";
 import {
   getMarketMoodLabel,
@@ -39,8 +40,10 @@ export function TodayMarketMemoryBlock({
   locale,
   className,
 }: TodayMarketMemoryBlockProps) {
+  const ui = pickDashboardUi(locale);
+
   if (!memory) {
-    return <TodayMemoryEmptyState className={className} />;
+    return <TodayMemoryEmptyState locale={locale} className={className} />;
   }
 
   const themes = (memory.top_themes ?? []).slice(0, 3);
@@ -51,6 +54,7 @@ export function TodayMarketMemoryBlock({
   const moodSubdescription = getMarketMoodSubdescription(moodStyle.key, locale);
   const MoodIcon = moodStyle.icon;
   const date = formatMarketDate(memory.market_date, locale);
+  const t = ui.todayMemory;
 
   return (
     <section
@@ -64,13 +68,13 @@ export function TodayMarketMemoryBlock({
         <div className="min-w-0 flex-1 space-y-1">
           <p className="text-primary inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase sm:text-xs">
             <BrainCircuitIcon className="size-3.5" aria-hidden />
-            Today&apos;s Market Memory
+            {t.eyebrow}
           </p>
           <h2
             id="today-market-memory-heading"
             className="text-xl leading-tight font-bold tracking-tight sm:text-2xl md:text-3xl"
           >
-            {memory.display_title ?? "오늘의 시장 메모리"}
+            {memory.display_title ?? t.defaultTitle}
           </h2>
           {memory.display_subtitle ? (
             <p className="text-muted-foreground max-w-2xl text-xs sm:text-sm md:text-base">
@@ -88,12 +92,13 @@ export function TodayMarketMemoryBlock({
           {memory.source_report_count > 0 ? (
             <NexBadge variant="outline" size="sm">
               <FileTextIcon className="mr-1 size-3" aria-hidden />
-              {memory.source_report_count}개 리포트
+              {memory.source_report_count}
+              {t.reportCount}
             </NexBadge>
           ) : null}
           {memory.status === "draft" ? (
             <NexBadge variant="warning" size="sm">
-              Draft
+              {t.draft}
             </NexBadge>
           ) : null}
         </div>
@@ -107,13 +112,13 @@ export function TodayMarketMemoryBlock({
           <SectionLabel
             id="memory-summary-heading"
             icon={SparklesIcon}
-            label="핵심 요약"
-            hint="오늘 시장을 어떻게 봐야 하는지에 대한 해석"
+            label={t.sections.summary.title}
+            hint={t.sections.summary.hint}
           />
           {memory.core_summary ? (
             <ReadingProse>{memory.core_summary}</ReadingProse>
           ) : (
-            <ReadingEmpty>핵심 요약이 아직 준비되지 않았습니다.</ReadingEmpty>
+            <ReadingEmpty>{t.empty.coreSummary}</ReadingEmpty>
           )}
           {memory.top_tags && memory.top_tags.length > 0 ? (
             <ContentTagList
@@ -134,11 +139,11 @@ export function TodayMarketMemoryBlock({
           <SectionLabel
             id="memory-themes-heading"
             icon={BrainCircuitIcon}
-            label="오늘의 주요 테마"
-            hint="현재 시장에서 의미 있는 흐름 3가지"
+            label={t.sections.themes.title}
+            hint={t.sections.themes.hint}
           />
           {themes.length === 0 ? (
-            <ReadingEmpty>오늘 추출된 주요 테마가 없습니다.</ReadingEmpty>
+            <ReadingEmpty>{t.empty.themes}</ReadingEmpty>
           ) : (
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
               {themes.map((theme, index) => (
@@ -167,8 +172,8 @@ export function TodayMarketMemoryBlock({
           <SectionLabel
             id="memory-mood-heading"
             icon={MoodIcon}
-            label="시장 분위기"
-            hint="지수·자산·테마·리스크를 종합한 AI 해석"
+            label={t.sections.mood.title}
+            hint={t.sections.mood.hint}
             trailing={
               <span
                 className={cn(
@@ -190,9 +195,7 @@ export function TodayMarketMemoryBlock({
           {memory.market_mood_summary ? (
             <ReadingProse>{memory.market_mood_summary}</ReadingProse>
           ) : (
-            <ReadingEmpty>
-              분위기 해석이 아직 준비되지 않았습니다.
-            </ReadingEmpty>
+            <ReadingEmpty>{t.empty.mood}</ReadingEmpty>
           )}
         </aside>
       </div>
@@ -209,6 +212,7 @@ function ThemeCard({
   index: number;
   locale: string;
 }) {
+  const t = pickDashboardUi(locale).todayMemory;
   const title = resolveThemeTitle(theme, index);
   const summary = theme.summary ?? null;
   const trend = getTrendStatusStyle(theme.trend_status);
@@ -248,7 +252,8 @@ function ThemeCard({
           {relatedCount != null ? (
             <span className="text-muted-foreground ml-auto inline-flex items-center gap-1 text-[11px]">
               <FileTextIcon className="size-3" aria-hidden />
-              관련 {relatedCount}건
+              {t.relatedReports} {relatedCount}
+              {t.relatedReportsSuffix}
             </span>
           ) : null}
         </div>
@@ -257,10 +262,18 @@ function ThemeCard({
   );
 }
 
-function TodayMemoryEmptyState({ className }: { className?: string }) {
+function TodayMemoryEmptyState({
+  locale,
+  className,
+}: {
+  locale: string;
+  className?: string;
+}) {
+  const t = pickDashboardUi(locale).todayMemory;
+
   return (
     <section
-      aria-label="오늘의 시장 메모리"
+      aria-label={t.defaultTitle}
       className={cn(
         "border-border bg-card flex flex-col gap-3 rounded-2xl border px-5 py-8 text-center sm:px-6 sm:py-10",
         className,
@@ -268,14 +281,13 @@ function TodayMemoryEmptyState({ className }: { className?: string }) {
     >
       <p className="text-primary inline-flex items-center justify-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase sm:text-xs">
         <BrainCircuitIcon className="size-3.5" aria-hidden />
-        Today&apos;s Market Memory
+        {t.eyebrow}
       </p>
       <h2 className="text-lg font-semibold tracking-tight sm:text-xl md:text-2xl">
-        오늘의 시장 메모리가 아직 준비되지 않았습니다
+        {t.emptyTitle}
       </h2>
       <p className="text-muted-foreground mx-auto max-w-md text-xs sm:text-sm">
-        AI 파이프라인이 오늘 데이터를 생성하면 핵심 요약, 주요 테마, 시장 분위기가
-        이 영역에 표시됩니다.
+        {t.emptyDescription}
       </p>
     </section>
   );

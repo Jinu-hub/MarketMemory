@@ -26,6 +26,7 @@ import { TodayMarketMemoryBlock } from "~/features/dashboard/components/today-ma
 import { LatestReportsBlock } from "~/features/dashboard/components/latest-reports-block";
 import { MemoryRecallBlock } from "~/features/dashboard/components/memory-recall-block";
 import { RiskRadarBlock } from "~/features/dashboard/components/risk-radar-block";
+import { pickDashboardUi } from "~/features/dashboard/i18n";
 import { getLatestDailyMarketMemory } from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
 
@@ -54,31 +55,34 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const { memory, recentReports, locale } = loaderData;
+  const page = pickDashboardUi(locale).page;
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-2 pb-10 sm:gap-7 sm:px-4 sm:pb-12 md:gap-8 md:px-6 md:pb-16 lg:px-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-primary text-[11px] font-medium tracking-wide uppercase sm:text-xs">
-            Dashboard
+            {page.eyebrow}
           </p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
-            오늘의 시장
+            {page.title}
           </h1>
           <p className="text-muted-foreground mt-1.5 max-w-2xl text-xs sm:mt-2 sm:text-sm md:text-base">
-            오늘 시장에서 무엇이 중요한지, 어떤 테마가 부각되는지, 전체 분위기가 어떤지 한
-            화면에서 빠르게 살펴보세요.
+            {page.subtitle}
           </p>
         </div>
       </header>
 
-      <MarketSnapshotBar snapshot={memory?.market_snapshot ?? null} />
+      <MarketSnapshotBar
+        snapshot={memory?.market_snapshot ?? null}
+        locale={locale}
+      />
 
       <TodayMarketMemoryBlock memory={memory} locale={locale} />
 
-      <LatestReportsBlock reports={recentReports} />
+      <LatestReportsBlock reports={recentReports} locale={locale} />
 
-      <MemoryRecallBlock />
+      <MemoryRecallBlock locale={locale} />
 
       <RiskRadarBlock
         signals={memory?.risk_signals ?? null}

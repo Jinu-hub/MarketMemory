@@ -5,6 +5,7 @@ import { ContentTagList } from "~/core/components/content/content-tag-list";
 import { cn } from "~/core/lib/utils";
 
 import { MOCK_RISK_SIGNALS } from "../fixtures/risk-radar";
+import { pickDashboardUi } from "../i18n";
 import {
   getRiskSeverityLabel,
   getRiskSeverityStyle,
@@ -27,6 +28,7 @@ export function RiskRadarBlock({
   locale,
   className,
 }: RiskRadarBlockProps) {
+  const ui = pickDashboardUi(locale).riskRadar;
   const rows = (signals ?? [])
     .filter((s) => resolveRiskSignalTitle(s))
     .slice(0, 4);
@@ -40,13 +42,15 @@ export function RiskRadarBlock({
     >
       <DashboardBlockHeader
         eyebrowIcon={RadarIcon}
-        eyebrow="Risk Radar"
-        title="오늘의 리스크 신호"
+        eyebrow={ui.eyebrow}
+        title={ui.title}
         titleId="dashboard-risk-radar-heading"
-        description="시장 메모리 파이프라인이 식별한 주의해야 할 리스크입니다."
+        description={ui.description}
         trailing={
           <NexBadge variant="outline" size="sm">
-            {usingMock ? "Preview" : `${rows.length}건`}
+            {usingMock
+              ? ui.preview
+              : `${rows.length}${ui.countSuffix}`}
           </NexBadge>
         }
       />
@@ -71,7 +75,10 @@ function RiskCard({
   index: number;
   locale?: string;
 }) {
-  const title = resolveRiskSignalTitle(signal) ?? `Risk ${index + 1}`;
+  const ui = pickDashboardUi(locale).riskRadar;
+  const title =
+    resolveRiskSignalTitle(signal) ??
+    `${ui.riskIndex} ${index + 1}`;
   const style = getRiskSeverityStyle(signal.severity);
   const severityLabel = getRiskSeverityLabel(style.key, locale);
   const Icon = style.icon;
@@ -95,7 +102,7 @@ function RiskCard({
         >
           <Icon className="size-4 shrink-0" aria-hidden />
           <span className="truncate text-[11px] font-semibold tracking-wider uppercase">
-            Risk {String(index + 1).padStart(2, "0")}
+            {ui.riskIndex} {String(index + 1).padStart(2, "0")}
           </span>
         </span>
         <NexBadge variant={style.badgeVariant} size="sm" className="shrink-0">

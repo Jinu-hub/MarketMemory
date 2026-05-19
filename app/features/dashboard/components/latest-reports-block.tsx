@@ -9,17 +9,21 @@ import { ReportTimeline } from "~/features/item-reports/components/report-timeli
 import { itemReportsTimelineHref } from "~/features/item-reports/lib/item-reports-urls";
 import type { ReportListItem } from "~/features/item-reports/types";
 
+import { pickDashboardUi } from "../i18n";
 import { DashboardBlockShell } from "./dashboard-block-shell";
 
 type LatestReportsBlockProps = {
   reports: ReportListItem[];
+  locale?: string;
   className?: string;
 };
 
 export function LatestReportsBlock({
   reports,
+  locale,
   className,
 }: LatestReportsBlockProps) {
+  const ui = pickDashboardUi(locale).latestReports;
   const rows = reports.slice(0, 7);
 
   return (
@@ -38,10 +42,11 @@ export function LatestReportsBlock({
             id="dashboard-latest-reports-heading"
             className="text-sm font-semibold tracking-tight sm:text-base md:text-lg"
           >
-            최신 리포트
+            {ui.title}
           </h2>
           <NexBadge variant="outline" size="sm" className="shrink-0">
-            {rows.length}건
+            {rows.length}
+            {ui.countSuffix}
           </NexBadge>
         </div>
         <Link
@@ -49,13 +54,13 @@ export function LatestReportsBlock({
           viewTransition
           className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center gap-1 pt-0.5 text-[11px] font-medium sm:text-xs"
         >
-          전체보기
+          {ui.viewAll}
           <ArrowRightIcon className="size-3" />
         </Link>
       </header>
 
       {rows.length === 0 ? (
-        <ContentEmptyState>아직 공개된 리포트가 없습니다.</ContentEmptyState>
+        <ContentEmptyState>{ui.empty}</ContentEmptyState>
       ) : (
         <ReportTimeline reports={rows} compact showGroupCounts={false} />
       )}

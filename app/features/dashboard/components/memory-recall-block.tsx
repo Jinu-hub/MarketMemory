@@ -13,6 +13,7 @@ import {
   MOCK_RECALL_PATTERNS,
   MOCK_SIMILAR_MEMORIES,
 } from "../fixtures/memory-recall";
+import { pickDashboardUi } from "../i18n";
 import { MEMORY_RECALL_ACCENT } from "../lib/memory-recall-style";
 import {
   DashboardBlockHeader,
@@ -21,10 +22,16 @@ import {
 import { SectionLabel } from "./section-label";
 
 type MemoryRecallBlockProps = {
+  locale?: string;
   className?: string;
 };
 
-export function MemoryRecallBlock({ className }: MemoryRecallBlockProps) {
+export function MemoryRecallBlock({
+  locale,
+  className,
+}: MemoryRecallBlockProps) {
+  const ui = pickDashboardUi(locale).memoryRecall;
+
   return (
     <DashboardBlockShell
       ariaLabelledBy="dashboard-memory-recall-heading"
@@ -32,13 +39,13 @@ export function MemoryRecallBlock({ className }: MemoryRecallBlockProps) {
     >
       <DashboardBlockHeader
         eyebrowIcon={BrainIcon}
-        eyebrow="Memory Recall"
-        title="현재 이슈와 닮은 과거의 기억"
+        eyebrow={ui.eyebrow}
+        title={ui.title}
         titleId="dashboard-memory-recall-heading"
-        description="오늘 시장 메모리와 유사한 과거 리포트, 그리고 반복되는 시장 패턴을 보여줍니다."
+        description={ui.description}
         trailing={
           <NexBadge variant="outline" size="sm">
-            Preview
+            {ui.preview}
           </NexBadge>
         }
       />
@@ -47,13 +54,13 @@ export function MemoryRecallBlock({ className }: MemoryRecallBlockProps) {
         <div className="space-y-3 px-4 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6">
           <SectionLabel
             icon={RotateCcwIcon}
-            label="유사한 과거 메모리"
-            hint="태그·테마·분위기가 함께 겹쳤던 날들"
+            label={ui.similar.title}
+            hint={ui.similar.hint}
           />
           <ul className="space-y-2 sm:space-y-2.5">
             {MOCK_SIMILAR_MEMORIES.map((item) => (
               <li key={item.id}>
-                <RecallRow {...item} />
+                <RecallRow {...item} locale={locale} />
               </li>
             ))}
           </ul>
@@ -66,8 +73,8 @@ export function MemoryRecallBlock({ className }: MemoryRecallBlockProps) {
         >
           <SectionLabel
             icon={RepeatIcon}
-            label="반복되는 시장 패턴"
-            hint="비슷한 흐름이 반복되었던 패턴 신호"
+            label={ui.patterns.title}
+            hint={ui.patterns.hint}
           />
           <ul className="space-y-2">
             {MOCK_RECALL_PATTERNS.map((pattern) => (
@@ -80,7 +87,8 @@ export function MemoryRecallBlock({ className }: MemoryRecallBlockProps) {
                     {pattern.title}
                   </span>
                   <NexBadge variant="secondary" size="sm" className="shrink-0">
-                    {pattern.occurrences}회
+                    {pattern.occurrences}
+                    {ui.patterns.occurrencesSuffix}
                   </NexBadge>
                 </div>
                 <p className="text-muted-foreground mt-1 line-clamp-2 text-xs leading-5">
@@ -100,7 +108,10 @@ function RecallRow({
   title,
   similarity,
   tags,
-}: (typeof MOCK_SIMILAR_MEMORIES)[number]) {
+  locale,
+}: (typeof MOCK_SIMILAR_MEMORIES)[number] & { locale?: string }) {
+  const similar = pickDashboardUi(locale).memoryRecall.similar;
+
   return (
     <article
       className={cn(
@@ -114,7 +125,8 @@ function RecallRow({
             {date}
           </time>
           <NexBadge variant="secondary" size="sm">
-            유사도 {similarity}%
+            {similar.similarity} {similarity}
+            {similar.similaritySuffix}
           </NexBadge>
         </div>
         <h3 className="group-hover:text-primary line-clamp-2 text-sm font-semibold transition-colors sm:line-clamp-1">

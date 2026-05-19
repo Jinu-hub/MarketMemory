@@ -1,5 +1,6 @@
 /**
- * Visual + i18n mapping for `core_data.market_mood.type`.
+ * Visual mapping for `core_data.market_mood.type`.
+ * Labels: `~/features/dashboard/i18n/labels`.
  */
 import type { LucideIcon } from "lucide-react";
 import {
@@ -12,13 +13,15 @@ import {
 import type { NexBadgeVariant } from "~/core/lib/semantic-style";
 import { SEMANTIC_ACCENTS } from "~/core/lib/semantic-style";
 
-import {
-  MARKET_MOOD_DESCRIPTIONS,
-  MARKET_MOOD_LABELS,
-  MARKET_MOOD_SUBDESCRIPTIONS,
-  type MarketMoodKey,
-  type MarketMoodLocale,
-} from "../types";
+import type { MarketMoodKey } from "../types";
+
+export type { MarketMoodKey };
+
+export {
+  getMarketMoodDescription,
+  getMarketMoodLabel,
+  getMarketMoodSubdescription,
+} from "../i18n/labels";
 
 export type MarketMoodStyle = {
   key: MarketMoodKey | null;
@@ -72,47 +75,4 @@ export function getMarketMoodStyle(value: unknown): MarketMoodStyle {
   const key = resolveMoodKey(value);
   if (!key) return FALLBACK_STYLE;
   return STYLES[key];
-}
-
-function isMoodLocale(locale: string | null | undefined): locale is MarketMoodLocale {
-  return locale != null && locale in MARKET_MOOD_LABELS;
-}
-
-export function getMarketMoodLabel(
-  key: MarketMoodKey | null,
-  locale: string | null | undefined,
-): string {
-  if (!key) return "Unknown";
-  const lang: MarketMoodLocale = isMoodLocale(locale) ? locale : "en";
-  return MARKET_MOOD_LABELS[lang][key];
-}
-
-const MOOD_DESCRIPTION_FALLBACK = {
-  ko: "분위기 정보 없음",
-  en: "Mood unavailable",
-  ja: "ムード不明",
-} as const;
-
-export function getMarketMoodDescription(
-  key: MarketMoodKey | null,
-  locale: string | null | undefined,
-): string {
-  const lang: MarketMoodLocale = isMoodLocale(locale) ? locale : "en";
-  if (!key) return MOOD_DESCRIPTION_FALLBACK[lang];
-  return MARKET_MOOD_DESCRIPTIONS[lang][key];
-}
-
-const MOOD_SUBDESCRIPTION_FALLBACK = {
-  ko: "분위기 유형 정보가 아직 준비되지 않았습니다.",
-  en: "Mood type details are not available yet.",
-  ja: "ムード区分の説明はまだありません。",
-} as const;
-
-export function getMarketMoodSubdescription(
-  key: MarketMoodKey | null,
-  locale: string | null | undefined,
-): string {
-  const lang: MarketMoodLocale = isMoodLocale(locale) ? locale : "en";
-  if (!key) return MOOD_SUBDESCRIPTION_FALLBACK[lang];
-  return MARKET_MOOD_SUBDESCRIPTIONS[lang][key];
 }

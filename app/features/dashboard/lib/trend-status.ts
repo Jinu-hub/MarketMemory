@@ -1,5 +1,6 @@
 /**
- * Visual + i18n mapping for theme `trend_status`.
+ * Visual mapping for theme `trend_status`.
+ * Labels: `~/features/dashboard/i18n/labels`.
  */
 import type { LucideIcon } from "lucide-react";
 import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
@@ -7,12 +8,9 @@ import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import type { NexBadgeVariant } from "~/core/lib/semantic-style";
 import { SEMANTIC_ACCENTS } from "~/core/lib/semantic-style";
 
-import {
-  TREND_STATUS_LABELS,
-  type ThemeTrendStatus,
-  type TrendStatusKey,
-  type TrendStatusLocale,
-} from "../types";
+import type { ThemeTrendStatus, TrendStatusKey } from "../types";
+
+export { getTrendStatusLabel } from "../i18n/labels";
 
 export type TrendStatusStyle = {
   key: TrendStatusKey | null;
@@ -108,19 +106,4 @@ export function getTrendStatusStyle(
   const key = resolveTrendStatusKey(status);
   if (!key) return FALLBACK_STYLE;
   return { key, ...VISUALS[key] };
-}
-
-function isTrendLocale(
-  locale: string | null | undefined,
-): locale is TrendStatusLocale {
-  return locale != null && locale in TREND_STATUS_LABELS;
-}
-
-export function getTrendStatusLabel(
-  key: TrendStatusKey | null,
-  locale: string | null | undefined,
-): string {
-  const lang: TrendStatusLocale = isTrendLocale(locale) ? locale : "en";
-  const labelKey = key ?? "unknown";
-  return TREND_STATUS_LABELS[lang][labelKey];
 }

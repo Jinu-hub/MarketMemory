@@ -10,10 +10,12 @@ import {
   resolveSnapshotEntries,
   type ResolvedSnapshotEntry,
 } from "../lib/market-snapshot";
+import { pickDashboardUi } from "../i18n";
 import type { MarketSnapshotData } from "../types";
 
 type MarketSnapshotBarProps = {
   snapshot: MarketSnapshotData | null;
+  locale?: string;
   className?: string;
 };
 
@@ -35,13 +37,15 @@ type MarketSnapshotBarProps = {
  */
 export function MarketSnapshotBar({
   snapshot,
+  locale,
   className,
 }: MarketSnapshotBarProps) {
   const entries = resolveSnapshotEntries(snapshot);
+  const snapshotUi = pickDashboardUi(locale).snapshot;
 
   return (
     <section
-      aria-label="시장 스냅샷"
+      aria-label={snapshotUi.ariaLabel}
       className={cn(
         "border-border bg-border overflow-hidden rounded-2xl border",
         className,
@@ -56,7 +60,7 @@ export function MarketSnapshotBar({
             key={entry.id}
             className="bg-card/80 px-3 py-3 sm:px-4 sm:py-3.5 md:px-5 md:py-4"
           >
-            <SnapshotCell entry={entry} />
+            <SnapshotCell entry={entry} noDataLabel={snapshotUi.noData} />
           </li>
         ))}
       </ul>
@@ -64,7 +68,13 @@ export function MarketSnapshotBar({
   );
 }
 
-function SnapshotCell({ entry }: { entry: ResolvedSnapshotEntry }) {
+function SnapshotCell({
+  entry,
+  noDataLabel,
+}: {
+  entry: ResolvedSnapshotEntry;
+  noDataLabel: string;
+}) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5 sm:gap-1">
       <div className="flex min-w-0 items-baseline justify-between gap-2">
@@ -83,7 +93,7 @@ function SnapshotCell({ entry }: { entry: ResolvedSnapshotEntry }) {
       ) : entry.kind === "fear-greed" ? (
         <FearGreedValue entry={entry} />
       ) : (
-        <EmptyValue />
+        <EmptyValue label={noDataLabel} />
       )}
     </div>
   );
@@ -146,14 +156,14 @@ function FearGreedValue({
   );
 }
 
-function EmptyValue() {
+function EmptyValue({ label }: { label: string }) {
   return (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
       <span className="text-muted-foreground text-base font-semibold tabular-nums sm:text-lg">
         —
       </span>
       <span className="text-muted-foreground text-[11px] sm:text-xs">
-        데이터 없음
+        {label}
       </span>
     </div>
   );

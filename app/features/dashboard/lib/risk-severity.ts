@@ -1,5 +1,6 @@
 /**
- * Visual + i18n mapping for risk signal `severity`.
+ * Visual mapping for risk signal `severity`.
+ * Labels: `~/features/dashboard/i18n/labels`.
  */
 import type { LucideIcon } from "lucide-react";
 import {
@@ -12,12 +13,9 @@ import {
 import type { NexBadgeVariant } from "~/core/lib/semantic-style";
 import { SEMANTIC_ACCENTS } from "~/core/lib/semantic-style";
 
-import {
-  RISK_SEVERITY_LABELS,
-  type RiskSeverity,
-  type RiskSeverityKey,
-  type RiskSeverityLocale,
-} from "../types";
+import type { RiskSeverity, RiskSeverityKey } from "../types";
+
+export { getRiskSeverityLabel } from "../i18n/labels";
 
 export type RiskSeverityStyle = {
   key: RiskSeverityKey | null;
@@ -77,19 +75,4 @@ export function getRiskSeverityStyle(
   const key = normalize(severity);
   if (!key) return FALLBACK_STYLE;
   return { key, ...SEVERITY_VISUAL[key] };
-}
-
-function isRiskLocale(
-  locale: string | null | undefined,
-): locale is RiskSeverityLocale {
-  return locale != null && locale in RISK_SEVERITY_LABELS;
-}
-
-export function getRiskSeverityLabel(
-  key: RiskSeverityKey | null,
-  locale: string | null | undefined,
-): string {
-  const lang: RiskSeverityLocale = isRiskLocale(locale) ? locale : "en";
-  const labelKey = key ?? "unknown";
-  return RISK_SEVERITY_LABELS[lang][labelKey];
 }
