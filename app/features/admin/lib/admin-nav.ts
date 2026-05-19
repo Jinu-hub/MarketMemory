@@ -56,11 +56,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
       "외부 연동 API를 수동 검증합니다. 현재는 마켓 스냅샷 테스트를 제공합니다.",
   },
   {
-    to: "/admin/item-similarities",
-    label: "유사도",
+    to: "/admin/similarity-measurements",
+    label: "유사도 측정",
     icon: Share2Icon,
-    dashboardTitle: "리포트 유사도",
-    dashboardDescription: "item_contents 기준 유사도 엣지를 보고 재생성합니다.",
+    dashboardTitle: "유사도 측정",
+    dashboardDescription:
+      "콘텐츠·엔티티 간 유사도를 계산·검증합니다. 현재는 리포트 유사도를 제공합니다.",
   },
 ];
 

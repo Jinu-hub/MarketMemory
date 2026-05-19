@@ -1,5 +1,6 @@
 import type { Route } from "./+types/item-similarities";
 
+import { ArrowLeftIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Link, data, redirect, useActionData, useLocation, useNavigation } from "react-router";
 import { z } from "zod";
@@ -8,7 +9,7 @@ import { BulkRegenerateCard } from "../components/similarity/bulk-regenerate-car
 import type { SimilarityRowModel } from "../components/similarity/similarity-table";
 import { SimilarityTable } from "../components/similarity/similarity-table";
 import { AdminErrorAlert, AdminPageHeader, AdminSection } from "../components/admin-ui";
-import { NexBadge } from "~/core/components/nex";
+import { NexBadge, NexButton } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
@@ -365,6 +366,20 @@ export default function AdminItemSimilarities({ loaderData }: Route.ComponentPro
         RPC 버전:{" "}
         <code className="font-mono">{DEFAULT_SIMILARITY_METHOD_VERSION}</code>
       </p>
+
+      <div className="fixed right-6 bottom-6 z-50">
+        <Link to="/admin/similarity-measurements">
+          <NexButton
+            type="button"
+            variant="secondary"
+            leftIcon={<ArrowLeftIcon className="size-4" aria-hidden />}
+            aria-label="유사도 측정 목록으로 돌아가기"
+            className="border-border bg-card text-card-foreground shadow-lg"
+          >
+            뒤로가기
+          </NexButton>
+        </Link>
+      </div>
     </div>
   );
 }

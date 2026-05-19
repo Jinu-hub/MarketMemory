@@ -49,35 +49,21 @@ const FALLBACK_STYLE: TrendStatusStyle = {
   icon: MinusIcon,
 };
 
+/** Normalize pipeline `trend_status` (English aliases only) to a canonical key. */
 export function resolveTrendStatusKey(
   status: ThemeTrendStatus | null | undefined,
 ): TrendStatusKey | null {
   if (status == null) return null;
   const key = status.toString().trim().toLowerCase();
   if (
-    [
-      "up",
-      "rise",
-      "rising",
-      "strong",
-      "increase",
-      "상승",
-      "강화",
-    ].includes(key)
+    ["up", "rise", "rising", "strong", "increase"].includes(key)
   ) {
     return "up";
   }
   if (
-    [
-      "down",
-      "falling",
-      "weakening",
-      "weak",
-      "decrease",
-      "declining",
-      "약화",
-      "하락",
-    ].includes(key)
+    ["down", "falling", "weakening", "weak", "decrease", "declining"].includes(
+      key,
+    )
   ) {
     return "down";
   }
@@ -90,9 +76,6 @@ export function resolveTrendStatusKey(
       "persist",
       "persistent",
       "sustained",
-      "유지",
-      "지속",
-      "보합",
     ].includes(key)
   ) {
     return "stable";

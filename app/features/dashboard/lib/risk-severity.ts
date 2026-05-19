@@ -57,15 +57,16 @@ const FALLBACK_STYLE: RiskSeverityStyle = {
   icon: AlertTriangleIcon,
 };
 
+/** Normalize pipeline `severity` (English aliases only) to a canonical key. */
 function normalize(
   severity: RiskSeverity | null | undefined,
 ): RiskSeverityKey | null {
   if (!severity) return null;
   const key = severity.toString().trim().toLowerCase();
-  if (["low", "minor", "낮음"].includes(key)) return "low";
-  if (["medium", "moderate", "중간"].includes(key)) return "medium";
-  if (["high", "elevated", "높음"].includes(key)) return "high";
-  if (["critical", "severe", "심각"].includes(key)) return "critical";
+  if (["low", "minor"].includes(key)) return "low";
+  if (["medium", "moderate"].includes(key)) return "medium";
+  if (["high", "elevated"].includes(key)) return "high";
+  if (["critical", "severe"].includes(key)) return "critical";
   return null;
 }
 

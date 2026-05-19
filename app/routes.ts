@@ -138,6 +138,10 @@ export default [
         ]),
         route("/api-tests", "features/admin/screens/api-tests.tsx"),
         route(
+          "/similarity-measurements",
+          "features/admin/screens/similarity-measurements.tsx",
+        ),
+        route(
           "/prompt-releases",
           "features/admin/screens/prompt-releases.tsx",
         ),
