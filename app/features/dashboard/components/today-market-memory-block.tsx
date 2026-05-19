@@ -2,44 +2,38 @@ import {
   BrainCircuitIcon,
   CalendarIcon,
   FileTextIcon,
-  HashIcon,
   SparklesIcon,
 } from "lucide-react";
 
 import { NexBadge } from "~/core/components/nex";
+import { ContentTagList } from "~/core/components/content/content-tag-list";
 import { cn } from "~/core/lib/utils";
 
+import { formatMarketDate } from "../lib/dates";
 import {
-  getMarketMoodDescription,
   getMarketMoodLabel,
   getMarketMoodStyle,
   getMarketMoodSubdescription,
 } from "../lib/market-mood";
 import {
+  resolveRelatedCount,
+  resolveThemeKey,
+  resolveThemeTitle,
+} from "../lib/pipeline-fields";
+import {
   getTrendStatusLabel,
   getTrendStatusStyle,
 } from "../lib/trend-status";
 import type { DailyMarketMemorySnapshot, DailyMemoryTheme } from "../types";
+import { ReadingEmpty, ReadingProse } from "./reading-prose";
+import { SectionLabel } from "./section-label";
 
 type TodayMarketMemoryBlockProps = {
   memory: DailyMarketMemorySnapshot | null;
-  /** User locale (e.g. 'ko' / 'en' / 'ja') — used to localize the mood label. */
   locale: string;
   className?: string;
 };
 
-/**
- * The hero / most-important block on the dashboard.
- *
- * Combines three sub-sections in a single content-layer container:
- *  1. 핵심 요약 (core_summary)         — short editorial digest
- *  2. 오늘의 주요 테마 3 (top_themes)    — directional theme cards
- *  3. 시장 분위기 (mood_type + summary) — AI-synthesized mood read
- *
- * Built on the Nex base layer (NexBadge) and follows the Content Layer
- * rules: directional accents, semantic icons, theme-aware tokens, no
- * hardcoded colors.
- */
 export function TodayMarketMemoryBlock({
   memory,
   locale,
@@ -50,16 +44,13 @@ export function TodayMarketMemoryBlock({
   }
 
   const themes = (memory.top_themes ?? []).slice(0, 3);
-  // Prefer the language-independent SSOT (`core_data.market_mood.type`); fall
-  // back to the legacy denormalized column if `core_data` is missing.
   const moodSource =
     memory.core_data?.market_mood?.type ?? memory.market_mood_type ?? null;
   const moodStyle = getMarketMoodStyle(moodSource);
   const moodLabel = getMarketMoodLabel(moodStyle.key, locale);
-  const moodDescription = getMarketMoodDescription(moodStyle.key, locale);
   const moodSubdescription = getMarketMoodSubdescription(moodStyle.key, locale);
   const MoodIcon = moodStyle.icon;
-  const date = formatMarketDate(memory.market_date);
+  const date = formatMarketDate(memory.market_date, locale);
 
   return (
     <section
@@ -108,22 +99,7 @@ export function TodayMarketMemoryBlock({
         </div>
       </header>
 
-      {/*
-       * Two-row content layout (lg+):
-       *
-       *  ┌──────────────────────────┬───────────────────┐
-       *  │ 1. 핵심 요약              │ 3. 시장 분위기     │   ← row 1
-       *  ├──────────────────────────┴───────────────────┤
-       *  │ 2. 오늘의 주요 테마 (풀폭 3-col 그리드)         │   ← row 2
-       *  └──────────────────────────────────────────────┘
-       *
-       * DOM order intentionally follows the product spec (요약 → 테마 → 분위기)
-       * so the mobile single-column stack reads in narrative order. On `lg+`
-       * we use grid `order` utilities to lift mood up next to the summary
-       * and push themes full-width below.
-       */}
       <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr]">
-        {/* 1. 핵심 요약 — row 1 col 1 */}
         <section
           aria-labelledby="memory-summary-heading"
           className="space-y-3 px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8"
@@ -140,21 +116,14 @@ export function TodayMarketMemoryBlock({
             <ReadingEmpty>핵심 요약이 아직 준비되지 않았습니다.</ReadingEmpty>
           )}
           {memory.top_tags && memory.top_tags.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {memory.top_tags.slice(0, 6).map((tag) => (
-                <span
-                  key={tag}
-                  className="text-muted-foreground bg-muted/60 inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[11px]"
-                >
-                  <HashIcon className="size-2.5" aria-hidden />
-                  {tag}
-                </span>
-              ))}
-            </div>
+            <ContentTagList
+              tags={memory.top_tags}
+              max={6}
+              className="pt-1"
+            />
           ) : null}
         </section>
 
-        {/* 2. 오늘의 주요 테마 — row 2 (full width on lg+) */}
         <section
           aria-labelledby="memory-themes-heading"
           className={cn(
@@ -176,8 +145,6 @@ export function TodayMarketMemoryBlock({
                 <li
                   key={resolveThemeKey(theme, index)}
                   className={cn(
-                    // On `sm` (2-col) the 3rd card sits alone on its row —
-                    // span it across both columns so it doesn't look orphaned.
                     index === 2 ? "sm:col-span-2 md:col-span-1" : null,
                   )}
                 >
@@ -188,15 +155,6 @@ export function TodayMarketMemoryBlock({
           )}
         </section>
 
-        {/* 3. 시장 분위기 — row 1 col 2 on lg+, stacks under themes on mobile
-         *
-         * The mood panel reads as a *companion* of the summary, not as a
-         * louder peer. Color identity is restricted to:
-         *  - a 3px accent border on the column edge (lg+) / left edge (mobile)
-         *  - a small accent-tinted pill that names the mood
-         * Everything else stays in the neutral content-layer tone so the
-         * page's visual weight stays on the core summary + themes.
-         */}
         <aside
           aria-labelledby="memory-mood-heading"
           className={cn(
@@ -224,13 +182,11 @@ export function TodayMarketMemoryBlock({
               </span>
             }
           />
-          <div className="space-y-2 sm:space-y-2.5">
-            {moodStyle.key ? (
-              <p className="text-muted-foreground text-[11px] leading-5 sm:text-xs md:text-sm md:leading-6">
-                {moodSubdescription}
-              </p>
-            ) : null}
-          </div>
+          {moodStyle.key ? (
+            <p className="text-muted-foreground text-[11px] leading-5 sm:text-xs md:text-sm md:leading-6">
+              {moodSubdescription}
+            </p>
+          ) : null}
           {memory.market_mood_summary ? (
             <ReadingProse>{memory.market_mood_summary}</ReadingProse>
           ) : (
@@ -244,10 +200,6 @@ export function TodayMarketMemoryBlock({
   );
 }
 
-/* ────────────────────────────────────────────────────────────
- *  Sub-components
- * ──────────────────────────────────────────────────────────── */
-
 function ThemeCard({
   theme,
   index,
@@ -257,12 +209,12 @@ function ThemeCard({
   index: number;
   locale: string;
 }) {
-  const title = theme.theme_title ?? theme.title ?? `Theme ${index + 1}`;
+  const title = resolveThemeTitle(theme, index);
   const summary = theme.summary ?? null;
   const trend = getTrendStatusStyle(theme.trend_status);
   const trendLabel = getTrendStatusLabel(trend.key, locale);
   const TrendIcon = trend.icon;
-  const tags = (theme.related_tags ?? []).slice(0, 3);
+  const tags = theme.related_tags ?? [];
   const relatedCount = resolveRelatedCount(theme.related_reports);
 
   return (
@@ -292,15 +244,7 @@ function ThemeCard({
       ) : null}
       {(tags.length > 0 || relatedCount != null) && (
         <div className="border-border/60 mt-auto flex flex-wrap items-center gap-1.5 border-t pt-2.5">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-muted-foreground bg-muted/60 inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[11px]"
-            >
-              <HashIcon className="size-2.5" aria-hidden />
-              {tag}
-            </span>
-          ))}
+          <ContentTagList tags={tags} max={3} />
           {relatedCount != null ? (
             <span className="text-muted-foreground ml-auto inline-flex items-center gap-1 text-[11px]">
               <FileTextIcon className="size-3" aria-hidden />
@@ -310,66 +254,6 @@ function ThemeCard({
         </div>
       )}
     </article>
-  );
-}
-
-function SectionLabel({
-  id,
-  icon: Icon,
-  label,
-  hint,
-  trailing,
-}: {
-  id?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  hint?: string;
-  trailing?: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-0.5">
-      <div className="flex items-center justify-between gap-3">
-        <h3
-          id={id}
-          className="text-foreground inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold tracking-tight"
-        >
-          <Icon className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
-          {label}
-        </h3>
-        {trailing ? <div className="shrink-0">{trailing}</div> : null}
-      </div>
-      {hint ? (
-        <p className="text-muted-foreground text-xs">{hint}</p>
-      ) : null}
-    </div>
-  );
-}
-
-function ReadingProse({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <p
-      className={cn(
-        "text-foreground max-w-prose whitespace-pre-line",
-        "text-sm leading-6 sm:text-[15px] sm:leading-7",
-        className,
-      )}
-    >
-      {children}
-    </p>
-  );
-}
-
-function ReadingEmpty({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="border-border text-muted-foreground rounded-lg border border-dashed px-3 py-2 text-sm">
-      {children}
-    </p>
   );
 }
 
@@ -395,34 +279,4 @@ function TodayMemoryEmptyState({ className }: { className?: string }) {
       </p>
     </section>
   );
-}
-
-/* ────────────────────────────────────────────────────────────
- *  Helpers
- * ──────────────────────────────────────────────────────────── */
-
-function formatMarketDate(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  });
-}
-
-function resolveRelatedCount(
-  related: DailyMemoryTheme["related_reports"],
-): number | null {
-  if (typeof related === "number" && Number.isFinite(related)) {
-    return related;
-  }
-  if (Array.isArray(related)) return related.length;
-  return null;
-}
-
-function resolveThemeKey(theme: DailyMemoryTheme, index: number): string {
-  return theme.theme_title ?? theme.title ?? `theme-${index}`;
 }

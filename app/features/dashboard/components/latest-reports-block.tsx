@@ -2,23 +2,20 @@ import { ArrowRightIcon, ClockIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import { NexBadge } from "~/core/components/nex";
+import { ContentEmptyState } from "~/core/components/content/content-empty-state";
 import { cn } from "~/core/lib/utils";
 
 import { ReportTimeline } from "~/features/item-reports/components/report-timeline";
 import { itemReportsTimelineHref } from "~/features/item-reports/lib/item-reports-urls";
 import type { ReportListItem } from "~/features/item-reports/types";
 
+import { DashboardBlockShell } from "./dashboard-block-shell";
+
 type LatestReportsBlockProps = {
   reports: ReportListItem[];
   className?: string;
 };
 
-/**
- * Latest 7 published reports — modeled after the timeline panel inside
- * `/item_reports/explore` so the dashboard feels consistent with the
- * explore hub. Uses `ReportTimeline` (compact) to render the same
- * chronologically grouped, accent-coded list.
- */
 export function LatestReportsBlock({
   reports,
   className,
@@ -26,12 +23,10 @@ export function LatestReportsBlock({
   const rows = reports.slice(0, 7);
 
   return (
-    <section
-      aria-labelledby="dashboard-latest-reports-heading"
-      className={cn(
-        "border-border bg-card/60 rounded-2xl border p-4 sm:p-5 md:p-6",
-        className,
-      )}
+    <DashboardBlockShell
+      tone="subtle"
+      ariaLabelledBy="dashboard-latest-reports-heading"
+      className={cn("p-4 sm:p-5 md:p-6", className)}
     >
       <header className="flex flex-wrap items-start justify-between gap-3 pb-3 sm:pb-4">
         <div className="flex min-w-0 items-center gap-2">
@@ -60,12 +55,10 @@ export function LatestReportsBlock({
       </header>
 
       {rows.length === 0 ? (
-        <div className="border-border text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm">
-          아직 공개된 리포트가 없습니다.
-        </div>
+        <ContentEmptyState>아직 공개된 리포트가 없습니다.</ContentEmptyState>
       ) : (
         <ReportTimeline reports={rows} compact showGroupCounts={false} />
       )}
-    </section>
+    </DashboardBlockShell>
   );
 }

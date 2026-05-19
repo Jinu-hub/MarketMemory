@@ -1,13 +1,11 @@
 /**
  * Visual + i18n mapping for theme `trend_status`.
- *
- * DB stores `trend_status` (pipeline: `rising` / `steady` / `weakening`, or
- * canonical `up` / `stable` / `down`). Display
- * labels come from `TREND_STATUS_LABELS` in `../types` per locale; this
- * module handles normalization, visuals, and label lookup.
  */
 import type { LucideIcon } from "lucide-react";
 import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
+
+import type { NexBadgeVariant } from "~/core/lib/semantic-style";
+import { SEMANTIC_ACCENTS } from "~/core/lib/semantic-style";
 
 import {
   TREND_STATUS_LABELS,
@@ -15,15 +13,6 @@ import {
   type TrendStatusKey,
   type TrendStatusLocale,
 } from "../types";
-
-type NexBadgeVariant =
-  | "default"
-  | "success"
-  | "warning"
-  | "error"
-  | "info"
-  | "secondary"
-  | "outline";
 
 export type TrendStatusStyle = {
   key: TrendStatusKey | null;
@@ -33,41 +22,35 @@ export type TrendStatusStyle = {
   icon: LucideIcon;
 };
 
-const VISUALS: Record<
-  TrendStatusKey,
-  Omit<TrendStatusStyle, "key">
-> = {
+const VISUALS: Record<TrendStatusKey, Omit<TrendStatusStyle, "key">> = {
   up: {
-    accentBorder: "border-l-emerald-500 dark:border-l-emerald-400",
-    accentText: "text-emerald-600 dark:text-emerald-400",
-    badgeVariant: "success",
+    accentBorder: SEMANTIC_ACCENTS.positive.accentBorder,
+    accentText: SEMANTIC_ACCENTS.positive.accentText,
+    badgeVariant: SEMANTIC_ACCENTS.positive.badgeVariant,
     icon: TrendingUpIcon,
   },
   stable: {
-    accentBorder: "border-l-amber-500 dark:border-l-amber-400",
-    accentText: "text-amber-600 dark:text-amber-400",
-    badgeVariant: "warning",
+    accentBorder: SEMANTIC_ACCENTS.caution.accentBorder,
+    accentText: SEMANTIC_ACCENTS.caution.accentText,
+    badgeVariant: SEMANTIC_ACCENTS.caution.badgeVariant,
     icon: MinusIcon,
   },
   down: {
-    accentBorder: "border-l-rose-500 dark:border-l-rose-400",
-    accentText: "text-rose-600 dark:text-rose-400",
-    badgeVariant: "error",
+    accentBorder: SEMANTIC_ACCENTS.negative.accentBorder,
+    accentText: SEMANTIC_ACCENTS.negative.accentText,
+    badgeVariant: SEMANTIC_ACCENTS.negative.badgeVariant,
     icon: TrendingDownIcon,
   },
 };
 
 const FALLBACK_STYLE: TrendStatusStyle = {
   key: null,
-  accentBorder: "border-l-border",
-  accentText: "text-muted-foreground",
-  badgeVariant: "outline",
+  accentBorder: SEMANTIC_ACCENTS.muted.accentBorder,
+  accentText: SEMANTIC_ACCENTS.muted.accentText,
+  badgeVariant: SEMANTIC_ACCENTS.muted.badgeVariant,
   icon: MinusIcon,
 };
 
-/**
- * Normalize raw `trend_status` (English, Korean, aliases) to a canonical key.
- */
 export function resolveTrendStatusKey(
   status: ThemeTrendStatus | null | undefined,
 ): TrendStatusKey | null {
@@ -133,7 +116,6 @@ function isTrendLocale(
   return locale != null && locale in TREND_STATUS_LABELS;
 }
 
-/** Locale-aware label for a normalized `trend_status` key. */
 export function getTrendStatusLabel(
   key: TrendStatusKey | null,
   locale: string | null | undefined,

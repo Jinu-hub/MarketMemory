@@ -24,14 +24,7 @@ import { GemIcon, LockIcon, SparklesIcon } from "lucide-react";
 
 import type { ReportTier } from "../constants";
 
-type NexBadgeVariant =
-  | "default"
-  | "success"
-  | "warning"
-  | "error"
-  | "info"
-  | "secondary"
-  | "outline";
+import type { NexBadgeVariant } from "~/core/lib/semantic-style";
 
 export type TierStyle = {
   label: string;

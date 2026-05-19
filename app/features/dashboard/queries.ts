@@ -14,6 +14,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "database.types";
 
+import { pickBestI18nRow } from "./lib/i18n-pick";
 import type {
   CoreData,
   DailyMarketMemorySnapshot,
@@ -91,11 +92,8 @@ export async function getLatestDailyMarketMemory(
   if (i18nError) throw i18nError;
 
   const rows = i18nRows ?? [];
-  const preferred = rows.find((r) => r.lang_code === preferredLang);
   const coreLang = memoryRow.core_lang_code ?? "en";
-  const fallback = rows.find((r) => r.lang_code === coreLang);
-  const any = rows[0];
-  const i18n = preferred ?? fallback ?? any ?? null;
+  const i18n = pickBestI18nRow(rows, preferredLang, coreLang);
 
   return {
     id: memoryRow.id,

@@ -2,6 +2,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
+import { ContentEmptyState } from "~/core/components/content/content-empty-state";
 import { NexBadge } from "~/core/components/nex";
 import {
   Collapsible,
@@ -71,9 +72,9 @@ export function ReportTimeline({
   const groups = groupByMonth(reports);
   if (groups.length === 0) {
     return (
-      <div className="border-border text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm">
+      <ContentEmptyState>
         아직 타임라인에 표시할 리포트가 없습니다.
-      </div>
+      </ContentEmptyState>
     );
   }
 

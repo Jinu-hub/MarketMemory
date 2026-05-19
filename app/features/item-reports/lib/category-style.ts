@@ -29,14 +29,7 @@ import {
   type ReportCategory,
 } from "../constants";
 
-type NexBadgeVariant =
-  | "default"
-  | "success"
-  | "warning"
-  | "error"
-  | "info"
-  | "secondary"
-  | "outline";
+import type { NexBadgeVariant } from "~/core/lib/semantic-style";
 
 export type CategoryStyle = {
   label: string;

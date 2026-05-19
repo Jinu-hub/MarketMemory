@@ -80,7 +80,10 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
       <MemoryRecallBlock />
 
-      <RiskRadarBlock signals={memory?.risk_signals ?? null} />
+      <RiskRadarBlock
+        signals={memory?.risk_signals ?? null}
+        locale={locale}
+      />
     </div>
   );
 }

@@ -117,6 +117,34 @@ export type MarketMoodType =
 
 export type RiskSeverity = "low" | "medium" | "high" | "critical" | string;
 
+export type RiskSeverityKey = "low" | "medium" | "high" | "critical";
+
+export const RISK_SEVERITY_LABELS = {
+  ko: {
+    low: "낮음",
+    medium: "중간",
+    high: "높음",
+    critical: "심각",
+    unknown: "주의",
+  },
+  en: {
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+    critical: "Critical",
+    unknown: "Watch",
+  },
+  ja: {
+    low: "低",
+    medium: "中",
+    high: "高",
+    critical: "重大",
+    unknown: "注意",
+  },
+} as const;
+
+export type RiskSeverityLocale = keyof typeof RISK_SEVERITY_LABELS;
+
 export type RiskSignal = {
   title?: string | null;
   /** Some pipelines may emit `label` instead of `title`. */
