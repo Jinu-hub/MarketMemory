@@ -396,6 +396,56 @@ export type Database = {
           },
         ]
       }
+      daily_market_snapshot_staging: {
+        Row: {
+          created_at: string
+          daily_market_memory_id: string | null
+          expires_at: string | null
+          fetched_at: string
+          generation_timezone: string
+          id: string
+          market_date: string
+          market_scope: string
+          snapshot: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          daily_market_memory_id?: string | null
+          expires_at?: string | null
+          fetched_at: string
+          generation_timezone?: string
+          id?: string
+          market_date: string
+          market_scope: string
+          snapshot: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          daily_market_memory_id?: string | null
+          expires_at?: string | null
+          fetched_at?: string
+          generation_timezone?: string
+          id?: string
+          market_date?: string
+          market_scope?: string
+          snapshot?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_market_snapshot_staging_daily_market_memory_id_daily_mark"
+            columns: ["daily_market_memory_id"]
+            isOneToOne: false
+            referencedRelation: "daily_market_memories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_content_cores: {
         Row: {
           core_data: Json

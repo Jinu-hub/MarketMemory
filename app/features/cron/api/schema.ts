@@ -103,6 +103,73 @@ export const dailyMarketMemories = pgTable(
 );
 
 /* =========================================================
+   daily_market_snapshot_staging — 일별 시장 스냅샷 임시 저장
+   getMarketSnapshot() 결과를 DMM 확정 전에 보관합니다.
+   status: active(최신) | superseded(재fetch) | consumed(DMM 반영)
+   ========================================================= */
+export const dailyMarketSnapshotStaging = pgTable(
+  "daily_market_snapshot_staging",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    market_date: date("market_date").notNull(),
+    market_scope: text("market_scope").notNull(),
+    generation_timezone: text("generation_timezone")
+      .notNull()
+      .default("Asia/Tokyo"),
+    /** MarketSnapshotPayload.fetchedAt */
+    fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
+    /** items, fearGreed, cryptoFearGreed, errors 등 전체 payload */
+    snapshot: jsonb("snapshot").notNull(),
+    status: text("status").notNull().default("active"),
+    daily_market_memory_id: uuid("daily_market_memory_id").references(
+      () => dailyMarketMemories.id,
+      { onDelete: "set null" },
+    ),
+    expires_at: timestamp("expires_at", { withTimezone: true }),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("dmss_one_active_per_date_scope")
+      .on(table.market_date, table.market_scope)
+      .where(sql`${table.status} = 'active'`),
+    index("idx_dmss_market_date").on(desc(table.market_date)),
+    index("idx_dmss_scope_status_fetched").on(
+      table.market_scope,
+      table.status,
+      desc(table.fetched_at),
+    ),
+    index("idx_dmss_memory_id").on(table.daily_market_memory_id),
+
+    pgPolicy("dmss_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("dmss_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmss_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("dmss_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
    daily_market_memory_i18n — 언어별 표시 문장
    ========================================================= */
 export const dailyMarketMemoryI18n = pgTable(

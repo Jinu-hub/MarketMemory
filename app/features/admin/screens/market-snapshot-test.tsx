@@ -6,6 +6,8 @@ import { Link, data, useFetcher } from "react-router";
 
 import { AdminPageHeader, AdminSection } from "../components/admin-ui";
 import { NexButton, NexCard } from "~/core/components/nex";
+import { persistMarketSnapshotStaging } from "~/features/cron/lib/market-snapshot-staging.server";
+import type { MarketSnapshotPayload } from "~/features/cron/lib/market-snapshot.types";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
@@ -44,6 +46,12 @@ type ActionPayload =
       ok: true;
       status: number;
       snapshot: MarketSnapshotApiSuccess;
+      staging: {
+        id: string;
+        marketDate: string;
+        marketScope: string;
+      } | null;
+      stagingError: string | null;
     }
   | {
       ok: false;
@@ -101,10 +109,35 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
+  const snapshot = body as MarketSnapshotApiSuccess;
+
+  let staging: {
+    id: string;
+    marketDate: string;
+    marketScope: string;
+  } | null = null;
+  let stagingError: string | null = null;
+
+  try {
+    const saved = await persistMarketSnapshotStaging(client, {
+      snapshot: snapshot as MarketSnapshotPayload,
+    });
+    staging = {
+      id: saved.id,
+      marketDate: saved.marketDate,
+      marketScope: saved.marketScope,
+    };
+  } catch (error) {
+    stagingError =
+      error instanceof Error ? error.message : "staging 저장에 실패했습니다.";
+  }
+
   return data<ActionPayload>({
     ok: true,
     status: response.status,
-    snapshot: body as MarketSnapshotApiSuccess,
+    snapshot,
+    staging,
+    stagingError,
   });
 }
 
@@ -141,7 +174,7 @@ export default function MarketSnapshotTestScreen() {
 
         <AdminSection
           title="실행"
-          description="관리자 서버 액션이 /api/cron/market-snapshot를 호출합니다."
+          description="관리자 서버 액션이 /api/cron/market-snapshot를 호출하고, 성공 시 daily_market_snapshot_staging에 active로 저장합니다."
         >
           <fetcher.Form method="post" className="flex items-center gap-3">
             <NexButton
@@ -177,6 +210,20 @@ export default function MarketSnapshotTestScreen() {
                     <span className="font-medium">Fetched At:</span>{" "}
                     {payload.snapshot.fetchedAt}
                   </p>
+                  {payload.staging ? (
+                    <>
+                      <p className="text-foreground">
+                        <span className="font-medium">Staging 저장:</span> 성공
+                      </p>
+                      <p className="text-muted-foreground font-mono text-xs break-all">
+                        id {payload.staging.id} · {payload.staging.marketDate} ·{" "}
+                        {payload.staging.marketScope}
+                      </p>
+                    </>
+                  ) : null}
+                  {payload.stagingError ? (
+                    <p className="text-destructive text-xs">{payload.stagingError}</p>
+                  ) : null}
                 </div>
               </NexCard>
 
