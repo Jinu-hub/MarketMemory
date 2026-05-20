@@ -21,6 +21,7 @@ import {
 import { authenticatedRole } from "drizzle-orm/supabase";
 
 import { itemContents, marketMemoryItems } from "~/features/admin/schema";
+import { similarityStatus } from "~/features/admin/schema";
 
 /* =========================================================
    RLS Helper: Admin only
@@ -58,6 +59,7 @@ export const dailyMarketMemories = pgTable(
     model_info: jsonb("model_info"),
     pipeline_info: jsonb("pipeline_info"),
     metadata: jsonb("metadata"),
+    similarity_status: similarityStatus("similarity_status").notNull().default("ready"),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

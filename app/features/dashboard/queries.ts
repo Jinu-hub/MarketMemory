@@ -30,9 +30,25 @@ function coerceArray<T>(value: unknown): T[] | null {
   return null;
 }
 
-function coerceStringArray(value: unknown): string[] | null {
+/** `top_tags`: string[] or `{ tag: string, ... }[]` from daily market memory pipeline. */
+function coerceTopTagSlugs(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
-  return value.filter((v): v is string => typeof v === "string");
+  const slugs: string[] = [];
+  for (const item of value) {
+    if (typeof item === "string") {
+      const s = item.trim();
+      if (s) slugs.push(s);
+      continue;
+    }
+    if (item && typeof item === "object" && "tag" in item) {
+      const tag = (item as { tag: unknown }).tag;
+      if (typeof tag === "string") {
+        const s = tag.trim();
+        if (s) slugs.push(s);
+      }
+    }
+  }
+  return slugs.length > 0 ? slugs : null;
 }
 
 /**
@@ -109,7 +125,7 @@ export async function getLatestDailyMarketMemory(
     core_data: (memoryRow.core_data as unknown as CoreData | null) ?? null,
     market_mood_type: memoryRow.market_mood_type,
     risk_signals: coerceArray<RiskSignal>(memoryRow.risk_signals),
-    top_tags: coerceStringArray(memoryRow.top_tags),
+    top_tags: coerceTopTagSlugs(memoryRow.top_tags),
 
     display_title: i18n?.display_title ?? null,
     display_subtitle: i18n?.display_subtitle ?? null,

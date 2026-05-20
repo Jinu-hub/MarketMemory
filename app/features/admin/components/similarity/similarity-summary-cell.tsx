@@ -1,7 +1,15 @@
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
-import type { SimilarityEdgeListRow } from "../../queries";
+export type SimilarityEdgeSummaryLike = {
+  final_score: number | string | null;
+  target_item_id?: string;
+  target_daily_market_memory_id?: string;
+};
+
+function targetIdFromEdge(e: SimilarityEdgeSummaryLike): string {
+  return e.target_item_id ?? e.target_daily_market_memory_id ?? "";
+}
 
 function parseNum(s: number | string | null | undefined): number | null {
   if (s == null || s === "") {
@@ -19,7 +27,7 @@ export function SimilaritySummaryCell({
   similarityStatus,
   className,
 }: {
-  edges: SimilarityEdgeListRow[];
+  edges: SimilarityEdgeSummaryLike[];
   similarityStatus: "ready" | "done" | "nothing" | "pending";
   className?: string;
 }) {
@@ -61,7 +69,8 @@ export function SimilaritySummaryCell({
   const topTargets = [...edges]
     .sort((a, b) => (parseNum(b.final_score) ?? 0) - (parseNum(a.final_score) ?? 0))
     .slice(0, 3)
-    .map((e) => e.target_item_id);
+    .map((e) => targetIdFromEdge(e))
+    .filter(Boolean);
 
   return (
     <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>

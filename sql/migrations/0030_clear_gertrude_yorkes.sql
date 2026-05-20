@@ -1,0 +1,1 @@
+ALTER TABLE "daily_market_memories" ADD COLUMN "similarity_status" "similarity_status" DEFAULT 'ready' NOT NULL;

@@ -61,7 +61,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     icon: Share2Icon,
     dashboardTitle: "유사도 측정",
     dashboardDescription:
-      "콘텐츠·엔티티 간 유사도를 계산·검증합니다. 현재는 리포트 유사도를 제공합니다.",
+      "콘텐츠·엔티티 간 유사도를 계산·검증합니다. 리포트·일별 마켓 메모리 유사도를 제공합니다.",
   },
 ];
 

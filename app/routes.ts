@@ -150,6 +150,10 @@ export default [
           "features/admin/screens/item-similarities.tsx",
         ),
         route(
+          "/dmm-similarities",
+          "features/admin/screens/dmm-similarities.tsx",
+        ),
+        route(
           "/market-snapshot-test",
           "features/admin/screens/market-snapshot-test.tsx",
         ),

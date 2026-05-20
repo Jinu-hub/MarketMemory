@@ -34,3 +34,17 @@ export {
   listItemContentsForSimilarity,
   listSimilarityEdgesForSources,
 } from "./similarity";
+
+export type {
+  DailyMarketMemorySimilarityListRow,
+  DmmSimilarityEdgeListRow,
+  DmmSimilarityListFilters,
+} from "./dmm-similarity";
+
+export {
+  countDailyMarketMemoriesBySimilarityStatus,
+  fetchEmbeddingDailyMarketMemoryIds,
+  fetchReadyDailyMarketMemoryIds,
+  listDailyMarketMemoriesForSimilarity,
+  listDmmSimilarityEdgesForSources,
+} from "./dmm-similarity";

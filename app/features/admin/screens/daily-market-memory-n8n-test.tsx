@@ -14,7 +14,8 @@ import { z } from "zod";
 import { AdminPageHeader, AdminSection } from "../components/admin-ui";
 import {
   buildDailyMarketMemoryN8nTestPayload,
-  parseN8nTestPayloadJson,
+  parseOptionalMarketDateParam,
+  resolveN8nTestInvokePayload,
 } from "../lib/daily-market-memory-n8n-test.lib";
 import { invokeN8nWebhooks } from "../lib/n8n-webhook-test.server";
 import { NexBadge, NexButton, NexCard, NexInput, NexTextarea } from "~/core/components/nex";
@@ -28,16 +29,19 @@ const actionSchema = z.discriminatedUnion("intent", [
     intent: z.literal("config"),
     index: z.coerce.number().int().min(0),
     payloadJson: z.string().optional(),
+    market_date: z.string().optional(),
   }),
   z.object({
     intent: z.literal("config-all"),
     payloadJson: z.string().optional(),
+    market_date: z.string().optional(),
   }),
   z.object({
     intent: z.literal("custom"),
     url: z.string().url(),
     secret: z.string().optional(),
     payloadJson: z.string().optional(),
+    market_date: z.string().optional(),
   }),
 ]);
 
@@ -132,6 +136,11 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const defaultPayload = buildDailyMarketMemoryN8nTestPayload();
+  const marketDateResult = parseOptionalMarketDateParam(parsed.data.market_date);
+  if (!marketDateResult.ok) {
+    return data({ ok: false as const, error: marketDateResult.error }, { status: 400 });
+  }
+  const marketDateOverride = marketDateResult.marketDate;
 
   if (parsed.data.intent === "config") {
     const webhooks = resolveConfigWebhooks();
@@ -143,9 +152,10 @@ export async function action({ request }: Route.ActionArgs) {
       );
     }
 
-    const payloadResult = parseN8nTestPayloadJson(
+    const payloadResult = resolveN8nTestInvokePayload(
       parsed.data.payloadJson,
       defaultPayload,
+      marketDateOverride,
     );
     if (!payloadResult.ok) {
       return data({ ok: false as const, error: payloadResult.error }, { status: 400 });
@@ -170,9 +180,10 @@ export async function action({ request }: Route.ActionArgs) {
       );
     }
 
-    const payloadResult = parseN8nTestPayloadJson(
+    const payloadResult = resolveN8nTestInvokePayload(
       parsed.data.payloadJson,
       defaultPayload,
+      marketDateOverride,
     );
     if (!payloadResult.ok) {
       return data({ ok: false as const, error: payloadResult.error }, { status: 400 });
@@ -188,7 +199,11 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
-  const payloadResult = parseN8nTestPayloadJson(parsed.data.payloadJson, {});
+  const payloadResult = resolveN8nTestInvokePayload(
+    parsed.data.payloadJson,
+    {},
+    marketDateOverride,
+  );
   if (!payloadResult.ok) {
     return data({ ok: false as const, error: payloadResult.error }, { status: 400 });
   }
@@ -282,6 +297,25 @@ function InvokeOutcomeBanner({
   );
 }
 
+function N8nTestFormHiddenFields({
+  marketDate,
+  payloadJson,
+}: {
+  marketDate: string;
+  payloadJson: string;
+}) {
+  return (
+    <>
+      {marketDate.trim() ? (
+        <input type="hidden" name="market_date" value={marketDate} />
+      ) : null}
+      {payloadJson.trim() ? (
+        <input type="hidden" name="payloadJson" value={payloadJson} />
+      ) : null}
+    </>
+  );
+}
+
 function WebhookResultCard({ result }: { result: WebhookInvokeResultItem }) {
   return (
     <NexCard
@@ -325,6 +359,7 @@ export default function DailyMarketMemoryN8nTestScreen({
 
   const [customUrl, setCustomUrl] = useState("");
   const [customSecret, setCustomSecret] = useState("");
+  const [marketDateParam, setMarketDateParam] = useState("");
   const [sharedPayloadJson, setSharedPayloadJson] = useState("");
   const [customPayloadJson, setCustomPayloadJson] = useState("");
 
@@ -416,6 +451,23 @@ export default function DailyMarketMemoryN8nTestScreen({
           title="등록된 웹훅"
           description="config SSOT 항목별 실행 또는 전체 순차 실행(2번째부터 5초 간격)입니다."
         >
+          <div className="mb-6 max-w-md space-y-4">
+            <NexInput
+              label="market_date (선택)"
+              type="date"
+              value={marketDateParam}
+              onChange={(event) => setMarketDateParam(event.target.value)}
+              helperText="YYYY-MM-DD. 설정 시 body의 market_date·marketDate·aiInput.marketDate를 덮어씁니다."
+            />
+            <NexTextarea
+              label="공통 요청 JSON (선택)"
+              rows={5}
+              placeholder="비우면 파이프라인 완료 이벤트 테스트 페이로드 사용"
+              value={sharedPayloadJson}
+              onChange={(event) => setSharedPayloadJson(event.target.value)}
+              variant="outlined"
+            />
+          </div>
           {webhooks.length === 0 ? (
             <p className="text-destructive text-sm">
               등록된 웹훅이 없습니다. daily-market-memory-n8n.config.ts를 확인하세요.
@@ -478,13 +530,10 @@ export default function DailyMarketMemoryN8nTestScreen({
                             name="index"
                             value={webhook.index}
                           />
-                          {sharedPayloadJson.trim() ? (
-                            <input
-                              type="hidden"
-                              name="payloadJson"
-                              value={sharedPayloadJson}
-                            />
-                          ) : null}
+                          <N8nTestFormHiddenFields
+                            marketDate={marketDateParam}
+                            payloadJson={sharedPayloadJson}
+                          />
                           <NexButton
                             type="submit"
                             variant="primary"
@@ -507,9 +556,10 @@ export default function DailyMarketMemoryN8nTestScreen({
           {webhooks.length > 1 ? (
             <fetcher.Form method="post" className="mt-4">
               <input type="hidden" name="intent" value="config-all" />
-              {sharedPayloadJson.trim() ? (
-                <input type="hidden" name="payloadJson" value={sharedPayloadJson} />
-              ) : null}
+              <N8nTestFormHiddenFields
+                marketDate={marketDateParam}
+                payloadJson={sharedPayloadJson}
+              />
               <NexButton
                 type="submit"
                 variant="secondary"
@@ -521,16 +571,6 @@ export default function DailyMarketMemoryN8nTestScreen({
               </NexButton>
             </fetcher.Form>
           ) : null}
-
-          <NexTextarea
-            label="공통 요청 JSON (선택)"
-            className="mt-6"
-            rows={5}
-            placeholder="비우면 파이프라인 완료 이벤트 테스트 페이로드 사용"
-            value={sharedPayloadJson}
-            onChange={(event) => setSharedPayloadJson(event.target.value)}
-            variant="outlined"
-          />
         </AdminSection>
 
         <AdminSection
@@ -554,6 +594,14 @@ export default function DailyMarketMemoryN8nTestScreen({
               value={customSecret}
               onChange={(event) => setCustomSecret(event.target.value)}
               autoComplete="off"
+            />
+            <NexInput
+              label="market_date (선택)"
+              type="date"
+              name="market_date"
+              value={marketDateParam}
+              onChange={(event) => setMarketDateParam(event.target.value)}
+              helperText="등록 웹훅과 동일하게 body에 market_date·marketDate를 반영합니다."
             />
             <NexTextarea
               label="요청 JSON (선택, 비우면 {})"

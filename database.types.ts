@@ -52,6 +52,7 @@ export type Database = {
           model_info: Json | null
           pipeline_info: Json | null
           risk_signals: Json | null
+          similarity_status: Database["public"]["Enums"]["similarity_status"]
           source_report_count: number
           status: string
           top_entities: Json | null
@@ -77,6 +78,7 @@ export type Database = {
           model_info?: Json | null
           pipeline_info?: Json | null
           risk_signals?: Json | null
+          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           source_report_count?: number
           status?: string
           top_entities?: Json | null
@@ -102,6 +104,7 @@ export type Database = {
           model_info?: Json | null
           pipeline_info?: Json | null
           risk_signals?: Json | null
+          similarity_status?: Database["public"]["Enums"]["similarity_status"]
           source_report_count?: number
           status?: string
           top_entities?: Json | null
@@ -1504,6 +1507,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      compute_daily_market_memory_similarity_edges: {
+        Args: {
+          p_similarity_method?: string
+          p_source_daily_market_memory_id: string
+        }
+        Returns: {
+          final_score: number
+          matched_tags: Json
+          tag_score: number
+          target_daily_market_memory_id: string
+          vector_score: number
+        }[]
+      }
       compute_item_similarity_edges: {
         Args: { p_method_version?: string; p_source_item_id: string }
         Returns: {
@@ -1516,6 +1532,23 @@ export type Database = {
       }
       process_ready_similarity_queue: {
         Args: { p_batch_limit?: number; p_method_version?: string }
+        Returns: Json
+      }
+      regenerate_daily_market_memory_similarity_once: {
+        Args: {
+          p_similarity_method?: string
+          p_source_daily_market_memory_id: string
+        }
+        Returns: {
+          inserted_count: number
+          top_target_ids: string[]
+        }[]
+      }
+      regenerate_daily_market_memory_similarity_with_secondary: {
+        Args: {
+          p_similarity_method?: string
+          p_source_daily_market_memory_id: string
+        }
         Returns: Json
       }
       regenerate_similarity_edges_once: {

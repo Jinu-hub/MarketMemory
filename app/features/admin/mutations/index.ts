@@ -36,3 +36,11 @@ export {
   regenerateItemSimilarityEdgesWithSecondary,
   regenerateReadyItemSimilarityEdges,
 } from "./similarity";
+
+export {
+  DEFAULT_DMM_SIMILARITY_METHOD,
+  regenerateAllDailyMarketMemorySimilarity,
+  regenerateDailyMarketMemorySimilarity,
+  regenerateDailyMarketMemorySimilarityWithSecondary,
+  regenerateReadyDailyMarketMemorySimilarity,
+} from "./dmm-similarity";
