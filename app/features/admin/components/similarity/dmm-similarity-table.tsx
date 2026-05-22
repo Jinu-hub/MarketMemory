@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { SearchIcon } from "lucide-react";
-import { useSearchParams } from "react-router";
+import { useFetcher, useSearchParams } from "react-router";
 
 import {
   AdminSortAffix,
@@ -8,8 +8,10 @@ import {
   adminSortColumnButtonClass,
   adminTdClass,
 } from "../admin-ui";
+import { DmmPreviewCandidatesButton, DmmPreviewCandidatesSheet } from "./dmm-preview-candidates-sheet";
 import { DmmRegenerateRowForm } from "./dmm-regenerate-row-form";
 import { SimilaritySummaryCell } from "./similarity-summary-cell";
+import type { action } from "../../screens/dmm-similarities";
 import { NexBadge, NexInput } from "~/core/components/nex";
 import {
   Table,
@@ -61,7 +63,26 @@ export function DmmSimilarityTable({
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("q")?.trim() ?? "";
   const [query, setQuery] = useState(initialQuery);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSourceId, setPreviewSourceId] = useState<string | null>(null);
+  const previewFetcher = useFetcher<typeof action>();
   const { sortKey, sortDir, toggleSort } = useTableSortState<SortKey>("market_date", "desc");
+
+  const previewBusy =
+    previewFetcher.state !== "idle" &&
+    previewFetcher.formData?.get("intent") === "preview_one";
+
+  const handlePreview = useCallback(
+    (sourceId: string) => {
+      setPreviewSourceId(sourceId);
+      setPreviewOpen(true);
+      const fd = new FormData();
+      fd.set("intent", "preview_one");
+      fd.set("source_daily_market_memory_id", sourceId);
+      previewFetcher.submit(fd, { method: "post" });
+    },
+    [previewFetcher],
+  );
 
   const filtered = useFilteredList(rows, query, (row, qLower) => {
     const m = row.memory;
@@ -116,6 +137,12 @@ export function DmmSimilarityTable({
 
   return (
     <div className="space-y-4">
+      <DmmPreviewCandidatesSheet
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        fetcher={previewFetcher}
+      />
+
       <NexInput
         placeholder="market_date, scope, status, id, 유사 대상 id…"
         value={query}
@@ -288,11 +315,18 @@ export function DmmSimilarityTable({
                       {hasEdges ? topScore(row.edges).toFixed(3) : "—"}
                     </TableCell>
                     <TableCell className={cn(adminTdClass, "text-end align-top")}>
-                      <DmmRegenerateRowForm
-                        sourceDailyMarketMemoryId={m.id}
-                        returnSearch={returnSearch}
-                        busy={busy}
-                      />
+                      <div className="flex flex-col items-end gap-2">
+                        <DmmPreviewCandidatesButton
+                          sourceDailyMarketMemoryId={m.id}
+                          onPreview={handlePreview}
+                          busy={previewBusy && previewSourceId === m.id}
+                        />
+                        <DmmRegenerateRowForm
+                          sourceDailyMarketMemoryId={m.id}
+                          returnSearch={returnSearch}
+                          busy={busy}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

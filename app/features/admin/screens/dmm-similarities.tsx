@@ -21,6 +21,7 @@ import {
 } from "../lib/dmm-similarity-utils";
 import {
   DEFAULT_DMM_SIMILARITY_METHOD,
+  previewDailyMarketMemorySimilarity,
   regenerateAllDailyMarketMemorySimilarity,
   regenerateDailyMarketMemorySimilarityWithSecondary,
   regenerateReadyDailyMarketMemorySimilarity,
@@ -37,6 +38,10 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 const actionSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("preview_one"),
+    source_daily_market_memory_id: z.string().uuid(),
+  }),
   z.object({
     intent: z.literal("regenerate_one"),
     source_daily_market_memory_id: z.string().uuid(),
@@ -136,6 +141,25 @@ export async function action({ request }: Route.ActionArgs) {
   const parsed = actionSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return data({ message: "유효하지 않은 입력입니다." }, { status: 400 });
+  }
+
+  if (parsed.data.intent === "preview_one") {
+    const result = await previewDailyMarketMemorySimilarity(
+      client,
+      parsed.data.source_daily_market_memory_id,
+      DEFAULT_DMM_SIMILARITY_METHOD,
+    );
+    if (result.error) {
+      return data({ message: result.error.message }, { status: 400 });
+    }
+    return data({
+      preview: {
+        source: result.source,
+        candidates: result.candidates,
+        partition: result.partition,
+        summary: result.summary,
+      },
+    });
   }
 
   const suffix = buildRedirectSuffix(parsed.data.return_search);

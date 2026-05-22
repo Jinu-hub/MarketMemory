@@ -39,6 +39,7 @@ export {
 
 export {
   DEFAULT_DMM_SIMILARITY_METHOD,
+  previewDailyMarketMemorySimilarity,
   regenerateAllDailyMarketMemorySimilarity,
   regenerateDailyMarketMemorySimilarity,
   regenerateDailyMarketMemorySimilarityWithSecondary,

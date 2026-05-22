@@ -127,3 +127,45 @@ export async function listDmmSimilarityEdgesForSources(
 
   return { data: all, error: null };
 }
+
+export async function countEligibleDmmSimilarityTargets(
+  client: AdminQueryClient,
+  sourceDailyMarketMemoryId: string,
+) {
+  const { data: source, error: sourceErr } = await client
+    .from("daily_market_memories")
+    .select("id, market_scope")
+    .eq("id", sourceDailyMarketMemoryId)
+    .maybeSingle();
+
+  if (sourceErr) {
+    return { count: 0, error: sourceErr };
+  }
+  if (!source) {
+    return { count: 0, error: { message: "소스 일별 마켓 메모리를 찾을 수 없습니다." } };
+  }
+
+  const { count, error } = await client
+    .from("daily_market_memories")
+    .select("*", { count: "exact", head: true })
+    .eq("market_scope", source.market_scope)
+    .eq("status", "final")
+    .neq("id", sourceDailyMarketMemoryId);
+
+  if (error) {
+    return { count: 0, error };
+  }
+
+  return { count: count ?? 0, error: null };
+}
+
+export async function fetchDailyMarketMemoryForPreview(
+  client: AdminQueryClient,
+  sourceDailyMarketMemoryId: string,
+) {
+  return client
+    .from("daily_market_memories")
+    .select("id, market_date, market_scope, status, similarity_status")
+    .eq("id", sourceDailyMarketMemoryId)
+    .maybeSingle();
+}

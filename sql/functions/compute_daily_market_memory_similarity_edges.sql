@@ -4,7 +4,10 @@
 
 create or replace function public.compute_daily_market_memory_similarity_edges(
   p_source_daily_market_memory_id uuid,
-  p_similarity_method text default 'hybrid_v1'
+  p_similarity_method text default 'hybrid_v1',
+  p_min_final_score numeric default 0.6,
+  p_result_limit integer default 10,
+  p_score_all_eligible_finals boolean default false
 )
 returns table (
   target_daily_market_memory_id uuid,
@@ -116,9 +119,19 @@ as $$
     group by daily_market_memory_id
   ),
   candidates as (
-    select daily_market_memory_id from vector_candidates
+    select daily_market_memory_id
+    from vector_candidates
     union
-    select daily_market_memory_id from tag_scores
+    select daily_market_memory_id
+    from tag_scores
+    union
+    select target_dmm.id as daily_market_memory_id
+    from daily_market_memories target_dmm
+    join source_memory s on true
+    where p_score_all_eligible_finals
+      and target_dmm.id <> p_source_daily_market_memory_id
+      and target_dmm.market_scope = s.market_scope
+      and target_dmm.status = 'final'
   )
   select
     t1.daily_market_memory_id as target_daily_market_memory_id,
@@ -147,12 +160,12 @@ as $$
       0.95 * coalesce(v.vector_score, 0)::double precision
       + 0.2 * coalesce(tg.tag_score, 0)::double precision
     ) desc
-    limit 10
+    limit greatest(p_result_limit, 1)
   ) t1
-  where t1.final_score >= 0.6;
+  where t1.final_score >= p_min_final_score;
 $$;
 
-comment on function public.compute_daily_market_memory_similarity_edges(uuid, text) is
-  'Returns top similarity edge candidates for daily_market_memories.id; used by admin regenerate flow.';
+comment on function public.compute_daily_market_memory_similarity_edges(uuid, text, numeric, integer, boolean) is
+  'Returns ranked similarity candidates (no persist). Regenerate: min=0.6 limit=10. Admin preview: all eligible finals, min=0.';
 
-grant execute on function public.compute_daily_market_memory_similarity_edges(uuid, text) to authenticated;
+grant execute on function public.compute_daily_market_memory_similarity_edges(uuid, text, numeric, integer, boolean) to authenticated;

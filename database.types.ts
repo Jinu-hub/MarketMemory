@@ -1557,19 +1557,51 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      compute_daily_market_memory_similarity_edges: {
-        Args: {
-          p_similarity_method?: string
-          p_source_daily_market_memory_id: string
-        }
-        Returns: {
-          final_score: number
-          matched_tags: Json
-          tag_score: number
-          target_daily_market_memory_id: string
-          vector_score: number
-        }[]
-      }
+      compute_daily_market_memory_similarity_edges:
+        | {
+            Args: {
+              p_similarity_method?: string
+              p_source_daily_market_memory_id: string
+            }
+            Returns: {
+              final_score: number
+              matched_tags: Json
+              tag_score: number
+              target_daily_market_memory_id: string
+              vector_score: number
+            }[]
+          }
+        | {
+            Args: {
+              p_min_final_score?: number
+              p_result_limit?: number
+              p_similarity_method?: string
+              p_source_daily_market_memory_id: string
+            }
+            Returns: {
+              final_score: number
+              matched_tags: Json
+              tag_score: number
+              target_daily_market_memory_id: string
+              vector_score: number
+            }[]
+          }
+        | {
+            Args: {
+              p_min_final_score?: number
+              p_result_limit?: number
+              p_score_all_eligible_finals?: boolean
+              p_similarity_method?: string
+              p_source_daily_market_memory_id: string
+            }
+            Returns: {
+              final_score: number
+              matched_tags: Json
+              tag_score: number
+              target_daily_market_memory_id: string
+              vector_score: number
+            }[]
+          }
       compute_item_similarity_edges: {
         Args: { p_method_version?: string; p_source_item_id: string }
         Returns: {
@@ -1577,6 +1609,24 @@ export type Database = {
           shared_tag_ids: Json
           tag_score: number
           target_item_id: string
+          vector_score: number
+        }[]
+      }
+      preview_daily_market_memory_similarity_edges: {
+        Args: {
+          p_min_final_score?: number
+          p_result_limit?: number
+          p_similarity_method?: string
+          p_source_daily_market_memory_id: string
+        }
+        Returns: {
+          final_score: number
+          matched_tags: Json
+          passes_production_threshold: boolean
+          tag_score: number
+          target_daily_market_memory_id: string
+          target_market_date: string
+          target_status: string
           vector_score: number
         }[]
       }

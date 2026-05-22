@@ -43,6 +43,8 @@ export type {
 
 export {
   countDailyMarketMemoriesBySimilarityStatus,
+  countEligibleDmmSimilarityTargets,
+  fetchDailyMarketMemoryForPreview,
   fetchEmbeddingDailyMarketMemoryIds,
   fetchReadyDailyMarketMemoryIds,
   listDailyMarketMemoriesForSimilarity,

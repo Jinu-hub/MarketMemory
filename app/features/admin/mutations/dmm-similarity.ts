@@ -1,4 +1,14 @@
 import {
+  buildDmmPreviewSummary,
+  DMM_SIMILARITY_PREVIEW_LIMIT,
+  partitionDmmPreviewCandidates,
+  type DmmPreviewCandidateRow,
+  type DmmPreviewPartition,
+  type DmmPreviewSummary,
+} from "../lib/dmm-similarity-preview";
+import {
+  countEligibleDmmSimilarityTargets,
+  fetchDailyMarketMemoryForPreview,
   fetchEmbeddingDailyMarketMemoryIds,
   fetchReadyDailyMarketMemoryIds,
 } from "../queries/dmm-similarity";
@@ -6,6 +16,84 @@ import {
 import type { AdminDb } from "./types";
 
 export const DEFAULT_DMM_SIMILARITY_METHOD = "hybrid_v1" as const;
+
+export type PreviewDailyMarketMemorySimilarityResult = {
+  source: {
+    id: string;
+    market_date: string;
+    market_scope: string;
+    status: string;
+    similarity_status: string | null;
+  };
+  candidates: DmmPreviewCandidateRow[];
+  partition: DmmPreviewPartition;
+  summary: DmmPreviewSummary;
+  error: { message: string } | null;
+};
+
+export async function previewDailyMarketMemorySimilarity(
+  client: AdminDb,
+  sourceDailyMarketMemoryId: string,
+  similarityMethod: string = DEFAULT_DMM_SIMILARITY_METHOD,
+): Promise<PreviewDailyMarketMemorySimilarityResult> {
+  const empty = {
+    source: {
+      id: sourceDailyMarketMemoryId,
+      market_date: "",
+      market_scope: "",
+      status: "",
+      similarity_status: null,
+    },
+    candidates: [] as DmmPreviewCandidateRow[],
+    partition: { passedCandidates: [], belowThresholdTop: [] },
+    summary: buildDmmPreviewSummary([], 0),
+    error: null as { message: string } | null,
+  };
+
+  const [{ data: source, error: sourceErr }, { count: eligibleTargetCount, error: eligErr }] =
+    await Promise.all([
+      fetchDailyMarketMemoryForPreview(client, sourceDailyMarketMemoryId),
+      countEligibleDmmSimilarityTargets(client, sourceDailyMarketMemoryId),
+    ]);
+
+  if (sourceErr) {
+    return { ...empty, error: sourceErr };
+  }
+  if (!source) {
+    return { ...empty, error: { message: "소스 일별 마켓 메모리를 찾을 수 없습니다." } };
+  }
+  if (eligErr) {
+    return { ...empty, error: eligErr };
+  }
+
+  const { data, error } = await client.rpc("preview_daily_market_memory_similarity_edges", {
+    p_source_daily_market_memory_id: sourceDailyMarketMemoryId,
+    p_similarity_method: similarityMethod,
+    p_min_final_score: 0,
+    p_result_limit: DMM_SIMILARITY_PREVIEW_LIMIT,
+  });
+
+  if (error) {
+    return { ...empty, error };
+  }
+
+  const candidates = (data ?? []) as DmmPreviewCandidateRow[];
+  const partition = partitionDmmPreviewCandidates(candidates);
+
+  return {
+    source: {
+      id: source.id,
+      market_date: source.market_date,
+      market_scope: source.market_scope,
+      status: source.status,
+      similarity_status: source.similarity_status,
+    },
+    candidates,
+    partition,
+    summary: buildDmmPreviewSummary(candidates, eligibleTargetCount, partition),
+    error: null,
+  };
+}
 
 export async function regenerateDailyMarketMemorySimilarity(
   client: AdminDb,
