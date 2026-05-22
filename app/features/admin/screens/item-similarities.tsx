@@ -314,7 +314,7 @@ export default function AdminItemSimilarities({ loaderData }: Route.ComponentPro
       />
 
       {actionData && "message" in actionData && actionData.message ? (
-        <AdminErrorAlert message={actionData.message} />
+        <AdminErrorAlert message={actionData.message} context="리포트 유사도 재생성 RPC" />
       ) : null}
 
       {bulkBanner ? (

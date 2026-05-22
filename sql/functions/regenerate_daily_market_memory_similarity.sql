@@ -82,12 +82,14 @@ begin
       r.target_snapshot,
       true
     from ranked r
-    returning target_daily_market_memory_id, ranking
+    returning target_daily_market_memory_id, similarity_rank
   )
   select
     count(*)::integer,
     coalesce(
-      array_agg(target_daily_market_memory_id order by ranking) filter (where ranking between 1 and 5),
+      array_agg(target_daily_market_memory_id order by similarity_rank) filter (
+        where similarity_rank between 1 and 5
+      ),
       '{}'::uuid[]
     )
   into v_inserted, v_top_target_ids

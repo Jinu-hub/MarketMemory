@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import {
+  AlertCircleIcon,
   ArrowDownIcon,
   ArrowUpDownIcon,
   ArrowUpIcon,
@@ -9,6 +10,8 @@ import {
   LayoutGridIcon,
   SearchIcon,
 } from "lucide-react";
+
+import { parseAdminErrorMessage } from "../lib/admin-error";
 
 import { NexBadge, NexCard, NexInput } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
@@ -311,13 +314,47 @@ export function AdminPromptTemplateSelectWithFilter({
   );
 }
 
-export function AdminErrorAlert({ message }: { message: string }) {
+export function AdminErrorAlert({
+  message,
+  context,
+}: {
+  message: string;
+  /** 화면 맥락 (예: 유사도 재생성) — 제목 옆에 표시 */
+  context?: string;
+}) {
+  const parsed = parseAdminErrorMessage(message);
+
   return (
     <div
-      className="border-destructive/35 bg-destructive/10 text-destructive rounded-lg border px-4 py-3 text-sm leading-snug"
+      className="border-destructive/50 bg-destructive/10 rounded-xl border-2 px-4 py-4 shadow-sm"
       role="alert"
+      aria-live="assertive"
     >
-      {message}
+      <div className="flex gap-3">
+        <div className="bg-destructive/15 text-destructive flex size-10 shrink-0 items-center justify-center rounded-lg">
+          <AlertCircleIcon className="size-5" aria-hidden />
+        </div>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-destructive text-sm font-semibold">{parsed.title}</p>
+            {context ? (
+              <span className="text-destructive/80 text-[11px] font-medium">{context}</span>
+            ) : null}
+          </div>
+          <p className="text-foreground text-base font-medium leading-snug">{parsed.summary}</p>
+          {parsed.hint ? (
+            <p className="text-muted-foreground text-sm leading-relaxed">{parsed.hint}</p>
+          ) : null}
+          <details className="group">
+            <summary className="text-muted-foreground cursor-pointer text-xs font-medium select-none hover:underline">
+              원본 오류 메시지 보기
+            </summary>
+            <pre className="bg-background/80 text-foreground/90 mt-2 max-h-40 overflow-auto rounded-md border border-destructive/20 p-3 font-mono text-[11px] leading-relaxed whitespace-pre-wrap break-all">
+              {parsed.detail}
+            </pre>
+          </details>
+        </div>
+      </div>
     </div>
   );
 }

@@ -278,7 +278,10 @@ export default function AdminDmmSimilarities({ loaderData }: Route.ComponentProp
       />
 
       {actionData && "message" in actionData && actionData.message ? (
-        <AdminErrorAlert message={actionData.message} />
+        <AdminErrorAlert
+          message={actionData.message}
+          context="유사도 재생성 RPC"
+        />
       ) : null}
 
       {bulkBanner ? (
