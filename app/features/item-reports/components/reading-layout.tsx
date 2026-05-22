@@ -29,7 +29,7 @@ type ReadingHeaderProps = {
 export function ReadingHeader({ report, className }: ReadingHeaderProps) {
   const style = getCategoryStyle(report.category);
   const CategoryIcon = style.icon;
-  const date = formatDate(report.input_date ?? report.created_at);
+  const date = formatDate(report.market_date ?? report.created_at);
   const readTime = estimateReadingTime(
     report.summary,
     report.content,

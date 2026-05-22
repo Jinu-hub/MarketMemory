@@ -20,7 +20,7 @@ import type {
 } from "./types";
 
 const LIST_COLUMNS =
-  "id,title,summary,summary_meta,category,report_type,report_tier,regions,countries,tags,input_date,created_at,lang_code";
+  "id,title,summary,summary_meta,category,report_type,report_tier,regions,countries,tags,market_date,created_at,lang_code";
 
 type DB = SupabaseClient<Database>;
 
@@ -82,7 +82,7 @@ export async function getReports(
   const to = from + PAGE_SIZE - 1;
 
   const { data, error, count } = await query
-    .order("input_date", { ascending: asc, nullsFirst: asc })
+    .order("market_date", { ascending: asc, nullsFirst: asc })
     .order("created_at", { ascending: asc })
     .range(from, to);
   if (error) {
@@ -110,7 +110,7 @@ export async function getRecentReports(
     .select(LIST_COLUMNS)
     .eq("is_public", true)
     .eq("is_active", true)
-    .order("input_date", { ascending: false, nullsFirst: false })
+    .order("market_date", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -314,7 +314,7 @@ export async function getCategoryHighlights(
           "category",
           category as Database["public"]["Enums"]["category"],
         )
-        .order("input_date", { ascending: false, nullsFirst: false })
+        .order("market_date", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
         .limit(perCategory);
 

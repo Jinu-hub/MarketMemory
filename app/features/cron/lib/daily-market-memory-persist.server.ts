@@ -2,6 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database, Json } from "database.types";
 
+import {
+  DailyMarketMemoryInputDateError,
+  formatEmptyReportsError,
+  formatReportInputDateMismatchError,
+  validatePipelineReports,
+} from "~/features/cron/lib/daily-market-memory-input-date";
 import type {
   AggregatedReportRow,
   DailyMarketMemoryPipelineResult,
@@ -54,8 +60,8 @@ function buildMemoryRow(
   return {
     market_date: params.marketDate,
     market_scope: marketScope,
-    coverage_start_at: params.coverageStartAt ?? null,
-    coverage_end_at: params.coverageEndAt ?? null,
+    coverage_start_at: result.coverageStartAt,
+    coverage_end_at: result.coverageEndAt,
     generation_timezone: generationTimezone,
     status: "draft",
     generated_at: result.ranAt,
@@ -117,6 +123,36 @@ export async function persistDailyMarketMemoryToDb(
     options?.generationTimezone ??
     process.env.DAILY_MARKET_MEMORY_TZ?.trim() ??
     "Asia/Tokyo";
+
+  const inputDateQuery = {
+    mode: result.reportInputMode,
+    marketDateStart: result.reportMarketDateStart,
+    marketDateEnd: result.reportMarketDateEnd,
+    coverageStartAt: result.coverageStartAt,
+    coverageEndAt: result.coverageEndAt,
+    warnings: [] as string[],
+  };
+
+  const dateValidation = validatePipelineReports(
+    params.marketDate,
+    inputDateQuery,
+    result.reports,
+  );
+  if (!dateValidation.ok) {
+    throw new DailyMarketMemoryInputDateError(
+      formatReportInputDateMismatchError(
+        inputDateQuery,
+        params.marketDate,
+        dateValidation.mismatches,
+      ),
+    );
+  }
+
+  if (result.reports.length === 0) {
+    throw new DailyMarketMemoryInputDateError(
+      formatEmptyReportsError(inputDateQuery, params.marketDate),
+    );
+  }
 
   const memoryRow = buildMemoryRow(params, result, marketScope, generationTimezone);
   const existingId = await findLatestDraftMemoryId(

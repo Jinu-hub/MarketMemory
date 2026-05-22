@@ -14,9 +14,9 @@ export function formatDate(value: string | null | undefined): string {
 }
 
 export function resolveDisplayDate(
-  row: Pick<ReportListItem, "input_date" | "created_at">,
+  row: Pick<ReportListItem, "market_date" | "created_at">,
 ): string {
-  return formatDate(row.input_date ?? row.created_at);
+  return formatDate(row.market_date ?? row.created_at);
 }
 
 /** Calendar year from an ISO-ish date string; invalid or missing → null. */

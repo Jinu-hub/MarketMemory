@@ -18,7 +18,7 @@ export type ItemContentSimilarityListRow = Pick<
   | "category"
   | "report_type"
   | "report_tier"
-  | "input_date"
+  | "market_date"
   | "is_active"
   | "is_public"
   | "similarity_status"
@@ -45,7 +45,7 @@ export async function listItemContentsForSimilarity(
   let q = client
     .from("item_contents")
     .select(
-      "id, title, lang_code, category, report_type, report_tier, input_date, is_active, is_public, similarity_status, created_at",
+      "id, title, lang_code, category, report_type, report_tier, market_date, is_active, is_public, similarity_status, created_at",
     )
     .order("created_at", { ascending: false });
 

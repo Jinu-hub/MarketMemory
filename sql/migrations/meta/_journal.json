@@ -225,6 +225,13 @@
       "when": 1779284314855,
       "tag": "0031_pretty_inertia",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1779447482570,
+      "tag": "0032_unknown_wasp",
+      "breakpoints": true
     }
   ]
 }

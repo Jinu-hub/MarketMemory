@@ -44,7 +44,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     new Set(
       reports
         .map((report) =>
-          parseCalendarYear(report.input_date ?? report.created_at),
+          parseCalendarYear(report.market_date ?? report.created_at),
         )
         .filter((year): year is number => year !== null),
     ),
@@ -60,7 +60,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     selectedYear === null
       ? reports
       : reports.filter((report) => {
-          const year = parseCalendarYear(report.input_date ?? report.created_at);
+          const year = parseCalendarYear(report.market_date ?? report.created_at);
           return year === selectedYear;
         });
 

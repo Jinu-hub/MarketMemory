@@ -29,7 +29,7 @@ export type ReportListItem = Pick<
   | "regions"
   | "countries"
   | "tags"
-  | "input_date"
+  | "market_date"
   | "created_at"
   | "lang_code"
 >;

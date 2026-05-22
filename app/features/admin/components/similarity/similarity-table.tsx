@@ -48,7 +48,7 @@ type SortKey =
   | "title"
   | "lang_code"
   | "category"
-  | "input_date"
+  | "market_date"
   | "edge_count"
   | "top_score";
 
@@ -67,7 +67,7 @@ export function SimilarityTable({
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("q")?.trim() ?? "";
   const [query, setQuery] = useState(initialQuery);
-  const { sortKey, sortDir, toggleSort } = useTableSortState<SortKey>("input_date", "desc");
+  const { sortKey, sortDir, toggleSort } = useTableSortState<SortKey>("market_date", "desc");
 
   const filtered = useFilteredList(rows, query, (row, qLower) => {
     const c = row.content;
@@ -113,9 +113,9 @@ export function SimilarityTable({
           return (a.content.lang_code ?? "").localeCompare(b.content.lang_code ?? "") * m;
         case "category":
           return (a.content.category ?? "").localeCompare(b.content.category ?? "", "ko") * m;
-        case "input_date": {
-          const ad = a.content.input_date ?? "";
-          const bd = b.content.input_date ?? "";
+        case "market_date": {
+          const ad = a.content.market_date ?? "";
+          const bd = b.content.market_date ?? "";
           if (ad === bd) {
             return 0;
           }
@@ -208,17 +208,17 @@ export function SimilarityTable({
                 <button
                   type="button"
                   className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
-                  onClick={() => toggleSort("input_date")}
+                  onClick={() => toggleSort("market_date")}
                   aria-sort={
-                    sortKey === "input_date"
+                    sortKey === "market_date"
                       ? sortDir === "asc"
                         ? "ascending"
                         : "descending"
                       : "none"
                   }
                 >
-                  input_date
-                  <AdminSortAffix active={sortKey === "input_date"} dir={sortDir} />
+                  market_date
+                  <AdminSortAffix active={sortKey === "market_date"} dir={sortDir} />
                 </button>
               </TableHead>
               <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
@@ -322,7 +322,7 @@ export function SimilarityTable({
                     <TableCell
                       className={cn(adminTdClass, "text-muted-foreground whitespace-nowrap align-top text-xs")}
                     >
-                      {c.input_date ?? "—"}
+                      {c.market_date ?? "—"}
                     </TableCell>
                     <TableCell className={cn(adminTdClass, "align-top")}>
                       <SimilaritySummaryCell edges={row.edges} similarityStatus={row.similarityStatus} />

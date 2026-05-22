@@ -117,7 +117,7 @@ export default function DailyMarketMemoryTestScreen({
 
         <AdminSection
           title="실행"
-          description="market_date 기준 staging을 먼저 확인합니다. 커버리지를 넣으면 input_date가 해당 일자 범위 안인 행만 조회합니다."
+          description="market_date 기준 staging을 먼저 확인합니다. coverage를 둘 다 넣고 구간이 유효하면 item_contents.market_date 범위 리포트를, 아니면 market_date 단일일 리포트만 사용합니다."
         >
           <fetcher.Form method="post" className="max-w-xl space-y-4">
             <div className="space-y-1.5">
@@ -135,6 +135,10 @@ export default function DailyMarketMemoryTestScreen({
                 defaultValue={defaultMarketDate}
                 className="border-border bg-background text-foreground h-11 w-full rounded-lg border px-3 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40"
               />
+              <p className="text-muted-foreground text-xs">
+                저장되는 daily_market_memories.market_date입니다. 리포트 범위는 아래 coverage 또는
+                단일일 규칙을 따릅니다.
+              </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
@@ -142,13 +146,13 @@ export default function DailyMarketMemoryTestScreen({
                   htmlFor="coverageStartAt"
                   className="text-foreground text-sm font-medium"
                 >
-                  coverage_start_at (선택, ISO)
+                  coverage_start_at (선택)
                 </label>
                 <input
                   id="coverageStartAt"
                   name="coverageStartAt"
                   type="text"
-                  placeholder="2026-05-10T00:00:00.000Z"
+                  placeholder="2026-05-15 또는 ISO"
                   className="border-border bg-background text-foreground h-11 w-full rounded-lg border px-3 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40"
                 />
               </div>
@@ -157,17 +161,22 @@ export default function DailyMarketMemoryTestScreen({
                   htmlFor="coverageEndAt"
                   className="text-foreground text-sm font-medium"
                 >
-                  coverage_end_at (선택, ISO)
+                  coverage_end_at (선택)
                 </label>
                 <input
                   id="coverageEndAt"
                   name="coverageEndAt"
                   type="text"
-                  placeholder="2026-05-11T23:59:59.999Z"
+                  placeholder="2026-05-18 또는 ISO"
                   className="border-border bg-background text-foreground h-11 w-full rounded-lg border px-3 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40"
                 />
               </div>
             </div>
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              coverage는 시작·종료가 모두 있고 날짜 파싱·start≤end가 유효할 때만
+              item_contents.market_date 구간 조회를 사용합니다. 한쪽만 비어 있거나 유효하지 않으면
+              item_contents.market_date = market_date만 사용합니다.
+            </p>
             <label className="text-muted-foreground flex items-center gap-2 text-sm">
               <input type="checkbox" name="publicOnly" className="size-4 rounded" />
               공개 리포트만 (is_public = true)

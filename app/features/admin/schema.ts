@@ -427,7 +427,7 @@ export const marketMemoryItems = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     job_code: text("job_code").notNull(),
-    input_date: date("input_date"),
+    market_date: date("market_date"),
     source_lang: text("source_lang"),
     topic: text("topic"),
     detail: text("detail"),
@@ -452,7 +452,7 @@ export const marketMemoryItems = pgTable(
   (table) => [
     uniqueIndex("mmi_job_code_unique").on(table.job_code),
     index("idx_items_status").on(table.status),
-    index("idx_items_input_date").on(desc(table.input_date)),
+    index("idx_items_market_date").on(desc(table.market_date)),
     index("idx_items_executed_id").on(table.executed_id),
 
     pgPolicy("mmi_select", {
@@ -495,7 +495,7 @@ export const itemContents = pgTable(
     report_type: reportType("report_type"),
     report_tier: reportTier("report_tier").notNull().default("free"),
     title: text("title"),
-    input_date: date("input_date"),
+    market_date: date("market_date"),
     summary: text("summary"),
     summary_meta: jsonb("summary_meta"),
     content: text("content"),
@@ -520,7 +520,7 @@ export const itemContents = pgTable(
       table.market_memory_item_id,
       desc(table.created_at),
     ),
-    index("idx_item_contents_input_date").on(desc(table.input_date)),
+    index("idx_item_contents_market_date").on(desc(table.market_date)),
     index("idx_item_contents_category").on(table.category),
     index("idx_item_contents_lang_code").on(table.lang_code),
     index("idx_item_contents_regions_gin").using("gin", table.regions),

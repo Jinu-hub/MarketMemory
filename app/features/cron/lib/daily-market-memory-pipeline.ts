@@ -4,6 +4,16 @@ import type { Database, Json } from "database.types";
 
 import adminClient from "~/core/lib/supa-admin-client.server";
 import { notifyDailyMarketMemoryN8n } from "~/features/cron/lib/daily-market-memory-n8n.server";
+import {
+  DailyMarketMemoryInputDateError,
+  formatEmptyReportsError,
+  formatReportInputDateMismatchError,
+  normalizeReportMarketDate,
+  resolveReportInputDateQuery,
+  validatePipelineReports,
+  type ResolvedReportInputDateQuery,
+  type ReportInputDateQueryMode,
+} from "~/features/cron/lib/daily-market-memory-input-date";
 import { persistDailyMarketMemoryToDb } from "~/features/cron/lib/daily-market-memory-persist.server";
 import { getMarketSnapshot } from "~/features/cron/lib/market-snapshot";
 import { loadLatestMarketSnapshotStaging } from "~/features/cron/lib/market-snapshot-staging.server";
@@ -15,11 +25,14 @@ import type {
 export type DailyMarketMemoryVisibility = "public_only" | "all_active";
 
 export interface RunDailyMarketMemoryPipelineParams {
-  /** 대상 시장일 (YYYY-MM-DD). 리포트는 기본적으로 `item_contents.input_date`로 매칭합니다. */
+  /** 대상 시장일 (YYYY-MM-DD). `daily_market_memories.market_date` 및 리포트 매칭 기준. */
   marketDate: string;
-  /** 선택: 커버리지 시작(ISO). 지정 시 `input_date`가 이 구간(일 단위) 안에 있는 행만 조회합니다. */
+  /**
+   * 선택: 커버리지 시작(ISO 또는 YYYY-MM-DD).
+   * `coverageEndAt`과 함께 유효한 구간일 때만 `item_contents.market_date` 범위 조회.
+   */
   coverageStartAt?: string | null;
-  /** 선택: 커버리지 종료(ISO). */
+  /** 선택: 커버리지 종료(ISO 또는 YYYY-MM-DD). */
   coverageEndAt?: string | null;
   langCode?: string;
   visibility?: DailyMarketMemoryVisibility;
@@ -39,7 +52,7 @@ export interface AggregatedReportRow {
   id: string;
   market_memory_item_id: string;
   report_type: ItemContentRow["report_type"];
-  input_date: ItemContentRow["input_date"];
+  market_date: ItemContentRow["market_date"];
   lang_code: string;
   title: string | null;
   summary: string | null;
@@ -73,7 +86,7 @@ export interface DailyMarketMemoryAiInputV1 {
     itemContentId: string;
     marketMemoryItemId: string;
     reportType: ItemContentRow["report_type"];
-    inputDate: ItemContentRow["input_date"];
+    reportMarketDate: ItemContentRow["market_date"];
     category: string | null;
     regions: ItemContentRow["regions"];
     countries: ItemContentRow["countries"];
@@ -95,6 +108,9 @@ export interface DailyMarketMemoryPipelineResult {
   marketDate: string;
   coverageStartAt: string | null;
   coverageEndAt: string | null;
+  reportInputMode: ReportInputDateQueryMode;
+  reportMarketDateStart: string;
+  reportMarketDateEnd: string;
   langCode: string;
   visibility: DailyMarketMemoryVisibility;
   marketSnapshot: MarketSnapshotPayload;
@@ -106,14 +122,6 @@ export interface DailyMarketMemoryPipelineResult {
   errors: string[];
   savedToDb: boolean;
   dailyMarketMemoryId: string | null;
-}
-
-function toDateOnly(iso: string): string | null {
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) {
-    return null;
-  }
-  return d.toISOString().slice(0, 10);
 }
 
 function extractCoreTagStrings(metadata: Json | null): string[] {
@@ -257,7 +265,7 @@ function buildAiInput(
       itemContentId: r.id,
       marketMemoryItemId: r.market_memory_item_id,
       reportType: r.report_type,
-      inputDate: r.input_date,
+      reportMarketDate: r.market_date,
       category: r.category,
       regions: r.regions,
       countries: r.countries,
@@ -274,6 +282,7 @@ function buildAiInput(
 async function fetchTargetReports(
   db: SupabaseClient<Database>,
   params: RunDailyMarketMemoryPipelineParams,
+  inputDateQuery: ResolvedReportInputDateQuery,
   errors: string[],
 ): Promise<ItemContentRow[]> {
   const langCode = params.langCode ?? "ko";
@@ -282,7 +291,7 @@ async function fetchTargetReports(
   let q = db
     .from("item_contents")
     .select(
-      "id, market_memory_item_id, report_type, input_date, lang_code, title, summary, category, regions, countries, confidence, metadata, is_active, is_public, report_tier",
+      "id, market_memory_item_id, report_type, market_date, lang_code, title, summary, category, regions, countries, confidence, metadata, is_active, is_public, report_tier",
     )
     .eq("is_active", true)
     .eq("lang_code", langCode);
@@ -291,19 +300,12 @@ async function fetchTargetReports(
     q = q.eq("is_public", true);
   }
 
-  if (params.coverageStartAt && params.coverageEndAt) {
-    const start = toDateOnly(params.coverageStartAt);
-    const end = toDateOnly(params.coverageEndAt);
-    if (!start || !end) {
-      errors.push(
-        "coverageStartAt / coverageEndAt 날짜 파싱 실패 — marketDate 기준 단일일로 되돌립니다.",
-      );
-      q = q.eq("input_date", params.marketDate);
-    } else {
-      q = q.gte("input_date", start).lte("input_date", end);
-    }
+  if (inputDateQuery.mode === "coverage_range") {
+    q = q
+      .gte("market_date", inputDateQuery.marketDateStart)
+      .lte("market_date", inputDateQuery.marketDateEnd);
   } else {
-    q = q.eq("input_date", params.marketDate);
+    q = q.eq("market_date", params.marketDate);
   }
 
   const { data, error } = await q.order("created_at", { ascending: false });
@@ -354,12 +356,9 @@ async function fetchLatestCoresByContentId(
  * 하루 1회(또는 수동) 데일리 마켓 메모리 입력 파이프라인.
  *
  * Step 1: 시장 스냅샷 (기존 getMarketSnapshot)
- * Step 2: 대상 리포트 조회 (input_date 또는 coverage 구간)
+ * Step 2: 대상 리포트 조회 (`item_contents.market_date` = `marketDate` 또는 유효한 coverage 구간)
  * Step 3: item_content_cores 집계
  * Step 4: AI 입력용 구조화 JSON
- *
- * DB 스키마상 `item_contents`에는 `coverage_start_at` 컬럼이 없으므로,
- * coverage 옵션이 있으면 그 날짜 범위로 `input_date`를 필터합니다.
  */
 export async function runDailyMarketMemoryPipeline(
   params: RunDailyMarketMemoryPipelineParams,
@@ -367,6 +366,13 @@ export async function runDailyMarketMemoryPipeline(
   const ranAt = new Date().toISOString();
   const errors: string[] = [];
   const db = params.db ?? adminClient;
+
+  const inputDateQuery = resolveReportInputDateQuery(
+    params.marketDate,
+    params.coverageStartAt,
+    params.coverageEndAt,
+  );
+  errors.push(...inputDateQuery.warnings);
 
   const marketScope =
     params.marketScope?.trim() ||
@@ -408,11 +414,11 @@ export async function runDailyMarketMemoryPipeline(
     errors.push(...marketSnapshot.errors);
   }
 
-  const contents = await fetchTargetReports(db, params, errors);
+  const contents = await fetchTargetReports(db, params, inputDateQuery, errors);
   const ids = contents.map((c) => c.id);
   const coreByContent = await fetchLatestCoresByContentId(db, ids, errors);
 
-  const reports: AggregatedReportRow[] = contents.map((c) => {
+  let reports: AggregatedReportRow[] = contents.map((c) => {
     const meta = c.metadata;
     const core = coreByContent.get(c.id);
     const core_type = core?.core_type ?? null;
@@ -423,7 +429,7 @@ export async function runDailyMarketMemoryPipeline(
       id: c.id,
       market_memory_item_id: c.market_memory_item_id,
       report_type: c.report_type,
-      input_date: c.input_date,
+      market_date: c.market_date,
       lang_code: c.lang_code,
       title: c.title,
       summary: c.summary,
@@ -439,13 +445,55 @@ export async function runDailyMarketMemoryPipeline(
     };
   });
 
+  reports = reports.filter((r) => {
+    const normalized = normalizeReportMarketDate(r.market_date);
+    if (!normalized) {
+      return false;
+    }
+    return (
+      normalized >= inputDateQuery.marketDateStart &&
+      normalized <= inputDateQuery.marketDateEnd
+    );
+  });
+
+  const dateValidation = validatePipelineReports(
+    params.marketDate,
+    inputDateQuery,
+    reports,
+  );
+  if (!dateValidation.ok) {
+    const mismatchMessage = formatReportInputDateMismatchError(
+      inputDateQuery,
+      params.marketDate,
+      dateValidation.mismatches,
+    );
+    errors.push(mismatchMessage);
+    if (params.persistToDb) {
+      throw new DailyMarketMemoryInputDateError(mismatchMessage);
+    }
+    reports = [];
+  }
+
+  if (params.persistToDb && reports.length === 0) {
+    throw new DailyMarketMemoryInputDateError(
+      formatEmptyReportsError(inputDateQuery, params.marketDate),
+    );
+  }
+
+  if (reports.length === 0) {
+    errors.push(formatEmptyReportsError(inputDateQuery, params.marketDate));
+  }
+
   const aiInput = buildAiInput(params.marketDate, marketSnapshot, reports);
 
   const pipelineResult: DailyMarketMemoryPipelineResult = {
     ranAt,
     marketDate: params.marketDate,
-    coverageStartAt: params.coverageStartAt ?? null,
-    coverageEndAt: params.coverageEndAt ?? null,
+    coverageStartAt: inputDateQuery.coverageStartAt,
+    coverageEndAt: inputDateQuery.coverageEndAt,
+    reportInputMode: inputDateQuery.mode,
+    reportMarketDateStart: inputDateQuery.marketDateStart,
+    reportMarketDateEnd: inputDateQuery.marketDateEnd,
     langCode: params.langCode ?? "ko",
     visibility: params.visibility ?? "public_only",
     marketSnapshot,

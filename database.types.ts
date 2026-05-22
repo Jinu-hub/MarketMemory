@@ -566,11 +566,11 @@ export type Database = {
           created_at: string
           html_body: string | null
           id: string
-          input_date: string | null
           input_hash: string | null
           is_active: boolean
           is_public: boolean
           lang_code: string
+          market_date: string | null
           market_memory_item_id: string
           metadata: Json | null
           pipeline_info: Json | null
@@ -593,11 +593,11 @@ export type Database = {
           created_at?: string
           html_body?: string | null
           id?: string
-          input_date?: string | null
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
           lang_code?: string
+          market_date?: string | null
           market_memory_item_id: string
           metadata?: Json | null
           pipeline_info?: Json | null
@@ -620,11 +620,11 @@ export type Database = {
           created_at?: string
           html_body?: string | null
           id?: string
-          input_date?: string | null
           input_hash?: string | null
           is_active?: boolean
           is_public?: boolean
           lang_code?: string
+          market_date?: string | null
           market_memory_item_id?: string
           metadata?: Json | null
           pipeline_info?: Json | null
@@ -799,8 +799,8 @@ export type Database = {
           executed_date: string | null
           executed_id: string | null
           id: string
-          input_date: string | null
           job_code: string
+          market_date: string | null
           normalized_document_id: string | null
           notes: string | null
           ocr_job_id: string | null
@@ -817,8 +817,8 @@ export type Database = {
           executed_date?: string | null
           executed_id?: string | null
           id?: string
-          input_date?: string | null
           job_code: string
+          market_date?: string | null
           normalized_document_id?: string | null
           notes?: string | null
           ocr_job_id?: string | null
@@ -835,8 +835,8 @@ export type Database = {
           executed_date?: string | null
           executed_id?: string | null
           id?: string
-          input_date?: string | null
           job_code?: string
+          market_date?: string | null
           normalized_document_id?: string | null
           notes?: string | null
           ocr_job_id?: string | null

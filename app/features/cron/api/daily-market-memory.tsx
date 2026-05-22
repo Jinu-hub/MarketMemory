@@ -3,7 +3,8 @@
  * POST with Authorization: CRON_SECRET (same pattern as mailer / market-snapshot).
  *
  * Optional JSON body:
- * { "marketDate": "YYYY-MM-DD", "coverageStartAt": "ISO", "coverageEndAt": "ISO", "visibility": "public_only" | "all_active" }
+ * { "marketDate": "YYYY-MM-DD", "coverageStartAt"?: ISO, "coverageEndAt"?: ISO, "visibility": ... }
+ * coverage가 양쪽 모두 유효하면 item_contents.market_date 구간 조회, 아니면 market_date 단일일.
  */
 import type { Route } from "./+types/daily-market-memory";
 
@@ -28,9 +29,9 @@ export async function action({ request }: Route.ActionArgs) {
     process.env.DAILY_MARKET_MEMORY_TZ?.trim() || "Asia/Tokyo";
 
   let marketDate = formatMarketDateInTimeZone(new Date(), timeZone);
+  let visibility: DailyMarketMemoryVisibility = "public_only";
   let coverageStartAt: string | null = null;
   let coverageEndAt: string | null = null;
-  let visibility: DailyMarketMemoryVisibility = "public_only";
 
   const contentType = request.headers.get("Content-Type") ?? "";
   if (contentType.includes("application/json")) {

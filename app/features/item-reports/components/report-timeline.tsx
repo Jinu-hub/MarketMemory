@@ -41,7 +41,7 @@ type TimelineGroup = {
 function groupByMonth(reports: ReportListItem[]): TimelineGroup[] {
   const buckets = new Map<string, TimelineGroup>();
   for (const report of reports) {
-    const raw = report.input_date ?? report.created_at;
+    const raw = report.market_date ?? report.created_at;
     if (!raw) continue;
     const date = new Date(raw);
     if (Number.isNaN(date.getTime())) continue;
