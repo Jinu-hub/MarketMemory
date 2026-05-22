@@ -26,6 +26,78 @@ export type PersistMarketSnapshotStagingResult = {
   marketScope: string;
 };
 
+export type LoadedMarketSnapshotStaging = {
+  id: string;
+  marketDate: string;
+  marketScope: string;
+  fetchedAt: string;
+  status: string;
+  snapshot: MarketSnapshotPayload;
+};
+
+function resolveMarketScope(marketScope?: string): string {
+  return (
+    marketScope?.trim() ||
+    process.env.DAILY_MARKET_MEMORY_SCOPE?.trim() ||
+    "global"
+  );
+}
+
+function parseMarketSnapshotPayload(raw: Json): MarketSnapshotPayload | null {
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+    return null;
+  }
+  const o = raw as Record<string, unknown>;
+  if (typeof o.fetchedAt !== "string" || !Array.isArray(o.items)) {
+    return null;
+  }
+  return raw as unknown as MarketSnapshotPayload;
+}
+
+/**
+ * 해당 `market_date`·`market_scope`의 staging 중 `fetched_at` 최신 1건.
+ * status 무관(여러 active가 있을 수 있는 edge case 포함).
+ */
+export async function loadLatestMarketSnapshotStaging(
+  db: SupabaseClient<Database>,
+  params: { marketDate: string; marketScope?: string },
+): Promise<LoadedMarketSnapshotStaging | null> {
+  const marketScope = resolveMarketScope(params.marketScope);
+
+  const { data, error } = await db
+    .from("daily_market_snapshot_staging")
+    .select("id, market_date, market_scope, fetched_at, status, snapshot")
+    .eq("market_date", params.marketDate)
+    .eq("market_scope", marketScope)
+    .order("fetched_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `daily_market_snapshot_staging 조회 실패: ${error.message}`,
+    );
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  const snapshot = parseMarketSnapshotPayload(data.snapshot);
+  if (!snapshot) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    marketDate: data.market_date,
+    marketScope: data.market_scope,
+    fetchedAt: data.fetched_at,
+    status: data.status,
+    snapshot,
+  };
+}
+
 /**
  * 동일 `market_date`·`market_scope`의 active 행을 superseded로 두고
  * 새 스냅샷을 active로 저장합니다.

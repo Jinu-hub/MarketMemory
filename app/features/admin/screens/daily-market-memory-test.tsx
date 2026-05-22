@@ -112,12 +112,12 @@ export default function DailyMarketMemoryTestScreen({
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
         <AdminPageHeader
           title="데일리 마켓 메모리 파이프라인"
-          description="Step 1~4: 시장 스냅샷 → 리포트 조회 → 코어 집계 → AI 입력 JSON. DB 저장은 체크 시 service role로 저장합니다."
+          description="Step 1: 해당 market_date의 daily_market_snapshot_staging이 있으면 최신 fetched_at 행을 쓰고, 없으면 시장 스냅샷 API를 호출합니다."
         />
 
         <AdminSection
           title="실행"
-          description="기본은 Asia/Tokyo 기준 marketDate입니다. 커버리지를 넣으면 input_date가 해당 일자 범위 안인 행만 조회합니다."
+          description="market_date 기준 staging을 먼저 확인합니다. 커버리지를 넣으면 input_date가 해당 일자 범위 안인 행만 조회합니다."
         >
           <fetcher.Form method="post" className="max-w-xl space-y-4">
             <div className="space-y-1.5">
@@ -204,6 +204,12 @@ export default function DailyMarketMemoryTestScreen({
           ) : "ok" in fetcher.data && fetcher.data.ok ? (
             <NexCard variant="default" padding="md" className="border-border">
               <div className="mb-3 space-y-1 text-sm">
+                <p className="text-foreground">
+                  <span className="font-medium">시장 스냅샷:</span>{" "}
+                  {fetcher.data.result.marketSnapshotSource === "staging"
+                    ? `staging 재사용${fetcher.data.result.stagingSnapshotId ? ` (${fetcher.data.result.stagingSnapshotId})` : ""}`
+                    : "API fetch"}
+                </p>
                 <p className="text-foreground">
                   <span className="font-medium">DB 저장:</span>{" "}
                   {fetcher.data.result.savedToDb

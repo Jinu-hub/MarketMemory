@@ -6,6 +6,7 @@ import adminClient from "~/core/lib/supa-admin-client.server";
 import { notifyDailyMarketMemoryN8n } from "~/features/cron/lib/daily-market-memory-n8n.server";
 import { persistDailyMarketMemoryToDb } from "~/features/cron/lib/daily-market-memory-persist.server";
 import { getMarketSnapshot } from "~/features/cron/lib/market-snapshot";
+import { loadLatestMarketSnapshotStaging } from "~/features/cron/lib/market-snapshot-staging.server";
 import type {
   MarketSnapshotItem,
   MarketSnapshotPayload,
@@ -26,6 +27,8 @@ export interface RunDailyMarketMemoryPipelineParams {
   marketScope?: string;
   /** true이면 `daily_market_memories` / `daily_market_memory_sources`에 저장. */
   persistToDb?: boolean;
+  /** true면 staging을 건너뛰고 항상 시장 스냅샷 API를 호출합니다. */
+  skipStagingSnapshot?: boolean;
   /** 주입 가능한 클라이언트(테스트용). 미지정 시 service role admin 클라이언트 사용. */
   db?: SupabaseClient<Database>;
 }
@@ -95,6 +98,9 @@ export interface DailyMarketMemoryPipelineResult {
   langCode: string;
   visibility: DailyMarketMemoryVisibility;
   marketSnapshot: MarketSnapshotPayload;
+  /** staging 재사용 vs live API fetch */
+  marketSnapshotSource: "staging" | "api";
+  stagingSnapshotId: string | null;
   reports: AggregatedReportRow[];
   aiInput: DailyMarketMemoryAiInputV1;
   errors: string[];
@@ -362,8 +368,45 @@ export async function runDailyMarketMemoryPipeline(
   const errors: string[] = [];
   const db = params.db ?? adminClient;
 
-  const marketSnapshot = await getMarketSnapshot();
-  errors.push(...marketSnapshot.errors);
+  const marketScope =
+    params.marketScope?.trim() ||
+    process.env.DAILY_MARKET_MEMORY_SCOPE?.trim() ||
+    "global";
+
+  let marketSnapshot: MarketSnapshotPayload;
+  let marketSnapshotSource: "staging" | "api" = "api";
+  let stagingSnapshotId: string | null = null;
+
+  if (!params.skipStagingSnapshot) {
+    try {
+      const staged = await loadLatestMarketSnapshotStaging(db, {
+        marketDate: params.marketDate,
+        marketScope,
+      });
+      if (staged) {
+        marketSnapshot = staged.snapshot;
+        marketSnapshotSource = "staging";
+        stagingSnapshotId = staged.id;
+        errors.push(
+          `시장 스냅샷: daily_market_snapshot_staging 재사용 (id=${staged.id}, fetched_at=${staged.fetchedAt}, status=${staged.status})`,
+        );
+      } else {
+        marketSnapshot = await getMarketSnapshot();
+        errors.push(...marketSnapshot.errors);
+      }
+    } catch (stagingLoadError) {
+      errors.push(
+        stagingLoadError instanceof Error
+          ? `staging 조회 실패, API fetch로 대체: ${stagingLoadError.message}`
+          : "staging 조회 실패, API fetch로 대체",
+      );
+      marketSnapshot = await getMarketSnapshot();
+      errors.push(...marketSnapshot.errors);
+    }
+  } else {
+    marketSnapshot = await getMarketSnapshot();
+    errors.push(...marketSnapshot.errors);
+  }
 
   const contents = await fetchTargetReports(db, params, errors);
   const ids = contents.map((c) => c.id);
@@ -406,6 +449,8 @@ export async function runDailyMarketMemoryPipeline(
     langCode: params.langCode ?? "ko",
     visibility: params.visibility ?? "public_only",
     marketSnapshot,
+    marketSnapshotSource,
+    stagingSnapshotId,
     reports,
     aiInput,
     errors,
