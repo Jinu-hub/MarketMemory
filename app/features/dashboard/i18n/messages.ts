@@ -143,30 +143,35 @@ const ui = {
   ko: {
     page: {
       eyebrow: "Dashboard",
-      title: "오늘의 시장",
+      title: "최신 시장 브리핑",
       subtitle:
-        "오늘 시장에서 무엇이 중요한지, 어떤 테마가 부각되는지, 전체 분위기가 어떤지 한 화면에서 빠르게 살펴보세요.",
+        "거래일 기준으로 정리한 시장 메모리입니다. 핵심 요약, 테마, 분위기와 스냅샷을 한 화면에서 확인할 수 있습니다.",
+      publishedAtLabel: "발행",
+      statusLabel: "상태",
+      draftNote: "처리 중",
+      timezoneAbbr: "JST",
     },
     snapshot: {
       ariaLabel: "시장 스냅샷",
       noData: "데이터 없음",
+      caption: "발행시점 기준 주요 시세·지표",
     },
     todayMemory: {
-      eyebrow: "Today's Market Memory",
-      defaultTitle: "오늘의 시장 메모리",
-      emptyTitle: "오늘의 시장 메모리가 아직 준비되지 않았습니다",
+      eyebrow: "Daily Market Memory",
+      defaultTitle: "시장 메모리",
+      emptyTitle: "아직 발행된 시장 메모리가 없습니다",
       emptyDescription:
-        "AI 파이프라인이 오늘 데이터를 생성하면 핵심 요약, 주요 테마, 시장 분위기가 이 영역에 표시됩니다.",
+        "다음 발행분이 준비되면 핵심 요약, 주요 테마, 시장 분위기가 여기에 표시됩니다.",
       reportCount: "개 리포트",
       draft: "Draft",
       sections: {
         summary: {
           title: "핵심 요약",
-          hint: "오늘 시장을 어떻게 봐야 하는지에 대한 해석",
+          hint: "해당 거래일 시장을 어떻게 봐야 하는지",
         },
         themes: {
-          title: "오늘의 주요 테마",
-          hint: "현재 시장에서 의미 있는 흐름 3가지",
+          title: "주요 테마",
+          hint: "거래일 기준 의미 있는 흐름 3가지",
         },
         mood: {
           title: "시장 분위기",
@@ -175,7 +180,7 @@ const ui = {
       },
       empty: {
         coreSummary: "핵심 요약이 아직 준비되지 않았습니다.",
-        themes: "오늘 추출된 주요 테마가 없습니다.",
+        themes: "추출된 주요 테마가 없습니다.",
         mood: "분위기 해석이 아직 준비되지 않았습니다.",
       },
       relatedReports: "관련",
@@ -189,9 +194,9 @@ const ui = {
     },
     memoryRecall: {
       eyebrow: "Memory Recall",
-      title: "현재 이슈와 닮은 과거의 기억",
+      title: "이번 브리핑과 닮은 과거의 기억",
       description:
-        "오늘 시장 메모리와 유사한 과거 리포트, 그리고 반복되는 시장 패턴을 보여줍니다.",
+        "이번 브리핑과 유사한 과거 리포트, 그리고 반복되는 시장 패턴을 보여줍니다.",
       preview: "Preview",
       similar: {
         title: "유사한 과거 메모리",
@@ -207,8 +212,8 @@ const ui = {
     },
     riskRadar: {
       eyebrow: "Risk Radar",
-      title: "오늘의 리스크 신호",
-      description: "시장 메모리 파이프라인이 식별한 주의해야 할 리스크입니다.",
+      title: "리스크 신호",
+      description: "이번 메모리에서 눈에 띈 리스크 신호입니다.",
       preview: "Preview",
       countSuffix: "건",
       riskIndex: "Risk",
@@ -217,30 +222,35 @@ const ui = {
   en: {
     page: {
       eyebrow: "Dashboard",
-      title: "Today's market",
+      title: "Latest market briefing",
       subtitle:
-        "See what matters today, which themes stand out, and the overall mood—all on one screen.",
+        "Market memory organized by trading day—summary, themes, mood, and snapshot in one place.",
+      publishedAtLabel: "Published",
+      statusLabel: "Status",
+      draftNote: "In progress",
+      timezoneAbbr: "JST",
     },
     snapshot: {
       ariaLabel: "Market snapshot",
       noData: "No data",
+      caption: "Key prices and indicators at publish time",
     },
     todayMemory: {
-      eyebrow: "Today's Market Memory",
-      defaultTitle: "Today's market memory",
-      emptyTitle: "Today's market memory is not ready yet",
+      eyebrow: "Daily Market Memory",
+      defaultTitle: "Market memory",
+      emptyTitle: "No market memory has been published yet",
       emptyDescription:
-        "When the AI pipeline generates today's data, the summary, themes, and mood will appear here.",
+        "The next edition will show the summary, themes, and mood here.",
       reportCount: " reports",
       draft: "Draft",
       sections: {
         summary: {
           title: "Core summary",
-          hint: "How to read today's market",
+          hint: "How to read the market for this trading day",
         },
         themes: {
-          title: "Key themes today",
-          hint: "Three meaningful flows in the market now",
+          title: "Key themes",
+          hint: "Three meaningful flows for the trading day",
         },
         mood: {
           title: "Market mood",
@@ -249,7 +259,7 @@ const ui = {
       },
       empty: {
         coreSummary: "Core summary is not ready yet.",
-        themes: "No key themes were extracted today.",
+        themes: "No key themes were extracted.",
         mood: "Mood interpretation is not ready yet.",
       },
       relatedReports: "Related",
@@ -263,9 +273,9 @@ const ui = {
     },
     memoryRecall: {
       eyebrow: "Memory Recall",
-      title: "Past memories like today's issues",
+      title: "Past memories like this briefing",
       description:
-        "Similar past reports and repeating market patterns aligned with today's memory.",
+        "Similar past reports and repeating patterns aligned with this briefing.",
       preview: "Preview",
       similar: {
         title: "Similar past memories",
@@ -281,8 +291,8 @@ const ui = {
     },
     riskRadar: {
       eyebrow: "Risk Radar",
-      title: "Today's risk signals",
-      description: "Risks flagged by the market memory pipeline.",
+      title: "Risk signals",
+      description: "Risk signals noted in this edition.",
       preview: "Preview",
       countSuffix: "",
       riskIndex: "Risk",
@@ -291,30 +301,35 @@ const ui = {
   ja: {
     page: {
       eyebrow: "Dashboard",
-      title: "今日の市場",
+      title: "最新の市場ブリーフィング",
       subtitle:
-        "今日の市場で何が重要か、どのテーマが目立つか、全体のムードを一画面で素早く確認できます。",
+        "取引日ごとに整理した市場メモリ。要約・テーマ・ムードとスナップショットを一画面で見られます。",
+      publishedAtLabel: "配信",
+      statusLabel: "状態",
+      draftNote: "処理中",
+      timezoneAbbr: "JST",
     },
     snapshot: {
       ariaLabel: "市場スナップショット",
       noData: "データなし",
+      caption: "配信時点基準の主要な価格・指標",
     },
     todayMemory: {
-      eyebrow: "Today's Market Memory",
-      defaultTitle: "今日の市場メモリ",
-      emptyTitle: "今日の市場メモリはまだ準備されていません",
+      eyebrow: "Daily Market Memory",
+      defaultTitle: "市場メモリ",
+      emptyTitle: "まだ配信された市場メモリがありません",
       emptyDescription:
-        "AIパイプラインが今日のデータを生成すると、要約・テーマ・ムードがここに表示されます。",
+        "次の配信分が整うと、要約・テーマ・ムードがここに表示されます。",
       reportCount: "件のレポート",
       draft: "Draft",
       sections: {
         summary: {
           title: "核心要約",
-          hint: "今日の市場の見方",
+          hint: "この取引日の市場の見方",
         },
         themes: {
-          title: "今日の主要テーマ",
-          hint: "現在の市場で意味のある3つの流れ",
+          title: "主要テーマ",
+          hint: "取引日基準で意味のある3つの流れ",
         },
         mood: {
           title: "市場ムード",
@@ -323,7 +338,7 @@ const ui = {
       },
       empty: {
         coreSummary: "核心要約はまだ準備されていません。",
-        themes: "今日抽出された主要テーマはありません。",
+        themes: "抽出された主要テーマはありません。",
         mood: "ムード解釈はまだ準備されていません。",
       },
       relatedReports: "関連",
@@ -337,9 +352,9 @@ const ui = {
     },
     memoryRecall: {
       eyebrow: "Memory Recall",
-      title: "今日の論点に似た過去の記憶",
+      title: "今回の論点に似た過去の記憶",
       description:
-        "今日の市場メモリに似た過去レポートと、繰り返す市場パターンを表示します。",
+        "今回のブリーフィングに似た過去レポートと、繰り返す市場パターンを表示します。",
       preview: "Preview",
       similar: {
         title: "類似した過去メモリ",
@@ -355,8 +370,8 @@ const ui = {
     },
     riskRadar: {
       eyebrow: "Risk Radar",
-      title: "今日のリスクシグナル",
-      description: "市場メモリパイプラインが特定した注意リスクです。",
+      title: "リスクシグナル",
+      description: "今回のメモリで拾ったリスクシグナルです。",
       preview: "Preview",
       countSuffix: "件",
       riskIndex: "Risk",

@@ -124,6 +124,7 @@ export type DailyMarketMemorySnapshot = {
   market_scope: string;
   status: string;
   generated_at: string;
+  updated_at: string;
   source_report_count: number;
   core_lang_code: string;
 

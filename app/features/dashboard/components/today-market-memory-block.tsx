@@ -1,16 +1,10 @@
-import {
-  BrainCircuitIcon,
-  CalendarIcon,
-  FileTextIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { BrainCircuitIcon, FileTextIcon, SparklesIcon } from "lucide-react";
 
 import { NexBadge } from "~/core/components/nex";
 import { ContentTagList } from "~/core/components/content/content-tag-list";
 import { cn } from "~/core/lib/utils";
 
 import { pickDashboardUi } from "../i18n";
-import { formatMarketDate } from "../lib/dates";
 import {
   getMarketMoodLabel,
   getMarketMoodStyle,
@@ -53,7 +47,6 @@ export function TodayMarketMemoryBlock({
   const moodLabel = getMarketMoodLabel(moodStyle.key, locale);
   const moodSubdescription = getMarketMoodSubdescription(moodStyle.key, locale);
   const MoodIcon = moodStyle.icon;
-  const date = formatMarketDate(memory.market_date, locale);
   const t = ui.todayMemory;
 
   return (
@@ -83,12 +76,6 @@ export function TodayMarketMemoryBlock({
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
-          {date ? (
-            <span className="text-muted-foreground inline-flex items-center gap-1">
-              <CalendarIcon className="size-3.5" aria-hidden />
-              {date}
-            </span>
-          ) : null}
           {memory.source_report_count > 0 ? (
             <NexBadge variant="outline" size="sm">
               <FileTextIcon className="mr-1 size-3" aria-hidden />

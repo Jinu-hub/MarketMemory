@@ -4,7 +4,7 @@
  * Market Memory's daily reading dashboard. Composed of 5 sections:
  *
  *  1. Market Snapshot Bar          — ticker-style market metrics
- *  2. Today's Market Memory        — hero block (core summary + themes + mood)
+ *  2. Daily Market Memory           — hero block (trading-day narrative + themes + mood)
  *  3. Latest Reports               — 7 most recent published reports
  *  4. Memory Recall                — past memories that resonate today (preview UI)
  *  5. Risk Radar                   — risk signals flagged by today's pipeline
@@ -21,6 +21,7 @@ import type { Route } from "./+types/dashboard";
 
 import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
+import { DashboardMarketDate } from "~/features/dashboard/components/dashboard-market-date";
 import { MarketSnapshotBar } from "~/features/dashboard/components/market-snapshot-bar";
 import { TodayMarketMemoryBlock } from "~/features/dashboard/components/today-market-memory-block";
 import { LatestReportsBlock } from "~/features/dashboard/components/latest-reports-block";
@@ -36,7 +37,7 @@ export const meta: Route.MetaFunction = () => {
     {
       name: "description",
       content:
-        "오늘의 시장 메모리, 시장 스냅샷, 최신 리포트를 한 화면에서 빠르게 확인합니다.",
+        "거래일 기준 시장 브리핑, 스냅샷, 최신 리포트를 한 화면에서 확인합니다.",
     },
   ];
 };
@@ -59,7 +60,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-2 pb-10 sm:gap-7 sm:px-4 sm:pb-12 md:gap-8 md:px-6 md:pb-16 lg:px-8">
-      <header className="flex flex-wrap items-end justify-between gap-3">
+      <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         <div className="min-w-0 flex-1">
           <p className="text-primary text-[11px] font-medium tracking-wide uppercase sm:text-xs">
             {page.eyebrow}
@@ -71,11 +72,28 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             {page.subtitle}
           </p>
         </div>
+        {memory?.market_date ? (
+          <DashboardMarketDate
+            marketDate={memory.market_date}
+            locale={locale}
+            labels={{
+              tradingDay: "Market Date",
+              publishedAt: page.publishedAtLabel,
+              statusLabel: page.statusLabel,
+              draftNote: page.draftNote,
+              timezoneAbbr: page.timezoneAbbr,
+            }}
+            publishedAt={memory.updated_at ?? memory.generated_at}
+            status={memory.status}
+            className="shrink-0"
+          />
+        ) : null}
       </header>
 
       <MarketSnapshotBar
         snapshot={memory?.market_snapshot ?? null}
         locale={locale}
+        showCaption={Boolean(memory)}
       />
 
       <TodayMarketMemoryBlock memory={memory} locale={locale} />

@@ -16,6 +16,8 @@ import type { MarketSnapshotData } from "../types";
 type MarketSnapshotBarProps = {
   snapshot: MarketSnapshotData | null;
   locale?: string;
+  /** Show helper copy clarifying publish-time prices vs trading-day narrative. */
+  showCaption?: boolean;
   className?: string;
 };
 
@@ -38,6 +40,7 @@ type MarketSnapshotBarProps = {
 export function MarketSnapshotBar({
   snapshot,
   locale,
+  showCaption = false,
   className,
 }: MarketSnapshotBarProps) {
   const entries = resolveSnapshotEntries(snapshot);
@@ -64,6 +67,11 @@ export function MarketSnapshotBar({
           </li>
         ))}
       </ul>
+      {showCaption && snapshotUi.caption ? (
+        <p className="text-muted-foreground bg-card/80 border-border border-t px-3 py-2 text-[11px] leading-relaxed sm:px-4 sm:py-2.5 sm:text-xs">
+          {snapshotUi.caption}
+        </p>
+      ) : null}
     </section>
   );
 }

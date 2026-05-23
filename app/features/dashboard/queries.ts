@@ -62,7 +62,7 @@ export async function getLatestDailyMarketMemory(
   preferredLang: string,
 ): Promise<DailyMarketMemorySnapshot | null> {
   const MEMORY_SELECT =
-    "id,market_date,market_scope,status,generated_at,source_report_count,core_lang_code,market_snapshot,core_data,market_mood_type,risk_signals,top_tags";
+    "id,market_date,market_scope,status,generated_at,updated_at,source_report_count,core_lang_code,market_snapshot,core_data,market_mood_type,risk_signals,top_tags";
 
   // 1) Try to find the most recent finalized record first.
   let { data: memoryRow, error: finalError } = await client
@@ -117,6 +117,7 @@ export async function getLatestDailyMarketMemory(
     market_scope: memoryRow.market_scope,
     status: memoryRow.status,
     generated_at: memoryRow.generated_at,
+    updated_at: memoryRow.updated_at,
     source_report_count: memoryRow.source_report_count,
     core_lang_code: memoryRow.core_lang_code,
     market_snapshot:
