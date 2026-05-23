@@ -119,6 +119,8 @@ export interface DailyMarketMemoryPipelineResult {
   stagingSnapshotId: string | null;
   reports: AggregatedReportRow[];
   aiInput: DailyMarketMemoryAiInputV1;
+  /** 정상 경로 진행·재사용 등 진단용 (오류 아님) */
+  info: string[];
   errors: string[];
   savedToDb: boolean;
   dailyMarketMemoryId: string | null;
@@ -364,6 +366,7 @@ export async function runDailyMarketMemoryPipeline(
   params: RunDailyMarketMemoryPipelineParams,
 ): Promise<DailyMarketMemoryPipelineResult> {
   const ranAt = new Date().toISOString();
+  const info: string[] = [];
   const errors: string[] = [];
   const db = params.db ?? adminClient;
 
@@ -393,7 +396,7 @@ export async function runDailyMarketMemoryPipeline(
         marketSnapshot = staged.snapshot;
         marketSnapshotSource = "staging";
         stagingSnapshotId = staged.id;
-        errors.push(
+        info.push(
           `시장 스냅샷: daily_market_snapshot_staging 재사용 (id=${staged.id}, fetched_at=${staged.fetchedAt}, status=${staged.status})`,
         );
       } else {
@@ -501,6 +504,7 @@ export async function runDailyMarketMemoryPipeline(
     stagingSnapshotId,
     reports,
     aiInput,
+    info,
     errors,
     savedToDb: false,
     dailyMarketMemoryId: null,
@@ -533,6 +537,7 @@ export async function runDailyMarketMemoryPipeline(
         dailyMarketMemoryId: pipelineResult.dailyMarketMemoryId,
         savedToDb: true,
         reportCount: pipelineResult.reports.length,
+        info: [...pipelineResult.info],
         errors: [...pipelineResult.errors],
         aiInput: pipelineResult.aiInput,
       });

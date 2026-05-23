@@ -225,6 +225,11 @@ export default function DailyMarketMemoryTestScreen({
                     ? `완료 (${fetcher.data.result.dailyMarketMemoryId})`
                     : "안 함"}
                 </p>
+                {fetcher.data.result.info.length > 0 && (
+                  <p className="text-muted-foreground text-xs">
+                    정보 {fetcher.data.result.info.length}건 — JSON 하단 참고
+                  </p>
+                )}
                 {fetcher.data.result.errors.length > 0 && (
                   <p className="text-amber-600 text-xs">
                     경고/오류 {fetcher.data.result.errors.length}건 — JSON 하단 참고

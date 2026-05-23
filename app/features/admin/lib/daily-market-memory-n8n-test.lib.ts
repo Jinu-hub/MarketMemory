@@ -14,6 +14,7 @@ export function buildDailyMarketMemoryN8nTestPayload(): Record<string, unknown> 
     dailyMarketMemoryId: "api-test-manual",
     savedToDb: true,
     reportCount: 0,
+    info: [],
     errors: ["api-test: manual n8n webhook invocation"],
     aiInput: {
       marketDate,

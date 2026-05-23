@@ -666,10 +666,10 @@ export const itemSimilarityEdges = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     source_item_id: uuid("source_item_id")
       .notNull()
-      .references(() => itemContents.id),
+      .references(() => itemContents.id, { onDelete: "cascade" }),
     target_item_id: uuid("target_item_id")
       .notNull()
-      .references(() => itemContents.id),
+      .references(() => itemContents.id, { onDelete: "cascade" }),
     vector_score: numeric("vector_score"),
     tag_score: numeric("tag_score"),
     final_score: numeric("final_score"),

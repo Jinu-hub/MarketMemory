@@ -11,6 +11,7 @@ export interface NotifyDailyMarketMemoryN8nPayload {
   dailyMarketMemoryId: string;
   savedToDb: true;
   reportCount: number;
+  info: string[];
   errors: string[];
   aiInput: DailyMarketMemoryAiInputV1;
 }
