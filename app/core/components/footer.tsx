@@ -1,7 +1,7 @@
 /**
  * Newsletter System Footer Component
  *
- * A comprehensive footer for the Nexletter internal newsletter system.
+ * A comprehensive footer for the NexLetter internal newsletter system.
  * This component provides navigation links, company information, social links,
  * and newsletter subscription functionality.
  *
@@ -13,13 +13,10 @@
  * - Company branding and information
  * - Legal compliance links
  */
-import { Link } from "react-router";
-import { 
-  Mail, 
-  MessageSquare,
-} from "lucide-react";
-import { GitHubIcon, SlackIcon } from "~/core/components/nex/nex-icons";
+import { BrainCog, BrainCogIcon, BrainIcon, Mail, Megaphone, MegaphoneIcon, MemoryStickIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { NexFooter } from "~/core/components/nex";
+import { GitHubIcon, SlackIcon } from "~/core/components/nex/nex-icons";
 import { Actions } from "./navigation-bar";
 
 /**
@@ -35,6 +32,8 @@ import { Actions } from "./navigation-bar";
  * @returns A modern, comprehensive footer component
  */
 export default function Footer() {
+  const { t, i18n } = useTranslation();
+
   // Handle newsletter subscription
   const handleNewsletterSubscribe = async (email: string) => {
     // In a real application, this would make an API call
@@ -42,46 +41,66 @@ export default function Footer() {
     // You could integrate with your email service here
   };
 
+  // Company information - language dependent
+  const companyInfo = undefined;
+  /*
+  const companyInfo = i18n.language === "ko"
+    ? [
+        "링크버스(LinkVerse) | 사업자번호 844-64-00886 | 통신판매업 제2026-부산수영-0064호 | 대표: 송진우",
+        "부산 수영구 남천바다로21번길 69-5 | 문의: jinu30dev@gmail.com (010-6454-8896)"
+      ]
+    : undefined;
+  */
+  // Build legal links - Commercial Disclosure only for non-Korean languages
+  const legalItems = [
+    { label: t("menu.links.legal.items.privacyPolicy"), href: "/legal/privacy-policy" },
+    { label: t("menu.links.legal.items.termsOfService"), href: "/legal/terms-of-service" },
+  ];
+
+  // Add Commercial Disclosure link for non-Korean languages
+  /*
+  if (i18n.language == "ko") {
+    legalItems.push({
+      label: t("menu.links.legal.items.refundPolicy"),
+      href: "/legal/refund-policy"
+    });
+  } else {
+    legalItems.push({
+      label: t("menu.links.legal.items.commercialDisclosure"),
+      href: "/legal/commercial-disclosure"
+    });
+  }
+  */
+
   // Footer navigation links organized by sections
   const footerLinks = [
     {
-      title: "제품",
+      title: t("menu.links.product.title"),
       items: [
-        { label: "홈", href: "/" },
-        { label: "기능", href: "/features" },
-        { label: "통합", href: "/integrations" },
-        { label: "가격", href: "/pricing" },
-        { label: "샘플", href: "/samples" }
+        { label: t("menu.links.product.items.howItWorks"), href: "/how-it-works", disabled: true, tooltip: t("tooltip.soon") },
+        { label: t("menu.links.product.items.samples"), href: "/samples", disabled: true, tooltip: t("tooltip.soon") },
+        { label: t("menu.links.product.items.pricing"), href: "/pricing", disabled: true, tooltip: t("tooltip.soon") },
       ]
     },
     {
-      title: "회사",
+      title: t("menu.links.info.title"),
       items: [
-        { label: "소개", href: "/about" },
-        { label: "블로그", href: "/blog" },
-        { label: "채용", href: "/careers" },
-        { label: "연락처", href: "/contact" },
-        { label: "뉴스", href: "/news" }
+        { label: t("menu.links.info.items.about"), href: "/about" , disabled: true, tooltip: t("tooltip.soon") },
+        { label: t("menu.links.info.items.blog"), href: "https://linkverse.app/blog", external: true },
+        { label: t("menu.links.info.items.sitemap"), href: "/site-map", disabled: true, tooltip: t("tooltip.soon") },
       ]
     },
     {
-      title: "지원",
+      title: t("menu.links.support.title"),
       items: [
-        { label: "도움말", href: "/help" },
-        { label: "API 문서", href: "/docs" },
-        { label: "상태", href: "/status" },
-        { label: "커뮤니티", href: "/community" },
-        { label: "피드백", href: "/feedback" }
+        { label: t("menu.links.support.items.faq"), href: "/faq", disabled: true, tooltip: t("tooltip.soon") },
+        { label: t("menu.links.support.items.contact"), href: "/contact" },
+        { label: t("menu.links.support.items.community"), href: "/forum", disabled: true, tooltip: t("tooltip.soon") },
       ]
     },
     {
-      title: "법적 고지",
-      items: [
-        { label: "개인정보처리방침", href: "/legal/privacy-policy" },
-        { label: "이용약관", href: "/legal/terms-of-service" },
-        { label: "보안", href: "/legal/security" },
-        { label: "쿠키 정책", href: "/legal/cookies" }
-      ]
+      title: t("menu.links.legal.title"),
+      items: legalItems
     }
   ];
 
@@ -89,7 +108,7 @@ export default function Footer() {
   const socialLinks = [
     {
       platform: "github" as const,
-      href: "https://github.com/company",
+      href: "https://github.com/Jinu-hub",
       label: "GitHub",
       icon: <GitHubIcon className="h-5 w-5" />
     },
@@ -101,40 +120,44 @@ export default function Footer() {
     },
     {
       platform: "email" as const,
-      href: "mailto:support@company.com",
-      label: "이메일",
+      href: "mailto:jinu30dev@gmail.com",
+      label: "Email",
       icon: <Mail className="h-5 w-5" />
     },
+    /*
     {
       platform: "custom" as const,
       href: "/feedback",
       label: "피드백",
       icon: <MessageSquare className="h-5 w-5" />
     }
+    */
   ];
 
   return (
     <NexFooter
       variant="default"
       brand={{
-        name: "Nexletter",
-        description: "개발팀을 위한 스마트한 뉴스레터 시스템. Slack과 GitHub을 통합하여 팀의 주간 활동을 자동으로 정리하고 공유합니다.",
-        logo: <Mail className="h-8 w-8" />
+        name: "MarketMemory",
+        description: t("footer.brand.description"),
+        logo: <img src="/favicon.ico" alt="Market Memory" width={32} height={32} />
       }}
       links={footerLinks}
       social={socialLinks}
+      legal={{
+        copyright: "© 2026 LinkVerse. All rights reserved.\nMarket Memory is a service operated by LinkVerse.",
+        companyInfo: companyInfo,
+      }}
+      actions={<Actions />}
+      /*
       newsletter={{
-        title: "개발팀 뉴스레터 구독",
+        title: "뉴스레터 구독",
         description: "매주 팀의 활동과 성과를 담은 뉴스레터를 받아보세요",
         placeholder: "이메일 주소를 입력하세요",
         buttonText: "구독하기",
         onSubmit: handleNewsletterSubscribe
       }}
-      legal={{
-        copyright: "© 2026 LinkVerse. All rights reserved.",
-        companyInfo: ["LinkVerse", "Seoul, South Korea"],
-      }}
-      actions={<Actions />}
+        */
     />
   );
 }

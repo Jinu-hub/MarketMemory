@@ -69,7 +69,7 @@ export default function LangSwitcher() {
         <Button variant="ghost" size="icon" className="text-lg">
           {/* Conditionally render the appropriate flag based on current language */}
           {i18n.language === "en"
-            ? "🇬🇧" // UK flag for English
+            ? "🇺🇸" // US flag for English
             : i18n.language === "ko"
               ? "🇰🇷" // South Korea flag for Korean
               : i18n.language === "ja"

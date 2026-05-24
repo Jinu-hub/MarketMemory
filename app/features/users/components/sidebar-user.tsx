@@ -99,12 +99,14 @@ export default function SidebarUser({
                   Account
                 </Link>
               </DropdownMenuItem>
+              {/*
               <DropdownMenuItem asChild>
                 <Link to="/dashboard/payments">
                   <CreditCard />
                   Payments
                 </Link>
               </DropdownMenuItem>
+              */}
               <DropdownMenuItem>
                 <Bell />
                 Notifications

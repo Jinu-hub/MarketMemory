@@ -253,6 +253,7 @@ export function NavigationBar({
         {/* Desktop navigation menu (hidden on mobile) */}
         <div className="hidden h-full items-center gap-5 md:flex">
           {/* Main navigation links */}
+          {/*
           <Link
             to="/showcase/design"
             viewTransition
@@ -260,8 +261,11 @@ export function NavigationBar({
           >
             Components
           </Link>
+          */}
           <Link
-            to="/blog"
+            to="https://linkverse.app/blog"
+            target="_blank"
+            rel="noopener noreferrer"
             viewTransition
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
@@ -270,12 +274,11 @@ export function NavigationBar({
           <Link
             to="/contact"
             viewTransition
-            aria-disabled="true"
-            className="text-muted-foreground hover:text-foreground text-sm transition-colors pointer-events-none opacity-50 cursor-not-allowed"
-            onClick={(e) => e.preventDefault()}
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             Contact
           </Link>
+          {/*
           <Link
             to="/payments/checkout"
             viewTransition
@@ -285,6 +288,7 @@ export function NavigationBar({
           >
             Payments
           </Link>
+          */}
           
           <Separator orientation="vertical" />
           
@@ -318,18 +322,22 @@ export function NavigationBar({
         </SheetTrigger>
         <SheetContent>
           <SheetHeader>
+            {/*
             <SheetClose asChild>
               <Link to="/showcase/design">Components</Link>
             </SheetClose>
+            */}
             <SheetClose asChild>
-              <Link to="/blog">Blog</Link>
+              <Link to="https://linkverse.app/blog" target="_blank" rel="noopener noreferrer">Blog</Link>
             </SheetClose>
             <SheetClose asChild>
               <Link to="/contact">Contact</Link>
             </SheetClose>
+            {/*
             <SheetClose asChild>
               <Link to="/payments/checkout">Payments</Link>
             </SheetClose>
+            */}
           </SheetHeader>
           {loading ? (
             <div className="flex items-center">
