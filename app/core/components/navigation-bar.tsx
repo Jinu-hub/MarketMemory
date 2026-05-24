@@ -263,20 +263,47 @@ export function NavigationBar({
           </Link>
           */}
           <Link
+            to="/about"
+            viewTransition
+            aria-disabled="true"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors pointer-events-none opacity-50 cursor-not-allowed"
+            onClick={(e) => e.preventDefault()}
+          >
+            {t("menu.links.info.items.about")}
+          </Link>
+          <Link
             to="https://linkverse.app/blog"
             target="_blank"
             rel="noopener noreferrer"
             viewTransition
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
-            Blog
+            {t("menu.links.info.items.blog")}
+          </Link>
+          <Link
+            to="/faq"
+            viewTransition
+            aria-disabled="true"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors pointer-events-none opacity-50 cursor-not-allowed"
+            onClick={(e) => e.preventDefault()}
+          >
+            {t("menu.links.support.items.faq")}
+          </Link>
+          <Link
+            to="/pricing"
+            viewTransition
+            aria-disabled="true"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors pointer-events-none opacity-50 cursor-not-allowed"
+            onClick={(e) => e.preventDefault()}
+          >
+            {t("menu.links.product.items.pricing")}
           </Link>
           <Link
             to="/contact"
             viewTransition
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
-            Contact
+            {t("menu.links.support.items.contact")}
           </Link>
           {/*
           <Link
@@ -328,16 +355,20 @@ export function NavigationBar({
             </SheetClose>
             */}
             <SheetClose asChild>
-              <Link to="https://linkverse.app/blog" target="_blank" rel="noopener noreferrer">Blog</Link>
+              <Link to="/about">{t("menu.links.info.items.about")}</Link>
             </SheetClose>
             <SheetClose asChild>
-              <Link to="/contact">Contact</Link>
+              <Link to="https://linkverse.app/blog" target="_blank" rel="noopener noreferrer">{t("menu.links.info.items.blog")}</Link>
             </SheetClose>
-            {/*
             <SheetClose asChild>
-              <Link to="/payments/checkout">Payments</Link>
+              <Link to="/faq">{t("menu.links.support.items.faq")}</Link>
             </SheetClose>
-            */}
+            <SheetClose asChild>
+              <Link to="/pricing">{t("menu.links.product.items.pricing")}</Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link to="/contact">{t("menu.links.support.items.contact")}</Link>
+            </SheetClose>
           </SheetHeader>
           {loading ? (
             <div className="flex items-center">

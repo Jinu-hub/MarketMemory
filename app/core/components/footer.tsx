@@ -42,19 +42,17 @@ export default function Footer() {
   };
 
   // Company information - language dependent
-  const companyInfo = undefined;
-  /*
   const companyInfo = i18n.language === "ko"
     ? [
         "링크버스(LinkVerse) | 사업자번호 844-64-00886 | 통신판매업 제2026-부산수영-0064호 | 대표: 송진우",
         "부산 수영구 남천바다로21번길 69-5 | 문의: jinu30dev@gmail.com (010-6454-8896)"
       ]
     : undefined;
-  */
+
   // Build legal links - Commercial Disclosure only for non-Korean languages
   const legalItems = [
-    { label: t("menu.links.legal.items.privacyPolicy"), href: "/legal/privacy-policy" },
-    { label: t("menu.links.legal.items.termsOfService"), href: "/legal/terms-of-service" },
+    { label: t("menu.links.legal.items.privacyPolicy"), href: "/legal/privacy-policy", disabled: false, tooltip: t("tooltip.soon") },
+    { label: t("menu.links.legal.items.termsOfService"), href: "/legal/terms-of-service", disabled: false, tooltip: t("tooltip.soon") },
   ];
 
   // Add Commercial Disclosure link for non-Korean languages
@@ -62,12 +60,16 @@ export default function Footer() {
   if (i18n.language == "ko") {
     legalItems.push({
       label: t("menu.links.legal.items.refundPolicy"),
-      href: "/legal/refund-policy"
+      href: "/legal/refund-policy",
+      disabled: true,
+      tooltip: t("tooltip.soon"),
     });
   } else {
     legalItems.push({
       label: t("menu.links.legal.items.commercialDisclosure"),
-      href: "/legal/commercial-disclosure"
+      href: "/legal/commercial-disclosure",
+      disabled: true,
+      tooltip: t("tooltip.soon"),
     });
   }
   */
@@ -77,7 +79,7 @@ export default function Footer() {
     {
       title: t("menu.links.product.title"),
       items: [
-        { label: t("menu.links.product.items.howItWorks"), href: "/how-it-works", disabled: true, tooltip: t("tooltip.soon") },
+        //{ label: t("menu.links.product.items.howItWorks"), href: "/how-it-works", disabled: true, tooltip: t("tooltip.soon") },
         { label: t("menu.links.product.items.samples"), href: "/samples", disabled: true, tooltip: t("tooltip.soon") },
         { label: t("menu.links.product.items.pricing"), href: "/pricing", disabled: true, tooltip: t("tooltip.soon") },
       ]
@@ -87,7 +89,7 @@ export default function Footer() {
       items: [
         { label: t("menu.links.info.items.about"), href: "/about" , disabled: true, tooltip: t("tooltip.soon") },
         { label: t("menu.links.info.items.blog"), href: "https://linkverse.app/blog", external: true },
-        { label: t("menu.links.info.items.sitemap"), href: "/site-map", disabled: true, tooltip: t("tooltip.soon") },
+        //{ label: t("menu.links.info.items.sitemap"), href: "/site-map", disabled: true, tooltip: t("tooltip.soon") },
       ]
     },
     {
@@ -95,7 +97,7 @@ export default function Footer() {
       items: [
         { label: t("menu.links.support.items.faq"), href: "/faq", disabled: true, tooltip: t("tooltip.soon") },
         { label: t("menu.links.support.items.contact"), href: "/contact" },
-        { label: t("menu.links.support.items.community"), href: "/forum", disabled: true, tooltip: t("tooltip.soon") },
+       // { label: t("menu.links.support.items.community"), href: "/forum", disabled: true, tooltip: t("tooltip.soon") },
       ]
     },
     {
