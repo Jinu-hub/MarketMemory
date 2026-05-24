@@ -7,11 +7,12 @@
  *  2. Daily Market Memory           — hero block (trading-day narrative + themes + mood)
  *  3. Latest Reports               — 7 most recent published reports
  *  4. Memory Recall                — past memories that resonate today (preview UI)
- *  5. Risk Radar                   — risk signals flagged by today's pipeline
+ *  5. Signal Radar                 — risk / opportunity / turning-point signals (preview UI)
  *
  * Data sources:
- *  - `daily_market_memories` + `daily_market_memory_i18n` for sections 1–2,5
+ *  - `daily_market_memories` + `daily_market_memory_i18n` for sections 1–2
  *  - `item_contents` (public + active) for section 3
+ *  - Sections 4 & 5 are mock-only previews ("Coming Soon" by default)
  *
  * Note: `daily_market_memories` is currently RLS-restricted to admins. The
  * loader returns `null` gracefully when access is denied so the screen still
@@ -26,7 +27,7 @@ import { MarketSnapshotBar } from "~/features/dashboard/components/market-snapsh
 import { TodayMarketMemoryBlock } from "~/features/dashboard/components/today-market-memory-block";
 import { LatestReportsBlock } from "~/features/dashboard/components/latest-reports-block";
 import { MemoryRecallBlock } from "~/features/dashboard/components/memory-recall-block";
-import { RiskRadarBlock } from "~/features/dashboard/components/risk-radar-block";
+import { SignalRadarBlock } from "~/features/dashboard/components/signal-radar-block";
 import { pickDashboardUi } from "~/features/dashboard/i18n";
 import { getLatestDailyMarketMemory } from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
@@ -102,10 +103,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
       <MemoryRecallBlock locale={locale} />
 
-      <RiskRadarBlock
-        signals={memory?.risk_signals ?? null}
-        locale={locale}
-      />
+      <SignalRadarBlock locale={locale} />
     </div>
   );
 }

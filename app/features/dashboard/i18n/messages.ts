@@ -223,13 +223,43 @@ const ui = {
         occurrencesSuffix: "회",
       },
     },
-    riskRadar: {
-      eyebrow: "Risk Radar",
-      title: "리스크 신호",
-      description: "이번 메모리에서 눈에 띈 리스크 신호입니다.",
+    signalRadar: {
+      eyebrow: "Signal Radar",
+      title: "지금 주목할 시장 신호",
+      description:
+        "리스크와 기회, 전환점까지 — 시장이 지금 관찰해야 할 흐름을 모았습니다.",
       preview: "Preview",
-      countSuffix: "건",
-      riskIndex: "Risk",
+      comingSoon: {
+        badge: "개발 중",
+        title: "곧 만나볼 수 있어요",
+        description:
+          "최근 리포트와 오늘의 시장 메모리에서 반복적으로 등장하는 시그널을 자동으로 모아 보여드릴 예정입니다.",
+        hooks: [
+          "리스크·기회·전환점을 함께 보는 시그널 큐레이션",
+          "관찰 포인트(watch points) 자동 추출",
+          "테마·잠재 영향도 기반 우선순위 정렬",
+        ],
+        previewCta: "샘플 미리보기",
+        hidePreviewCta: "샘플 닫기",
+      },
+      labels: {
+        relatedTheme: "관련 테마",
+        impact: "영향도",
+        watchPoints: "관찰 포인트",
+      },
+      signalType: {
+        risk: "Risk",
+        opportunity: "Opportunity",
+        turning_point: "Turning Point",
+        macro_pressure: "Macro Pressure",
+        valuation_watch: "Valuation Watch",
+        policy_watch: "Policy Watch",
+      },
+      impactLevel: {
+        Low: "낮음",
+        Medium: "중간",
+        High: "높음",
+      },
     },
   },
   en: {
@@ -315,13 +345,43 @@ const ui = {
         occurrencesSuffix: "×",
       },
     },
-    riskRadar: {
-      eyebrow: "Risk Radar",
-      title: "Risk signals",
-      description: "Risk signals noted in this edition.",
+    signalRadar: {
+      eyebrow: "Signal Radar",
+      title: "Market signals to watch now",
+      description:
+        "Risks, opportunities, and turning points the market should be tracking right now.",
       preview: "Preview",
-      countSuffix: "",
-      riskIndex: "Risk",
+      comingSoon: {
+        badge: "Coming soon",
+        title: "Coming soon",
+        description:
+          "We'll automatically curate signals that recur across recent reports and today's market memory.",
+        hooks: [
+          "Unified curation across risks, opportunities, and turning points",
+          "Auto-extracted watch points",
+          "Prioritized by theme and potential impact",
+        ],
+        previewCta: "Preview sample",
+        hidePreviewCta: "Hide sample",
+      },
+      labels: {
+        relatedTheme: "Related theme",
+        impact: "Impact",
+        watchPoints: "Watch points",
+      },
+      signalType: {
+        risk: "Risk",
+        opportunity: "Opportunity",
+        turning_point: "Turning Point",
+        macro_pressure: "Macro Pressure",
+        valuation_watch: "Valuation Watch",
+        policy_watch: "Policy Watch",
+      },
+      impactLevel: {
+        Low: "Low",
+        Medium: "Medium",
+        High: "High",
+      },
     },
   },
   ja: {
@@ -407,13 +467,43 @@ const ui = {
         occurrencesSuffix: "回",
       },
     },
-    riskRadar: {
-      eyebrow: "Risk Radar",
-      title: "リスクシグナル",
-      description: "今回のメモリで拾ったリスクシグナルです。",
+    signalRadar: {
+      eyebrow: "Signal Radar",
+      title: "今注目すべき市場シグナル",
+      description:
+        "リスク・機会・転換点まで、市場が今観察すべき流れをまとめています。",
       preview: "Preview",
-      countSuffix: "件",
-      riskIndex: "Risk",
+      comingSoon: {
+        badge: "開発中",
+        title: "近日公開予定",
+        description:
+          "最近のレポートと本日の市場メモリから繰り返し現れるシグナルを自動でキュレーションして表示します。",
+        hooks: [
+          "リスク・機会・転換点を統合したシグナルキュレーション",
+          "ウォッチポイントの自動抽出",
+          "テーマ・潜在的影響度に基づく優先度ソート",
+        ],
+        previewCta: "サンプルを見る",
+        hidePreviewCta: "サンプルを閉じる",
+      },
+      labels: {
+        relatedTheme: "関連テーマ",
+        impact: "影響度",
+        watchPoints: "ウォッチポイント",
+      },
+      signalType: {
+        risk: "Risk",
+        opportunity: "Opportunity",
+        turning_point: "Turning Point",
+        macro_pressure: "Macro Pressure",
+        valuation_watch: "Valuation Watch",
+        policy_watch: "Policy Watch",
+      },
+      impactLevel: {
+        Low: "低",
+        Medium: "中",
+        High: "高",
+      },
     },
   },
 } as const;
