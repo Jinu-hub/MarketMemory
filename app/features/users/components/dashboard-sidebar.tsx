@@ -1,17 +1,10 @@
 import {
   BookOpenIcon,
-  BriefcaseIcon,
-  BuildingIcon,
+  BrainIcon,
   GalleryVerticalEndIcon,
-  HeartHandshakeIcon,
   LayoutDashboardIcon,
-  LineChartIcon,
   MegaphoneIcon,
-  RocketIcon,
-  Settings2Icon,
   ShieldIcon,
-  Target,
-  UsersIcon,
 } from "lucide-react";
 
 import {
@@ -23,11 +16,11 @@ import {
 } from "~/core/components/ui/sidebar";
 
 import SidebarMain from "./sidebar-main";
-import SidebarProjects from "./sidebar-projects";
 import TeamSwitcher from "./sidebar-team-switcher";
 import SidebarUser from "./sidebar-user";
 import ThemeSwitcher from "~/core/components/theme-switcher";
 import LangSwitcher from "~/core/components/lang-switcher";
+import SidebarSeries from "./sidebar-series";
 
 const data = {
   teams: [
@@ -36,18 +29,6 @@ const data = {
       logo: GalleryVerticalEndIcon,
       plan: "Basic mode",
     },
-    /*
-    {
-      name: "TechCo Solutions",
-      logo: BriefcaseIcon,
-      plan: "Startup",
-    },
-    {
-      name: "GrowthMate",
-      logo: RocketIcon,
-      plan: "Free",
-    },
-    */
   ],
   navMain: [
     {
@@ -56,12 +37,12 @@ const data = {
       icon: LayoutDashboardIcon,
       items: [
         {
-          title: "최신 시장 브리핑",
+          title: "마켓 브리핑",
           url: "/dashboard",
         },
         {
-          title: "오늘의 시황",
-          url: "/dashboard/today-snapshot",
+          title: "마켓 현황",
+          url: "/dashboard/market-snapshot",
           soon: true,
         },
       ],
@@ -70,101 +51,48 @@ const data = {
       title: "리포트",
       url: "/item_reports",
       icon: BookOpenIcon,
-      isActive: true,
       items: [
         {
-          title: "전체 리포트",
+          title: "리포트 라이브러리",
           url: "/item_reports",
         },
         {
-          title: "탐험",
+          title: "탐색",
           url: "/item_reports/explore",
         },
         {
-          title: "연대기",
+          title: "타임라인",
           url: "/item_reports/timeline",
         },
       ],
     },
     {
-      title: "Customers",
-      url: "#",
-      icon: UsersIcon,
+      title: "인사이트",
+      url: "/insights",
+      icon: BrainIcon,
       items: [
         {
-          title: "Contacts",
-          url: "#",
+          title: "마켓 메모리",
+          url: "/insights/market-memory",
+          soon: true,
         },
         {
-          title: "Companies",
-          url: "#",
-        },
-        {
-          title: "Deals",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Sales",
-      url: "#",
-      icon: LineChartIcon,
-      items: [
-        {
-          title: "Pipeline",
-          url: "#",
-        },
-        {
-          title: "Opportunities",
-          url: "#",
-        },
-        {
-          title: "Quotes",
-          url: "#",
-        },
-        {
-          title: "Invoices",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2Icon,
-      items: [
-        {
-          title: "Workspace",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Integrations",
-          url: "#",
+          title: "엔티티 탐색",
+          url: "/insights/entity-explore",
+          soon: true,
         },
       ],
     },
   ],
-  projects: [
+  /*
+  series: [
     {
-      name: "Sales Team",
-      url: "#",
-      icon: Target,
-    },
-    {
-      name: "Customer Success",
-      url: "#",
-      icon: HeartHandshakeIcon,
-    },
-    {
-      name: "Marketing",
-      url: "#",
+      name: "주간 AI 이슈 다이제스트",
+      url: "/weekly-ai-issue-digest",
       icon: MegaphoneIcon,
     },
   ],
+  */
 };
 
 export default function DashboardSidebar({
@@ -190,6 +118,8 @@ export default function DashboardSidebar({
             { title: "파이프라인", url: "/admin/pipelines" },
             { title: "에이전트", url: "/admin/agents" },
             { title: "프롬프트", url: "/admin/prompts" },
+            { title: "API 테스트", url: "/admin/api-tests" },
+            { title: "유사도 측정", url: "/admin/similarity-measurements" },
           ],
         },
         ...data.navMain,
@@ -203,7 +133,9 @@ export default function DashboardSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMain items={navMain} />
-        <SidebarProjects projects={data.projects} />
+        {/*
+        <SidebarSeries series={data.series} />
+        */}
       </SidebarContent>
       <SidebarFooter>
       <div className="flex flex-col gap-3">
