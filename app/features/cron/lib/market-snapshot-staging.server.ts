@@ -2,8 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database, Json } from "database.types";
 
-import { formatMarketDateInTimeZone } from "./daily-market-memory-pipeline";
+import { marketDateFromFetchedAt } from "./market-snapshot-staging-date";
 import type { MarketSnapshotPayload } from "./market-snapshot.types";
+
+export { marketDateFromFetchedAt } from "./market-snapshot-staging-date";
 
 const STAGING_TTL_DAYS = 7;
 
@@ -116,10 +118,7 @@ export async function persistMarketSnapshotStaging(
     "global";
   const marketDate =
     params.marketDate?.trim() ||
-    formatMarketDateInTimeZone(
-      new Date(params.snapshot.fetchedAt),
-      generationTimezone,
-    );
+    marketDateFromFetchedAt(params.snapshot.fetchedAt);
 
   const now = new Date().toISOString();
 

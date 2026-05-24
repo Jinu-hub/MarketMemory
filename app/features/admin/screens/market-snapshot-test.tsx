@@ -3,6 +3,7 @@ import type { Route } from "./+types/market-snapshot-test";
 import { useState } from "react";
 import { ArrowLeftIcon, PlayIcon } from "lucide-react";
 import { Link, data, useFetcher } from "react-router";
+import { z } from "zod";
 
 import { AdminPageHeader, AdminSection } from "../components/admin-ui";
 import { NexButton, NexCard } from "~/core/components/nex";
@@ -10,6 +11,13 @@ import { persistMarketSnapshotStaging } from "~/features/cron/lib/market-snapsho
 import type { MarketSnapshotPayload } from "~/features/cron/lib/market-snapshot.types";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
+
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+const formSchema = z.object({
+  marketDate: z.string().optional(),
+  marketScope: z.string().optional(),
+});
 
 type MarketSnapshotApiSuccess = {
   provider: string;
@@ -50,6 +58,8 @@ type ActionPayload =
         id: string;
         marketDate: string;
         marketScope: string;
+        marketDateSource: "form" | "fetched_at";
+        fetchedAtUtcDate: string;
       } | null;
       stagingError: string | null;
     }
@@ -67,13 +77,40 @@ export const meta: Route.MetaFunction = () => [
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   await requireAdmin(client);
-  return {};
+  return {
+    defaultMarketScope:
+      process.env.DAILY_MARKET_MEMORY_SCOPE?.trim() || "global",
+  };
 }
 
 export async function action({ request }: Route.ActionArgs) {
   requireMethod("POST")(request);
   const [client] = makeServerClient(request);
   await requireAdmin(client);
+
+  const formData = await request.formData();
+  const parsedForm = formSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedForm.success) {
+    return data<ActionPayload>(
+      { ok: false, status: 400, message: "유효하지 않은 입력입니다." },
+      { status: 400 },
+    );
+  }
+
+  const marketDateRaw = parsedForm.data.marketDate?.trim() ?? "";
+  if (marketDateRaw !== "" && !DATE_ONLY.test(marketDateRaw)) {
+    return data<ActionPayload>(
+      {
+        ok: false,
+        status: 400,
+        message: "market_date는 YYYY-MM-DD 형식이어야 합니다.",
+      },
+      { status: 400 },
+    );
+  }
+  const marketDateOverride =
+    marketDateRaw !== "" ? marketDateRaw : undefined;
+  const marketScopeOverride = parsedForm.data.marketScope?.trim() || undefined;
 
   const authorization = process.env.CRON_SECRET;
   if (!authorization) {
@@ -115,17 +152,23 @@ export async function action({ request }: Route.ActionArgs) {
     id: string;
     marketDate: string;
     marketScope: string;
+    marketDateSource: "form" | "fetched_at";
+    fetchedAtUtcDate: string;
   } | null = null;
   let stagingError: string | null = null;
 
   try {
     const saved = await persistMarketSnapshotStaging(client, {
       snapshot: snapshot as MarketSnapshotPayload,
+      marketDate: marketDateOverride,
+      marketScope: marketScopeOverride,
     });
     staging = {
       id: saved.id,
       marketDate: saved.marketDate,
       marketScope: saved.marketScope,
+      marketDateSource: marketDateOverride ? "form" : "fetched_at",
+      fetchedAtUtcDate: new Date(snapshot.fetchedAt).toISOString().slice(0, 10),
     };
   } catch (error) {
     stagingError =
@@ -141,10 +184,13 @@ export async function action({ request }: Route.ActionArgs) {
   });
 }
 
-export default function MarketSnapshotTestScreen() {
+export default function MarketSnapshotTestScreen({
+  loaderData,
+}: Route.ComponentProps) {
   const fetcher = useFetcher<typeof action>();
   const busy = fetcher.state !== "idle";
   const payload = fetcher.data;
+  const defaultMarketScope = loaderData?.defaultMarketScope ?? "global";
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
     "idle",
   );
@@ -174,9 +220,43 @@ export default function MarketSnapshotTestScreen() {
 
         <AdminSection
           title="실행"
-          description="관리자 서버 액션이 /api/cron/market-snapshot를 호출하고, 성공 시 daily_market_snapshot_staging에 active로 저장합니다."
+          description="API 호출 후 staging에 저장합니다. market_date를 비우면 응답 fetched_at(UTC) 날짜를 사용합니다."
         >
-          <fetcher.Form method="post" className="flex items-center gap-3">
+          <fetcher.Form method="post" className="max-w-xl space-y-4">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="stagingMarketDate"
+                className="text-foreground text-sm font-medium"
+              >
+                market_date (선택, YYYY-MM-DD)
+              </label>
+              <input
+                id="stagingMarketDate"
+                name="marketDate"
+                type="date"
+                className="border-border bg-background text-foreground h-11 w-full rounded-lg border px-3 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40"
+              />
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                비우면 <code className="text-foreground">fetched_at</code>의 UTC
+                날짜가 들어갑니다. DMM 파이프라인과 맞추려면 거래일을 직접 지정하세요.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <label
+                htmlFor="stagingMarketScope"
+                className="text-foreground text-sm font-medium"
+              >
+                market_scope (선택)
+              </label>
+              <input
+                id="stagingMarketScope"
+                name="marketScope"
+                type="text"
+                defaultValue={defaultMarketScope}
+                placeholder="global"
+                className="border-border bg-background text-foreground h-11 w-full rounded-lg border px-3 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40"
+              />
+            </div>
             <NexButton
               type="submit"
               variant="primary"
@@ -184,7 +264,7 @@ export default function MarketSnapshotTestScreen() {
               loading={busy}
               disabled={busy}
             >
-              API 실행
+              API 실행 · staging 저장
             </NexButton>
           </fetcher.Form>
         </AdminSection>
@@ -216,8 +296,11 @@ export default function MarketSnapshotTestScreen() {
                         <span className="font-medium">Staging 저장:</span> 성공
                       </p>
                       <p className="text-muted-foreground font-mono text-xs break-all">
-                        id {payload.staging.id} · {payload.staging.marketDate} ·{" "}
-                        {payload.staging.marketScope}
+                        id {payload.staging.id} · market_date {payload.staging.marketDate}{" "}
+                        ({payload.staging.marketDateSource === "form"
+                          ? "폼 지정"
+                          : `fetched_at UTC ${payload.staging.fetchedAtUtcDate}`}
+                        ) · {payload.staging.marketScope}
                       </p>
                     </>
                   ) : null}
