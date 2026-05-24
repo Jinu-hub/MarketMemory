@@ -5,8 +5,8 @@
  * Each entry is grouped by month and rendered through the `ReportTimeline`
  * component so users can track how the research story evolves over time.
  */
-import { ChevronDownIcon, ClockIcon } from "lucide-react";
-import { Link } from "react-router";
+import { ChevronDownIcon, ClockIcon, GridIcon } from "lucide-react";
+import { Link, redirect } from "react-router";
 
 import { NexBadge, NexButton } from "~/core/components/nex";
 import {
@@ -50,11 +50,19 @@ export async function loader({ request }: Route.LoaderArgs) {
     ),
   ).sort((a, b) => b - a);
 
+  const defaultYear = years[0] ?? null;
+
+  if (!yearParam && defaultYear !== null) {
+    throw redirect(itemReportsTimelineHref({ year: defaultYear }));
+  }
+
   const parsedYear = yearParam ? Number.parseInt(yearParam, 10) : NaN;
   const selectedYear =
-    Number.isFinite(parsedYear) && years.includes(parsedYear)
-      ? parsedYear
-      : null;
+    yearParam === "all"
+      ? null
+      : Number.isFinite(parsedYear) && years.includes(parsedYear)
+        ? parsedYear
+        : defaultYear;
 
   const filteredReports =
     selectedYear === null
@@ -82,7 +90,12 @@ export default function ItemReportsTimeline({
       <nav className="flex items-center justify-between">
         <ItemReportsNavLink to="/item_reports">라이브러리</ItemReportsNavLink>
         <Link to="/item_reports/explore" viewTransition>
-          <NexButton variant="ghost" size="sm">
+          <NexButton
+            className="cursor-pointer"
+            variant="secondary"
+            size="sm"
+            leftIcon={<GridIcon className="size-4" />}
+          >
             Explore
           </NexButton>
         </Link>
@@ -137,7 +150,7 @@ export default function ItemReportsTimeline({
           >
             <div className="flex flex-wrap gap-2 pt-3">
               <Link
-                to={itemReportsTimelineHref({})}
+                to={itemReportsTimelineHref({ year: "all" })}
                 viewTransition
                 className={cn(
                   "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors",

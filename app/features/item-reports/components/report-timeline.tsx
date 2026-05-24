@@ -80,13 +80,14 @@ export function ReportTimeline({
 
   return (
     <div className={cn(compact ? "space-y-3" : "space-y-10", className)}>
-      {groups.map((group) => (
+      {groups.map((group, index) => (
         <TimelineMonthGroup
           key={group.key}
           group={group}
           compact={compact}
           showGroupCounts={showGroupCounts}
           collapsible={!compact || groups.length > 1}
+          defaultOpen={index === 0}
         />
       ))}
     </div>
@@ -98,13 +99,16 @@ function TimelineMonthGroup({
   compact,
   showGroupCounts,
   collapsible,
+  defaultOpen,
 }: {
   group: TimelineGroup;
   compact: boolean;
   showGroupCounts: boolean;
   collapsible: boolean;
+  /** 최신 월만 `true` — 그룹은 `groupByMonth` 내림차순 정렬 기준 */
+  defaultOpen: boolean;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(defaultOpen);
   const panelId = `timeline-month-${group.key}`;
   const countLabel = showGroupCounts ? `, ${group.reports.length}건` : "";
 

@@ -148,6 +148,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
           <div className="flex shrink-0 items-center gap-2">
             <Link to="/item_reports/timeline" viewTransition>
               <NexButton
+                className="cursor-pointer"
                 variant="secondary"
                 size="sm"
                 leftIcon={<ClockIcon className="size-4" />}
@@ -157,7 +158,8 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
             </Link>
             <Link to="/item_reports/explore" viewTransition>
               <NexButton
-                variant="ghost"
+                className="cursor-pointer"
+                variant="secondary"
                 size="sm"
                 leftIcon={<GridIcon className="size-4" />}
               >
