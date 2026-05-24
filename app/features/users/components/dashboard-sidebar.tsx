@@ -2,6 +2,7 @@ import {
   BookOpenIcon,
   BriefcaseIcon,
   BuildingIcon,
+  GalleryVerticalEndIcon,
   HeartHandshakeIcon,
   LayoutDashboardIcon,
   LineChartIcon,
@@ -31,10 +32,11 @@ import LangSwitcher from "~/core/components/lang-switcher";
 const data = {
   teams: [
     {
-      name: "SalesForge",
-      logo: BuildingIcon,
-      plan: "Enterprise",
+      name: "Default",
+      logo: GalleryVerticalEndIcon,
+      plan: "Basic mode",
     },
+    /*
     {
       name: "TechCo Solutions",
       logo: BriefcaseIcon,
@@ -45,39 +47,41 @@ const data = {
       logo: RocketIcon,
       plan: "Free",
     },
+    */
   ],
   navMain: [
     {
-      title: "Dashboard",
+      title: "대시보드",
       url: "/dashboard",
       icon: LayoutDashboardIcon,
       items: [
         {
-          title: "Overview",
+          title: "최신 시장 브리핑",
           url: "/dashboard",
         },
         {
-          title: "Payments",
-          url: "/dashboard/payments",
+          title: "오늘의 시황",
+          url: "/dashboard/today-snapshot",
+          soon: true,
         },
       ],
     },
     {
-      title: "Item Reports",
+      title: "리포트",
       url: "/item_reports",
       icon: BookOpenIcon,
       isActive: true,
       items: [
         {
-          title: "All Reports",
+          title: "전체 리포트",
           url: "/item_reports",
         },
         {
-          title: "Explore",
+          title: "탐험",
           url: "/item_reports/explore",
         },
         {
-          title: "Timeline",
+          title: "연대기",
           url: "/item_reports/timeline",
         },
       ],

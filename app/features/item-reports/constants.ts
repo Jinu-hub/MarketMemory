@@ -67,14 +67,14 @@ export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
 };
 
 export const REPORT_TYPE_LABELS_KO: Record<ReportType, string> = {
-  "digest-report": "다이제스트",
-  "full-report": "풀 리포트",
-  "analysis-report": "분석",
-  "thesis-report": "테제",
-  "briefing-report": "브리핑",
-  "baseline-report": "베이스라인",
-  review: "리뷰",
-  other: "기타",
+  "digest-report": "Digest",
+  "full-report": "Full Report",
+  "analysis-report": "Analysis",
+  "thesis-report": "Thesis",
+  "briefing-report": "Briefing",
+  "baseline-report": "Baseline",
+  review: "Review",
+  other: "Other",
 };
 
 /** Explore hub — 카드 본문 한 줄 코멘트 (제목에 「○○ 리포트」가 붙으므로 유형명 반복은 최소화) */

@@ -1,5 +1,4 @@
-import { ChevronRight, type LucideIcon } from "lucide-react";
-import { Link } from "react-router";
+import { ChevronRight } from "lucide-react";
 
 import {
   Collapsible,
@@ -13,24 +12,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "~/core/components/ui/sidebar";
 
-export default function SidebarMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+import type { SidebarNavItem } from "../lib/sidebar-nav";
+import { SidebarMenuSubEntry } from "./sidebar-menu-sub-entry";
+
+export default function SidebarMain({ items }: { items: SidebarNavItem[] }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -53,13 +40,7 @@ export default function SidebarMain({
               <CollapsibleContent>
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <Link to={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
+                    <SidebarMenuSubEntry key={subItem.title} {...subItem} />
                   ))}
                 </SidebarMenuSub>
               </CollapsibleContent>

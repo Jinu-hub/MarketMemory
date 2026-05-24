@@ -17,6 +17,8 @@ import {
   useSidebar,
 } from "~/core/components/ui/sidebar";
 
+import { SidebarDropdownSoonItem } from "./sidebar-dropdown-soon-item";
+
 export default function TeamSwitcher({
   teams,
 }: {
@@ -61,7 +63,7 @@ export default function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Teams
+              Modes
             </DropdownMenuLabel>
             {teams.map((team, index) => (
               <DropdownMenuItem
@@ -77,12 +79,15 @@ export default function TeamSwitcher({
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="bg-background flex size-6 items-center justify-center rounded-md border">
-                <Plus className="size-4" />
-              </div>
-              <div className="text-muted-foreground font-medium">Add team</div>
-            </DropdownMenuItem>
+            <SidebarDropdownSoonItem
+              leading={
+                <div className="bg-background flex size-6 items-center justify-center rounded-md border">
+                  <Plus className="size-4" />
+                </div>
+              }
+            >
+              Switch Mode
+            </SidebarDropdownSoonItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
