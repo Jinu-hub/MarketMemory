@@ -198,6 +198,19 @@ const ui = {
       description:
         "이번 브리핑과 유사한 과거 리포트, 그리고 반복되는 시장 패턴을 보여줍니다.",
       preview: "Preview",
+      comingSoon: {
+        badge: "개발 중",
+        title: "곧 만나볼 수 있어요",
+        description:
+          "오늘의 브리핑과 닮은 과거 메모리, 반복되는 시장 패턴을 자동으로 연결해 보여드릴 예정입니다.",
+        hooks: [
+          "유사한 과거 거래일의 기억 자동 매칭",
+          "반복되는 시장 패턴의 빈도 추적",
+          "테마·태그·분위기 기반 추천",
+        ],
+        previewCta: "샘플 미리보기",
+        hidePreviewCta: "샘플 닫기",
+      },
       similar: {
         title: "유사한 과거 메모리",
         hint: "태그·테마·분위기가 함께 겹쳤던 날들",
@@ -277,6 +290,19 @@ const ui = {
       description:
         "Similar past reports and repeating patterns aligned with this briefing.",
       preview: "Preview",
+      comingSoon: {
+        badge: "Coming soon",
+        title: "Coming soon",
+        description:
+          "We'll automatically surface past memories and repeating market patterns that resonate with today's briefing.",
+        hooks: [
+          "Auto-matching past trading days with similar memory",
+          "Frequency tracking for repeating market patterns",
+          "Recommendations driven by themes, tags, and mood",
+        ],
+        previewCta: "Preview sample",
+        hidePreviewCta: "Hide sample",
+      },
       similar: {
         title: "Similar past memories",
         hint: "Days when tags, themes, and mood overlapped",
@@ -356,6 +382,19 @@ const ui = {
       description:
         "今回のブリーフィングに似た過去レポートと、繰り返す市場パターンを表示します。",
       preview: "Preview",
+      comingSoon: {
+        badge: "開発中",
+        title: "近日公開予定",
+        description:
+          "今回のブリーフィングに似た過去メモリと、繰り返す市場パターンを自動で結び付けて表示します。",
+        hooks: [
+          "類似した過去取引日のメモリを自動マッチング",
+          "繰り返す市場パターンの頻度をトラッキング",
+          "テーマ・タグ・ムードに基づくレコメンド",
+        ],
+        previewCta: "サンプルを見る",
+        hidePreviewCta: "サンプルを閉じる",
+      },
       similar: {
         title: "類似した過去メモリ",
         hint: "タグ・テーマ・ムードが重なった日",
