@@ -15,6 +15,7 @@ export interface NexHeroProps extends React.HTMLAttributes<HTMLElement> {
     href?: string;
   };
   title: string;
+  titleClassName?: string;
   subtitle?: string;
   description?: string;
   actions?: {
@@ -74,6 +75,7 @@ export const NexHero: React.FC<NexHeroProps> = ({
   size = 'lg',
   badge,
   title,
+  titleClassName,
   subtitle,
   description,
   actions,
@@ -117,7 +119,7 @@ export const NexHero: React.FC<NexHeroProps> = ({
             </div>
           )}
           
-          <h1 className="text-4xl md:text-6xl font-bold text-[#0D0E10] dark:text-[#FFFFFF] mb-6">
+          <h1 className={cn("text-4xl md:text-6xl font-bold text-[#0D0E10] dark:text-[#FFFFFF] mb-6", titleClassName)}>
             {title}
           </h1>
           
@@ -181,7 +183,7 @@ export const NexHero: React.FC<NexHeroProps> = ({
                 </div>
               )}
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#0D0E10] dark:text-[#FFFFFF] mb-6">
+              <h1 className={cn("text-4xl md:text-5xl lg:text-6xl font-bold text-[#0D0E10] dark:text-[#FFFFFF] mb-6", titleClassName)}>
                 {title}
               </h1>
               
@@ -334,7 +336,7 @@ export const NexHero: React.FC<NexHeroProps> = ({
           </div>
         )}
         
-        <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-[#0D0E10] dark:text-[#FFFFFF] mb-6">
+        <h1 className={cn("text-4xl md:text-5xl lg:text-7xl font-bold text-[#0D0E10] dark:text-[#FFFFFF] mb-6", titleClassName)}>
           {title}
         </h1>
         

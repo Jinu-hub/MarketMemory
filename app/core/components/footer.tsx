@@ -47,7 +47,11 @@ export default function Footer() {
         "링크버스(LinkVerse) | 사업자번호 844-64-00886 | 통신판매업 제2026-부산수영-0064호 | 대표: 송진우",
         "부산 수영구 남천바다로21번길 69-5 | 문의: jinu30dev@gmail.com (010-6454-8896)"
       ]
-    : undefined;
+    //: undefined;
+    : [
+        "LinkVerse | Representative: Jinu Song | Contact: jinu30dev@gmail.com (010-3841-8896)",
+        "#804, Higashiobase Building, 5-16 Higashiobase 2-chome, Higashinari-ku, Osaka, Japan"
+      ]
 
   // Build legal links - Commercial Disclosure only for non-Korean languages
   const legalItems = [

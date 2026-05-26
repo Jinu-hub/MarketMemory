@@ -41,9 +41,9 @@ import type { Route } from "./+types/home";
 
 export const meta: Route.MetaFunction = () => {
   const title =
-    "Market Memory — 흩어진 시장의 흐름을, 하나의 시선으로";
+    "Market Memory — One Lens on Scattered Market Signals";
   const description =
-    "AI가 정리한 글로벌 리서치를 편집자의 시선으로 읽고, 탐색하고, 연결하는 조용한 라이브러리.";
+    "A research library where you can read daily global research, explore by topic, and connect insights into broader market narratives.";
   return [
     { title },
     { name: "description", content: description },
@@ -113,7 +113,7 @@ function SectionDivider() {
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-muted-foreground text-[11px] font-medium tracking-[0.22em] uppercase">
+    <p className="text-muted-foreground text-[12px] font-medium tracking-[0.22em] uppercase md:text-[13px]">
       {children}
     </p>
   );
@@ -154,19 +154,20 @@ function HeroSection() {
           text: "시장 · 인사이트 · 리서치 라이브러리",
           variant: "info",
         }}
-        title="흩어진 시장의 흐름을, 하나의 시선으로."
-        subtitle="하나의 뉴스가 아니라, 시장의 결을 읽습니다."
-        description="매일의 글로벌 리서치를 편집자의 시선으로 읽고, 탐색하고, 연결할 수 있는 조용한 라이브러리."
+        title={"흩어진 시장의 흐름을,\n하나의 시선으로."}
+        titleClassName="whitespace-pre-line"
+        subtitle="뉴스를 넘어서, 시장의 맥락과 연결을 정리합니다."
+        description="매일의 글로벌 리서치를 읽고, 주제별로 탐색하고, 흐름으로 연결해 볼 수 있는 리서치 라이브러리"
         actions={{
           primary: {
-            label: "리포트 읽어보기",
-            href: "/item_reports",
+            label: "시작하기",
+            href: "/join",
             variant: "primary",
             icon: <ArrowRightIcon className="h-4 w-4" />,
           },
           secondary: {
-            label: "샘플 리포트 보기",
-            href: "/item_reports/explore",
+            label: "로그인하기",
+            href: "/login",
             variant: "secondary",
             icon: <BookOpenIcon className="h-4 w-4" />,
           },
@@ -178,16 +179,16 @@ function HeroSection() {
           },
           {
             icon: <CompassIcon className="h-5 w-5" />,
-            text: "카테고리 탐색",
+            text: "주제별 탐색",
           },
           {
             icon: <Share2Icon className="h-5 w-5" />,
-            text: "맥락의 연결",
+            text: "흐름의 연결",
           },
         ]}
         social={{
           count: "Private Preview · 2026",
-          text: "초대받은 리더를 위한 조용한 라이브러리",
+          text: "초기 버전을 제한적으로 공개하고 있습니다.",
         }}
         className="pt-16 pb-0 md:pt-20"
       />
@@ -715,8 +716,8 @@ function ProductFeelSection() {
             읽는다는 것.
           </h2>
           <p className="text-muted-foreground text-base leading-[1.85] md:text-[17px]">
-            모든 리포트는 핵심 앵글, 요약, 세 개의 훅, 그리고 공유용 인용까지
-            편집 구조로 정돈됩니다. 숫자와 차트에는 해석이 함께 붙고,
+            모든 리포트는 핵심 앵글, 요약, 그리고 공유용 인용까지
+            편집 구조로 정돈됩니다. 리서치에는 해석이 함께 붙고,
             리포트는 언제든 다시 펼칠 수 있는 자료로 남습니다.
           </p>
         </div>
@@ -789,13 +790,13 @@ const THREE_WAYS: Array<{
   {
     icon: BookOpenIcon,
     title: "읽다",
-    body: "하루의 시장을 요약과 인사이트 중심으로 천천히 읽어 내립니다.",
+    body: "하루의 시장을 요약과 인사이트 중심으로 차분히 읽어 내려갑니다.",
     to: "/item_reports",
   },
   {
     icon: CompassIcon,
     title: "탐색하다",
-    body: "카테고리, 지역, 태그로 관심의 결을 따라 자료를 넓혀 갑니다.",
+    body: "카테고리와 지역, 태그를 따라 관심 있는 흐름을 넓혀 갑니다.",
     to: "/item_reports/explore",
   },
   {
@@ -808,7 +809,7 @@ const THREE_WAYS: Array<{
 
 function ThreeWaysSection() {
   return (
-    <SectionShell>
+    <SectionShell size="lg">
       <div className="max-w-2xl">
         <Eyebrow>쓰는 방법</Eyebrow>
         <h2 className="font-serif mt-6 text-3xl leading-tight font-semibold tracking-tight md:text-[2.5rem]">
@@ -947,7 +948,7 @@ function TimelineManifestoSection() {
           />
           <TimelinePreview />
         </div>
-
+{/*
         <div className="mt-16 flex justify-center md:mt-20">
           <Link to="/item_reports/timeline" viewTransition>
             <NexButton
@@ -960,6 +961,7 @@ function TimelineManifestoSection() {
             </NexButton>
           </Link>
         </div>
+        */}
       </SectionShell>
     </section>
   );
@@ -1033,35 +1035,35 @@ function TimelinePreview() {
 
 const READER_LINES = [
   "하루 한 편의 리서치를 꾸준히 읽는 리듬을 만들고 싶은 분",
-  "숫자와 차트보다 해석과 맥락에 시간을 쓰고 싶은 분",
+  "숫자와 차트에 머무르지 않고, 해석과 맥락까지 보고 싶은 분",
   "읽은 내용을 그때그때 흘리지 않고, 다시 찾을 수 있는 자리에 두고 싶은 분",
 ];
 
 function ForReadersSection() {
   return (
     <SectionShell>
-      <div className="mx-auto max-w-3xl">
-        <Eyebrow>어울리는 자리</Eyebrow>
+      <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+        <Eyebrow>이런 분들을 위해</Eyebrow>
         <h2 className="font-serif mt-6 text-3xl leading-tight font-semibold tracking-tight md:text-[2.5rem]">
           이런 분께 어울립니다.
         </h2>
-
-        <ul className="mt-12 space-y-8 md:mt-16">
-          {READER_LINES.map((line, idx) => (
-            <li key={idx} className="flex items-start gap-5">
-              <span
-                aria-hidden
-                className="text-muted-foreground font-serif mt-1 shrink-0 text-2xl leading-none"
-              >
-                —
-              </span>
-              <p className="text-foreground/85 text-lg leading-[1.85] md:text-xl md:leading-[1.8]">
-                {line}
-              </p>
-            </li>
-          ))}
-        </ul>
       </div>
+
+      <ul className="mx-auto mt-14 max-w-xl space-y-8 md:mt-20">
+        {READER_LINES.map((line, idx) => (
+          <li key={idx} className="flex items-start gap-5">
+            <span
+              aria-hidden
+              className="text-muted-foreground font-serif mt-1 shrink-0 text-2xl leading-none"
+            >
+              —
+            </span>
+            <p className="text-foreground/85 text-lg leading-[1.85] md:text-xl md:leading-[1.8]">
+              {line}
+            </p>
+          </li>
+        ))}
+      </ul>
     </SectionShell>
   );
 }
@@ -1074,18 +1076,18 @@ function ClosingSection() {
   return (
     <SectionShell className="pb-32 md:pb-40">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-        <Eyebrow>초대</Eyebrow>
+        <Eyebrow>시작하기</Eyebrow>
 
         <h2 className="font-serif mt-6 text-3xl leading-tight font-semibold tracking-tight md:text-[3.25rem] md:leading-[1.1]">
           오늘의 시장을,
           <br />
           <span className="text-foreground/90 italic">
-            천천히 읽어 보세요.
+          하나의 흐름으로 읽어 보세요.
           </span>
         </h2>
 
         <p className="text-muted-foreground mt-6 text-base leading-relaxed md:text-lg">
-          초대받은 리더만을 위한 조용한 리서치 공간입니다.
+        초기 독자를 위해 조용히 공개 중인 리서치 라이브러리입니다.
         </p>
 
         <div className="mt-14 flex flex-col items-center gap-5 sm:flex-row sm:gap-6">
@@ -1094,16 +1096,16 @@ function ClosingSection() {
               variant="primary"
               size="lg"
               rightIcon={<ArrowRightIcon className="size-4" />}
-              className="h-12 px-7 text-[15px] shadow-[0_1px_0_0_rgba(0,0,0,0.05)]"
+              className="h-12 px-7 text-[15px] shadow-[0_1px_0_0_rgba(0,0,0,0.05)] cursor-pointer"
             >
-              리포트 읽어보기
+              시작하기
             </NexButton>
           </Link>
           <Link
             to="/login"
             className="text-foreground/75 hover:text-foreground text-sm font-medium underline-offset-[6px] transition-colors hover:underline"
           >
-            이미 계정이 있어요 →
+            로그인하기 →
           </Link>
         </div>
 
