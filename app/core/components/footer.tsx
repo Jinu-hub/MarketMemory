@@ -144,7 +144,7 @@ export default function Footer() {
     <NexFooter
       variant="default"
       brand={{
-        name: "MarketMemory",
+        name: "Market Memory",
         description: t("footer.brand.description"),
         logo: <img src="/favicon.ico" alt="Market Memory" width={32} height={32} />
       }}

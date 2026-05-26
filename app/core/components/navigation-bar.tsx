@@ -246,7 +246,14 @@ export function NavigationBar({
     >
       <div className="mx-auto flex h-full w-full max-w-screen-2xl items-center justify-between py-3">
         {/* Application logo/title with link to home */}
-        <Link to="/">
+        <Link to="/" className="flex items-center gap-2">
+          <img
+            src="/favicon.ico"
+            alt="Market Memory"
+            width={28}
+            height={28}
+            className="size-7 shrink-0"
+          />
           <h1 className="text-lg font-extrabold">{t("home.title")}</h1>
         </Link>
         
