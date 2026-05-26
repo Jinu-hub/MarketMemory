@@ -16,9 +16,12 @@
  *     (raw markdown for `리포트`, SNS body for `브리핑`) to the clipboard.
  *     The button is intentionally omitted for non-admin readers so the
  *     editorial reading experience stays uncluttered.
+ *   - when the admin copy affordance is active, tab body text cannot be
+ *     selected or copied via drag / Ctrl+C — only the dedicated CopyButton
+ *     writes to the clipboard (casual copy friction, not DRM).
  */
 import { ChevronDownIcon } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { CopyButton } from "~/core/components/copy-button";
 import {
@@ -50,6 +53,34 @@ type ReportDetailTabsProps = {
 };
 
 type TabValue = "content" | "share";
+
+/** Blocks drag-select and clipboard shortcuts inside tab bodies when admin copy is on. */
+function AdminCopyGuard({
+  enabled,
+  children,
+}: {
+  enabled: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={cn(enabled && "select-none")}
+      onCopy={enabled ? (e) => e.preventDefault() : undefined}
+      onCut={enabled ? (e) => e.preventDefault() : undefined}
+      onKeyDownCapture={
+        enabled
+          ? (e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "c") {
+                e.preventDefault();
+              }
+            }
+          : undefined
+      }
+    >
+      {children}
+    </div>
+  );
+}
 
 export function ReportDetailTabs({
   content,
@@ -128,20 +159,22 @@ export function ReportDetailTabs({
                 />
               ) : null}
             </div>
-            <TabsContent
-              value="content"
-              aria-label="본문"
-              className="space-y-4 pt-6"
-            >
-              <ReportMarkdown category={category}>{content}</ReportMarkdown>
-            </TabsContent>
-            {contentSns ? (
-              <TabsContent value="share" className="pt-6">
-                <ShareSummaryBlock category={category} className="my-0">
-                  {contentSns}
-                </ShareSummaryBlock>
+            <AdminCopyGuard enabled={canCopy}>
+              <TabsContent
+                value="content"
+                aria-label="본문"
+                className="space-y-4 pt-6"
+              >
+                <ReportMarkdown category={category}>{content}</ReportMarkdown>
               </TabsContent>
-            ) : null}
+              {contentSns ? (
+                <TabsContent value="share" className="pt-6">
+                  <ShareSummaryBlock category={category} className="my-0">
+                    {contentSns}
+                  </ShareSummaryBlock>
+                </TabsContent>
+              ) : null}
+            </AdminCopyGuard>
           </Tabs>
         </div>
       </CollapsibleContent>
