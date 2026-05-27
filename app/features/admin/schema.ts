@@ -420,13 +420,63 @@ export const promptReleases = pgTable(
 );
 
 /* =========================================================
-  3-5) market_memory_items (원천 Item: “정체성/판단” 저장)
+  3-5) report_series (연재/시리즈 메타)
+  ========================================================= */
+export const reportSeries = pgTable(
+  "report_series",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    is_active: boolean("is_active").notNull().default(true),
+    display_order: integer("display_order").notNull().default(0),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("report_series_slug_unique").on(table.slug),
+
+    pgPolicy("rs_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("rs_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("rs_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("rs_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+  3-6) market_memory_items (원천 Item: “정체성/판단” 저장)
   ========================================================= */
 export const marketMemoryItems = pgTable(
   "market_memory_items",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     job_code: text("job_code").notNull(),
+    series_id: uuid("series_id").references(() => reportSeries.id, {
+      onDelete: "set null",
+    }),
+    published_at: timestamp("published_at", { withTimezone: true }),
     market_date: date("market_date"),
     source_lang: text("source_lang"),
     topic: text("topic"),
@@ -454,6 +504,10 @@ export const marketMemoryItems = pgTable(
     index("idx_items_status").on(table.status),
     index("idx_items_market_date").on(desc(table.market_date)),
     index("idx_items_executed_id").on(table.executed_id),
+    index("idx_market_memory_items_series_published").on(
+      table.series_id,
+      desc(table.published_at),
+    ),
 
     pgPolicy("mmi_select", {
       for: "select",

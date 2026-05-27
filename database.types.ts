@@ -804,7 +804,9 @@ export type Database = {
           normalized_document_id: string | null
           notes: string | null
           ocr_job_id: string | null
+          published_at: string | null
           raw_log_link: string | null
+          series_id: string | null
           source_lang: string | null
           status: Database["public"]["Enums"]["item_status"]
           topic: string | null
@@ -822,7 +824,9 @@ export type Database = {
           normalized_document_id?: string | null
           notes?: string | null
           ocr_job_id?: string | null
+          published_at?: string | null
           raw_log_link?: string | null
+          series_id?: string | null
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           topic?: string | null
@@ -840,7 +844,9 @@ export type Database = {
           normalized_document_id?: string | null
           notes?: string | null
           ocr_job_id?: string | null
+          published_at?: string | null
           raw_log_link?: string | null
+          series_id?: string | null
           source_lang?: string | null
           status?: Database["public"]["Enums"]["item_status"]
           topic?: string | null
@@ -859,6 +865,13 @@ export type Database = {
             columns: ["ocr_job_id"]
             isOneToOne: false
             referencedRelation: "ocr_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_memory_items_series_id_report_series_id_fk"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "report_series"
             referencedColumns: ["id"]
           },
         ]
@@ -1346,6 +1359,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      report_series: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       reports: {
         Row: {
