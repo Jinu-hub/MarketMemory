@@ -81,7 +81,7 @@ export const dailyMarketMemories = pgTable(
     pgPolicy("dmm_select", {
       for: "select",
       to: authenticatedRole,
-      using: isAdmin,
+      using: sql`true`,
     }),
     pgPolicy("dmm_insert", {
       for: "insert",
@@ -206,7 +206,7 @@ export const dailyMarketMemoryI18n = pgTable(
     pgPolicy("dmm_i18n_select", {
       for: "select",
       to: authenticatedRole,
-      using: isAdmin,
+      using: sql`true`,
     }),
     pgPolicy("dmm_i18n_insert", {
       for: "insert",
@@ -449,7 +449,7 @@ export const dailyMarketMemoryRecallI18n = pgTable(
     pgPolicy("dmmri_select", {
       for: "select",
       to: authenticatedRole,
-      using: isAdmin,
+      using: sql`true`,
     }),
     pgPolicy("dmmri_insert", {
       for: "insert",

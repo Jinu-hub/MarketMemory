@@ -589,7 +589,7 @@ export const itemContents = pgTable(
     pgPolicy("ic_select", {
       for: "select",
       to: authenticatedRole,
-      using: isAdmin,
+      using: sql`true`,
     }),
     pgPolicy("ic_select_public", {
       for: "select",
@@ -744,7 +744,7 @@ export const itemSimilarityEdges = pgTable(
     pgPolicy("ise_select", {
       for: "select",
       to: authenticatedRole,
-      using: isAdmin,
+      using: sql`true`,
     }),
     pgPolicy("ise_insert", {
       for: "insert",
@@ -1272,7 +1272,7 @@ export const itemContentI18n = pgTable(
     pgPolicy("ici_select", {
       for: "select",
       to: authenticatedRole,
-      using: isAdmin,
+      using: sql`true`,
     }),
     pgPolicy("ici_insert", {
       for: "insert",
