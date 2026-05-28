@@ -51,10 +51,12 @@ export function ReadingHeader({ report, className }: ReadingHeaderProps) {
           </NexBadge>
         ) : null}
         <ReportTierBadge tier={report.report_tier} />
+        {/*
         <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
           <span aria-hidden>·</span>
           {readTime} min read
         </span>
+        */}
         {date ? (
           <span className="text-muted-foreground text-xs">· {date}</span>
         ) : null}
