@@ -131,6 +131,7 @@ function SocialLoginButtons() {
         label="Github"
         href="/auth/social/start/github"
       />
+      {/*
       <AuthLoginButton
         logo={<AppleLogo className="size-4 scale-150 dark:text-white" />}
         label="Apple"
@@ -141,6 +142,7 @@ function SocialLoginButtons() {
         label="Kakao"
         href="/auth/social/start/kakao"
       />
+      */}
     </>
   );
 }

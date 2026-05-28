@@ -4,6 +4,7 @@ import {
   GalleryVerticalEndIcon,
   LayoutDashboardIcon,
   MegaphoneIcon,
+  Newspaper,
   ShieldIcon,
 } from "lucide-react";
 
@@ -84,15 +85,14 @@ const data = {
       ],
     },
   ],
-  /*
+  
   series: [
     {
       name: "주간 AI 이슈 다이제스트",
       url: "/weekly-ai-issue-digest",
-      icon: MegaphoneIcon,
+      icon: Newspaper,
     },
   ],
-  */
 };
 
 export default function DashboardSidebar({
@@ -133,9 +133,7 @@ export default function DashboardSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMain items={navMain} />
-        {/*
         <SidebarSeries series={data.series} />
-        */}
       </SidebarContent>
       <SidebarFooter>
       <div className="flex flex-col gap-3">
