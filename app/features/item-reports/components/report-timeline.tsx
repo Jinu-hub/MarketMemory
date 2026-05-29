@@ -30,6 +30,11 @@ type ReportTimelineProps = {
    * the parent surface already shows the total count).
    */
   showGroupCounts?: boolean;
+  /**
+   * Override the per-row detail link target so the timeline can live inside a
+   * series (e.g. /weekly-ai-issue-digest/:id). Defaults to /item_reports/:id.
+   */
+  detailHref?: (id: string) => string;
 };
 
 type TimelineGroup = {
@@ -68,6 +73,7 @@ export function ReportTimeline({
   className,
   compact = false,
   showGroupCounts = true,
+  detailHref = itemReportsDetailHref,
 }: ReportTimelineProps) {
   const groups = groupByMonth(reports);
   if (groups.length === 0) {
@@ -88,6 +94,7 @@ export function ReportTimeline({
           showGroupCounts={showGroupCounts}
           collapsible={!compact || groups.length > 1}
           defaultOpen={index === 0}
+          detailHref={detailHref}
         />
       ))}
     </div>
@@ -100,6 +107,7 @@ function TimelineMonthGroup({
   showGroupCounts,
   collapsible,
   defaultOpen,
+  detailHref,
 }: {
   group: TimelineGroup;
   compact: boolean;
@@ -107,6 +115,7 @@ function TimelineMonthGroup({
   collapsible: boolean;
   /** 최신 월만 `true` — 그룹은 `groupByMonth` 내림차순 정렬 기준 */
   defaultOpen: boolean;
+  detailHref: (id: string) => string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const panelId = `timeline-month-${group.key}`;
@@ -118,20 +127,23 @@ function TimelineMonthGroup({
         <h3 className="text-muted-foreground text-xs font-semibold tracking-tight">
           {group.label}
         </h3>
-        <TimelineMonthList group={group} compact />
+        <TimelineMonthList group={group} compact detailHref={detailHref} />
       </section>
     );
   }
 
   if (compact) {
     return (
-      <Collapsible open={open} onOpenChange={setOpen} className="space-y-2">
-        <section aria-label={group.label}>
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <section
+          aria-label={group.label}
+          className="border-border/60 bg-card/30 overflow-hidden rounded-lg border"
+        >
           <CollapsibleTrigger
             type="button"
             className={cn(
-              "group/trigger -mx-1 flex w-[calc(100%+0.5rem)] items-center justify-between gap-2 rounded-md px-1 py-0.5 text-left transition-colors outline-none",
-              "hover:bg-muted/40 focus-visible:bg-muted/40",
+              "group/trigger bg-muted/15 flex w-full cursor-pointer items-center justify-between gap-2 rounded-none px-3 py-2 text-left transition-colors outline-none",
+              "hover:bg-muted/30",
               "focus-visible:ring-ring focus-visible:ring-2",
             )}
             aria-controls={panelId}
@@ -165,7 +177,9 @@ function TimelineMonthGroup({
               "data-[state=open]:animate-collapsible-down",
             )}
           >
-            <TimelineMonthList group={group} compact />
+            <div className="border-border/50 bg-muted/5 border-t px-3 pb-3 pt-2">
+              <TimelineMonthList group={group} compact detailHref={detailHref} />
+            </div>
           </CollapsibleContent>
         </section>
       </Collapsible>
@@ -173,13 +187,16 @@ function TimelineMonthGroup({
   }
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="space-y-4">
-      <section aria-label={group.label} className="space-y-4">
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <section
+        aria-label={group.label}
+        className="border-border/60 bg-card/30 overflow-hidden rounded-xl border"
+      >
         <CollapsibleTrigger
           type="button"
           className={cn(
-            "group/trigger -mx-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left transition-colors outline-none",
-            "hover:bg-muted/40 focus-visible:bg-muted/40",
+            "group/trigger bg-muted/15 flex w-full cursor-pointer items-center justify-between gap-3 rounded-none px-4 py-3 text-left transition-colors outline-none",
+            "hover:bg-muted/30",
             "focus-visible:ring-ring focus-visible:ring-2",
           )}
           aria-controls={panelId}
@@ -232,7 +249,9 @@ function TimelineMonthGroup({
             "data-[state=open]:animate-collapsible-down",
           )}
         >
-          <TimelineMonthList group={group} compact={false} />
+          <div className="border-border/50 bg-muted/5 border-t px-4 pb-5 pt-3 md:px-5 md:pb-6">
+            <TimelineMonthList group={group} compact={false} detailHref={detailHref} />
+          </div>
         </CollapsibleContent>
       </section>
     </Collapsible>
@@ -242,21 +261,28 @@ function TimelineMonthGroup({
 function TimelineMonthList({
   group,
   compact,
+  detailHref,
 }: {
   group: TimelineGroup;
   compact: boolean;
+  detailHref: (id: string) => string;
 }) {
   return (
-    <div className={cn("relative", compact ? "pt-0.5" : "pt-1")}>
+    <div className={cn("relative", compact ? "pt-0.5" : "pt-0")}>
       <div
         className={cn(
-          "bg-border absolute top-3 bottom-2 w-px",
-          "left-[7px] md:left-[9px]",
+          "bg-border/80 absolute bottom-2 w-px",
+          compact ? "top-3 left-[7px]" : "top-0 left-[7px] md:left-[9px]",
         )}
       />
       <ul className={cn(compact ? "space-y-4" : "space-y-6 md:space-y-7")}>
         {group.reports.map((report) => (
-          <TimelineRow key={report.id} report={report} compact={compact} />
+          <TimelineRow
+            key={report.id}
+            report={report}
+            compact={compact}
+            detailHref={detailHref}
+          />
         ))}
       </ul>
     </div>
@@ -266,9 +292,11 @@ function TimelineMonthList({
 function TimelineRow({
   report,
   compact,
+  detailHref,
 }: {
   report: ReportListItem;
   compact: boolean;
+  detailHref: (id: string) => string;
 }) {
   const style = getCategoryStyle(report.category);
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
@@ -303,7 +331,7 @@ function TimelineRow({
         </div>
 
         <Link
-          to={itemReportsDetailHref(report.id)}
+          to={detailHref(report.id)}
           viewTransition
           className="group block"
         >
@@ -318,7 +346,15 @@ function TimelineRow({
             {report.title ?? "Untitled"}
           </h4>
           {takeaway && !compact ? (
-            <p className="text-muted-foreground mt-1 line-clamp-2 max-w-2xl text-sm leading-6">
+            <p
+              className={cn(
+                "text-muted-foreground mt-1 text-sm leading-6",
+                /* Narrower viewports get more lines + a capped width; desktop uses 2 lines and full rail width. */
+                "line-clamp-4 max-w-5xl",
+                "md:line-clamp-3 md:max-w-6xl",
+                "lg:line-clamp-2 lg:max-w-none",
+              )}
+            >
               {takeaway}
             </p>
           ) : null}

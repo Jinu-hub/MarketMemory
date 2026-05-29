@@ -20,6 +20,12 @@ type ReportCardProps = {
   className?: string;
   /** Visual density: "default" grid, "dense" sidebar/list, "compact" tight grids */
   density?: "default" | "dense" | "compact";
+  /**
+   * Override the detail link target. Lets the same card be reused inside a
+   * series (e.g. /weekly-ai-issue-digest/:id) without leaving the series space.
+   * Defaults to the global /item_reports/:id reader.
+   */
+  detailHref?: (id: string) => string;
 };
 
 /**
@@ -31,6 +37,7 @@ export function ReportCard({
   report,
   className,
   density = "default",
+  detailHref = itemReportsDetailHref,
 }: ReportCardProps) {
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
   const date = resolveDisplayDate(report);
@@ -43,7 +50,7 @@ export function ReportCard({
 
   return (
     <Link
-      to={itemReportsDetailHref(report.id)}
+      to={detailHref(report.id)}
       viewTransition
       className={cn(
         "group bg-card border-border hover:border-primary/30 flex h-full flex-col rounded-xl border border-l-[3px]",

@@ -21,6 +21,13 @@ import { ReportTierBadge } from "./report-tier-badge";
 type FeaturedReportBlockProps = {
   report: ReportListItem;
   className?: string;
+  /**
+   * Override the detail link target so the hero can live inside a series
+   * (e.g. /weekly-ai-issue-digest/:id). Defaults to /item_reports/:id.
+   */
+  detailHref?: (id: string) => string;
+  /** Optional override for the small footer note under the meta column. */
+  footnote?: string;
 };
 
 /**
@@ -32,6 +39,8 @@ type FeaturedReportBlockProps = {
 export function FeaturedReportBlock({
   report,
   className,
+  detailHref = itemReportsDetailHref,
+  footnote = "이 리포트는 현재 공개된 가장 최근의 AI 리서치 콘텐츠입니다.",
 }: FeaturedReportBlockProps) {
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
   const date = resolveDisplayDate(report);
@@ -71,7 +80,7 @@ export function FeaturedReportBlock({
 
           <h2 className="text-2xl leading-tight font-bold tracking-tight md:text-3xl lg:text-4xl">
             <Link
-              to={itemReportsDetailHref(report.id)}
+              to={detailHref(report.id)}
               viewTransition
               className="hover:text-primary transition-colors"
             >
@@ -87,7 +96,7 @@ export function FeaturedReportBlock({
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
-              to={itemReportsDetailHref(report.id)}
+              to={detailHref(report.id)}
               viewTransition
               className="bg-primary text-primary-foreground ring-primary/30 hover:bg-primary/90 focus-visible:ring-primary/50 inline-flex min-w-44 items-center justify-center gap-2 rounded-lg px-7 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2"
               aria-label={`${report.title ?? "리포트"} 읽기`}
@@ -189,7 +198,7 @@ export function FeaturedReportBlock({
           </dl>
 
           <div className="text-muted-foreground text-[11px] leading-5">
-            이 리포트는 현재 공개된 가장 최근의 AI 리서치 콘텐츠입니다.
+            {footnote}
           </div>
         </div>
       </div>

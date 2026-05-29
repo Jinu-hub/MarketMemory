@@ -118,6 +118,10 @@ export default [
         route("/timeline", "features/item-reports/screens/timeline.tsx"),
         route("/:id", "features/item-reports/screens/detail.tsx"),
       ]),
+      ...prefix("/weekly-ai-issue-digest", [
+        index("features/weekly-ai-issue-digest/screens/list.tsx"),
+        route("/:id", "features/weekly-ai-issue-digest/screens/detail.tsx"),
+      ]),
     ]),
     ...prefix("/admin", [
       layout("features/admin/layouts/admin.layout.tsx", [
