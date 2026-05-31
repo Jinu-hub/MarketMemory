@@ -7,8 +7,8 @@
  * `report_series.slug = weekly-ai-issues`.
  *
  * View, sort + page state all live in the URL so links are shareable:
- *   - `?view=card` (default) → paginated card grid + featured hero
- *   - `?view=timeline`       → full run grouped by month (no pagination)
+ *   - default (no `view` param) → full run grouped by month (timeline)
+ *   - `?view=card`              → paginated card grid + featured hero
  */
 import {
   ChevronLeftIcon,
@@ -62,7 +62,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const view: DigestView =
-    url.searchParams.get("view") === "timeline" ? "timeline" : "card";
+    url.searchParams.get("view") === "card" ? "card" : "timeline";
   const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const sort = url.searchParams.get("sort") === "oldest" ? "oldest" : "newest";
@@ -149,8 +149,8 @@ export default function WeeklyDigestList({ loaderData }: Route.ComponentProps) {
 
   const buildViewHref = (nextView: DigestView) => {
     const next = new URLSearchParams(params);
-    if (nextView === "card") next.delete("view");
-    else next.set("view", nextView);
+    if (nextView === "timeline") next.delete("view");
+    else next.set("view", "card");
     next.delete("page");
     return weeklyDigestListPath(next.toString());
   };
@@ -303,8 +303,8 @@ function ViewToggle({
     label: string;
     icon: typeof LayoutGridIcon;
   }> = [
-    { value: "card", href: cardHref, label: "카드", icon: LayoutGridIcon },
     { value: "timeline", href: timelineHref, label: "타임라인", icon: ClockIcon },
+    { value: "card", href: cardHref, label: "카드", icon: LayoutGridIcon },
   ];
 
   return (
