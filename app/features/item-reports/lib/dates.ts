@@ -26,3 +26,21 @@ export function parseCalendarYear(rawDate?: string | null): number | null {
   if (Number.isNaN(date.getTime())) return null;
   return date.getFullYear();
 }
+
+/** Calendar year + month (1–12) from `market_date` or fallback timestamp. */
+export function parseCalendarYearMonth(
+  rawDate?: string | null,
+): { year: number; month: number } | null {
+  if (!rawDate) return null;
+  const date = new Date(rawDate);
+  if (Number.isNaN(date.getTime())) return null;
+  return { year: date.getFullYear(), month: date.getMonth() + 1 };
+}
+
+/** Timeline/list date: prefer `market_date`, else `created_at`. */
+export function resolveReportCalendarParts(row: {
+  market_date: string | null;
+  created_at: string | null;
+}): { year: number; month: number } | null {
+  return parseCalendarYearMonth(row.market_date ?? row.created_at);
+}

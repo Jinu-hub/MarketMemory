@@ -42,7 +42,18 @@ export type RelatedReportItem = ReportListItem & {
 
 export type ReportDetail = ItemContentRow;
 
-export type ListFilter = {
+/** URL-driven date window (`year` / `month` / `date_from` / `date_to`). */
+export type ReportDateFilter = {
+  year?: number;
+  month?: number;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export type PeriodYearFacet = { year: number; count: number };
+export type PeriodMonthFacet = { month: number; count: number };
+
+export type ListFilter = ReportDateFilter & {
   category?: string;
   reportType?: string;
   reportTier?: string;

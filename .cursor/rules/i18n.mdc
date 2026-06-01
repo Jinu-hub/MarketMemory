@@ -1,0 +1,275 @@
+---
+alwaysApply: true
+---
+# i18n Translation Rules - Cursor Rules
+
+이 프로젝트는 i18n 대응 시 번역 키의 일관성, 재사용성, 유지보수성을 최우선으로 합니다.  
+새로운 화면이나 기능을 추가할 때에는 반드시 아래 규칙을 따릅니다.
+
+## 1. 기본 원칙
+
+- 번역 키는 단순히 화면 기준이 아니라 **의미와 역할 기준**으로 먼저 분리합니다.
+- 여러 화면에서 반복되는 문구는 각 page 하위에 중복 정의하지 않고 공통 영역으로 분리합니다.
+- 각 page 하위에는 **해당 화면 전용 문구만** 둡니다.
+- 동일 의미의 문구는 프로젝트 전체에서 **항상 동일한 key 이름**을 사용합니다.
+- 번역 키 이름은 짧음보다 **명확함**을 우선합니다.
+
+---
+
+## 2. 권장 Translation 구조
+
+    export type Translation = {
+      common: {
+        actions: {
+          create: string;
+          confirm: string;
+          cancel: string;
+          save: string;
+          submit: string;
+          resend: string;
+        };
+        labels: {
+          name: string;
+          email: string;
+          password: string;
+          confirmPassword: string;
+        };
+        links: {
+          terms: string;
+          privacy: string;
+          and: string;
+        };
+        status: {
+          accountCreated: string;
+          verifyEmail: string;
+        };
+      };
+
+      navigation: {
+        home: string;
+        login: string;
+        join: string;
+      };
+
+      languageSwitcher: {
+        english: string;
+        japanese: string;
+        korean: string;
+      };
+
+      auth: {
+        signIn: string;
+        signUp: string;
+        forgotPassword: string;
+        alreadyHaveAccount: string;
+        dontHaveAccount: string;
+        resendConfirmation: string;
+        emailNotConfirmedTitle: string;
+        emailNotConfirmedDesc: string;
+      };
+
+      home: {
+        title: string;
+        subtitle: string;
+      };
+
+      join: {
+        heroTitle: string;
+        heroSubtitle: string;
+        heroDescription: string;
+        title: string;
+        description: string;
+        passwordHint: string;
+        createAccount: string;
+        marketing: string;
+      };
+
+      login: {
+        title: string;
+        description: string;
+        emailPlaceholder: string;
+        passwordPlaceholder: string;
+        loginButton: string;
+      };
+    };
+
+---
+
+## 3. 공통 분리 규칙
+
+아래와 같은 문구는 여러 화면에서 재사용될 가능성이 높으므로 page 하위에 두지 말고 공통 영역으로 분리합니다.
+
+### 공통 분리 대상 예시
+
+- name
+- email
+- password
+- confirmPassword
+- signIn
+- signUp
+- forgotPassword
+- resendConfirmation
+- terms
+- privacy
+- and
+- verifyEmail
+- accountCreated
+
+### 분리 위치 기준
+
+- form label 성격 → `common.labels`
+- 버튼/행동 성격 → `common.actions`
+- 인증 흐름 성격 → `auth`
+- 네비게이션 메뉴 → `navigation`
+- 언어 전환 UI → `languageSwitcher`
+
+---
+
+## 4. page 전용 문구 규칙
+
+각 page 하위에는 해당 화면에서만 사용되는 문구만 둡니다.
+
+### 예시
+
+- `home.title`
+- `home.subtitle`
+- `join.heroTitle`
+- `join.heroSubtitle`
+- `join.heroDescription`
+- `join.passwordHint`
+- `join.marketing`
+- `login.emailPlaceholder`
+- `login.passwordPlaceholder`
+- `login.loginButton`
+
+---
+
+## 5. key naming 규칙
+
+- key 이름은 **문구의 의미와 용도**가 드러나야 합니다.
+- 모호한 이름보다 구체적인 이름을 사용합니다.
+- 같은 의미라면 어디서든 같은 key 이름을 사용합니다.
+
+### 좋은 예
+
+- `alreadyHaveAccount`
+- `dontHaveAccount`
+- `emailPlaceholder`
+- `passwordPlaceholder`
+- `emailNotConfirmedTitle`
+- `emailNotConfirmedDesc`
+
+### 피해야 하는 예
+
+- `text1`
+- `message`
+- `label`
+- `button`
+- `alreadyHave`
+- `noAccount`
+
+---
+
+## 6. 금지 규칙
+
+### 6-1. 언어 코드를 일반 번역 key로 직접 두지 말 것
+
+아래와 같은 구조는 지양합니다.
+
+    navigation: {
+      en: string;
+      ja: string;
+      ko: string;
+    };
+
+위 구조는 번역 리소스의 의미가 불명확해질 수 있습니다.  
+언어 선택 UI라면 아래처럼 의미를 드러내는 구조를 사용합니다.
+
+    languageSwitcher: {
+      english: string;
+      japanese: string;
+      korean: string;
+    };
+
+### 6-2. page별 중복 정의 금지
+
+아래처럼 동일 의미를 각 화면에 반복 정의하지 않습니다.
+
+    join: {
+      email: string;
+      password: string;
+    };
+
+    login: {
+      email: string;
+      password: string;
+    };
+
+이 경우 반드시 공통 영역으로 이동합니다.
+
+---
+
+## 7. placeholder / label / action 구분 규칙
+
+번역 키는 역할이 다르면 반드시 분리합니다.
+
+- label → `common.labels.email`
+- placeholder → `login.emailPlaceholder`
+- button text → `login.loginButton`
+
+즉, 같은 "email" 관련 문구라도 **용도가 다르면 별도 key**를 둡니다.
+
+---
+
+## 8. title / description 사용 규칙
+
+- `title`, `description`, `subtitle` 처럼 추상적인 이름은 **page 내부에서만 허용**합니다.
+- 공통 영역에서는 의미가 더 드러나는 이름을 사용합니다.
+
+### 허용 예
+
+    home: {
+      title: string;
+      subtitle: string;
+    };
+
+### 비권장 예
+
+    common: {
+      title: string;
+      description: string;
+    };
+
+---
+
+## 9. 새로운 화면 추가 시 절차
+
+새로운 화면의 i18n key를 추가할 때는 반드시 아래 순서를 따릅니다.
+
+1. 먼저 기존 `common`, `auth`, `navigation`, `languageSwitcher`에 재사용 가능한 key가 있는지 확인한다.
+2. 이미 존재하는 의미라면 새 key를 만들지 않고 기존 key를 재사용한다.
+3. 재사용이 불가능한 경우에만 page 전용 key를 추가한다.
+4. 새 key 이름은 의미가 분명하도록 작성한다.
+5. 동일 의미의 중복 key가 생기지 않도록 기존 구조를 먼저 검토한다.
+
+---
+
+## 10. 구현 시 우선 판단 기준
+
+새 문구를 추가할 때에는 항상 아래 기준으로 판단합니다.
+
+- 이 문구는 다른 화면에서도 쓸 가능성이 있는가?
+- 이 문구는 label / placeholder / button / status / auth 중 어디에 속하는가?
+- 이 문구는 정말 page 전용인가?
+- 이미 같은 의미의 key가 존재하지 않는가?
+
+---
+
+## 11. 최종 원칙
+
+- 공통은 공통답게 분리한다.
+- page에는 page 전용 문구만 둔다.
+- key 이름은 의미 중심으로 짓는다.
+- 중복 정의를 피한다.
+- 언어 코드 자체를 일반 번역 key처럼 사용하지 않는다.
+- 새로운 i18n key를 추가하기 전에 항상 기존 구조를 먼저 확인한다.

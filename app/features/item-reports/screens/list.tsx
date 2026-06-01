@@ -37,7 +37,13 @@ import { ReportEmptyState } from "../components/report-empty-state";
 import { ReportFilterPanel } from "../components/report-filter-panel";
 import { PAGE_SIZE } from "../constants";
 import { itemReportsListPath } from "../lib/item-reports-urls";
-import { getFacets, getReports } from "../queries";
+import { parseListFilter } from "../lib/parse-list-filter";
+import { hasReportDateFilter } from "../lib/report-date-filter";
+import {
+  getExplorePeriodYearFacets,
+  getFacets,
+  getReports,
+} from "../queries";
 import type { ListFilter } from "../types";
 
 export const meta: Route.MetaFunction = () => {
@@ -50,34 +56,20 @@ export const meta: Route.MetaFunction = () => {
   ];
 };
 
-function parseFilter(url: URL): ListFilter {
-  const page = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
-  const sortParam = url.searchParams.get("sort");
-  return {
-    category: url.searchParams.get("category") ?? undefined,
-    reportType: url.searchParams.get("report_type") ?? undefined,
-    reportTier: url.searchParams.get("report_tier") ?? undefined,
-    region: url.searchParams.get("region") ?? undefined,
-    country: url.searchParams.get("country") ?? undefined,
-    tag: url.searchParams.get("tag") ?? undefined,
-    lang: url.searchParams.get("lang") ?? undefined,
-    q: url.searchParams.get("q") ?? undefined,
-    sort: sortParam === "oldest" ? "oldest" : "newest",
-    page: Number.isFinite(page) && page > 0 ? page : 1,
-  };
-}
-
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   const url = new URL(request.url);
-  const filter = parseFilter(url);
+  const filter = parseListFilter(url);
 
-  const [reports, facets] = await Promise.all([
+  const [reports, facets, yearFacets] = await Promise.all([
     getReports(client, filter),
     getFacets(client),
+    getExplorePeriodYearFacets(client),
   ]);
 
-  return { reports, facets, filter };
+  const availableYears = yearFacets.map((facet) => facet.year);
+
+  return { reports, facets, filter, availableYears };
 }
 
 function hasActiveFilter(filter: ListFilter): boolean {
@@ -89,12 +81,13 @@ function hasActiveFilter(filter: ListFilter): boolean {
       filter.country ??
       filter.tag ??
       filter.lang ??
-      filter.q,
+      filter.q ??
+      hasReportDateFilter(filter),
   );
 }
 
 export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
-  const { reports, facets, filter } = loaderData;
+  const { reports, facets, filter, availableYears } = loaderData;
   const [params, setParams] = useSearchParams();
   const totalPages = Math.max(1, Math.ceil(reports.total / PAGE_SIZE));
 
@@ -174,7 +167,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
         <div className="lg:sticky lg:top-4 lg:self-start">
-          <ReportFilterPanel facets={facets} />
+          <ReportFilterPanel facets={facets} availableYears={availableYears} />
         </div>
 
         <section className="flex min-w-0 flex-col gap-4">

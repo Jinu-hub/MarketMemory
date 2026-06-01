@@ -9,6 +9,7 @@
  */
 import {
   ArrowRightIcon,
+  CalendarIcon,
   ChevronDownIcon,
   FileTextIcon,
   HashIcon,
@@ -36,6 +37,7 @@ import makeServerClient from "~/core/lib/supa-client.server";
 
 import type { Route } from "./+types/explore";
 import { ExploreFacetLinkCard } from "../components/explore-facet-link-card";
+import { ExplorePeriodPanel } from "../components/explore-period-panel";
 import { ReportCard } from "../components/report-card";
 import {
   REPORT_CATEGORIES,
@@ -53,9 +55,13 @@ import {
   getRegionExploreIntro,
 } from "../lib/report-region-explore";
 import { getReportTypeExploreIcon } from "../lib/report-type-explore";
+import { parseReportYearParam } from "../lib/report-date-params";
 import {
   getCategoryHighlights,
+  getExplorePeriodMonthFacets,
+  getExplorePeriodYearFacets,
   getFacets,
+  getPeriodHighlights,
 } from "../queries";
 
 /** 태그 탭: 상위 N개는 카드, 이후는 접기 영역의 칩 */
@@ -73,24 +79,61 @@ export const meta: Route.MetaFunction = () => {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
-  const facets = await getFacets(client);
+  const url = new URL(request.url);
+  const periodYear = parseReportYearParam(url.searchParams.get("year"));
+
+  const [facets, yearFacets] = await Promise.all([
+    getFacets(client),
+    getExplorePeriodYearFacets(client),
+  ]);
 
   const activeCategories = REPORT_CATEGORIES.filter(
     (category) => (facets.categories[category] ?? 0) > 0,
   );
 
-  const highlights = await getCategoryHighlights(client, {
-    categories: activeCategories,
-    perCategory: 6,
-  });
+  const validPeriodYear =
+    periodYear && yearFacets.some((facet) => facet.year === periodYear)
+      ? periodYear
+      : null;
 
-  return { facets, highlights, activeCategories };
+  const [highlights, monthFacets, periodHighlights] = await Promise.all([
+    getCategoryHighlights(client, {
+      categories: activeCategories,
+      perCategory: 6,
+    }),
+    validPeriodYear
+      ? getExplorePeriodMonthFacets(client, validPeriodYear)
+      : Promise.resolve([]),
+    validPeriodYear
+      ? getPeriodHighlights(client, { year: validPeriodYear, limit: 6 })
+      : Promise.resolve([]),
+  ]);
+
+  return {
+    facets,
+    highlights,
+    activeCategories,
+    yearFacets,
+    selectedPeriodYear: validPeriodYear,
+    monthFacets,
+    periodHighlights,
+  };
 }
 
 export default function ItemReportsExplore({
   loaderData,
 }: Route.ComponentProps) {
-  const { facets, highlights, activeCategories } = loaderData;
+  const {
+    facets,
+    highlights,
+    activeCategories,
+    yearFacets,
+    selectedPeriodYear,
+    monthFacets,
+    periodHighlights,
+  } = loaderData;
+
+  const exploreTabDefault = selectedPeriodYear ? "period" : "category";
 
   const topRegions = Object.entries(facets.regions)
     .sort((a, b) => b[1] - a[1])
@@ -121,7 +164,11 @@ export default function ItemReportsExplore({
       </header>
 
       <section className="space-y-6">
-        <Tabs defaultValue="category" className="gap-0">
+        <Tabs
+          key={exploreTabDefault}
+          defaultValue={exploreTabDefault}
+          className="gap-0"
+        >
           <div className="border-border overflow-hidden rounded-2xl border bg-card/40 shadow-xs">
             <div className="border-border space-y-4 border-b bg-card/80 px-4 py-5 md:px-6">
               <div className="space-y-1">
@@ -152,6 +199,10 @@ export default function ItemReportsExplore({
                 <TabsTrigger value="tags" className="flex-none gap-1.5">
                   <HashIcon className="size-3.5" aria-hidden />
                   태그별
+                </TabsTrigger>
+                <TabsTrigger value="period" className="flex-none gap-1.5">
+                  <CalendarIcon className="size-3.5" aria-hidden />
+                  기간별
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -307,6 +358,26 @@ export default function ItemReportsExplore({
                     })}
                   </ul>
                 )}
+              </TabsContent>
+
+              <TabsContent value="period" className="mt-0 outline-none">
+                <div className="space-y-6">
+                  <TabScopeHeading
+                    scope="기간별"
+                    title={
+                      selectedPeriodYear
+                        ? `${selectedPeriodYear}년`
+                        : "연도·월별 탐색"
+                    }
+                    description="연도와 월을 고르면 라이브러리 목록과 동일한 기간 필터로 이어집니다."
+                  />
+                  <ExplorePeriodPanel
+                    yearFacets={yearFacets}
+                    selectedYear={selectedPeriodYear}
+                    monthFacets={monthFacets}
+                    highlights={periodHighlights}
+                  />
+                </div>
               </TabsContent>
 
               <TabsContent value="tags" className="mt-0 space-y-4 outline-none">

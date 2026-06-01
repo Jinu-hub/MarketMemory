@@ -9,12 +9,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "database.types";
 
-import { parseCalendarYear } from "./lib/dates";
+import { parseCalendarYear, resolveReportCalendarParts } from "./lib/dates";
 import { PAGE_SIZE } from "./constants";
+import { applyReportDateFilter } from "./lib/report-query-filters";
 import type {
   FacetCounts,
   ListFilter,
   PagedReports,
+  PeriodMonthFacet,
+  PeriodYearFacet,
+  ReportDateFilter,
   ReportDetail,
   RelatedReportItem,
   ReportListItem,
@@ -83,6 +87,8 @@ export async function getReports(
     );
   }
 
+  query = applyReportDateFilter(query, filter);
+
   const asc = sort === "oldest";
   const from = Math.max(0, (page - 1) * PAGE_SIZE);
   const to = from + PAGE_SIZE - 1;
@@ -142,12 +148,13 @@ function sortTimelineReports(reports: ReportListItem[]): ReportListItem[] {
   });
 }
 
-/**
- * Distinct calendar years for public reports (`market_date`, else `created_at`).
- * Scans date columns only so the timeline year filter stays complete.
- */
-export async function getTimelineAvailableYears(client: DB): Promise<number[]> {
-  const yearSet = new Set<number>();
+async function scanPublicReportCalendarRows(
+  client: DB,
+  onRow: (row: {
+    market_date: string | null;
+    created_at: string | null;
+  }) => void,
+): Promise<void> {
   let from = 0;
 
   while (true) {
@@ -164,10 +171,7 @@ export async function getTimelineAvailableYears(client: DB): Promise<number[]> {
 
     const rows = data ?? [];
     for (const row of rows) {
-      const year = parseCalendarYear(row.market_date ?? row.created_at);
-      if (year !== null) {
-        yearSet.add(year);
-      }
+      onRow(row);
     }
 
     if (rows.length < TIMELINE_YEAR_SCAN_PAGE) {
@@ -175,8 +179,81 @@ export async function getTimelineAvailableYears(client: DB): Promise<number[]> {
     }
     from += TIMELINE_YEAR_SCAN_PAGE;
   }
+}
 
-  return Array.from(yearSet).sort((a, b) => b - a);
+/**
+ * Year facets for explore / list date pickers (`market_date`, else `created_at`).
+ */
+export async function getExplorePeriodYearFacets(
+  client: DB,
+): Promise<PeriodYearFacet[]> {
+  const counts = new Map<number, number>();
+
+  await scanPublicReportCalendarRows(client, (row) => {
+    const parts = resolveReportCalendarParts(row);
+    if (!parts) return;
+    counts.set(parts.year, (counts.get(parts.year) ?? 0) + 1);
+  });
+
+  return Array.from(counts.entries())
+    .map(([year, count]) => ({ year, count }))
+    .sort((a, b) => b.year - a.year);
+}
+
+/**
+ * Month facets within a calendar year (explore period drill-down).
+ */
+export async function getExplorePeriodMonthFacets(
+  client: DB,
+  year: number,
+): Promise<PeriodMonthFacet[]> {
+  const counts = new Map<number, number>();
+
+  await scanPublicReportCalendarRows(client, (row) => {
+    const parts = resolveReportCalendarParts(row);
+    if (!parts || parts.year !== year) return;
+    counts.set(parts.month, (counts.get(parts.month) ?? 0) + 1);
+  });
+
+  return Array.from(counts.entries())
+    .map(([month, count]) => ({ month, count }))
+    .sort((a, b) => a.month - b.month);
+}
+
+/**
+ * Recent public reports for a year or month window (explore previews).
+ */
+export async function getPeriodHighlights(
+  client: DB,
+  {
+    year,
+    month,
+    limit = 6,
+  }: { year: number; month?: number; limit?: number },
+): Promise<ReportListItem[]> {
+  const dateFilter: ReportDateFilter = { year, month };
+  let query = client
+    .from("item_contents")
+    .select(LIST_COLUMNS)
+    .eq("is_public", true)
+    .eq("is_active", true);
+  query = applyReportDateFilter(query, dateFilter);
+
+  const { data, error } = await query
+    .order("market_date", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw error;
+  }
+  return (data ?? []) as unknown as ReportListItem[];
+}
+
+/** Distinct years (desc) — list date filter & timeline year tabs. */
+export async function getTimelineAvailableYears(client: DB): Promise<number[]> {
+  const facets = await getExplorePeriodYearFacets(client);
+  return facets.map((facet) => facet.year);
 }
 
 /**

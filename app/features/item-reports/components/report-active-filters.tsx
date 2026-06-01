@@ -9,6 +9,11 @@ import {
   formatReportTier,
   formatReportType,
 } from "../lib/labels";
+import { formatReportDateChipLabel } from "../lib/report-date-filter";
+import {
+  clearReportDateParams,
+  parseReportDateFilter,
+} from "../lib/report-date-params";
 
 const CHIP_KEYS = [
   "category",
@@ -67,7 +72,9 @@ export function ReportActiveFilters({ className }: Props) {
     return value ? [{ key, value }] : [];
   });
 
-  if (chips.length === 0) return null;
+  const dateLabel = formatReportDateChipLabel(parseReportDateFilter(params));
+
+  if (chips.length === 0 && !dateLabel) return null;
 
   const removeChip = (key: ChipKey) => {
     setParams(
@@ -81,9 +88,32 @@ export function ReportActiveFilters({ className }: Props) {
     );
   };
 
+  const removeDateFilter = () => {
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        clearReportDateParams(next);
+        next.delete("page");
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
       <span className="text-muted-foreground text-xs">적용된 필터</span>
+      {dateLabel ? (
+        <NexBadge
+          variant="secondary"
+          size="sm"
+          removable
+          onRemove={removeDateFilter}
+        >
+          <span className="text-muted-foreground mr-1">기간</span>
+          <span className="font-medium">{dateLabel}</span>
+        </NexBadge>
+      ) : null}
       {chips.map(({ key, value }) => (
         <NexBadge
           key={key}

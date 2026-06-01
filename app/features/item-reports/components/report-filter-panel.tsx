@@ -11,8 +11,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/core/components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/core/components/ui/tabs";
 import { cn } from "~/core/lib/utils";
 
+import { ReportDateFilter } from "./report-date-filter";
+import {
+  countReportDateParams,
+  hasReportDateParams,
+} from "../lib/report-date-params";
 import {
   REPORT_CATEGORIES,
   REPORT_CATEGORY_LABELS_KO,
@@ -26,8 +37,31 @@ import {
 
 const ALL_VALUE = "__all__";
 
+type FilterPanelTab = "attributes" | "period";
+
+const ATTRIBUTE_PARAM_KEYS = [
+  "category",
+  "report_type",
+  "report_tier",
+  "region",
+  "country",
+  "lang",
+] as const;
+
+function countActiveInKeys(
+  params: URLSearchParams,
+  keys: readonly string[],
+): number {
+  return keys.filter((key) => params.has(key)).length;
+}
+
+function initialPanelTab(params: URLSearchParams): FilterPanelTab {
+  return hasReportDateParams(params) ? "period" : "attributes";
+}
+
 type ReportFilterPanelProps = {
   className?: string;
+  availableYears?: number[];
   facets?: {
     categories: Record<string, number>;
     reportTypes: Record<string, number>;
@@ -47,13 +81,26 @@ type ReportFilterPanelProps = {
 export function ReportFilterPanel({
   className,
   facets,
+  availableYears = [],
 }: ReportFilterPanelProps) {
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
+  const [panelTab, setPanelTab] = useState<FilterPanelTab>(() =>
+    initialPanelTab(params),
+  );
 
   useEffect(() => {
     setQ(params.get("q") ?? "");
   }, [params]);
+
+  useEffect(() => {
+    if (hasReportDateParams(params)) {
+      setPanelTab("period");
+    }
+  }, [params]);
+
+  const attributeFilterCount = countActiveInKeys(params, ATTRIBUTE_PARAM_KEYS);
+  const dateFilterCount = countReportDateParams(params);
 
   const updateParam = (key: string, value: string) => {
     setParams(
@@ -115,74 +162,114 @@ export function ReportFilterPanel({
         />
       </form>
 
-      <FilterSelect
-        label="카테고리"
-        value={selectedCategory}
-        onChange={(value) => updateParam("category", value)}
-        options={[
-          { value: ALL_VALUE, label: "전체 카테고리" },
-          ...REPORT_CATEGORIES.map((category) => ({
-            value: category,
-            label: `${REPORT_CATEGORY_LABELS_KO[category]}${facets?.categories[category] ? ` (${facets.categories[category]})` : ""}`,
-          })),
-        ]}
-      />
+      <Tabs
+        value={panelTab}
+        onValueChange={(value) => setPanelTab(value as FilterPanelTab)}
+        className="gap-4"
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="attributes" className="gap-1.5 text-xs">
+            속성
+            {attributeFilterCount > 0 ? (
+              <FilterTabBadge count={attributeFilterCount} />
+            ) : null}
+          </TabsTrigger>
+          <TabsTrigger
+            value="period"
+            className="gap-1.5 text-xs"
+            disabled={availableYears.length === 0}
+          >
+            기간
+            {dateFilterCount > 0 ? (
+              <FilterTabBadge count={dateFilterCount} />
+            ) : null}
+          </TabsTrigger>
+        </TabsList>
 
-      <FilterSelect
-        label="리포트 유형"
-        value={selectedType}
-        onChange={(value) => updateParam("report_type", value)}
-        options={[
-          { value: ALL_VALUE, label: "전체 유형" },
-          ...REPORT_TYPES.map((type) => ({
-            value: type,
-            label: `${REPORT_TYPE_LABELS_KO[type]}${facets?.reportTypes[type] ? ` (${facets.reportTypes[type]})` : ""}`,
-          })),
-        ]}
-      />
+        <TabsContent value="attributes" className="mt-0 flex flex-col gap-5">
+          <FilterSelect
+            label="카테고리"
+            value={selectedCategory}
+            onChange={(value) => updateParam("category", value)}
+            options={[
+              { value: ALL_VALUE, label: "전체 카테고리" },
+              ...REPORT_CATEGORIES.map((category) => ({
+                value: category,
+                label: `${REPORT_CATEGORY_LABELS_KO[category]}${facets?.categories[category] ? ` (${facets.categories[category]})` : ""}`,
+              })),
+            ]}
+          />
 
-      <FilterSelect
-        label="등급"
-        value={selectedTier}
-        onChange={(value) => updateParam("report_tier", value)}
-        options={[
-          { value: ALL_VALUE, label: "전체 등급" },
-          ...REPORT_TIERS.map((tier) => ({
-            value: tier,
-            label: `${REPORT_TIER_LABELS_KO[tier]}${facets?.reportTiers[tier] ? ` (${facets.reportTiers[tier]})` : ""}`,
-          })),
-        ]}
-      />
+          <FilterSelect
+            label="리포트 유형"
+            value={selectedType}
+            onChange={(value) => updateParam("report_type", value)}
+            options={[
+              { value: ALL_VALUE, label: "전체 유형" },
+              ...REPORT_TYPES.map((type) => ({
+                value: type,
+                label: `${REPORT_TYPE_LABELS_KO[type]}${facets?.reportTypes[type] ? ` (${facets.reportTypes[type]})` : ""}`,
+              })),
+            ]}
+          />
 
-      <FilterSelect
-        label="지역"
-        value={selectedRegion}
-        onChange={(value) => updateParam("region", value)}
-        options={[
-          { value: ALL_VALUE, label: "전체 지역" },
-          ...REPORT_REGIONS.filter(
-            (region) => !facets || (facets.regions[region] ?? 0) > 0,
-          ).map((region) => ({
-            value: region,
-            label: `${REPORT_REGION_LABELS_KO[region] ?? region}${facets?.regions[region] ? ` (${facets.regions[region]})` : ""}`,
-          })),
-        ]}
-      />
+          <FilterSelect
+            label="등급"
+            value={selectedTier}
+            onChange={(value) => updateParam("report_tier", value)}
+            options={[
+              { value: ALL_VALUE, label: "전체 등급" },
+              ...REPORT_TIERS.map((tier) => ({
+                value: tier,
+                label: `${REPORT_TIER_LABELS_KO[tier]}${facets?.reportTiers[tier] ? ` (${facets.reportTiers[tier]})` : ""}`,
+              })),
+            ]}
+          />
 
-      {langOptions.length > 1 ? (
-        <FilterSelect
-          label="언어"
-          value={selectedLang}
-          onChange={(value) => updateParam("lang", value)}
-          options={[
-            { value: ALL_VALUE, label: "전체 언어" },
-            ...langOptions.map((lang) => ({
-              value: lang,
-              label: `${lang.toUpperCase()}${facets?.languages[lang] ? ` (${facets.languages[lang]})` : ""}`,
-            })),
-          ]}
-        />
-      ) : null}
+          <FilterSelect
+            label="지역"
+            value={selectedRegion}
+            onChange={(value) => updateParam("region", value)}
+            options={[
+              { value: ALL_VALUE, label: "전체 지역" },
+              ...REPORT_REGIONS.filter(
+                (region) => !facets || (facets.regions[region] ?? 0) > 0,
+              ).map((region) => ({
+                value: region,
+                label: `${REPORT_REGION_LABELS_KO[region] ?? region}${facets?.regions[region] ? ` (${facets.regions[region]})` : ""}`,
+              })),
+            ]}
+          />
+
+          {langOptions.length > 1 ? (
+            <FilterSelect
+              label="언어"
+              value={selectedLang}
+              onChange={(value) => updateParam("lang", value)}
+              options={[
+                { value: ALL_VALUE, label: "전체 언어" },
+                ...langOptions.map((lang) => ({
+                  value: lang,
+                  label: `${lang.toUpperCase()}${facets?.languages[lang] ? ` (${facets.languages[lang]})` : ""}`,
+                })),
+              ]}
+            />
+          ) : null}
+        </TabsContent>
+
+        <TabsContent value="period" className="mt-0">
+          {availableYears.length > 0 ? (
+            <ReportDateFilter
+              availableYears={availableYears}
+              hideTitle
+            />
+          ) : (
+            <p className="text-muted-foreground text-xs">
+              기간 필터를 사용할 리포트가 아직 없습니다.
+            </p>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {hasActiveFilters ? (
         <NexButton
@@ -206,6 +293,17 @@ type FilterSelectProps = {
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
 };
+
+function FilterTabBadge({ count }: { count: number }) {
+  return (
+    <span
+      className="bg-primary text-primary-foreground inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-medium tabular-nums"
+      aria-label={`${count}개 적용됨`}
+    >
+      {count}
+    </span>
+  );
+}
 
 function FilterSelect({ label, value, onChange, options }: FilterSelectProps) {
   return (

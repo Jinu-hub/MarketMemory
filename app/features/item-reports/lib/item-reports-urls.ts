@@ -47,3 +47,15 @@ export function itemReportsTimelineHref(
 ): string {
   return itemReportsTimelinePath(queryStringFromRecord(query));
 }
+
+const EXPLORE_PATH = `${LIST_BASE}/explore`;
+
+export function itemReportsExplorePath(queryString: string): string {
+  return queryString ? `${EXPLORE_PATH}?${queryString}` : EXPLORE_PATH;
+}
+
+export function itemReportsExploreHref(
+  query: Record<string, string | number | undefined | null>,
+): string {
+  return itemReportsExplorePath(queryStringFromRecord(query));
+}
