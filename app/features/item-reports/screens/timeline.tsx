@@ -20,9 +20,14 @@ import { cn } from "~/core/lib/utils";
 import type { Route } from "./+types/timeline";
 import { ItemReportsNavLink } from "../components/item-reports-nav-link";
 import { ReportTimeline } from "../components/report-timeline";
-import { parseCalendarYear } from "../lib/dates";
 import { itemReportsTimelineHref } from "../lib/item-reports-urls";
-import { getRecentReports } from "../queries";
+import {
+  getPublicReportsCount,
+  getRecentReports,
+  getReportsForTimelineYear,
+  getTimelineAvailableYears,
+  TIMELINE_ALL_LIMIT,
+} from "../queries";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -38,17 +43,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const yearParam = url.searchParams.get("year");
   const [client] = makeServerClient(request);
-  const reports = await getRecentReports(client, 60);
 
-  const years = Array.from(
-    new Set(
-      reports
-        .map((report) =>
-          parseCalendarYear(report.market_date ?? report.created_at),
-        )
-        .filter((year): year is number => year !== null),
-    ),
-  ).sort((a, b) => b - a);
+  const [years, totalReports] = await Promise.all([
+    getTimelineAvailableYears(client),
+    getPublicReportsCount(client),
+  ]);
 
   const defaultYear = years[0] ?? null;
 
@@ -64,17 +63,14 @@ export async function loader({ request }: Route.LoaderArgs) {
         ? parsedYear
         : defaultYear;
 
-  const filteredReports =
+  const reports =
     selectedYear === null
-      ? reports
-      : reports.filter((report) => {
-          const year = parseCalendarYear(report.market_date ?? report.created_at);
-          return year === selectedYear;
-        });
+      ? await getRecentReports(client, TIMELINE_ALL_LIMIT)
+      : await getReportsForTimelineYear(client, selectedYear);
 
   return {
-    reports: filteredReports,
-    totalReports: reports.length,
+    reports,
+    totalReports,
     years,
     selectedYear,
   };

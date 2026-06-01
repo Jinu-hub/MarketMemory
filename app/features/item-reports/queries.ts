@@ -9,6 +9,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "database.types";
 
+import { parseCalendarYear } from "./lib/dates";
 import { PAGE_SIZE } from "./constants";
 import type {
   FacetCounts,
@@ -18,6 +19,11 @@ import type {
   RelatedReportItem,
   ReportListItem,
 } from "./types";
+
+/** Cap for the timeline "all years" view — year-specific views query the full year. */
+export const TIMELINE_ALL_LIMIT = 500;
+
+const TIMELINE_YEAR_SCAN_PAGE = 1000;
 
 const LIST_COLUMNS =
   "id,title,summary,summary_meta,category,report_type,report_tier,regions,countries,tags,market_date,created_at,lang_code";
@@ -118,6 +124,115 @@ export async function getRecentReports(
     throw error;
   }
   return (data ?? []) as unknown as ReportListItem[];
+}
+
+function timelineYearRange(year: number): { start: string; end: string } {
+  return {
+    start: `${year}-01-01`,
+    end: `${year + 1}-01-01`,
+  };
+}
+
+function sortTimelineReports(reports: ReportListItem[]): ReportListItem[] {
+  return [...reports].sort((a, b) => {
+    const dateA = a.market_date ?? a.created_at ?? "";
+    const dateB = b.market_date ?? b.created_at ?? "";
+    if (dateA !== dateB) return dateB.localeCompare(dateA);
+    return (b.created_at ?? "").localeCompare(a.created_at ?? "");
+  });
+}
+
+/**
+ * Distinct calendar years for public reports (`market_date`, else `created_at`).
+ * Scans date columns only so the timeline year filter stays complete.
+ */
+export async function getTimelineAvailableYears(client: DB): Promise<number[]> {
+  const yearSet = new Set<number>();
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await client
+      .from("item_contents")
+      .select("market_date, created_at")
+      .eq("is_public", true)
+      .eq("is_active", true)
+      .range(from, from + TIMELINE_YEAR_SCAN_PAGE - 1);
+
+    if (error) {
+      throw error;
+    }
+
+    const rows = data ?? [];
+    for (const row of rows) {
+      const year = parseCalendarYear(row.market_date ?? row.created_at);
+      if (year !== null) {
+        yearSet.add(year);
+      }
+    }
+
+    if (rows.length < TIMELINE_YEAR_SCAN_PAGE) {
+      break;
+    }
+    from += TIMELINE_YEAR_SCAN_PAGE;
+  }
+
+  return Array.from(yearSet).sort((a, b) => b - a);
+}
+
+/**
+ * All public reports whose timeline year matches `year` — same rule as the
+ * timeline loader (`market_date` when set, otherwise `created_at`).
+ */
+export async function getReportsForTimelineYear(
+  client: DB,
+  year: number,
+): Promise<ReportListItem[]> {
+  const { start, end } = timelineYearRange(year);
+
+  const base = () =>
+    client
+      .from("item_contents")
+      .select(LIST_COLUMNS)
+      .eq("is_public", true)
+      .eq("is_active", true);
+
+  const [withMarketDate, withoutMarketDate] = await Promise.all([
+    base()
+      .gte("market_date", start)
+      .lt("market_date", end),
+    base().is("market_date", null).gte("created_at", start).lt("created_at", end),
+  ]);
+
+  if (withMarketDate.error) {
+    throw withMarketDate.error;
+  }
+  if (withoutMarketDate.error) {
+    throw withoutMarketDate.error;
+  }
+
+  const byId = new Map<string, ReportListItem>();
+  for (const row of [
+    ...(withMarketDate.data ?? []),
+    ...(withoutMarketDate.data ?? []),
+  ]) {
+    byId.set(row.id, row as unknown as ReportListItem);
+  }
+
+  return sortTimelineReports(Array.from(byId.values()));
+}
+
+/** Total count of active public reports (timeline "전체" badge). */
+export async function getPublicReportsCount(client: DB): Promise<number> {
+  const { count, error } = await client
+    .from("item_contents")
+    .select("id", { count: "exact", head: true })
+    .eq("is_public", true)
+    .eq("is_active", true);
+
+  if (error) {
+    throw error;
+  }
+  return count ?? 0;
 }
 
 /**
