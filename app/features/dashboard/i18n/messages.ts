@@ -8,23 +8,23 @@ import type { DashboardLocale } from "./resolve";
 
 /* ── Semantic (enum / pipeline key → label) ───────────────────────── */
 
-const trendStatus = {
+const signalStrength = {
   ko: {
-    up: "상승",
-    stable: "유지",
-    down: "약화",
+    high: "강함",
+    medium: "보통",
+    low: "약함",
     unknown: "관찰",
   },
   en: {
-    up: "Rising",
-    stable: "Stable",
-    down: "Weakening",
+    high: "Strong",
+    medium: "Moderate",
+    low: "Weak",
     unknown: "Watch",
   },
   ja: {
-    up: "上昇",
-    stable: "維持",
-    down: "弱化",
+    high: "強",
+    medium: "中",
+    low: "弱",
     unknown: "観察",
   },
 } as const satisfies Record<DashboardLocale, Record<string, string>>;
@@ -510,7 +510,7 @@ const ui = {
 
 export const DASHBOARD_MESSAGES = {
   semantic: {
-    trendStatus,
+    signalStrength,
     riskSeverity,
     marketMood: {
       labels: marketMoodLabels,
@@ -523,6 +523,6 @@ export const DASHBOARD_MESSAGES = {
 
 export type DashboardUiMessages = (typeof ui)[DashboardLocale];
 
-export type TrendStatusLabelKey = keyof (typeof trendStatus)["ko"];
+export type SignalStrengthLabelKey = keyof (typeof signalStrength)["ko"];
 export type RiskSeverityLabelKey = keyof (typeof riskSeverity)["ko"];
 export type MarketMoodLabelKey = keyof (typeof marketMoodLabels)["ko"];

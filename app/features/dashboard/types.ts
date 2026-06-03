@@ -49,20 +49,19 @@ export type MarketSnapshotData = {
 /* ----------------------- Today's Themes ----------------------- */
 
 /**
- * Canonical keys after normalizing `top_themes[].trend_status`.
- * Pipeline often emits `rising` | `steady` | `weakening` — see
- * `resolveTrendStatusKey` in `lib/trend-status.ts`.
+ * Canonical keys after normalizing `top_themes[].signal_strength`.
+ * See `resolveSignalStrengthKey` in `lib/signal-strength.ts`.
  */
-export type TrendStatusKey = "up" | "stable" | "down";
+export type SignalStrengthKey = "high" | "medium" | "low";
 
-export type ThemeTrendStatus = TrendStatusKey | string;
+export type ThemeSignalStrength = SignalStrengthKey | string;
 
 export type DailyMemoryTheme = {
   theme_title?: string | null;
   /** Some pipelines may emit `title` rather than `theme_title`. */
   title?: string | null;
   summary?: string | null;
-  trend_status?: ThemeTrendStatus | null;
+  signal_strength?: ThemeSignalStrength | null;
   related_tags?: string[] | null;
   /** Either a count or an array of report ids/titles. */
   related_reports?: number | string[] | null;

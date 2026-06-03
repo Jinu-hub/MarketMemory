@@ -16,9 +16,9 @@ import {
   resolveThemeTitle,
 } from "../lib/pipeline-fields";
 import {
-  getTrendStatusLabel,
-  getTrendStatusStyle,
-} from "../lib/trend-status";
+  getSignalStrengthLabel,
+  getSignalStrengthStyle,
+} from "../lib/signal-strength";
 import type { DailyMarketMemorySnapshot, DailyMemoryTheme } from "../types";
 import { ReadingEmpty, ReadingProse } from "./reading-prose";
 import { SectionLabel } from "./section-label";
@@ -202,9 +202,9 @@ function ThemeCard({
   const t = pickDashboardUi(locale).todayMemory;
   const title = resolveThemeTitle(theme, index);
   const summary = theme.summary ?? null;
-  const trend = getTrendStatusStyle(theme.trend_status);
-  const trendLabel = getTrendStatusLabel(trend.key, locale);
-  const TrendIcon = trend.icon;
+  const signal = getSignalStrengthStyle(theme.signal_strength);
+  const signalLabel = getSignalStrengthLabel(signal.key, locale);
+  const SignalIcon = signal.icon;
   const tags = theme.related_tags ?? [];
   const relatedCount = resolveRelatedCount(theme.related_reports);
 
@@ -213,16 +213,16 @@ function ThemeCard({
       className={cn(
         "bg-background border-border h-full rounded-xl border border-l-[3px] p-3.5 sm:p-4",
         "flex flex-col gap-2 sm:gap-2.5",
-        trend.accentBorder,
+        signal.accentBorder,
       )}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-muted-foreground text-[11px] font-semibold tracking-wider tabular-nums">
           {String(index + 1).padStart(2, "0")}
         </span>
-        <NexBadge variant={trend.badgeVariant} size="sm" className="shrink-0">
-          <TrendIcon className="mr-1 size-3" aria-hidden />
-          {trendLabel}
+        <NexBadge variant={signal.badgeVariant} size="sm" className="shrink-0">
+          <SignalIcon className="mr-1 size-3" aria-hidden />
+          {signalLabel}
         </NexBadge>
       </div>
       <h3 className="text-sm leading-snug font-semibold tracking-tight sm:text-base">

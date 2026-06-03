@@ -1,18 +1,22 @@
 /**
- * Locale-aware labels for DB-driven semantic keys (mood, trend, severity).
+ * Locale-aware labels for DB-driven semantic keys (mood, signal strength, severity).
  */
 import { DASHBOARD_MESSAGES } from "./messages";
 import { pickLocalized } from "./resolve";
-import type { MarketMoodKey, RiskSeverityKey, TrendStatusKey } from "../types";
+import type {
+  MarketMoodKey,
+  RiskSeverityKey,
+  SignalStrengthKey,
+} from "../types";
 
 const { semantic } = DASHBOARD_MESSAGES;
 
-export function getTrendStatusLabel(
-  key: TrendStatusKey | null,
+export function getSignalStrengthLabel(
+  key: SignalStrengthKey | null,
   locale?: string | null,
 ): string {
   return pickLocalized(
-    semantic.trendStatus,
+    semantic.signalStrength,
     locale,
     key ?? "unknown",
   );

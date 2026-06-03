@@ -3,14 +3,14 @@ export type {
   DashboardUiMessages,
   MarketMoodLabelKey,
   RiskSeverityLabelKey,
-  TrendStatusLabelKey,
+  SignalStrengthLabelKey,
 } from "./messages";
 export {
   getMarketMoodDescription,
   getMarketMoodLabel,
   getMarketMoodSubdescription,
   getRiskSeverityLabel,
-  getTrendStatusLabel,
+  getSignalStrengthLabel,
 } from "./labels";
 export {
   pickDashboardUi,
