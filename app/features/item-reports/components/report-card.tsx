@@ -1,19 +1,15 @@
 import { ArrowUpRightIcon, CalendarIcon, MapPinIcon } from "lucide-react";
 import { Link } from "react-router";
 
-import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
-import {
-  formatRegion,
-  formatReportType,
-} from "../lib/labels";
+import { formatRegion } from "../lib/labels";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import { resolveTakeaway } from "../lib/summary-meta";
 import type { ReportListItem } from "../types";
-import { ReportTierBadge } from "./report-tier-badge";
+import { ReportCategoryBadges } from "./report-category-badges";
 
 type ReportCardProps = {
   report: ReportListItem;
@@ -43,7 +39,6 @@ export function ReportCard({
   const date = resolveDisplayDate(report);
   const primaryRegion = report.regions?.[0];
   const style = getCategoryStyle(report.category);
-  const CategoryIcon = style.icon;
   const isDense = density === "dense";
   const isCompact = density === "compact";
   const visibleTags = (report.tags ?? []).slice(0, isCompact ? 2 : 3);
@@ -64,24 +59,13 @@ export function ReportCard({
         className,
       )}
     >
-      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-        {report.category ? (
-          <NexBadge
-            variant={style.badgeVariant}
-            size="sm"
-            className={isCompact ? "text-[11px]" : undefined}
-          >
-            <CategoryIcon className={cn("mr-1", isCompact ? "size-2.5" : "size-3")} />
-            {style.label}
-          </NexBadge>
-        ) : null}
-        {report.report_type ? (
-          <NexBadge variant="outline" size="sm" className={isCompact ? "text-[11px]" : undefined}>
-            {formatReportType(report.report_type)}
-          </NexBadge>
-        ) : null}
-        <ReportTierBadge tier={report.report_tier} className="ml-auto shrink-0" />
-      </div>
+      <ReportCategoryBadges
+        category={report.category}
+        reportType={report.report_type}
+        reportTier={report.report_tier}
+        size={isCompact ? "compact" : "default"}
+        tierClassName="ml-auto"
+      />
 
       <div className={cn("flex-1", isCompact ? "space-y-1" : "space-y-2")}>
         <h3

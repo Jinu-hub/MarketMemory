@@ -16,7 +16,7 @@ import { formatRegion, formatReportType } from "../lib/labels";
 import { resolveTakeaway } from "../lib/summary-meta";
 import { itemReportsDetailHref, itemReportsListHref } from "../lib/item-reports-urls";
 import type { ReportListItem } from "../types";
-import { ReportTierBadge } from "./report-tier-badge";
+import { ReportCategoryBadges } from "./report-category-badges";
 
 type FeaturedReportBlockProps = {
   report: ReportListItem;
@@ -65,18 +65,16 @@ export function FeaturedReportBlock({
 
       <div className="grid gap-0 lg:grid-cols-[1fr_340px]">
         <div className="space-y-5 px-6 pt-8 pb-6 md:px-10 md:pt-10">
-          <div className="flex flex-wrap items-center gap-2">
-            <NexBadge variant="secondary" size="sm">
-              Featured
-            </NexBadge>
-            {report.category ? (
-              <NexBadge variant={style.badgeVariant} size="sm">
-                <CategoryIcon className="mr-1 size-3" />
-                {style.label}
+          <ReportCategoryBadges
+            category={report.category}
+            reportTier={report.report_tier}
+            showReportType={false}
+            leading={
+              <NexBadge variant="secondary" size="sm">
+                Featured
               </NexBadge>
-            ) : null}
-            <ReportTierBadge tier={report.report_tier} />
-          </div>
+            }
+          />
 
           <h2 className="text-2xl leading-tight font-bold tracking-tight md:text-3xl lg:text-4xl">
             <Link

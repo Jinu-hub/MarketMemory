@@ -1,8 +1,8 @@
 import { ArrowRightIcon } from "lucide-react";
 import { Link } from "react-router";
 
-import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
+import { NexBadge } from "~/core/components/nex";
 
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
@@ -14,6 +14,7 @@ import {
 } from "../lib/similarity-style";
 import { resolveTakeaway } from "../lib/summary-meta";
 import type { ReportListItem } from "../types";
+import { ReportCategoryBadges } from "./report-category-badges";
 
 type ReportListRowBaseProps = {
   report: ReportListItem;
@@ -127,12 +128,11 @@ export function ReportListRow(props: ReportListRowProps) {
               {date}
             </time>
           ) : null}
-          {report.category ? (
-            <NexBadge variant={style.badgeVariant} size="sm">
-              <CategoryIcon className="mr-1 size-3" />
-              {style.label}
-            </NexBadge>
-          ) : null}
+          <ReportCategoryBadges
+            category={report.category}
+            showReportType={false}
+            showTier={false}
+          />
         </div>
 
         <Link

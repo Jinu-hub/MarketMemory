@@ -4,10 +4,9 @@ import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import { getCategoryStyle } from "../lib/category-style";
-import { formatDate } from "../lib/dates";
-import { estimateReadingTime } from "../lib/reading-time";
+import { resolveDisplayDate } from "../lib/dates";
 import type { ReportDetail } from "../types";
-import { ReportTierBadge } from "./report-tier-badge";
+import { ReportCategoryBadges } from "./report-category-badges";
 
 /**
  * Long-form reading layout for the detail screen.
@@ -27,40 +26,20 @@ type ReadingHeaderProps = {
 };
 
 export function ReadingHeader({ report, className }: ReadingHeaderProps) {
-  const style = getCategoryStyle(report.category);
-  const CategoryIcon = style.icon;
-  const date = formatDate(report.market_date ?? report.created_at);
-  const readTime = estimateReadingTime(
-    report.summary,
-    report.content,
-    report.content_sns,
-  );
+  const date = resolveDisplayDate(report);
 
   return (
     <header className={cn("space-y-4", className)}>
-      <div className="flex flex-wrap items-center gap-2">
-        {report.category ? (
-          <NexBadge variant={style.badgeVariant} size="sm">
-            <CategoryIcon className="mr-1 size-3" />
-            {style.label}
-          </NexBadge>
-        ) : null}
-        {report.report_type ? (
-          <NexBadge variant="outline" size="sm">
-            {report.report_type.replace(/-report$/u, "")}
-          </NexBadge>
-        ) : null}
-        <ReportTierBadge tier={report.report_tier} />
-        {/*
-        <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
-          <span aria-hidden>·</span>
-          {readTime} min read
-        </span>
-        */}
-        {date ? (
-          <span className="text-muted-foreground text-xs">· {date}</span>
-        ) : null}
-      </div>
+      <ReportCategoryBadges
+        category={report.category}
+        reportType={report.report_type}
+        reportTier={report.report_tier}
+        trailing={
+          date ? (
+            <span className="text-muted-foreground text-xs">· {date}</span>
+          ) : null
+        }
+      />
       <h1 className="text-2xl leading-tight font-bold tracking-tight md:text-3xl lg:text-4xl">
         {report.title ?? "Untitled report"}
       </h1>
