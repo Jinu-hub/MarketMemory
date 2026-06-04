@@ -1,8 +1,10 @@
-import { useSearchParams } from "react-router";
-
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import {
+  REPORT_LIST_CHIP_PARAM_KEYS,
+  type ReportListChipParamKey,
+} from "../lib/filter-keys";
 import {
   formatCategory,
   formatRegion,
@@ -10,25 +12,10 @@ import {
   formatReportType,
 } from "../lib/labels";
 import { formatReportDateChipLabel } from "../lib/report-date-filter";
-import {
-  clearReportDateParams,
-  parseReportDateFilter,
-} from "../lib/report-date-params";
+import { parseReportDateFilter } from "../lib/report-date-params";
+import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
 
-const CHIP_KEYS = [
-  "category",
-  "report_type",
-  "report_tier",
-  "region",
-  "country",
-  "tag",
-  "lang",
-  "q",
-] as const;
-
-type ChipKey = (typeof CHIP_KEYS)[number];
-
-const labels: Record<ChipKey, string> = {
+const CHIP_LABELS: Record<ReportListChipParamKey, string> = {
   category: "카테고리",
   report_type: "유형",
   report_tier: "등급",
@@ -39,7 +26,7 @@ const labels: Record<ChipKey, string> = {
   q: "검색",
 };
 
-function renderValue(key: ChipKey, value: string): string {
+function renderChipValue(key: ReportListChipParamKey, value: string): string {
   switch (key) {
     case "category":
       return formatCategory(value);
@@ -66,39 +53,19 @@ type Props = { className?: string };
  * single filter state — not as generic UI decoration.
  */
 export function ReportActiveFilters({ className }: Props) {
-  const [params, setParams] = useSearchParams();
-  const chips = CHIP_KEYS.flatMap((key) => {
-    const value = params.get(key);
+  const { searchParams, removeFilterParam, clearDateFilterParams } =
+    useItemReportsSearchParams();
+
+  const chips = REPORT_LIST_CHIP_PARAM_KEYS.flatMap((key) => {
+    const value = searchParams.get(key);
     return value ? [{ key, value }] : [];
   });
 
-  const dateLabel = formatReportDateChipLabel(parseReportDateFilter(params));
+  const dateLabel = formatReportDateChipLabel(
+    parseReportDateFilter(searchParams),
+  );
 
   if (chips.length === 0 && !dateLabel) return null;
-
-  const removeChip = (key: ChipKey) => {
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        next.delete(key);
-        next.delete("page");
-        return next;
-      },
-      { replace: true },
-    );
-  };
-
-  const removeDateFilter = () => {
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        clearReportDateParams(next);
-        next.delete("page");
-        return next;
-      },
-      { replace: true },
-    );
-  };
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
@@ -108,7 +75,7 @@ export function ReportActiveFilters({ className }: Props) {
           variant="secondary"
           size="sm"
           removable
-          onRemove={removeDateFilter}
+          onRemove={clearDateFilterParams}
         >
           <span className="text-muted-foreground mr-1">기간</span>
           <span className="font-medium">{dateLabel}</span>
@@ -120,10 +87,10 @@ export function ReportActiveFilters({ className }: Props) {
           variant="secondary"
           size="sm"
           removable
-          onRemove={() => removeChip(key)}
+          onRemove={() => removeFilterParam(key)}
         >
-          <span className="text-muted-foreground mr-1">{labels[key]}</span>
-          <span className="font-medium">{renderValue(key, value)}</span>
+          <span className="text-muted-foreground mr-1">{CHIP_LABELS[key]}</span>
+          <span className="font-medium">{renderChipValue(key, value)}</span>
         </NexBadge>
       ))}
     </div>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
 
 import { NexButton, NexInput } from "~/core/components/nex";
 import { Label } from "~/core/components/ui/label";
@@ -11,9 +10,9 @@ import {
   SelectValue,
 } from "~/core/components/ui/select";
 
+import { FILTER_SELECT_ALL_VALUE } from "../lib/filter-keys";
 import { REPORT_DATE_PARAM_KEYS } from "../lib/report-date-params";
-
-const ALL_VALUE = "__all__";
+import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
 
 const MONTH_LABELS = Array.from({ length: 12 }, (_, index) => {
   const month = index + 1;
@@ -34,36 +33,26 @@ export function ReportDateFilter({
   availableYears,
   hideTitle = false,
 }: ReportDateFilterProps) {
-  const [params, setParams] = useSearchParams();
+  const { searchParams, patchParams } = useItemReportsSearchParams();
   const [dateFrom, setDateFrom] = useState(
-    params.get(REPORT_DATE_PARAM_KEYS.dateFrom) ?? "",
+    searchParams.get(REPORT_DATE_PARAM_KEYS.dateFrom) ?? "",
   );
   const [dateTo, setDateTo] = useState(
-    params.get(REPORT_DATE_PARAM_KEYS.dateTo) ?? "",
+    searchParams.get(REPORT_DATE_PARAM_KEYS.dateTo) ?? "",
   );
 
   useEffect(() => {
-    setDateFrom(params.get(REPORT_DATE_PARAM_KEYS.dateFrom) ?? "");
-    setDateTo(params.get(REPORT_DATE_PARAM_KEYS.dateTo) ?? "");
-  }, [params]);
+    setDateFrom(searchParams.get(REPORT_DATE_PARAM_KEYS.dateFrom) ?? "");
+    setDateTo(searchParams.get(REPORT_DATE_PARAM_KEYS.dateTo) ?? "");
+  }, [searchParams]);
 
-  const selectedYear = params.get(REPORT_DATE_PARAM_KEYS.year) ?? ALL_VALUE;
-  const selectedMonth = params.get(REPORT_DATE_PARAM_KEYS.month) ?? ALL_VALUE;
+  const selectedYear =
+    searchParams.get(REPORT_DATE_PARAM_KEYS.year) ?? FILTER_SELECT_ALL_VALUE;
+  const selectedMonth =
+    searchParams.get(REPORT_DATE_PARAM_KEYS.month) ?? FILTER_SELECT_ALL_VALUE;
   const hasCustomRange =
-    Boolean(params.get(REPORT_DATE_PARAM_KEYS.dateFrom)) ||
-    Boolean(params.get(REPORT_DATE_PARAM_KEYS.dateTo));
-
-  const patchParams = (mutate: (next: URLSearchParams) => void) => {
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        mutate(next);
-        next.delete("page");
-        return next;
-      },
-      { replace: true },
-    );
-  };
+    Boolean(searchParams.get(REPORT_DATE_PARAM_KEYS.dateFrom)) ||
+    Boolean(searchParams.get(REPORT_DATE_PARAM_KEYS.dateTo));
 
   const clearCustomRange = (next: URLSearchParams) => {
     next.delete(REPORT_DATE_PARAM_KEYS.dateFrom);
@@ -80,7 +69,7 @@ export function ReportDateFilter({
   const setYear = (value: string) => {
     patchParams((next) => {
       clearCustomRange(next);
-      if (!value || value === ALL_VALUE) {
+      if (!value || value === FILTER_SELECT_ALL_VALUE) {
         next.delete(REPORT_DATE_PARAM_KEYS.year);
         next.delete(REPORT_DATE_PARAM_KEYS.month);
       } else {
@@ -93,7 +82,7 @@ export function ReportDateFilter({
   const setMonth = (value: string) => {
     patchParams((next) => {
       clearCustomRange(next);
-      if (!value || value === ALL_VALUE) {
+      if (!value || value === FILTER_SELECT_ALL_VALUE) {
         next.delete(REPORT_DATE_PARAM_KEYS.month);
       } else {
         next.set(REPORT_DATE_PARAM_KEYS.month, value);
@@ -127,7 +116,7 @@ export function ReportDateFilter({
   };
 
   const yearDisabled = hasCustomRange;
-  const monthDisabled = yearDisabled || selectedYear === ALL_VALUE;
+  const monthDisabled = yearDisabled || selectedYear === FILTER_SELECT_ALL_VALUE;
 
   return (
     <div className="space-y-4">
@@ -146,7 +135,7 @@ export function ReportDateFilter({
             <SelectValue placeholder="전체 년도" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_VALUE}>전체 년도</SelectItem>
+            <SelectItem value={FILTER_SELECT_ALL_VALUE}>전체 년도</SelectItem>
             {availableYears.map((year) => (
               <SelectItem key={year} value={String(year)}>
                 {year}년
@@ -167,7 +156,7 @@ export function ReportDateFilter({
             <SelectValue placeholder="전체" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_VALUE}>전체</SelectItem>
+            <SelectItem value={FILTER_SELECT_ALL_VALUE}>전체</SelectItem>
             {MONTH_LABELS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -175,7 +164,7 @@ export function ReportDateFilter({
             ))}
           </SelectContent>
         </Select>
-        {monthDisabled && selectedYear === ALL_VALUE ? (
+        {monthDisabled && selectedYear === FILTER_SELECT_ALL_VALUE ? (
           <p className="text-muted-foreground text-xs">
             년도를 선택하면 월별로 좁힐 수 있어요.
           </p>

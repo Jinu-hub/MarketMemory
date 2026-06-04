@@ -1,6 +1,5 @@
 import { SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
 
 import { NexButton, NexInput } from "~/core/components/nex";
 import { Label } from "~/core/components/ui/label";
@@ -21,9 +20,17 @@ import { cn } from "~/core/lib/utils";
 
 import { ReportDateFilter } from "./report-date-filter";
 import {
+  countParamsInKeys,
+  FILTER_SELECT_ALL_VALUE,
+  REPORT_LIST_PANEL_ATTRIBUTE_KEYS,
+  REPORT_LIST_PARAM,
+} from "../lib/filter-keys";
+import { hasActiveListFilterParams } from "../lib/list-filter-active";
+import {
   countReportDateParams,
   hasReportDateParams,
 } from "../lib/report-date-params";
+import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
 import {
   REPORT_CATEGORIES,
   REPORT_CATEGORY_LABELS_KO,
@@ -35,25 +42,7 @@ import {
   REPORT_TYPE_LABELS_KO,
 } from "../constants";
 
-const ALL_VALUE = "__all__";
-
 type FilterPanelTab = "attributes" | "period";
-
-const ATTRIBUTE_PARAM_KEYS = [
-  "category",
-  "report_type",
-  "report_tier",
-  "region",
-  "country",
-  "lang",
-] as const;
-
-function countActiveInKeys(
-  params: URLSearchParams,
-  keys: readonly string[],
-): number {
-  return keys.filter((key) => params.has(key)).length;
-}
 
 function initialPanelTab(params: URLSearchParams): FilterPanelTab {
   return hasReportDateParams(params) ? "period" : "attributes";
@@ -83,60 +72,52 @@ export function ReportFilterPanel({
   facets,
   availableYears = [],
 }: ReportFilterPanelProps) {
-  const [params, setParams] = useSearchParams();
-  const [q, setQ] = useState(params.get("q") ?? "");
+  const { searchParams, setFilterParam, resetAllParams } =
+    useItemReportsSearchParams();
+  const [q, setQ] = useState(
+    searchParams.get(REPORT_LIST_PARAM.q) ?? "",
+  );
   const [panelTab, setPanelTab] = useState<FilterPanelTab>(() =>
-    initialPanelTab(params),
+    initialPanelTab(searchParams),
   );
 
   useEffect(() => {
-    setQ(params.get("q") ?? "");
-  }, [params]);
+    setQ(searchParams.get(REPORT_LIST_PARAM.q) ?? "");
+  }, [searchParams]);
 
   useEffect(() => {
-    if (hasReportDateParams(params)) {
+    if (hasReportDateParams(searchParams)) {
       setPanelTab("period");
     }
-  }, [params]);
+  }, [searchParams]);
 
-  const attributeFilterCount = countActiveInKeys(params, ATTRIBUTE_PARAM_KEYS);
-  const dateFilterCount = countReportDateParams(params);
-
-  const updateParam = (key: string, value: string) => {
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (!value || value === ALL_VALUE) {
-          next.delete(key);
-        } else {
-          next.set(key, value);
-        }
-        next.delete("page");
-        return next;
-      },
-      { replace: true },
-    );
-  };
+  const attributeFilterCount = countParamsInKeys(
+    searchParams,
+    REPORT_LIST_PANEL_ATTRIBUTE_KEYS,
+  );
+  const dateFilterCount = countReportDateParams(searchParams);
+  const hasActiveFilters = hasActiveListFilterParams(searchParams);
 
   const submitSearch = (event: React.FormEvent) => {
     event.preventDefault();
-    updateParam("q", q.trim());
+    setFilterParam(REPORT_LIST_PARAM.q, q.trim(), "");
   };
 
   const reset = () => {
-    setParams(new URLSearchParams(), { replace: true });
+    resetAllParams();
     setQ("");
   };
 
-  const hasActiveFilters =
-    Array.from(params.keys()).filter((key) => key !== "sort" && key !== "page")
-      .length > 0;
-
-  const selectedCategory = params.get("category") ?? ALL_VALUE;
-  const selectedType = params.get("report_type") ?? ALL_VALUE;
-  const selectedTier = params.get("report_tier") ?? ALL_VALUE;
-  const selectedRegion = params.get("region") ?? ALL_VALUE;
-  const selectedLang = params.get("lang") ?? ALL_VALUE;
+  const selectedCategory =
+    searchParams.get(REPORT_LIST_PARAM.category) ?? FILTER_SELECT_ALL_VALUE;
+  const selectedType =
+    searchParams.get(REPORT_LIST_PARAM.reportType) ?? FILTER_SELECT_ALL_VALUE;
+  const selectedTier =
+    searchParams.get(REPORT_LIST_PARAM.reportTier) ?? FILTER_SELECT_ALL_VALUE;
+  const selectedRegion =
+    searchParams.get(REPORT_LIST_PARAM.region) ?? FILTER_SELECT_ALL_VALUE;
+  const selectedLang =
+    searchParams.get(REPORT_LIST_PARAM.lang) ?? FILTER_SELECT_ALL_VALUE;
 
   const langOptions = Object.keys(facets?.languages ?? {}).sort();
 
@@ -190,9 +171,11 @@ export function ReportFilterPanel({
           <FilterSelect
             label="카테고리"
             value={selectedCategory}
-            onChange={(value) => updateParam("category", value)}
+            onChange={(value) =>
+              setFilterParam(REPORT_LIST_PARAM.category, value)
+            }
             options={[
-              { value: ALL_VALUE, label: "전체 카테고리" },
+              { value: FILTER_SELECT_ALL_VALUE, label: "전체 카테고리" },
               ...REPORT_CATEGORIES.map((category) => ({
                 value: category,
                 label: `${REPORT_CATEGORY_LABELS_KO[category]}${facets?.categories[category] ? ` (${facets.categories[category]})` : ""}`,
@@ -203,9 +186,11 @@ export function ReportFilterPanel({
           <FilterSelect
             label="리포트 유형"
             value={selectedType}
-            onChange={(value) => updateParam("report_type", value)}
+            onChange={(value) =>
+              setFilterParam(REPORT_LIST_PARAM.reportType, value)
+            }
             options={[
-              { value: ALL_VALUE, label: "전체 유형" },
+              { value: FILTER_SELECT_ALL_VALUE, label: "전체 유형" },
               ...REPORT_TYPES.map((type) => ({
                 value: type,
                 label: `${REPORT_TYPE_LABELS_KO[type]}${facets?.reportTypes[type] ? ` (${facets.reportTypes[type]})` : ""}`,
@@ -216,9 +201,11 @@ export function ReportFilterPanel({
           <FilterSelect
             label="등급"
             value={selectedTier}
-            onChange={(value) => updateParam("report_tier", value)}
+            onChange={(value) =>
+              setFilterParam(REPORT_LIST_PARAM.reportTier, value)
+            }
             options={[
-              { value: ALL_VALUE, label: "전체 등급" },
+              { value: FILTER_SELECT_ALL_VALUE, label: "전체 등급" },
               ...REPORT_TIERS.map((tier) => ({
                 value: tier,
                 label: `${REPORT_TIER_LABELS_KO[tier]}${facets?.reportTiers[tier] ? ` (${facets.reportTiers[tier]})` : ""}`,
@@ -229,9 +216,11 @@ export function ReportFilterPanel({
           <FilterSelect
             label="지역"
             value={selectedRegion}
-            onChange={(value) => updateParam("region", value)}
+            onChange={(value) =>
+              setFilterParam(REPORT_LIST_PARAM.region, value)
+            }
             options={[
-              { value: ALL_VALUE, label: "전체 지역" },
+              { value: FILTER_SELECT_ALL_VALUE, label: "전체 지역" },
               ...REPORT_REGIONS.filter(
                 (region) => !facets || (facets.regions[region] ?? 0) > 0,
               ).map((region) => ({
@@ -245,9 +234,11 @@ export function ReportFilterPanel({
             <FilterSelect
               label="언어"
               value={selectedLang}
-              onChange={(value) => updateParam("lang", value)}
+              onChange={(value) =>
+                setFilterParam(REPORT_LIST_PARAM.lang, value)
+              }
               options={[
-                { value: ALL_VALUE, label: "전체 언어" },
+                { value: FILTER_SELECT_ALL_VALUE, label: "전체 언어" },
                 ...langOptions.map((lang) => ({
                   value: lang,
                   label: `${lang.toUpperCase()}${facets?.languages[lang] ? ` (${facets.languages[lang]})` : ""}`,

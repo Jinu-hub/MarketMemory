@@ -17,7 +17,7 @@ import {
   ClockIcon,
   GridIcon,
 } from "lucide-react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 
 import { NexButton } from "~/core/components/nex";
 import {
@@ -37,14 +37,14 @@ import { ReportEmptyState } from "../components/report-empty-state";
 import { ReportFilterPanel } from "../components/report-filter-panel";
 import { PAGE_SIZE } from "../constants";
 import { itemReportsListPath } from "../lib/item-reports-urls";
+import { hasActiveListFilter } from "../lib/list-filter-active";
 import { parseListFilter } from "../lib/parse-list-filter";
-import { hasReportDateFilter } from "../lib/report-date-filter";
+import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
 import {
   getExplorePeriodYearFacets,
   getFacets,
   getReports,
 } from "../queries";
-import type { ListFilter } from "../types";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -72,48 +72,22 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { reports, facets, filter, availableYears };
 }
 
-function hasActiveFilter(filter: ListFilter): boolean {
-  return Boolean(
-    filter.category ??
-      filter.reportType ??
-      filter.reportTier ??
-      filter.region ??
-      filter.country ??
-      filter.tag ??
-      filter.lang ??
-      filter.q ??
-      hasReportDateFilter(filter),
-  );
-}
-
 export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
   const { reports, facets, filter, availableYears } = loaderData;
-  const [params, setParams] = useSearchParams();
+  const { searchParams, setSortParam } = useItemReportsSearchParams();
   const totalPages = Math.max(1, Math.ceil(reports.total / PAGE_SIZE));
 
   const showFeatured =
-    !hasActiveFilter(filter) && filter.page === 1 && reports.rows.length > 0;
+    !hasActiveListFilter(filter) && filter.page === 1 && reports.rows.length > 0;
   const featured = showFeatured ? reports.rows[0] : null;
   const gridRows = showFeatured ? reports.rows.slice(1) : reports.rows;
 
   const updateSort = (value: string) => {
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (value === "newest") {
-          next.delete("sort");
-        } else {
-          next.set("sort", value);
-        }
-        next.delete("page");
-        return next;
-      },
-      { replace: true },
-    );
+    setSortParam(value === "oldest" ? "oldest" : "newest");
   };
 
   const buildPageHref = (nextPage: number) => {
-    const next = new URLSearchParams(params);
+    const next = new URLSearchParams(searchParams);
     if (nextPage <= 1) {
       next.delete("page");
     } else {
