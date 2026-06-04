@@ -1,9 +1,7 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
 
 import { ContentEmptyState } from "~/core/components/content/content-empty-state";
-import { NexBadge } from "~/core/components/nex";
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,11 +9,9 @@ import {
 } from "~/core/components/ui/collapsible";
 import { cn } from "~/core/lib/utils";
 
-import { getCategoryStyle } from "../lib/category-style";
-import { resolveDisplayDate } from "../lib/dates";
-import { resolveTakeaway } from "../lib/summary-meta";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import type { ReportListItem } from "../types";
+import { ReportListRow } from "./report-list-row";
 
 type ReportTimelineProps = {
   reports: ReportListItem[];
@@ -277,8 +273,9 @@ function TimelineMonthList({
       />
       <ul className={cn(compact ? "space-y-4" : "space-y-6 md:space-y-7")}>
         {group.reports.map((report) => (
-          <TimelineRow
+          <ReportListRow
             key={report.id}
+            layout="timeline"
             report={report}
             compact={compact}
             detailHref={detailHref}
@@ -286,80 +283,5 @@ function TimelineMonthList({
         ))}
       </ul>
     </div>
-  );
-}
-
-function TimelineRow({
-  report,
-  compact,
-  detailHref,
-}: {
-  report: ReportListItem;
-  compact: boolean;
-  detailHref: (id: string) => string;
-}) {
-  const style = getCategoryStyle(report.category);
-  const takeaway = resolveTakeaway(report.summary, report.summary_meta);
-  const CategoryIcon = style.icon;
-  const date = resolveDisplayDate(report);
-
-  return (
-    <li className={cn("relative flex", compact ? "gap-3" : "gap-5 md:gap-6")}>
-      <div className="relative z-10 flex-shrink-0">
-        <div
-          className={cn(
-            "bg-background flex size-4 items-center justify-center rounded-full border-2 md:size-5",
-            style.accentText,
-          )}
-          style={{ borderColor: "currentColor" }}
-        >
-          <span className={cn("block size-1.5 rounded-full", "bg-current")} />
-        </div>
-      </div>
-
-      <div className="min-w-0 flex-1 -mt-0.5 pb-1">
-        <div className="mb-1.5 flex flex-wrap items-center gap-2">
-          <time className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-            {date}
-          </time>
-          {report.category ? (
-            <NexBadge variant={style.badgeVariant} size="sm">
-              <CategoryIcon className="mr-1 size-3" />
-              {style.label}
-            </NexBadge>
-          ) : null}
-        </div>
-
-        <Link
-          to={detailHref(report.id)}
-          viewTransition
-          className="group block"
-        >
-          <h4
-            className={cn(
-              "group-hover:text-primary font-semibold transition-colors",
-              compact
-                ? "text-sm leading-snug"
-                : "text-base leading-snug md:text-lg",
-            )}
-          >
-            {report.title ?? "Untitled"}
-          </h4>
-          {takeaway && !compact ? (
-            <p
-              className={cn(
-                "text-muted-foreground mt-1 text-sm leading-6",
-                /* Narrower viewports get more lines + a capped width; desktop uses 2 lines and full rail width. */
-                "line-clamp-4 max-w-5xl",
-                "md:line-clamp-3 md:max-w-6xl",
-                "lg:line-clamp-2 lg:max-w-none",
-              )}
-            >
-              {takeaway}
-            </p>
-          ) : null}
-        </Link>
-      </div>
-    </li>
   );
 }

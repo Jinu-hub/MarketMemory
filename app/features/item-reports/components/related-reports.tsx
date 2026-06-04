@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
-import { ArrowRightIcon, Link2Icon, PenLineIcon } from "lucide-react";
-import { Link, useFetcher } from "react-router";
+import { Link2Icon, PenLineIcon } from "lucide-react";
+import { useFetcher } from "react-router";
 
 import { cn } from "~/core/lib/utils";
 import { NexBadge, NexButton } from "~/core/components/nex";
 
-import { getCategoryStyle } from "../lib/category-style";
-import { resolveDisplayDate } from "../lib/dates";
-import { resolveTakeaway } from "../lib/summary-meta";
-import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import type { RelatedReportItem } from "../types";
+import { ReportListRow } from "./report-list-row";
 
 type RelatedReportsProps = {
   reports: RelatedReportItem[];
@@ -139,15 +136,6 @@ export function RelatedReports({
 
   const showAdminLink = isAdmin === true && Boolean(sourceReportId);
 
-  const similarityToneClass = (level: RelatedReportItem["similarity_level"]) =>
-    level === "strong"
-      ? "border-violet-500/60 bg-violet-500/15 text-violet-700 dark:text-violet-300"
-      : level === "high"
-        ? "border-blue-500/60 bg-blue-500/15 text-blue-700 dark:text-blue-300"
-        : level === "medium"
-          ? "border-emerald-500/60 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-          : "border-muted-foreground/35 bg-muted/55 text-muted-foreground";
-
   return (
     <section
       className={cn(
@@ -190,64 +178,15 @@ export function RelatedReports({
         </div>
       ) : (
       <ul className="scrollbar-thin min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-3">
-        {sortedReports.map((report) => {
-          const takeaway = resolveTakeaway(report.summary, report.summary_meta);
-          const style = getCategoryStyle(report.category);
-          const CategoryIcon = style.icon;
-          const similarityLabel =
-            report.similarity_level === "strong"
-              ? "Strong"
-              : report.similarity_level === "high"
-                ? "High"
-                : report.similarity_level === "medium"
-                  ? "Medium"
-                  : report.similarity_level === "weak"
-                    ? "Weak"
-                    : null;
-          return (
-            <li key={report.id}>
-              <Link
-                to={itemReportsDetailHref(report.id)}
-                viewTransition
-                className={cn(
-                  "hover:bg-accent/50 group flex flex-col gap-1 rounded-md border-l-[3px] px-3 py-2.5 transition-colors",
-                  style.accentBorder,
-                )}
-              >
-                <div className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
-                  <CategoryIcon className={cn("size-3", style.accentText)} />
-                  <span>{style.label}</span>
-                  <span aria-hidden>·</span>
-                  <span>{resolveDisplayDate(report)}</span>
-                  {similarityLabel ? (
-                    <>
-                      <span aria-hidden>·</span>
-                      <NexBadge
-                        variant="outline"
-                        size="sm"
-                        className={cn(
-                          "h-5 px-2 py-0 text-[10px] font-semibold tracking-wide",
-                          similarityToneClass(report.similarity_level ?? null),
-                        )}
-                      >
-                        {similarityLabel}
-                      </NexBadge>
-                    </>
-                  ) : null}
-                </div>
-                <div className="group-hover:text-primary line-clamp-2 text-sm leading-snug font-medium transition-colors">
-                  {report.title ?? "Untitled"}
-                </div>
-                {takeaway ? (
-                  <p className="text-muted-foreground line-clamp-2 text-xs leading-5">
-                    {takeaway}
-                  </p>
-                ) : null}
-                <ArrowRightIcon className="text-muted-foreground size-3 self-end opacity-0 transition-opacity group-hover:opacity-100" />
-              </Link>
-            </li>
-          );
-        })}
+        {sortedReports.map((report) => (
+          <li key={report.id}>
+            <ReportListRow
+              layout="related"
+              report={report}
+              similarityLevel={report.similarity_level}
+            />
+          </li>
+        ))}
       </ul>
       )}
     </section>
