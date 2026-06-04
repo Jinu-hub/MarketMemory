@@ -6,10 +6,15 @@
  * when accessed by non-admin authenticated users, so the queries below can
  * optimistically select public data without additional server-side filtering.
  */
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "database.types";
 
 import { parseCalendarYear, resolveReportCalendarParts } from "./lib/dates";
+import {
+  orderItemContentsByReportDate,
+  orderItemContentsNewestFirst,
+  publicItemContentsSelect,
+  type ItemReportsDb,
+} from "./lib/public-item-contents-query";
 import { PAGE_SIZE } from "./constants";
 import { applyReportDateFilter } from "./lib/report-query-filters";
 import type {
@@ -32,7 +37,7 @@ const TIMELINE_YEAR_SCAN_PAGE = 1000;
 const LIST_COLUMNS =
   "id,title,summary,summary_meta,category,report_type,report_tier,regions,countries,tags,market_date,created_at,lang_code";
 
-type DB = SupabaseClient<Database>;
+type DB = ItemReportsDb;
 
 /**
  * Fetch a filtered page of public item_contents for the list screen.
@@ -44,11 +49,9 @@ export async function getReports(
   const page = filter.page && filter.page > 0 ? filter.page : 1;
   const sort = filter.sort === "oldest" ? "oldest" : "newest";
 
-  let query = client
-    .from("item_contents")
-    .select(LIST_COLUMNS, { count: "exact" })
-    .eq("is_public", true)
-    .eq("is_active", true);
+  let query = publicItemContentsSelect(client, LIST_COLUMNS, {
+    count: "exact",
+  });
 
   if (filter.category) {
     query = query.eq(
@@ -89,14 +92,13 @@ export async function getReports(
 
   query = applyReportDateFilter(query, filter);
 
-  const asc = sort === "oldest";
   const from = Math.max(0, (page - 1) * PAGE_SIZE);
   const to = from + PAGE_SIZE - 1;
 
-  const { data, error, count } = await query
-    .order("market_date", { ascending: asc, nullsFirst: asc })
-    .order("created_at", { ascending: asc })
-    .range(from, to);
+  const { data, error, count } = await orderItemContentsByReportDate(
+    query,
+    sort,
+  ).range(from, to);
   if (error) {
     throw error;
   }
@@ -117,14 +119,9 @@ export async function getRecentReports(
   client: DB,
   limit = 40,
 ): Promise<ReportListItem[]> {
-  const { data, error } = await client
-    .from("item_contents")
-    .select(LIST_COLUMNS)
-    .eq("is_public", true)
-    .eq("is_active", true)
-    .order("market_date", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const { data, error } = await orderItemContentsNewestFirst(
+    publicItemContentsSelect(client, LIST_COLUMNS),
+  ).limit(limit);
 
   if (error) {
     throw error;
@@ -158,12 +155,10 @@ async function scanPublicReportCalendarRows(
   let from = 0;
 
   while (true) {
-    const { data, error } = await client
-      .from("item_contents")
-      .select("market_date, created_at")
-      .eq("is_public", true)
-      .eq("is_active", true)
-      .range(from, from + TIMELINE_YEAR_SCAN_PAGE - 1);
+    const { data, error } = await publicItemContentsSelect(
+      client,
+      "market_date, created_at",
+    ).range(from, from + TIMELINE_YEAR_SCAN_PAGE - 1);
 
     if (error) {
       throw error;
@@ -232,17 +227,12 @@ export async function getPeriodHighlights(
   }: { year: number; month?: number; limit?: number },
 ): Promise<ReportListItem[]> {
   const dateFilter: ReportDateFilter = { year, month };
-  let query = client
-    .from("item_contents")
-    .select(LIST_COLUMNS)
-    .eq("is_public", true)
-    .eq("is_active", true);
+  let query = publicItemContentsSelect(client, LIST_COLUMNS);
   query = applyReportDateFilter(query, dateFilter);
 
-  const { data, error } = await query
-    .order("market_date", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const { data, error } = await orderItemContentsNewestFirst(query).limit(
+    limit,
+  );
 
   if (error) {
     throw error;
@@ -266,12 +256,7 @@ export async function getReportsForTimelineYear(
 ): Promise<ReportListItem[]> {
   const { start, end } = timelineYearRange(year);
 
-  const base = () =>
-    client
-      .from("item_contents")
-      .select(LIST_COLUMNS)
-      .eq("is_public", true)
-      .eq("is_active", true);
+  const base = () => publicItemContentsSelect(client, LIST_COLUMNS);
 
   const [withMarketDate, withoutMarketDate] = await Promise.all([
     base()
@@ -300,11 +285,10 @@ export async function getReportsForTimelineYear(
 
 /** Total count of active public reports (timeline "전체" badge). */
 export async function getPublicReportsCount(client: DB): Promise<number> {
-  const { count, error } = await client
-    .from("item_contents")
-    .select("id", { count: "exact", head: true })
-    .eq("is_public", true)
-    .eq("is_active", true);
+  const { count, error } = await publicItemContentsSelect(client, "id", {
+    count: "exact",
+    head: true,
+  });
 
   if (error) {
     throw error;
@@ -320,12 +304,8 @@ export async function getReport(
   client: DB,
   id: string,
 ): Promise<ReportDetail | null> {
-  const { data, error } = await client
-    .from("item_contents")
-    .select("*")
+  const { data, error } = await publicItemContentsSelect(client, "*")
     .eq("id", id)
-    .eq("is_public", true)
-    .eq("is_active", true)
     .maybeSingle();
 
   if (error) {
@@ -365,12 +345,11 @@ export async function getRelatedReports(
     .filter((targetId): targetId is string => targetId !== id);
   if (rankedTargetIds.length === 0) return [];
 
-  const { data: reports, error: reportError } = await client
-    .from("item_contents")
-    .select(LIST_COLUMNS)
+  const { data: reports, error: reportError } = await publicItemContentsSelect(
+    client,
+    LIST_COLUMNS,
+  )
     .in("id", rankedTargetIds)
-    .eq("is_public", true)
-    .eq("is_active", true)
     .limit(limit);
 
   if (reportError) throw reportError;
@@ -425,11 +404,10 @@ export async function getRelatedReports(
  * signal for the filter sidebar and explore hub.
  */
 export async function getFacets(client: DB): Promise<FacetCounts> {
-  const { data, error } = await client
-    .from("item_contents")
-    .select("category,report_type,report_tier,regions,tags,lang_code")
-    .eq("is_public", true)
-    .eq("is_active", true)
+  const { data, error } = await publicItemContentsSelect(
+    client,
+    "category,report_type,report_tier,regions,tags,lang_code",
+  )
     .order("created_at", { ascending: false })
     .limit(500);
 
@@ -497,18 +475,12 @@ export async function getCategoryHighlights(
 
   await Promise.all(
     categories.map(async (category) => {
-      const { data, error } = await client
-        .from("item_contents")
-        .select(LIST_COLUMNS)
-        .eq("is_public", true)
-        .eq("is_active", true)
-        .eq(
+      const { data, error } = await orderItemContentsNewestFirst(
+        publicItemContentsSelect(client, LIST_COLUMNS).eq(
           "category",
           category as Database["public"]["Enums"]["category"],
-        )
-        .order("market_date", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(perCategory);
+        ),
+      ).limit(perCategory);
 
       if (error) {
         throw error;
