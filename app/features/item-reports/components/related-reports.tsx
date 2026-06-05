@@ -5,6 +5,7 @@ import { useFetcher } from "react-router";
 import { cn } from "~/core/lib/utils";
 import { NexBadge, NexButton } from "~/core/components/nex";
 
+import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
 import type { RelatedReportItem } from "../types";
 import { ReportListRow } from "./report-list-row";
 
@@ -14,6 +15,8 @@ type RelatedReportsProps = {
   isAdmin?: boolean;
   /** Source `item_contents.id` for the admin deep link (required when `isAdmin`). */
   sourceReportId?: string;
+  /** Forward list context so related-detail back links restore filters. */
+  listLinkState?: ItemReportsListLocationState;
   className?: string;
   /**
    * Tailwind height utility applied to the outer `<section>`.
@@ -117,6 +120,7 @@ export function RelatedReports({
   reports,
   isAdmin = false,
   sourceReportId,
+  listLinkState,
   className,
   maxHeightClassName = "max-h-[28rem]",
 }: RelatedReportsProps) {
@@ -184,6 +188,7 @@ export function RelatedReports({
               layout="related"
               report={report}
               similarityLevel={report.similarity_level}
+              listLinkState={listLinkState}
             />
           </li>
         ))}

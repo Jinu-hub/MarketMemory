@@ -7,6 +7,7 @@ import { NexBadge } from "~/core/components/nex";
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
+import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
 import {
   getSimilarityLabel,
   getSimilarityToneClass,
@@ -19,6 +20,7 @@ import { ReportCategoryBadges } from "./report-category-badges";
 type ReportListRowBaseProps = {
   report: ReportListItem;
   detailHref?: (id: string) => string;
+  listLinkState?: ItemReportsListLocationState;
   className?: string;
 };
 
@@ -41,7 +43,12 @@ export type ReportListRowProps =
  * Keeps takeaway, category accent, and title styling in one place.
  */
 export function ReportListRow(props: ReportListRowProps) {
-  const { report, detailHref = itemReportsDetailHref, className } = props;
+  const {
+    report,
+    detailHref = itemReportsDetailHref,
+    listLinkState,
+    className,
+  } = props;
   const style = getCategoryStyle(report.category);
   const CategoryIcon = style.icon;
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
@@ -54,6 +61,7 @@ export function ReportListRow(props: ReportListRowProps) {
     return (
       <Link
         to={detailHref(report.id)}
+        state={listLinkState}
         viewTransition
         className={cn(
           "hover:bg-accent/50 group flex flex-col gap-1 rounded-md border-l-[3px] px-3 py-2.5 transition-colors",
@@ -137,6 +145,7 @@ export function ReportListRow(props: ReportListRowProps) {
 
         <Link
           to={detailHref(report.id)}
+          state={listLinkState}
           viewTransition
           className="group block"
         >

@@ -37,6 +37,7 @@ import { ReportEmptyState } from "../components/report-empty-state";
 import { ReportFilterPanel } from "../components/report-filter-panel";
 import { PAGE_SIZE } from "../constants";
 import { itemReportsListPath } from "../lib/item-reports-urls";
+import { buildItemReportsListLinkState } from "../lib/list-navigation-state";
 import { hasActiveListFilter } from "../lib/list-filter-active";
 import { parseListFilter } from "../lib/parse-list-filter";
 import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
@@ -75,6 +76,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
   const { reports, facets, filter, availableYears } = loaderData;
   const { searchParams, setSortParam } = useItemReportsSearchParams();
+  const listLinkState = buildItemReportsListLinkState(searchParams);
   const totalPages = Math.max(1, Math.ceil(reports.total / PAGE_SIZE));
 
   const showFeatured =
@@ -137,7 +139,9 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
         </div>
       </header>
 
-      {featured ? <FeaturedReportBlock report={featured} /> : null}
+      {featured ? (
+        <FeaturedReportBlock report={featured} listLinkState={listLinkState} />
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
         <div className="lg:sticky lg:top-4 lg:self-start">
@@ -172,7 +176,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {gridRows.map((report) => (
                 <li key={report.id}>
-                  <ReportCard report={report} />
+                  <ReportCard report={report} listLinkState={listLinkState} />
                 </li>
               ))}
             </ul>

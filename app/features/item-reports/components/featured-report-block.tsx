@@ -15,6 +15,7 @@ import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion, formatReportType } from "../lib/labels";
 import { resolveTakeaway } from "../lib/summary-meta";
 import { itemReportsDetailHref, itemReportsListHref } from "../lib/item-reports-urls";
+import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
 import type { ReportListItem } from "../types";
 import { ReportCategoryBadges } from "./report-category-badges";
 
@@ -28,6 +29,7 @@ type FeaturedReportBlockProps = {
   detailHref?: (id: string) => string;
   /** Optional override for the small footer note under the meta column. */
   footnote?: string;
+  listLinkState?: ItemReportsListLocationState;
 };
 
 /**
@@ -41,6 +43,7 @@ export function FeaturedReportBlock({
   className,
   detailHref = itemReportsDetailHref,
   footnote = "이 리포트는 현재 공개된 가장 최근의 AI 리서치 콘텐츠입니다.",
+  listLinkState,
 }: FeaturedReportBlockProps) {
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
   const date = resolveDisplayDate(report);
@@ -79,6 +82,7 @@ export function FeaturedReportBlock({
           <h2 className="text-2xl leading-tight font-bold tracking-tight md:text-3xl lg:text-4xl">
             <Link
               to={detailHref(report.id)}
+              state={listLinkState}
               viewTransition
               className="hover:text-primary transition-colors"
             >
@@ -95,6 +99,7 @@ export function FeaturedReportBlock({
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
               to={detailHref(report.id)}
+              state={listLinkState}
               viewTransition
               className="bg-primary text-primary-foreground ring-primary/30 hover:bg-primary/90 focus-visible:ring-primary/50 inline-flex min-w-44 items-center justify-center gap-2 rounded-lg px-7 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2"
               aria-label={`${report.title ?? "리포트"} 읽기`}

@@ -9,7 +9,7 @@
  *  - `ShareSummaryBlock`: SNS summary rendered as related-insight callout
  *  - Right-rail `ReportMetaSidebar` + `RelatedReports` (responsive accordion)
  */
-import { data } from "react-router";
+import { data, useLocation } from "react-router";
 
 import {
   Accordion,
@@ -35,6 +35,10 @@ import { ReportDetailTabs } from "../components/report-detail-tabs";
 import { ReportEntitiesFooter } from "../components/report-entities-footer";
 import { ReportMetaSidebar } from "../components/report-meta-sidebar";
 import { ReportSummaryMeta } from "../components/report-summary-meta";
+import {
+  readItemReportsListLinkState,
+  resolveItemReportsListBackHref,
+} from "../lib/list-navigation-state";
 import { resolveTakeaway } from "../lib/summary-meta";
 import { isPremiumTier } from "../lib/tier-style";
 import { getRelatedReports, getReport } from "../queries";
@@ -119,11 +123,14 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
   const { report, related, isAdmin } = loaderData;
+  const location = useLocation();
+  const listLinkState = readItemReportsListLinkState(location.state);
+  const listBackHref = resolveItemReportsListBackHref(location.state);
 
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">
       <nav className="mb-6">
-        <ItemReportsNavLink to="/item_reports">리포트 라이브러리</ItemReportsNavLink>
+        <ItemReportsNavLink to={listBackHref}>리포트 라이브러리</ItemReportsNavLink>
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
@@ -199,6 +206,7 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             reports={related}
             isAdmin={isAdmin}
             sourceReportId={report.id}
+            listLinkState={listLinkState}
             className="lg:flex-1"
             maxHeightClassName="max-h-[28rem] lg:max-h-none"
           />

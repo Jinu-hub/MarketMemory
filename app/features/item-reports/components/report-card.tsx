@@ -7,6 +7,7 @@ import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion } from "../lib/labels";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
+import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
 import { resolveTakeaway } from "../lib/summary-meta";
 import type { ReportListItem } from "../types";
 import { ReportCategoryBadges } from "./report-category-badges";
@@ -22,6 +23,8 @@ type ReportCardProps = {
    * Defaults to the global /item_reports/:id reader.
    */
   detailHref?: (id: string) => string;
+  /** Preserves list URL (search / filters / page) for the detail back link. */
+  listLinkState?: ItemReportsListLocationState;
 };
 
 /**
@@ -34,6 +37,7 @@ export function ReportCard({
   className,
   density = "default",
   detailHref = itemReportsDetailHref,
+  listLinkState,
 }: ReportCardProps) {
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
   const date = resolveDisplayDate(report);
@@ -46,6 +50,7 @@ export function ReportCard({
   return (
     <Link
       to={detailHref(report.id)}
+      state={listLinkState}
       viewTransition
       className={cn(
         "group bg-card border-border hover:border-primary/30 flex h-full flex-col rounded-xl border border-l-[3px]",
