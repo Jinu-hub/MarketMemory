@@ -265,7 +265,7 @@ export const dailyMarketMemorySources = pgTable(
     pgPolicy("dms_select", {
       for: "select",
       to: authenticatedRole,
-      using: isAdmin,
+      using: sql`true`,
     }),
     pgPolicy("dms_insert", {
       for: "insert",

@@ -3,6 +3,7 @@ import { BrainCircuitIcon, FileTextIcon, SparklesIcon } from "lucide-react";
 import { NexBadge } from "~/core/components/nex";
 import { ContentTagList } from "~/core/components/content/content-tag-list";
 import { cn } from "~/core/lib/utils";
+import type { ReportListItem } from "~/features/item-reports/types";
 
 import { pickDashboardUi } from "../i18n";
 import {
@@ -22,15 +23,18 @@ import {
 import type { DailyMarketMemorySnapshot, DailyMemoryTheme } from "../types";
 import { ReadingEmpty, ReadingProse } from "./reading-prose";
 import { SectionLabel } from "./section-label";
+import { SourceReportsSheet } from "./source-reports-sheet";
 
 type TodayMarketMemoryBlockProps = {
   memory: DailyMarketMemorySnapshot | null;
+  sourceReports?: ReportListItem[];
   locale: string;
   className?: string;
 };
 
 export function TodayMarketMemoryBlock({
   memory,
+  sourceReports = [],
   locale,
   className,
 }: TodayMarketMemoryBlockProps) {
@@ -77,11 +81,11 @@ export function TodayMarketMemoryBlock({
         </div>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
           {memory.source_report_count > 0 ? (
-            <NexBadge variant="outline" size="sm">
-              <FileTextIcon className="mr-1 size-3" aria-hidden />
-              {memory.source_report_count}
-              {t.reportCount}
-            </NexBadge>
+            <SourceReportsSheet
+              reports={sourceReports}
+              count={memory.source_report_count}
+              locale={locale}
+            />
           ) : null}
           {memory.status === "draft" ? (
             <NexBadge variant="warning" size="sm">

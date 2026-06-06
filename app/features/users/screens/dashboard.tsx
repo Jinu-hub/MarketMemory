@@ -33,6 +33,7 @@ import { parseMarketDateParam } from "~/features/dashboard/lib/dates";
 import {
   getAvailableMarketMemoryDates,
   getDailyMarketMemoryByDate,
+  getDailyMarketMemorySources,
   getLatestDailyMarketMemory,
 } from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
@@ -64,11 +65,16 @@ export async function loader({ request }: Route.LoaderArgs) {
     getAvailableMarketMemoryDates(client).catch(() => []),
   ]);
 
-  return { memory, recentReports, availableDates, locale };
+  const sourceReports = memory
+    ? await getDailyMarketMemorySources(client, memory.id).catch(() => [])
+    : [];
+
+  return { memory, sourceReports, recentReports, availableDates, locale };
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { memory, recentReports, availableDates, locale } = loaderData;
+  const { memory, sourceReports, recentReports, availableDates, locale } =
+    loaderData;
   const page = pickDashboardUi(locale).page;
 
   return (
@@ -111,7 +117,11 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         showCaption={Boolean(memory)}
       />
 
-      <TodayMarketMemoryBlock memory={memory} locale={locale} />
+      <TodayMarketMemoryBlock
+        memory={memory}
+        sourceReports={sourceReports}
+        locale={locale}
+      />
 
       <LatestReportsBlock reports={recentReports} locale={locale} />
 

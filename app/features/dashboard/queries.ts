@@ -14,6 +14,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "database.types";
 
+import {
+  publicItemContentsSelect,
+  type ItemReportsDb,
+} from "~/features/item-reports/lib/public-item-contents-query";
+import type { ReportListItem } from "~/features/item-reports/types";
+
 import { pickBestI18nRow } from "./lib/i18n-pick";
 import type {
   CoreData,
@@ -239,4 +245,72 @@ export async function getAvailableMarketMemoryDates(
     if (row.market_date) seen.add(row.market_date);
   }
   return [...seen];
+}
+
+const SOURCE_REPORT_COLUMNS =
+  "id,title,summary,summary_meta,category,report_type,report_tier,regions,countries,tags,market_date,created_at,lang_code";
+
+type SourceRow = {
+  item_content_id: string;
+  report_title_snapshot: string | null;
+  report_type: string | null;
+  lang_code: string | null;
+  created_at: string;
+};
+
+/**
+ * Fetch source reports for a daily market memory, preserving pipeline order.
+ * Live `item_contents` rows are preferred; snapshots fill gaps when a source
+ * is no longer public.
+ */
+export async function getDailyMarketMemorySources(
+  client: DB,
+  memoryId: string,
+): Promise<ReportListItem[]> {
+  const { data: sourceRows, error: sourceError } = await client
+    .from("daily_market_memory_sources")
+    .select(
+      "item_content_id,report_title_snapshot,report_type,lang_code,created_at",
+    )
+    .eq("daily_market_memory_id", memoryId)
+    .order("created_at", { ascending: true });
+
+  if (sourceError) throw sourceError;
+
+  const rows = (sourceRows ?? []) as SourceRow[];
+  if (rows.length === 0) return [];
+
+  const ids = rows.map((row) => row.item_content_id);
+  const { data: contentRows, error: contentError } =
+    await publicItemContentsSelect(
+      client as unknown as ItemReportsDb,
+      SOURCE_REPORT_COLUMNS,
+    ).in("id", ids);
+
+  if (contentError) throw contentError;
+
+  const contentById = new Map(
+    (contentRows ?? []).map((row) => [row.id, row as ReportListItem]),
+  );
+
+  return rows.map((source) => {
+    const live = contentById.get(source.item_content_id);
+    if (live) return live;
+
+    return {
+      id: source.item_content_id,
+      title: source.report_title_snapshot,
+      summary: null,
+      summary_meta: null,
+      category: null,
+      report_type: source.report_type as ReportListItem["report_type"],
+      report_tier: "free",
+      regions: null,
+      countries: null,
+      tags: null,
+      market_date: null,
+      created_at: source.created_at,
+      lang_code: source.lang_code ?? "en",
+    } satisfies ReportListItem;
+  });
 }

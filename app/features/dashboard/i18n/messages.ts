@@ -191,6 +191,12 @@ const ui = {
       },
       relatedReports: "관련",
       relatedReportsSuffix: "건",
+      sourceReports: {
+        title: "근거 리포트",
+        description: "이 시장 메모리를 생성하는 데 사용된 리포트입니다.",
+        openAction: "목록 보기",
+        empty: "근거 리포트 정보가 없습니다.",
+      },
     },
     latestReports: {
       title: "최신 리포트",
@@ -319,6 +325,12 @@ const ui = {
       },
       relatedReports: "Related",
       relatedReportsSuffix: "",
+      sourceReports: {
+        title: "Source reports",
+        description: "Reports used to generate this market memory.",
+        openAction: "View list",
+        empty: "No source report information is available.",
+      },
     },
     latestReports: {
       title: "Latest reports",
@@ -447,6 +459,12 @@ const ui = {
       },
       relatedReports: "関連",
       relatedReportsSuffix: "件",
+      sourceReports: {
+        title: "根拠レポート",
+        description: "この市場メモリの生成に使用されたレポートです。",
+        openAction: "一覧を見る",
+        empty: "根拠レポート情報がありません。",
+      },
     },
     latestReports: {
       title: "最新レポート",
