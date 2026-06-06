@@ -143,13 +143,19 @@ const ui = {
   ko: {
     page: {
       eyebrow: "Dashboard",
-      title: "최신 시장 브리핑",
+      title: "마켓 브리핑",
       subtitle:
-        "거래일 기준으로 정리한 시장 메모리입니다. 핵심 요약, 테마, 분위기와 스냅샷을 한 화면에서 확인할 수 있습니다.",
+        "거래일 기준으로 정리한 마켓 메모리입니다. 핵심 요약, 테마, 분위기와 스냅샷을 한 화면에서 확인할 수 있습니다.",
       publishedAtLabel: "발행",
       statusLabel: "상태",
       draftNote: "처리 중",
       timezoneAbbr: "JST",
+      datePicker: {
+        triggerLabel: "다른 날짜의 시장 메모리 보기",
+        title: "날짜 선택",
+        hint: "기록이 있는 거래일만 선택할 수 있어요.",
+        latest: "최신으로",
+      },
     },
     snapshot: {
       ariaLabel: "시장 스냅샷",
@@ -272,6 +278,12 @@ const ui = {
       statusLabel: "Status",
       draftNote: "In progress",
       timezoneAbbr: "JST",
+      datePicker: {
+        triggerLabel: "View market memory for another day",
+        title: "Pick a date",
+        hint: "Only trading days with a record are selectable.",
+        latest: "Latest",
+      },
     },
     snapshot: {
       ariaLabel: "Market snapshot",
@@ -394,6 +406,12 @@ const ui = {
       statusLabel: "状態",
       draftNote: "処理中",
       timezoneAbbr: "JST",
+      datePicker: {
+        triggerLabel: "別の日付の市場メモリを見る",
+        title: "日付を選択",
+        hint: "記録がある取引日のみ選択できます。",
+        latest: "最新へ",
+      },
     },
     snapshot: {
       ariaLabel: "市場スナップショット",

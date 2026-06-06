@@ -22,6 +22,8 @@ type DashboardMarketDateProps = {
   publishedAt?: string | null;
   status?: string;
   className?: string;
+  /** Optional affordance rendered on the date row (e.g. a calendar chevron). */
+  trailing?: ReactNode;
 };
 
 function EditionMetaRow({
@@ -70,6 +72,7 @@ export function DashboardMarketDate({
   publishedAt,
   status,
   className,
+  trailing,
 }: DashboardMarketDateProps) {
   const formatted = formatMarketDate(marketDate, locale);
   if (!formatted) return null;
@@ -87,16 +90,19 @@ export function DashboardMarketDate({
       <span className="text-primary text-[10px] font-semibold tracking-wider uppercase sm:text-[11px]">
         {labels.tradingDay}
       </span>
-      <time
-        dateTime={marketDate}
-        className="text-foreground inline-flex min-w-0 items-center gap-2 text-sm font-semibold sm:text-base"
-      >
-        <CalendarIcon
-          className="text-primary size-4 shrink-0 sm:size-[1.125rem]"
-          aria-hidden
-        />
-        <span className="min-w-0 leading-snug">{formatted}</span>
-      </time>
+      <div className="flex items-center justify-between gap-3">
+        <time
+          dateTime={marketDate}
+          className="text-foreground inline-flex min-w-0 items-center gap-2 text-sm font-semibold sm:text-base"
+        >
+          <CalendarIcon
+            className="text-primary size-4 shrink-0 sm:size-[1.125rem]"
+            aria-hidden
+          />
+          <span className="min-w-0 leading-snug">{formatted}</span>
+        </time>
+        {trailing}
+      </div>
       {isDraft ? (
         <EditionMetaRow
           muted

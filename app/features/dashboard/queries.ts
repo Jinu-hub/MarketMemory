@@ -51,53 +51,37 @@ function coerceTopTagSlugs(value: unknown): string[] | null {
   return slugs.length > 0 ? slugs : null;
 }
 
+const MEMORY_SELECT =
+  "id,market_date,market_scope,status,generated_at,updated_at,source_report_count,core_lang_code,market_snapshot,core_data,market_mood_type,risk_signals,top_tags";
+
+/** Shape of a `daily_market_memories` row selected with `MEMORY_SELECT`. */
+type DailyMemoryBaseRow = {
+  id: string;
+  market_date: string;
+  market_scope: string;
+  status: string;
+  generated_at: string;
+  updated_at: string;
+  source_report_count: number;
+  core_lang_code: string;
+  market_snapshot: unknown;
+  core_data: unknown;
+  market_mood_type: string | null;
+  risk_signals: unknown;
+  top_tags: unknown;
+};
+
 /**
- * Fetch the latest `daily_market_memories` row (final > draft) merged with the
- * best-matching `daily_market_memory_i18n` row for the requested locale.
+ * Merge a base `daily_market_memories` row with the best-matching
+ * `daily_market_memory_i18n` row for the requested locale.
  *
  * Falls back to: preferred lang → row's `core_lang_code` → any available i18n.
  */
-export async function getLatestDailyMarketMemory(
+async function hydrateDailyMarketMemory(
   client: DB,
+  memoryRow: DailyMemoryBaseRow,
   preferredLang: string,
-): Promise<DailyMarketMemorySnapshot | null> {
-  const MEMORY_SELECT =
-    "id,market_date,market_scope,status,generated_at,updated_at,source_report_count,core_lang_code,market_snapshot,core_data,market_mood_type,risk_signals,top_tags";
-
-  // 1) Try to find the most recent finalized record first.
-  let { data: memoryRow, error: finalError } = await client
-    .from("daily_market_memories")
-    .select(MEMORY_SELECT)
-    .eq("status", "final")
-    .order("market_date", { ascending: false })
-    .order("generated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (finalError && finalError.code !== "PGRST116") {
-    // PGRST116 = "no rows" — that's fine; any other error should bubble up
-    // unless RLS just hid everything (then maybeSingle returns null).
-    throw finalError;
-  }
-
-  // 2) If no final row exists, take the most recent draft.
-  if (!memoryRow) {
-    const { data: draftRow, error: draftError } = await client
-      .from("daily_market_memories")
-      .select(MEMORY_SELECT)
-      .order("market_date", { ascending: false })
-      .order("generated_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (draftError && draftError.code !== "PGRST116") {
-      throw draftError;
-    }
-    memoryRow = draftRow ?? null;
-  }
-
-  if (!memoryRow) return null;
-
-  // 3) Fetch all i18n rows for this memory (typically just a few langs).
+): Promise<DailyMarketMemorySnapshot> {
   const { data: i18nRows, error: i18nError } = await client
     .from("daily_market_memory_i18n")
     .select(
@@ -135,4 +119,124 @@ export async function getLatestDailyMarketMemory(
     market_mood_summary: i18n?.market_mood_summary ?? null,
     resolved_lang_code: i18n?.lang_code ?? null,
   };
+}
+
+/**
+ * Fetch the latest `daily_market_memories` row (final > draft) merged with the
+ * best-matching `daily_market_memory_i18n` row for the requested locale.
+ */
+export async function getLatestDailyMarketMemory(
+  client: DB,
+  preferredLang: string,
+): Promise<DailyMarketMemorySnapshot | null> {
+  // 1) Try to find the most recent finalized record first.
+  let { data: memoryRow, error: finalError } = await client
+    .from("daily_market_memories")
+    .select(MEMORY_SELECT)
+    .eq("status", "final")
+    .order("market_date", { ascending: false })
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (finalError && finalError.code !== "PGRST116") {
+    // PGRST116 = "no rows" — that's fine; any other error should bubble up
+    // unless RLS just hid everything (then maybeSingle returns null).
+    throw finalError;
+  }
+
+  // 2) If no final row exists, take the most recent draft.
+  if (!memoryRow) {
+    const { data: draftRow, error: draftError } = await client
+      .from("daily_market_memories")
+      .select(MEMORY_SELECT)
+      .order("market_date", { ascending: false })
+      .order("generated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (draftError && draftError.code !== "PGRST116") {
+      throw draftError;
+    }
+    memoryRow = draftRow ?? null;
+  }
+
+  if (!memoryRow) return null;
+
+  return hydrateDailyMarketMemory(
+    client,
+    memoryRow as unknown as DailyMemoryBaseRow,
+    preferredLang,
+  );
+}
+
+/**
+ * Fetch the `daily_market_memories` row for a specific trading day.
+ *
+ * Prefers `status='final'` and falls back to the most recent row for that date
+ * (e.g. a draft) so navigating to a past date stays consistent with the
+ * "latest" behavior. `marketDate` must be a `YYYY-MM-DD` calendar date.
+ */
+export async function getDailyMarketMemoryByDate(
+  client: DB,
+  preferredLang: string,
+  marketDate: string,
+): Promise<DailyMarketMemorySnapshot | null> {
+  let { data: memoryRow, error: finalError } = await client
+    .from("daily_market_memories")
+    .select(MEMORY_SELECT)
+    .eq("market_date", marketDate)
+    .eq("status", "final")
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (finalError && finalError.code !== "PGRST116") {
+    throw finalError;
+  }
+
+  if (!memoryRow) {
+    const { data: anyRow, error: anyError } = await client
+      .from("daily_market_memories")
+      .select(MEMORY_SELECT)
+      .eq("market_date", marketDate)
+      .order("generated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (anyError && anyError.code !== "PGRST116") {
+      throw anyError;
+    }
+    memoryRow = anyRow ?? null;
+  }
+
+  if (!memoryRow) return null;
+
+  return hydrateDailyMarketMemory(
+    client,
+    memoryRow as unknown as DailyMemoryBaseRow,
+    preferredLang,
+  );
+}
+
+/**
+ * Distinct `market_date` values that have at least one readable memory row,
+ * newest first. Powers the dashboard date picker (only these days are
+ * selectable in the calendar).
+ */
+export async function getAvailableMarketMemoryDates(
+  client: DB,
+  limit = 180,
+): Promise<string[]> {
+  const { data, error } = await client
+    .from("daily_market_memories")
+    .select("market_date")
+    .order("market_date", { ascending: false })
+    .limit(limit);
+
+  if (error && error.code !== "PGRST116") throw error;
+
+  const seen = new Set<string>();
+  for (const row of data ?? []) {
+    if (row.market_date) seen.add(row.market_date);
+  }
+  return [...seen];
 }

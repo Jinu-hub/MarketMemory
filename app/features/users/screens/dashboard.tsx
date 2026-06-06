@@ -22,14 +22,19 @@ import type { Route } from "./+types/dashboard";
 
 import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
-import { DashboardMarketDate } from "~/features/dashboard/components/dashboard-market-date";
+import { MarketDatePicker } from "~/features/dashboard/components/market-date-picker";
 import { MarketSnapshotBar } from "~/features/dashboard/components/market-snapshot-bar";
 import { TodayMarketMemoryBlock } from "~/features/dashboard/components/today-market-memory-block";
 import { LatestReportsBlock } from "~/features/dashboard/components/latest-reports-block";
 import { MemoryRecallBlock } from "~/features/dashboard/components/memory-recall-block";
 import { SignalRadarBlock } from "~/features/dashboard/components/signal-radar-block";
 import { pickDashboardUi } from "~/features/dashboard/i18n";
-import { getLatestDailyMarketMemory } from "~/features/dashboard/queries";
+import { parseMarketDateParam } from "~/features/dashboard/lib/dates";
+import {
+  getAvailableMarketMemoryDates,
+  getDailyMarketMemoryByDate,
+  getLatestDailyMarketMemory,
+} from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
 
 export const meta: Route.MetaFunction = () => {
@@ -47,16 +52,23 @@ export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   const locale = await i18next.getLocale(request);
 
-  const [memory, recentReports] = await Promise.all([
-    getLatestDailyMarketMemory(client, locale).catch(() => null),
+  const url = new URL(request.url);
+  const requestedDate = parseMarketDateParam(url.searchParams.get("date"));
+
+  const [memory, recentReports, availableDates] = await Promise.all([
+    (requestedDate
+      ? getDailyMarketMemoryByDate(client, locale, requestedDate)
+      : getLatestDailyMarketMemory(client, locale)
+    ).catch(() => null),
     getRecentReports(client, 7).catch(() => []),
+    getAvailableMarketMemoryDates(client).catch(() => []),
   ]);
 
-  return { memory, recentReports, locale };
+  return { memory, recentReports, availableDates, locale };
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { memory, recentReports, locale } = loaderData;
+  const { memory, recentReports, availableDates, locale } = loaderData;
   const page = pickDashboardUi(locale).page;
 
   return (
@@ -74,8 +86,9 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
           </p>
         </div>
         {memory?.market_date ? (
-          <DashboardMarketDate
+          <MarketDatePicker
             marketDate={memory.market_date}
+            availableDates={availableDates}
             locale={locale}
             labels={{
               tradingDay: "Market Date",
@@ -84,6 +97,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
               draftNote: page.draftNote,
               timezoneAbbr: page.timezoneAbbr,
             }}
+            pickerLabels={page.datePicker}
             publishedAt={memory.updated_at ?? memory.generated_at}
             status={memory.status}
             className="shrink-0"
