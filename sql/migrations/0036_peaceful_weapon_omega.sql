@@ -1,0 +1,1 @@
+ALTER POLICY "dms_select" ON "daily_market_memory_sources" TO authenticated USING (true);
