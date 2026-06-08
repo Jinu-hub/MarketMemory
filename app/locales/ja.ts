@@ -1,9 +1,160 @@
 import type { Translation } from "./types";
 
 const ja: Translation = {
+  auth: {
+    signIn: "ログイン",
+  },
+  brand: {
+    name: "Market Memory",
+    tagline: "散らばった市場の流れを、\n一つの視点から。",
+  },
   home: {
     title: "Market Memory",
-    subtitle: "The global research edited by the editor.",
+    meta: {
+      description:
+        "毎日のグローバルリサーチを読み、テーマ別に探索し、流れとしてつなげて見られるリサーチライブラリです。",
+    },
+    getStarted: "はじめる",
+    goToLink: "見に行く",
+    continueReading: "続きを読む",
+    reportCount: "{{count}}本",
+    hero: {
+      badge: "市場 · インサイト · リサーチライブラリ",
+      tagline: "ニュースを超えて、市場の文脈とつながりを整理します。",
+      description:
+        "毎日のグローバルリサーチを読み、テーマ別に探索し、流れとしてつなげて見られるリサーチライブラリ",
+      features: {
+        editedResearch: "編集されたリサーチ",
+        exploreByTopic: "テーマ別探索",
+        connectFlows: "つながる物語",
+      },
+      social: {
+        badge: "Private Preview · 2026",
+        text: "初期バージョンを限定公開しています。",
+      },
+    },
+    preview: {
+      reportAriaLabel: "レポートプレビュー",
+      issueLabel: "Issue 042 · Market Memory",
+      editorialAngle: "Editorial Angle",
+      trend: "トレンド",
+      headline: "AIインフラ投資が半導体バリューチェーンを書き換えている。",
+      keyTakeaway: "Key Takeaway",
+      takeawayBody:
+        "2026年のハイパースケーラーCapExは320Bに達し、先端パッケージングとHBMの構造的ボトルネックをさらに深めています。",
+      hooks: "Hooks",
+      hooksList: [
+        "CapExは加速中で、減速の兆候はまだ見えない。",
+        "CoWoS供給は依然として最も強い制約条件のままだ。",
+        "電力と地域分散が次の投資サイクルの軸になる。",
+      ],
+      quote:
+        "より速い半導体ではなく、より多くの電力がボトルネックになる時代へ移行している。",
+      data: {
+        capex: {
+          label: "CapEx 2026e",
+          delta: "+23%",
+          caption: "vs 2024",
+        },
+        hbm: {
+          label: "HBM Supply",
+          delta: "tight",
+          caption: "配分 / 需要",
+        },
+        power: {
+          label: "電力負荷",
+          delta: "↑",
+          caption: "DC電力 2024→26",
+        },
+      },
+      floatingChip: {
+        title: "関連インサイト",
+        headline: "半導体CapExサイクル、拡大局面が継続",
+        period: "30日 · 時価総額加重",
+        tickers: "MSFT · GOOG · META",
+      },
+      floatingGraph: {
+        title: "接続されたテーマ",
+        ariaLabel: "関連テーマの関係図",
+        nodes: {
+          power: "電力",
+          semi: "半導体",
+          dc: "データセンター",
+        },
+      },
+      floatingTimeline: {
+        title: "最近の年代記",
+        rows: [
+          "AIインフラ投資の再編",
+          "HBM価格サイクル、ピーク",
+          "EU Chips Act 第2段階",
+        ],
+      },
+    },
+    productFeel: {
+      eyebrow: "読む体験",
+      headline: "一つのレポートを\n読むということ。",
+      body: "すべてのレポートは、核心アングル、要約、共有用の引用まで編集構造で整えられます。リサーチには解釈が添えられ、レポートはいつでも再び開ける資料として残ります。",
+      card: {
+        headline: "米国10年債利回りと流動性。",
+        body: "財務省の現金残高の変動と長期金利の方向、そしてその両者の非線形関係についての短いリサーチノート。",
+        footerMeta: "リサーチノート · 2026. 02. 12",
+      },
+    },
+    threeWays: {
+      eyebrow: "使い方",
+      headline: "三つの姿勢で読めます。",
+      read: {
+        title: "読む",
+        body: "一日の市場を要約とインサイト中心に、落ち着いて読み進めます。",
+      },
+      explore: {
+        title: "探索する",
+        body: "カテゴリと地域、タグに沿って関心のある流れを広げていきます。",
+      },
+      connect: {
+        title: "つなぐ",
+        body: "レポート間の文脈をタイムラインと関連コンテンツでつないで見ます。",
+      },
+    },
+    timelineManifesto: {
+      eyebrow: "流れを見るということ",
+      headline: "一つのニュースではなく、",
+      headlineEmphasis: "市場の筋を読みます。",
+      body: "個別のレポートは積み重なり、市場の物語になります。\n月別タイムラインとカテゴリラインで、その流れを再び広げて見ます。",
+      months: {
+        march2026: "2026年3月",
+        february2026: "2026年2月",
+      },
+      samples: {
+        powerBottleneck: "電力インフラがAIサプライチェーンの次のボトルネックに",
+        hbmPeak: "HBM価格サイクル、ピーク後のシナリオ",
+        euChipsAct: "EU Chips Act 第2段階の資金承認が意味すること",
+        treasuryLiquidity: "米国10年債と流動性、リサーチノート",
+      },
+    },
+    forReaders: {
+      eyebrow: "こんな方のために",
+      headline: "こんな方に向いています。",
+      lines: [
+        "一日一篇のリサーチを着実に読むリズムを作りたい方",
+        "数字とチャートにとどまらず、解釈と文脈まで見たい方",
+        "読んだ内容を流し去らず、再び見つけられる場所に置きたい方",
+      ],
+    },
+    closing: {
+      eyebrow: "はじめる",
+      headline: "今日の市場を、",
+      headlineEmphasis: "一つの流れとして読んでみてください。",
+      body: "先行する読者の方へ、静かに開いているリサーチライブラリです。",
+      signInLink: "ログイン →",
+    },
+    categories: {
+      market: "市場",
+      trend: "トレンド",
+      issue: "イシュー",
+      research: "リサーチ",
+    },
   },
   navigation: {
     en: "英語",
@@ -52,13 +203,8 @@ const ja: Translation = {
   },
   contact: {
     title: "お問い合わせ",
-    description: "ご不明な点やご提案がございましたら、お気軽にお問い合わせください。迅速にご返答いたします。",
-  },
-  footer: {
-    brand: {
-      name: "Market Memory",
-      description: "散らばった市場の流れを、一つの視点から。",
-    },
+    description:
+      "ご不明な点やご提案がございましたら、お気軽にお問い合わせください。迅速にご返答いたします。",
   },
 };
 

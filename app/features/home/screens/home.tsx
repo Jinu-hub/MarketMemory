@@ -32,18 +32,29 @@ import {
   TargetIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { NexBadge, NexButton, NexHero } from "~/core/components/nex";
+import i18next from "~/core/lib/i18next.server";
 import { cn } from "~/core/lib/utils";
+import { brandPageTitle, brandSignature } from "~/locales/brand";
 
 import type { Route } from "./+types/home";
 
-export const meta: Route.MetaFunction = () => {
-  const title =
-    "Market Memory — One Lens on Scattered Market Signals";
-  const description =
-    "A research library where you can read daily global research, explore by topic, and connect insights into broader market narratives.";
+export async function loader({ request }: Route.LoaderArgs) {
+  const t = await i18next.getFixedT(request);
+  return {
+    meta: {
+      title: brandPageTitle(t("brand.name"), t("brand.tagline")),
+      description: t("home.meta.description"),
+    },
+  };
+}
+
+export const meta: Route.MetaFunction = ({ data }) => {
+  const title = data?.meta.title ?? "Market Memory";
+  const description = data?.meta.description ?? "";
   return [
     { title },
     { name: "description", content: description },
@@ -51,10 +62,6 @@ export const meta: Route.MetaFunction = () => {
     { property: "og:description", content: description },
   ];
 };
-
-export async function loader(_args: Route.LoaderArgs) {
-  return {};
-}
 
 export default function Home(_props: Route.ComponentProps) {
   return (
@@ -119,11 +126,25 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ReaderLineMarker() {
+  return (
+    <span
+      aria-hidden
+      className="relative mt-2 flex size-5 shrink-0 items-center justify-center"
+    >
+      <span className="border-border/80 absolute inset-0 rounded-full border" />
+      <span className="bg-primary/70 size-[5px] rounded-full shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-primary)_12%,transparent)]" />
+    </span>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // § 1 — Hero
 // ---------------------------------------------------------------------------
 
 function HeroSection() {
+  const { t } = useTranslation();
+
   return (
     <>
       {/*
@@ -151,22 +172,22 @@ function HeroSection() {
         size="xl"
         background="none"
         badge={{
-          text: "시장 · 인사이트 · 리서치 라이브러리",
+          text: t("home.hero.badge"),
           variant: "info",
         }}
-        title={"흩어진 시장의 흐름을,\n하나의 시선으로."}
+        title={t("brand.tagline")}
         titleClassName="whitespace-pre-line"
-        subtitle="뉴스를 넘어서, 시장의 맥락과 연결을 정리합니다."
-        description="매일의 글로벌 리서치를 읽고, 주제별로 탐색하고, 흐름으로 연결해 볼 수 있는 리서치 라이브러리"
+        subtitle={t("home.hero.tagline")}
+        description={t("home.hero.description")}
         actions={{
           primary: {
-            label: "시작하기",
+            label: t("home.getStarted"),
             href: "/join",
             variant: "primary",
             icon: <ArrowRightIcon className="h-4 w-4" />,
           },
           secondary: {
-            label: "로그인하기",
+            label: t("auth.signIn"),
             href: "/login",
             variant: "secondary",
             icon: <BookOpenIcon className="h-4 w-4" />,
@@ -175,20 +196,20 @@ function HeroSection() {
         features={[
           {
             icon: <BookOpenIcon className="h-5 w-5" />,
-            text: "편집된 리서치",
+            text: t("home.hero.features.editedResearch"),
           },
           {
             icon: <CompassIcon className="h-5 w-5" />,
-            text: "주제별 탐색",
+            text: t("home.hero.features.exploreByTopic"),
           },
           {
             icon: <Share2Icon className="h-5 w-5" />,
-            text: "흐름의 연결",
+            text: t("home.hero.features.connectFlows"),
           },
         ]}
         social={{
-          count: "Private Preview · 2026",
-          text: "초기 버전을 제한적으로 공개하고 있습니다.",
+          count: t("home.hero.social.badge"),
+          text: t("home.hero.social.text"),
         }}
         className="pt-16 pb-0 md:pt-20"
       />
@@ -269,16 +290,21 @@ function HeroAnchor({ className }: { className?: string }) {
 }
 
 function MainReadingCard() {
+  const { t } = useTranslation();
+  const hooks = t("home.preview.hooksList", {
+    returnObjects: true,
+  }) as string[];
+
   return (
     <article
-      aria-label="리포트 미리보기"
+      aria-label={t("home.preview.reportAriaLabel")}
       className="bg-card border-border relative z-10 mx-auto w-full overflow-hidden rounded-2xl border border-l-[3px] border-l-cyan-500 shadow-[0_40px_90px_-45px_rgba(0,0,0,0.28),0_14px_36px_-18px_rgba(0,0,0,0.1)] dark:border-l-cyan-400"
     >
       {/* Editorial masthead — thin top rule with issue + date */}
       <div className="border-border/70 text-muted-foreground flex items-center justify-between border-b px-6 py-2.5 font-mono text-[10px] tracking-[0.2em] uppercase md:px-10">
         <span className="flex items-center gap-2">
           <span className="bg-cyan-500 inline-block size-1 rounded-full dark:bg-cyan-400" />
-          Issue 042 · Market Memory
+          {t("home.preview.issueLabel")}
         </span>
         <span>2026 · 03 · 18</span>
       </div>
@@ -287,19 +313,19 @@ function MainReadingCard() {
         <div className="flex flex-wrap items-center gap-2">
           <NexBadge variant="info" size="sm">
             <SparklesIcon className="mr-1 size-3" />
-            Editorial Angle
+            {t("home.preview.editorialAngle")}
           </NexBadge>
           <span className="text-foreground/70 inline-flex items-center gap-1 text-[11px] font-medium tracking-wider uppercase">
             <TrendingUpIcon
               strokeWidth={1.5}
               className="size-3 text-cyan-600 dark:text-cyan-400"
             />
-            트렌드
+            {t("home.preview.trend")}
           </span>
         </div>
 
         <h3 className="font-serif mt-5 text-xl leading-snug font-semibold tracking-tight md:text-[1.625rem] md:leading-[1.25]">
-          AI 인프라 투자가 반도체 밸류체인을 다시 쓰고 있다.
+          {t("home.preview.headline")}
         </h3>
 
         <div className="mt-6 flex gap-3 md:gap-4">
@@ -309,11 +335,10 @@ function MainReadingCard() {
           />
           <div>
             <p className="text-muted-foreground mb-1 text-[11px] font-semibold tracking-wider uppercase">
-              Key Takeaway
+              {t("home.preview.keyTakeaway")}
             </p>
             <p className="text-foreground/90 text-[15px] leading-[1.8] md:text-base">
-              2026년 하이퍼스케일러 CapEx는 320B에 도달하며, 첨단 패키징과
-              HBM의 구조적 병목을 더 깊게 만들고 있습니다.
+              {t("home.preview.takeawayBody")}
             </p>
           </div>
         </div>
@@ -324,14 +349,10 @@ function MainReadingCard() {
 
       <div className="border-border border-t px-6 py-5 md:px-10">
         <p className="text-muted-foreground mb-3 text-[11px] font-semibold tracking-wider uppercase">
-          Hooks
+          {t("home.preview.hooks")}
         </p>
         <ol className="space-y-2.5">
-          {[
-            "CapEx는 가속 중이며, 감속의 신호는 아직 보이지 않는다.",
-            "CoWoS 공급은 여전히 가장 강한 제약 조건으로 남아 있다.",
-            "전력과 권역 분산이 다음 투자 사이클의 축이 될 것이다.",
-          ].map((text, idx) => (
+          {hooks.map((text, idx) => (
             <li key={idx} className="flex gap-3 text-sm leading-[1.8]">
               <span className="bg-background border-border text-foreground/80 mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full border font-mono text-[10px] font-semibold">
                 {idx + 1}
@@ -348,8 +369,7 @@ function MainReadingCard() {
           className="text-muted-foreground mb-1.5 size-4 opacity-40"
         />
         <blockquote className="text-foreground/80 text-[14px] leading-[1.8] italic">
-          더 빠른 반도체가 아니라, 더 많은 전력이 병목이 되는 시대로 넘어가고
-          있습니다.
+          {t("home.preview.quote")}
         </blockquote>
       </figure>
     </article>
@@ -363,29 +383,31 @@ function MainReadingCard() {
  * caption so the card can't read as "chart alone".
  */
 function DataInsightStrip() {
+  const { t } = useTranslation();
+
   return (
     <div className="border-border bg-muted/30 grid grid-cols-3 divide-x divide-[var(--color-border)] border-t">
       <DataTile
-        label="CapEx 2026e"
+        label={t("home.preview.data.capex.label")}
         value="$320B"
-        delta="+23%"
-        caption="vs 2024"
+        delta={t("home.preview.data.capex.delta")}
+        caption={t("home.preview.data.capex.caption")}
         accent="cyan"
         viz={<MiniSparkline accent="cyan" />}
       />
       <DataTile
-        label="HBM Supply"
+        label={t("home.preview.data.hbm.label")}
         value="94%"
-        delta="tight"
-        caption="할당 / 수요"
+        delta={t("home.preview.data.hbm.delta")}
+        caption={t("home.preview.data.hbm.caption")}
         accent="amber"
         viz={<MiniBars accent="amber" />}
       />
       <DataTile
-        label="전력 부하"
+        label={t("home.preview.data.power.label")}
         value="2.4×"
-        delta="↑"
-        caption="DC 전력 2024→26"
+        delta={t("home.preview.data.power.delta")}
+        caption={t("home.preview.data.power.caption")}
         accent="emerald"
         viz={<MiniGauge accent="emerald" value={0.72} />}
       />
@@ -507,6 +529,8 @@ function MiniGauge({ accent, value }: { accent: Accent; value: number }) {
 }
 
 function FloatingChip() {
+  const { t } = useTranslation();
+
   return (
     <div
       className="bg-card border-border w-[280px] rounded-xl border border-l-[3px] border-l-emerald-500 p-4 shadow-[0_18px_44px_-22px_rgba(0,0,0,0.22)] dark:border-l-emerald-400"
@@ -514,7 +538,7 @@ function FloatingChip() {
     >
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-          관련 인사이트
+          {t("home.preview.floatingChip.title")}
         </p>
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
           <TrendingUpIcon strokeWidth={2} className="size-3" />
@@ -523,7 +547,7 @@ function FloatingChip() {
       </div>
 
       <p className="text-foreground mt-2 text-[13px] leading-snug font-medium">
-        반도체 CapEx 사이클, 확장 국면 지속
+        {t("home.preview.floatingChip.headline")}
       </p>
 
       <div className="mt-3">
@@ -531,8 +555,8 @@ function FloatingChip() {
       </div>
 
       <div className="text-muted-foreground mt-2 flex items-center justify-between text-[10px]">
-        <span>30일 · 시총 가중</span>
-        <span className="font-mono">MSFT · GOOG · META</span>
+        <span>{t("home.preview.floatingChip.period")}</span>
+        <span className="font-mono">{t("home.preview.floatingChip.tickers")}</span>
       </div>
     </div>
   );
@@ -547,6 +571,8 @@ function FloatingChip() {
  * low-density so it reads as an artefact, not a widget.
  */
 function FloatingGraph() {
+  const { t } = useTranslation();
+
   const nodes: Array<{
     id: string;
     label: string;
@@ -556,9 +582,27 @@ function FloatingGraph() {
     hub?: boolean;
   }> = [
     { id: "ai", label: "AI", x: 90, y: 54, accent: "cyan", hub: true },
-    { id: "power", label: "전력", x: 22, y: 22, accent: "emerald" },
-    { id: "semi", label: "반도체", x: 158, y: 24, accent: "amber" },
-    { id: "dc", label: "데이터센터", x: 38, y: 92, accent: "cyan" },
+    {
+      id: "power",
+      label: t("home.preview.floatingGraph.nodes.power"),
+      x: 22,
+      y: 22,
+      accent: "emerald",
+    },
+    {
+      id: "semi",
+      label: t("home.preview.floatingGraph.nodes.semi"),
+      x: 158,
+      y: 24,
+      accent: "amber",
+    },
+    {
+      id: "dc",
+      label: t("home.preview.floatingGraph.nodes.dc"),
+      x: 38,
+      y: 92,
+      accent: "cyan",
+    },
   ];
   const edges: Array<[string, string]> = [
     ["ai", "power"],
@@ -573,7 +617,7 @@ function FloatingGraph() {
     >
       <div className="mb-2 flex items-center justify-between">
         <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-          연결된 주제
+          {t("home.preview.floatingGraph.title")}
         </p>
         <Share2Icon
           strokeWidth={1.5}
@@ -584,7 +628,7 @@ function FloatingGraph() {
       <svg
         viewBox="0 0 190 120"
         className="h-[120px] w-full"
-        aria-label="관련 주제 관계도"
+        aria-label={t("home.preview.floatingGraph.ariaLabel")}
       >
         {edges.map(([a, b]) => {
           const from = byId[a];
@@ -634,6 +678,11 @@ function FloatingGraph() {
 }
 
 function FloatingTimeline() {
+  const { t } = useTranslation();
+  const titles = t("home.preview.floatingTimeline.rows", {
+    returnObjects: true,
+  }) as string[];
+
   const rows: Array<{
     date: string;
     title: string;
@@ -641,20 +690,21 @@ function FloatingTimeline() {
   }> = [
     {
       date: "03. 18",
-      title: "AI 인프라 투자의 재편",
+      title: titles[0],
       color: "text-cyan-600 dark:text-cyan-400",
     },
     {
       date: "03. 09",
-      title: "HBM 가격 사이클, 정점",
+      title: titles[1],
       color: "text-emerald-600 dark:text-emerald-400",
     },
     {
       date: "02. 24",
-      title: "EU Chips Act 2단계",
+      title: titles[2],
       color: "text-amber-600 dark:text-amber-400",
     },
   ];
+
   return (
     <div
       className="bg-card border-border w-[280px] rounded-xl border border-l-[3px] border-l-amber-500 p-5 shadow-[0_20px_48px_-24px_rgba(0,0,0,0.22)] dark:border-l-amber-400"
@@ -662,7 +712,7 @@ function FloatingTimeline() {
     >
       <div className="mb-3 flex items-center justify-between">
         <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-          최근 연대기
+          {t("home.preview.floatingTimeline.title")}
         </p>
         <Link2Icon
           strokeWidth={1.5}
@@ -705,20 +755,18 @@ function FloatingTimeline() {
 // ---------------------------------------------------------------------------
 
 function ProductFeelSection() {
+  const { t } = useTranslation();
+
   return (
     <SectionShell size="lg">
       <div className="grid grid-cols-1 items-center gap-14 md:grid-cols-[1fr_1.1fr] md:gap-20">
         <div className="max-w-md space-y-6">
-          <Eyebrow>읽는 경험</Eyebrow>
-          <h2 className="font-serif text-3xl leading-tight font-semibold tracking-tight md:text-[2.75rem]">
-            한 편의 리포트를
-            <br />
-            읽는다는 것.
+          <Eyebrow>{t("home.productFeel.eyebrow")}</Eyebrow>
+          <h2 className="font-serif whitespace-pre-line text-3xl leading-tight font-semibold tracking-tight md:text-[2.75rem]">
+            {t("home.productFeel.headline")}
           </h2>
           <p className="text-muted-foreground text-base leading-[1.85] md:text-[17px]">
-            모든 리포트는 핵심 앵글, 요약, 그리고 공유용 인용까지
-            편집 구조로 정돈됩니다. 리서치에는 해석이 함께 붙고,
-            리포트는 언제든 다시 펼칠 수 있는 자료로 남습니다.
+            {t("home.productFeel.body")}
           </p>
         </div>
 
@@ -731,23 +779,24 @@ function ProductFeelSection() {
 }
 
 function CompactReportCard() {
+  const { t } = useTranslation();
+
   return (
     <article className="bg-card border-border mx-auto w-full max-w-md overflow-hidden rounded-xl border">
       <div className="px-6 pt-6 pb-5">
         <div className="flex items-center gap-2">
           <NexBadge variant="info" size="sm">
             <SparklesIcon className="mr-1 size-3" />
-            Editorial Angle
+            {t("home.preview.editorialAngle")}
           </NexBadge>
         </div>
 
         <h3 className="font-serif mt-4 text-lg leading-snug font-semibold tracking-tight md:text-xl">
-          미국 10년물 금리와 유동성.
+          {t("home.productFeel.card.headline")}
         </h3>
 
         <p className="text-muted-foreground mt-3 text-sm leading-7">
-          재무부 현금 잔고 변동과 장기 금리 방향, 그리고 그 둘 사이의
-          비선형 관계에 대한 짧은 리서치 노트.
+          {t("home.productFeel.card.body")}
         </p>
 
         <div className="mt-4 flex flex-wrap gap-1.5">
@@ -767,9 +816,9 @@ function CompactReportCard() {
       </div>
 
       <div className="border-border text-muted-foreground flex items-center justify-between border-t px-6 py-3 text-xs">
-        <span>리서치 노트 · 2026. 02. 12</span>
+        <span>{t("home.productFeel.card.footerMeta")}</span>
         <span className="flex items-center gap-1">
-          계속 읽기
+          {t("home.continueReading")}
           <ArrowRightIcon className="size-3" />
         </span>
       </div>
@@ -781,46 +830,48 @@ function CompactReportCard() {
 // § 3 — Three ways to use (읽기 / 탐색 / 연결)
 // ---------------------------------------------------------------------------
 
-const THREE_WAYS: Array<{
-  icon: typeof BookOpenIcon;
-  title: string;
-  body: string;
-  to: string;
-}> = [
-  {
-    icon: BookOpenIcon,
-    title: "읽다",
-    body: "하루의 시장을 요약과 인사이트 중심으로 차분히 읽어 내려갑니다.",
-    to: "/item_reports",
-  },
-  {
-    icon: CompassIcon,
-    title: "탐색하다",
-    body: "카테고리와 지역, 태그를 따라 관심 있는 흐름을 넓혀 갑니다.",
-    to: "/item_reports/explore",
-  },
-  {
-    icon: Link2Icon,
-    title: "연결하다",
-    body: "리포트 사이의 맥락을 타임라인과 관련 콘텐츠로 이어서 봅니다.",
-    to: "/item_reports/timeline",
-  },
-];
-
 function ThreeWaysSection() {
+  const { t } = useTranslation();
+
+  const threeWays: Array<{
+    icon: typeof BookOpenIcon;
+    title: string;
+    body: string;
+    to: string;
+  }> = [
+    {
+      icon: BookOpenIcon,
+      title: t("home.threeWays.read.title"),
+      body: t("home.threeWays.read.body"),
+      to: "/item_reports",
+    },
+    {
+      icon: CompassIcon,
+      title: t("home.threeWays.explore.title"),
+      body: t("home.threeWays.explore.body"),
+      to: "/item_reports/explore",
+    },
+    {
+      icon: Link2Icon,
+      title: t("home.threeWays.connect.title"),
+      body: t("home.threeWays.connect.body"),
+      to: "/item_reports/timeline",
+    },
+  ];
+
   return (
     <SectionShell size="lg">
       <div className="max-w-2xl">
-        <Eyebrow>쓰는 방법</Eyebrow>
+        <Eyebrow>{t("home.threeWays.eyebrow")}</Eyebrow>
         <h2 className="font-serif mt-6 text-3xl leading-tight font-semibold tracking-tight md:text-[2.5rem]">
-          세 가지 자세로 읽을 수 있습니다.
+          {t("home.threeWays.headline")}
         </h2>
       </div>
 
       <div className="mt-14 grid grid-cols-1 gap-10 md:mt-20 md:grid-cols-3 md:gap-8">
-        {THREE_WAYS.map(({ icon: Icon, title, body, to }) => (
+        {threeWays.map(({ icon: Icon, title, body, to }) => (
           <Link
-            key={title}
+            key={to}
             to={to}
             viewTransition
             className="group border-border hover:border-foreground flex flex-col gap-4 border-t pt-6 transition-colors"
@@ -833,7 +884,7 @@ function ThreeWaysSection() {
               {body}
             </p>
             <span className="text-muted-foreground group-hover:text-foreground mt-2 inline-flex items-center gap-1 text-xs font-medium tracking-wide uppercase transition-colors">
-              바로 가기
+              {t("home.goToLink")}
               <ArrowRightIcon className="size-3 transition-transform group-hover:translate-x-0.5" />
             </span>
           </Link>
@@ -853,51 +904,11 @@ type TimelineSample = {
   category: "market" | "trend" | "issue" | "research";
 };
 
-const TIMELINE_SAMPLES: Array<{ month: string; rows: TimelineSample[] }> = [
-  {
-    month: "2026년 3월",
-    rows: [
-      {
-        date: "03. 18",
-        title: "전력 인프라가 AI 공급망의 다음 병목이 되다",
-        category: "trend",
-      },
-      {
-        date: "03. 09",
-        title: "HBM 가격 사이클, 정점 이후의 시나리오",
-        category: "market",
-      },
-    ],
-  },
-  {
-    month: "2026년 2월",
-    rows: [
-      {
-        date: "02. 24",
-        title: "EU Chips Act 2단계 자금 승인이 의미하는 것",
-        category: "issue",
-      },
-      {
-        date: "02. 12",
-        title: "미국 10년물 금리와 유동성, 리서치 노트",
-        category: "research",
-      },
-    ],
-  },
-];
-
 const CATEGORY_COLORS: Record<TimelineSample["category"], string> = {
   market: "text-emerald-600 dark:text-emerald-400",
   trend: "text-cyan-600 dark:text-cyan-400",
   issue: "text-amber-600 dark:text-amber-400",
   research: "text-blue-600 dark:text-blue-400",
-};
-
-const CATEGORY_LABELS: Record<TimelineSample["category"], string> = {
-  market: "시장",
-  trend: "트렌드",
-  issue: "이슈",
-  research: "리서치",
 };
 
 const CATEGORY_ICONS: Record<
@@ -918,21 +929,22 @@ const CATEGORY_ICONS: Record<
  *   - tighter copy beneath so the headline absolutely lands first
  */
 function TimelineManifestoSection() {
+  const { t } = useTranslation();
+
   return (
     <section className="bg-muted/40 mt-32 py-28 md:mt-40 md:py-40">
       <SectionShell size="xl">
         <div className="mx-auto max-w-4xl text-center">
-          <Eyebrow>흐름을 본다는 것</Eyebrow>
+          <Eyebrow>{t("home.timelineManifesto.eyebrow")}</Eyebrow>
           <h2 className="font-serif mt-8 text-[2.75rem] leading-[1.1] font-semibold tracking-tight md:text-[5rem] md:leading-[1.02]">
-            하나의 뉴스가 아니라,
+            {t("home.timelineManifesto.headline")}
             <br />
             <span className="text-foreground/85 italic">
-              시장의 결을 읽습니다.
+              {t("home.timelineManifesto.headlineEmphasis")}
             </span>
           </h2>
-          <p className="text-muted-foreground mx-auto mt-8 max-w-2xl text-base leading-[1.85] md:mt-10 md:text-lg">
-            개별 리포트는 쌓여서 시장의 서사가 됩니다.
-            월별 타임라인과 카테고리 라인으로 그 흐름을 다시 펼쳐 봅니다.
+          <p className="text-muted-foreground mx-auto mt-8 max-w-2xl whitespace-pre-line text-base leading-[1.85] md:mt-10 md:text-lg">
+            {t("home.timelineManifesto.body")}
           </p>
         </div>
 
@@ -968,17 +980,52 @@ function TimelineManifestoSection() {
 }
 
 function TimelinePreview() {
+  const { t } = useTranslation();
+
+  const timelineSamples: Array<{ month: string; rows: TimelineSample[] }> = [
+    {
+      month: t("home.timelineManifesto.months.march2026"),
+      rows: [
+        {
+          date: "03. 18",
+          title: t("home.timelineManifesto.samples.powerBottleneck"),
+          category: "trend",
+        },
+        {
+          date: "03. 09",
+          title: t("home.timelineManifesto.samples.hbmPeak"),
+          category: "market",
+        },
+      ],
+    },
+    {
+      month: t("home.timelineManifesto.months.february2026"),
+      rows: [
+        {
+          date: "02. 24",
+          title: t("home.timelineManifesto.samples.euChipsAct"),
+          category: "issue",
+        },
+        {
+          date: "02. 12",
+          title: t("home.timelineManifesto.samples.treasuryLiquidity"),
+          category: "research",
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="bg-card border-border rounded-2xl border p-8 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.18)] md:p-10">
       <div className="space-y-12">
-        {TIMELINE_SAMPLES.map((group) => (
+        {timelineSamples.map((group) => (
           <div key={group.month}>
             <div className="mb-5 flex items-baseline gap-3">
               <h3 className="font-serif text-lg font-semibold tracking-tight md:text-xl">
                 {group.month}
               </h3>
               <span className="text-muted-foreground text-xs">
-                {group.rows.length}편
+                {t("home.reportCount", { count: group.rows.length })}
               </span>
             </div>
 
@@ -1010,7 +1057,7 @@ function TimelinePreview() {
                             )}
                           >
                             <Icon className="size-3" />
-                            {CATEGORY_LABELS[row.category]}
+                            {t(`home.categories.${row.category}`)}
                           </span>
                         </div>
                         <p className="text-foreground/90 text-[15px] leading-snug font-medium md:text-base">
@@ -1033,31 +1080,25 @@ function TimelinePreview() {
 // § 5 — For readers who…
 // ---------------------------------------------------------------------------
 
-const READER_LINES = [
-  "하루 한 편의 리서치를 꾸준히 읽는 리듬을 만들고 싶은 분",
-  "숫자와 차트에 머무르지 않고, 해석과 맥락까지 보고 싶은 분",
-  "읽은 내용을 그때그때 흘리지 않고, 다시 찾을 수 있는 자리에 두고 싶은 분",
-];
-
 function ForReadersSection() {
+  const { t } = useTranslation();
+  const readerLines = t("home.forReaders.lines", {
+    returnObjects: true,
+  }) as string[];
+
   return (
     <SectionShell>
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-        <Eyebrow>이런 분들을 위해</Eyebrow>
+        <Eyebrow>{t("home.forReaders.eyebrow")}</Eyebrow>
         <h2 className="font-serif mt-6 text-3xl leading-tight font-semibold tracking-tight md:text-[2.5rem]">
-          이런 분께 어울립니다.
+          {t("home.forReaders.headline")}
         </h2>
       </div>
 
-      <ul className="mx-auto mt-14 max-w-xl space-y-8 md:mt-20">
-        {READER_LINES.map((line, idx) => (
-          <li key={idx} className="flex items-start gap-5">
-            <span
-              aria-hidden
-              className="text-muted-foreground font-serif mt-1 shrink-0 text-2xl leading-none"
-            >
-              —
-            </span>
+      <ul className="mx-auto mt-14 max-w-xl space-y-10 md:mt-20">
+        {readerLines.map((line, idx) => (
+          <li key={idx} className="flex items-start gap-4 md:gap-5">
+            <ReaderLineMarker />
             <p className="text-foreground/85 text-lg leading-[1.85] md:text-xl md:leading-[1.8]">
               {line}
             </p>
@@ -1073,21 +1114,23 @@ function ForReadersSection() {
 // ---------------------------------------------------------------------------
 
 function ClosingSection() {
+  const { t } = useTranslation();
+
   return (
     <SectionShell className="pb-32 md:pb-40">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-        <Eyebrow>시작하기</Eyebrow>
+        <Eyebrow>{t("home.closing.eyebrow")}</Eyebrow>
 
         <h2 className="font-serif mt-6 text-3xl leading-tight font-semibold tracking-tight md:text-[3.25rem] md:leading-[1.1]">
-          오늘의 시장을,
+          {t("home.closing.headline")}
           <br />
           <span className="text-foreground/90 italic">
-          하나의 흐름으로 읽어 보세요.
+            {t("home.closing.headlineEmphasis")}
           </span>
         </h2>
 
         <p className="text-muted-foreground mt-6 text-base leading-relaxed md:text-lg">
-        초기 독자를 위해 조용히 공개 중인 리서치 라이브러리입니다.
+          {t("home.closing.body")}
         </p>
 
         <div className="mt-14 flex flex-col items-center gap-5 sm:flex-row sm:gap-6">
@@ -1098,19 +1141,19 @@ function ClosingSection() {
               rightIcon={<ArrowRightIcon className="size-4" />}
               className="h-12 px-7 text-[15px] shadow-[0_1px_0_0_rgba(0,0,0,0.05)] cursor-pointer"
             >
-              시작하기
+              {t("home.getStarted")}
             </NexButton>
           </Link>
           <Link
             to="/login"
             className="text-foreground/75 hover:text-foreground text-sm font-medium underline-offset-[6px] transition-colors hover:underline"
           >
-            로그인하기 →
+            {t("home.closing.signInLink")}
           </Link>
         </div>
 
         <p className="text-muted-foreground font-serif mt-24 text-sm italic md:mt-32">
-          Market Memory — 흩어진 시장의 흐름을, 하나의 시선으로.
+          {brandSignature(t("brand.name"), t("brand.tagline"))}
         </p>
       </div>
     </SectionShell>

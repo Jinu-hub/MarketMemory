@@ -6,6 +6,12 @@ alwaysApply: true
 이 프로젝트는 i18n 대응 시 번역 키의 일관성, 재사용성, 유지보수성을 최우선으로 합니다.  
 새로운 화면이나 기능을 추가할 때에는 반드시 아래 규칙을 따릅니다.
 
+## 0. 파일 구성
+- app/locales/types.ts
+- app/locales/ko.ts
+- app/locales/ja.ts
+- app/locales/en.ts
+
 ## 1. 기본 원칙
 
 - 번역 키는 단순히 화면 기준이 아니라 **의미와 역할 기준**으로 먼저 분리합니다.

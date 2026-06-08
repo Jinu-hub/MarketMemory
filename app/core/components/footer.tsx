@@ -17,6 +17,8 @@ import { BrainCog, BrainCogIcon, BrainIcon, Mail, Megaphone, MegaphoneIcon, Memo
 import { useTranslation } from "react-i18next";
 import { NexFooter } from "~/core/components/nex";
 import { GitHubIcon, SlackIcon } from "~/core/components/nex/nex-icons";
+import { brandTaglineInline } from "~/locales/brand";
+
 import { Actions } from "./navigation-bar";
 
 /**
@@ -144,9 +146,16 @@ export default function Footer() {
     <NexFooter
       variant="default"
       brand={{
-        name: "Market Memory",
-        description: t("footer.brand.description"),
-        logo: <img src="/favicon.ico" alt="Market Memory" width={32} height={32} />
+        name: t("brand.name"),
+        description: brandTaglineInline(t("brand.tagline")),
+        logo: (
+          <img
+            src="/favicon.ico"
+            alt={t("brand.name")}
+            width={32}
+            height={32}
+          />
+        ),
       }}
       links={footerLinks}
       social={socialLinks}
