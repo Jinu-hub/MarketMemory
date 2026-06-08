@@ -2,6 +2,7 @@ import {
   BookOpenIcon,
   BrainIcon,
   GalleryVerticalEndIcon,
+  GlobeIcon,
   LayoutDashboardIcon,
   MegaphoneIcon,
   Newspaper,
@@ -91,6 +92,11 @@ const data = {
       name: "주간 AI 이슈 다이제스트",
       url: "/weekly-ai-issue-digest",
       icon: Newspaper,
+    },
+    {
+      name: "주간 글로벌 시장 주요 이슈",
+      url: "/weekly-market-issues",
+      icon: GlobeIcon,
     },
   ],
 };

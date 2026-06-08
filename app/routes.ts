@@ -122,6 +122,10 @@ export default [
         index("features/weekly-ai-issue-digest/screens/list.tsx"),
         route("/:id", "features/weekly-ai-issue-digest/screens/detail.tsx"),
       ]),
+      ...prefix("/weekly-market-issues", [
+        index("features/weekly-market-issues/screens/list.tsx"),
+        route("/:id", "features/weekly-market-issues/screens/detail.tsx"),
+      ]),
     ]),
     ...prefix("/admin", [
       layout("features/admin/layouts/admin.layout.tsx", [
