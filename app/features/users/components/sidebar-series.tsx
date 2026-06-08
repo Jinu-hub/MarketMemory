@@ -23,7 +23,7 @@ export default function SidebarSeries({
   const { pathname } = useLocation();
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup>
       <SidebarGroupLabel>Series</SidebarGroupLabel>
       <SidebarMenu>
         {series.map((item) => {
