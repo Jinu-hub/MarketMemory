@@ -19,10 +19,12 @@ export function buildDailyMarketMemoryN8nTestPayload(): Record<string, unknown> 
     aiInput: {
       marketDate,
       marketSnapshot: {
+        asOfDate: marketDate,
         fetchedAt: new Date().toISOString(),
         items: [],
         fearGreed: null,
       },
+      previousMarketContext: null,
       reports: [],
     },
   };
@@ -67,9 +69,19 @@ export function applyMarketDateToN8nPayload(
 
   const aiInput = next.aiInput;
   if (aiInput && typeof aiInput === "object" && !Array.isArray(aiInput)) {
+    const aiInputRecord = aiInput as Record<string, unknown>;
+    const marketSnapshot = aiInputRecord.marketSnapshot;
+    const nextMarketSnapshot =
+      marketSnapshot &&
+      typeof marketSnapshot === "object" &&
+      !Array.isArray(marketSnapshot)
+        ? { ...(marketSnapshot as Record<string, unknown>), asOfDate: trimmed }
+        : marketSnapshot;
+
     next.aiInput = {
-      ...(aiInput as Record<string, unknown>),
+      ...aiInputRecord,
       marketDate: trimmed,
+      ...(nextMarketSnapshot !== undefined ? { marketSnapshot: nextMarketSnapshot } : {}),
     };
   }
 

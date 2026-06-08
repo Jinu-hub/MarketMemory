@@ -15,6 +15,10 @@ import {
   type ReportInputDateQueryMode,
 } from "~/features/cron/lib/daily-market-memory-input-date";
 import { persistDailyMarketMemoryToDb } from "~/features/cron/lib/daily-market-memory-persist.server";
+import {
+  compactMarketSnapshotForAiInput,
+  fetchPreviousMarketContext,
+} from "~/features/cron/lib/daily-market-memory-previous-context.server";
 import { getMarketSnapshot } from "~/features/cron/lib/market-snapshot";
 import { loadLatestMarketSnapshotStaging } from "~/features/cron/lib/market-snapshot-staging.server";
 import type {
@@ -75,13 +79,26 @@ export interface AggregatedReportRow {
   core_data: Json | null;
 }
 
+export type DailyMarketMemoryAiInputMarketSnapshot = {
+  asOfDate: string;
+  fetchedAt: string;
+  items: Array<Omit<MarketSnapshotItem, "source">>;
+  fearGreed: MarketSnapshotPayload["fearGreed"];
+};
+
+/** `daily_market_memories.core_data.market_mood` pass-through (n8n SSOT). */
+export type DailyMarketMemoryAiInputMarketMood = Json;
+
+export type DailyMarketMemoryPreviousMarketContext = {
+  asOfDate: string;
+  marketSnapshot: DailyMarketMemoryAiInputMarketSnapshot;
+  marketMood: DailyMarketMemoryAiInputMarketMood;
+};
+
 export interface DailyMarketMemoryAiInputV1 {
   marketDate: string;
-  marketSnapshot: {
-    fetchedAt: string;
-    items: Array<Omit<MarketSnapshotItem, "source">>;
-    fearGreed: MarketSnapshotPayload["fearGreed"];
-  };
+  marketSnapshot: DailyMarketMemoryAiInputMarketSnapshot;
+  previousMarketContext: DailyMarketMemoryPreviousMarketContext | null;
   reports: Array<{
     itemContentId: string;
     marketMemoryItemId: string;
@@ -255,14 +272,12 @@ function buildAiInput(
   marketDate: string,
   snapshot: MarketSnapshotPayload,
   reports: AggregatedReportRow[],
+  previousMarketContext: DailyMarketMemoryPreviousMarketContext | null,
 ): DailyMarketMemoryAiInputV1 {
   return {
     marketDate,
-    marketSnapshot: {
-      fetchedAt: snapshot.fetchedAt,
-      items: snapshot.items.map(({ source: _source, ...item }) => item),
-      fearGreed: snapshot.fearGreed,
-    },
+    marketSnapshot: compactMarketSnapshotForAiInput(marketDate, snapshot),
+    previousMarketContext,
     reports: reports.map((r) => ({
       itemContentId: r.id,
       marketMemoryItemId: r.market_memory_item_id,
@@ -360,7 +375,8 @@ async function fetchLatestCoresByContentId(
  * Step 1: 시장 스냅샷 (기존 getMarketSnapshot)
  * Step 2: 대상 리포트 조회 (`item_contents.market_date` = `marketDate` 또는 유효한 coverage 구간)
  * Step 3: item_content_cores 집계
- * Step 4: AI 입력용 구조화 JSON
+ * Step 4: 직전 발행 daily_market_memories (`market_date` < `marketDate`) → previousMarketContext
+ * Step 5: AI 입력용 구조화 JSON
  */
 export async function runDailyMarketMemoryPipeline(
   params: RunDailyMarketMemoryPipelineParams,
@@ -487,7 +503,28 @@ export async function runDailyMarketMemoryPipeline(
     errors.push(formatEmptyReportsError(inputDateQuery, params.marketDate));
   }
 
-  const aiInput = buildAiInput(params.marketDate, marketSnapshot, reports);
+  let previousMarketContext: DailyMarketMemoryPreviousMarketContext | null = null;
+  try {
+    previousMarketContext = await fetchPreviousMarketContext(
+      db,
+      params.marketDate,
+      marketScope,
+      info,
+    );
+  } catch (error) {
+    errors.push(
+      error instanceof Error
+        ? `직전 컨텍스트 조회 실패: ${error.message}`
+        : "직전 컨텍스트 조회 실패: unknown error",
+    );
+  }
+
+  const aiInput = buildAiInput(
+    params.marketDate,
+    marketSnapshot,
+    reports,
+    previousMarketContext,
+  );
 
   const pipelineResult: DailyMarketMemoryPipelineResult = {
     ranAt,
