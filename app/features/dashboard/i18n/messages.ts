@@ -101,41 +101,42 @@ const marketMoodDescriptions = {
   },
 } as const satisfies Record<DashboardLocale, Record<string, string>>;
 
-const marketMoodSubdescriptions = {
-  ko: {
-    risk_on:
-      "시장 전반에 위험선호가 강합니다. 주식·성장주·크립토 등 고위험 자산이 폭넓게 강하고, 매크로·유동성 환경이 위험자산에 우호적으로 읽힙니다.",
-    risk_off:
-      "위험회피가 두드러집니다. 주식 약세, 안전자산 선호, 변동성 상승 등 투자자들이 리스크를 줄이는 흐름이 관찰됩니다.",
-    mixed:
-      "신호가 엇갈립니다. 지수와 내부 강도·섹터·매크로가 상충해 Risk-On/Off로 단정하기 어렵습니다.",
-    cautious:
-      "완전한 Risk-Off는 아니지만 조심스러운 국면입니다. 일부 테마는 강하나 인플레·금리·지정학 등이 광범위한 위험선호를 제한합니다.",
-    unknown: "분위기 유형 정보가 아직 준비되지 않았습니다.",
-  },
-  en: {
-    risk_on:
-      "Broad risk appetite: equities, growth, and crypto lead; macro and liquidity read as supportive for risk assets.",
-    risk_off:
-      "Defensive tone: equities weaken, safe havens and volatility rise—investors are trimming risk.",
-    mixed:
-      "Cross-currents: index, internals, sectors, or macro conflict—hard to call a clean Risk-On or Risk-Off.",
-    cautious:
-      "Selective risk-on: some themes work, but inflation, rates, geopolitics, or liquidity cap broad risk appetite.",
-    unknown: "Mood type details are not available yet.",
-  },
-  ja: {
-    risk_on:
-      "市場全体でリスクオン。株式・グロース・暗号資産が広く強く、マクロ・流動性はリスク資産に追い風と読まれます。",
-    risk_off:
-      "リスクオフが目立つ日。株式弱含み、安全資産選好、ボラ上昇など、リスク縮小の動きが観察されます。",
-    mixed:
-      "シグナルが交錯。指数・内部・セクター・マクロが噛み合わず、リスクオン/オフと断定しにくい局面です。",
-    cautious:
-      "完全なリスクオフではないが慎重な日。一部テーマは強いが、インフレ・金利・地政学などが広いリスク選好を抑えます。",
-    unknown: "ムード区分の説明はまだありません。",
-  },
-} as const satisfies Record<DashboardLocale, Record<string, string>>;
+// Hidden: mood-type subdescription copy (restore with UI in today-market-memory-block).
+// const marketMoodSubdescriptions = {
+//   ko: {
+//     risk_on:
+//       "시장 전반에 위험선호가 강합니다. 주식·성장주·크립토 등 고위험 자산이 폭넓게 강하고, 매크로·유동성 환경이 위험자산에 우호적으로 읽힙니다.",
+//     risk_off:
+//       "위험회피가 두드러집니다. 주식 약세, 안전자산 선호, 변동성 상승 등 투자자들이 리스크를 줄이는 흐름이 관찰됩니다.",
+//     mixed:
+//       "신호가 엇갈립니다. 지수와 내부 강도·섹터·매크로가 상충해 Risk-On/Off로 단정하기 어렵습니다.",
+//     cautious:
+//       "완전한 Risk-Off는 아니지만 조심스러운 국면입니다. 일부 테마는 강하나 인플레·금리·지정학 등이 광범위한 위험선호를 제한합니다.",
+//     unknown: "분위기 유형 정보가 아직 준비되지 않았습니다.",
+//   },
+//   en: {
+//     risk_on:
+//       "Broad risk appetite: equities, growth, and crypto lead; macro and liquidity read as supportive for risk assets.",
+//     risk_off:
+//       "Defensive tone: equities weaken, safe havens and volatility rise—investors are trimming risk.",
+//     mixed:
+//       "Cross-currents: index, internals, sectors, or macro conflict—hard to call a clean Risk-On or Risk-Off.",
+//     cautious:
+//       "Selective risk-on: some themes work, but inflation, rates, geopolitics, or liquidity cap broad risk appetite.",
+//     unknown: "Mood type details are not available yet.",
+//   },
+//   ja: {
+//     risk_on:
+//       "市場全体でリスクオン。株式・グロース・暗号資産が広く強く、マクロ・流動性はリスク資産に追い風と読まれます。",
+//     risk_off:
+//       "リスクオフが目立つ日。株式弱含み、安全資産選好、ボラ上昇など、リスク縮小の動きが観察されます。",
+//     mixed:
+//       "シグナルが交錯。指数・内部・セクター・マクロが噛み合わず、リスクオン/オフと断定しにくい局面です。",
+//     cautious:
+//       "完全なリスクオフではないが慎重な日。一部テーマは強いが、インフレ・金利・地政学などが広いリスク選好を抑えます。",
+//     unknown: "ムード区分の説明はまだありません。",
+//   },
+// } as const satisfies Record<DashboardLocale, Record<string, string>>;
 
 /* ── UI chrome (sections, empty states, badges) ───────────────────── */
 
@@ -503,7 +504,7 @@ export const DASHBOARD_MESSAGES = {
     marketMood: {
       labels: marketMoodLabels,
       descriptions: marketMoodDescriptions,
-      subdescriptions: marketMoodSubdescriptions,
+      // subdescriptions: marketMoodSubdescriptions,
     },
   },
   ui,

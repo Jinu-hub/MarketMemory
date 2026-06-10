@@ -8,7 +8,7 @@ export type {
 export {
   getMarketMoodDescription,
   getMarketMoodLabel,
-  getMarketMoodSubdescription,
+  // getMarketMoodSubdescription,
   getRiskSeverityLabel,
   getSignalStrengthLabel,
 } from "./labels";

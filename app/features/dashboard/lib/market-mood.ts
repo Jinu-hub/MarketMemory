@@ -20,7 +20,7 @@ export type { MarketMoodKey };
 export {
   getMarketMoodDescription,
   getMarketMoodLabel,
-  getMarketMoodSubdescription,
+  // getMarketMoodSubdescription,
 } from "../i18n/labels";
 
 export type MarketMoodStyle = {

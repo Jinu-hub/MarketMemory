@@ -109,6 +109,8 @@ export type RiskSignal = {
  */
 export type CoreDataMarketMood = {
   type?: MarketMoodKey | string | null;
+  /** Short pipeline label (e.g. localized mood headline). */
+  label?: string | null;
 };
 
 export type CoreData = {

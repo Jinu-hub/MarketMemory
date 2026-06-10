@@ -9,7 +9,7 @@ import { pickDashboardUi } from "../i18n";
 import {
   getMarketMoodLabel,
   getMarketMoodStyle,
-  getMarketMoodSubdescription,
+  // getMarketMoodSubdescription,
 } from "../lib/market-mood";
 import {
   resolveRelatedCount,
@@ -49,7 +49,8 @@ export function TodayMarketMemoryBlock({
     memory.core_data?.market_mood?.type ?? memory.market_mood_type ?? null;
   const moodStyle = getMarketMoodStyle(moodSource);
   const moodLabel = getMarketMoodLabel(moodStyle.key, locale);
-  const moodSubdescription = getMarketMoodSubdescription(moodStyle.key, locale);
+  const moodTypeLabel = memory.core_data?.market_mood?.label?.trim() || null;
+  // const moodSubdescription = getMarketMoodSubdescription(moodStyle.key, locale);
   const MoodIcon = moodStyle.icon;
   const t = ui.todayMemory;
 
@@ -178,9 +179,16 @@ export function TodayMarketMemoryBlock({
               </span>
             }
           />
-          {moodStyle.key ? (
-            <p className="text-muted-foreground text-[11px] leading-5 sm:text-xs md:text-sm md:leading-6">
-              {moodSubdescription}
+          {moodTypeLabel ? (
+            <p
+              className={cn(
+                "max-w-prose w-fit rounded-md px-3 py-1.5",
+                "text-sm font-medium leading-snug tracking-tight",
+                "text-foreground/90 ring-border/50 ring-1 ring-inset",
+                moodStyle.accentBg,
+              )}
+            >
+              {moodTypeLabel}
             </p>
           ) : null}
           {memory.market_mood_summary ? (

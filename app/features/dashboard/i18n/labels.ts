@@ -55,13 +55,15 @@ export function getMarketMoodDescription(
   );
 }
 
-export function getMarketMoodSubdescription(
-  key: MarketMoodKey | null,
-  locale?: string | null,
-): string {
-  return pickLocalized(
-    semantic.marketMood.subdescriptions,
-    locale,
-    key ?? "unknown",
-  );
-}
+// Hidden: uncomment with `marketMoodSubdescriptions` in messages.ts.
+// export function getMarketMoodSubdescription(
+//   key: MarketMoodKey | null,
+//   locale?: string | null,
+// ): string {
+//   return pickLocalized(
+//     semantic.marketMood.subdescriptions,
+//     locale,
+//     key ?? "unknown",
+//   );
+// }
+
