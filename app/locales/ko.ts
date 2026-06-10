@@ -206,6 +206,57 @@ const ko: Translation = {
     description:
       "질문이나 제안이 있으시면 언제든 연락주세요. 빠른 답변을 드리겠습니다.",
   },
+  dashboardSidebar: {
+    groups: {
+      platform: "플랫폼",
+      series: "시리즈",
+    },
+    teamSwitcher: {
+      modes: "모드",
+      switchMode: "모드 전환",
+      defaultTeamName: "Default",
+      basicPlan: "Basic mode",
+    },
+    userMenu: {
+      upgradeToPro: "Pro로 업그레이드",
+      account: "계정",
+      notifications: "알림",
+      logOut: "로그아웃",
+    },
+    soonBadge: "Soon",
+    nav: {
+      dashboard: {
+        title: "대시보드",
+        marketBriefing: "마켓 브리핑",
+        marketSnapshot: "마켓 현황",
+      },
+      reports: {
+        title: "리포트",
+        library: "리포트 라이브러리",
+        explore: "탐색",
+        timeline: "타임라인",
+      },
+      insights: {
+        title: "인사이트",
+        marketMemory: "마켓 메모리",
+        entityExplore: "엔티티 탐색",
+      },
+      admin: {
+        title: "Admin",
+        home: "관리자 홈",
+        pipelines: "파이프라인",
+        agents: "에이전트",
+        prompts: "프롬프트",
+        apiTests: "API 테스트",
+        similarityMeasurements: "유사도 측정",
+        i18nManagement: "다언어 관리",
+      },
+    },
+    series: {
+      weeklyAiIssueDigest: "주간 AI 이슈 다이제스트",
+      weeklyMarketIssues: "주간 글로벌 시장 주요 이슈",
+    },
+  },
 };
 
 export default ko;

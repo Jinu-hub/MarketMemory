@@ -206,6 +206,57 @@ const en: Translation = {
     description:
       "If you have any questions or suggestions, please feel free to contact us. We will respond quickly.",
   },
+  dashboardSidebar: {
+    groups: {
+      platform: "Platform",
+      series: "Series",
+    },
+    teamSwitcher: {
+      modes: "Modes",
+      switchMode: "Switch Mode",
+      defaultTeamName: "Default",
+      basicPlan: "Basic mode",
+    },
+    userMenu: {
+      upgradeToPro: "Upgrade to Pro",
+      account: "Account",
+      notifications: "Notifications",
+      logOut: "Log out",
+    },
+    soonBadge: "Soon",
+    nav: {
+      dashboard: {
+        title: "Dashboard",
+        marketBriefing: "Market Briefing",
+        marketSnapshot: "Market Snapshot",
+      },
+      reports: {
+        title: "Reports",
+        library: "Report Library",
+        explore: "Explore",
+        timeline: "Timeline",
+      },
+      insights: {
+        title: "Insights",
+        marketMemory: "Market Memory",
+        entityExplore: "Entity Explorer",
+      },
+      admin: {
+        title: "Admin",
+        home: "Admin Home",
+        pipelines: "Pipelines",
+        agents: "Agents",
+        prompts: "Prompts",
+        apiTests: "API Tests",
+        similarityMeasurements: "Similarity Measurements",
+        i18nManagement: "i18n Management",
+      },
+    },
+    series: {
+      weeklyAiIssueDigest: "Weekly AI Issue Digest",
+      weeklyMarketIssues: "Weekly Global Market Issues",
+    },
+  },
 };
 
 export default en;

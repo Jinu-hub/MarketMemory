@@ -187,4 +187,55 @@ export type Translation = {
     title: string;
     description: string;
   };
+  dashboardSidebar: {
+    groups: {
+      platform: string;
+      series: string;
+    };
+    teamSwitcher: {
+      modes: string;
+      switchMode: string;
+      defaultTeamName: string;
+      basicPlan: string;
+    };
+    userMenu: {
+      upgradeToPro: string;
+      account: string;
+      notifications: string;
+      logOut: string;
+    };
+    soonBadge: string;
+    nav: {
+      dashboard: {
+        title: string;
+        marketBriefing: string;
+        marketSnapshot: string;
+      };
+      reports: {
+        title: string;
+        library: string;
+        explore: string;
+        timeline: string;
+      };
+      insights: {
+        title: string;
+        marketMemory: string;
+        entityExplore: string;
+      };
+      admin: {
+        title: string;
+        home: string;
+        pipelines: string;
+        agents: string;
+        prompts: string;
+        apiTests: string;
+        similarityMeasurements: string;
+        i18nManagement: string;
+      };
+    };
+    series: {
+      weeklyAiIssueDigest: string;
+      weeklyMarketIssues: string;
+    };
+  };
 };

@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { NavLink, useLocation } from "react-router";
 
 import {
@@ -20,11 +21,12 @@ export default function SidebarSeries({
     icon: LucideIcon;
   }[];
 }) {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Series</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("dashboardSidebar.groups.series")}</SidebarGroupLabel>
       <SidebarMenu>
         {series.map((item) => {
           const isActive = isSidebarNavSubItemActive(pathname, item.url);

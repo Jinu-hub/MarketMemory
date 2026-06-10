@@ -1,6 +1,10 @@
+import { useTranslation } from "react-i18next";
+
 import { cn } from "~/core/lib/utils";
 
 export function SidebarSoonBadge({ className }: { className?: string }) {
+  const { t } = useTranslation();
+
   return (
     <span
       className={cn(
@@ -9,7 +13,7 @@ export function SidebarSoonBadge({ className }: { className?: string }) {
       )}
       aria-hidden
     >
-      Soon
+      {t("dashboardSidebar.soonBadge")}
     </span>
   );
 }

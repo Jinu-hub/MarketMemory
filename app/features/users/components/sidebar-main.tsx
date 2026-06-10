@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, useLocation } from "react-router";
 
 import {
@@ -120,12 +121,13 @@ function SidebarNavGroupExpanded({ item }: { item: SidebarNavItem }) {
 }
 
 export default function SidebarMain({ items }: { items: SidebarNavItem[] }) {
+  const { t } = useTranslation();
   const { state, isMobile } = useSidebar();
   const isCollapsed = state === "collapsed" && !isMobile;
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("dashboardSidebar.groups.platform")}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) =>
           isCollapsed ? (

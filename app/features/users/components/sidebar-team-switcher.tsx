@@ -1,5 +1,6 @@
 import { ChevronsUpDown, Plus } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   DropdownMenu,
@@ -28,6 +29,7 @@ export default function TeamSwitcher({
     plan: string;
   }[];
 }) {
+  const { t } = useTranslation();
   const { isMobile } = useSidebar();
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
 
@@ -63,7 +65,7 @@ export default function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Modes
+              {t("dashboardSidebar.teamSwitcher.modes")}
             </DropdownMenuLabel>
             {teams.map((team, index) => (
               <DropdownMenuItem
@@ -86,7 +88,7 @@ export default function TeamSwitcher({
                 </div>
               }
             >
-              Switch Mode
+              {t("dashboardSidebar.teamSwitcher.switchMode")}
             </SidebarDropdownSoonItem>
           </DropdownMenuContent>
         </DropdownMenu>

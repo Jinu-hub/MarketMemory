@@ -1,13 +1,11 @@
 import {
-  BadgeCheck,
   Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
   Sparkles,
   UserCircle2Icon,
-  UserIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import {
@@ -40,6 +38,7 @@ export default function SidebarUser({
     avatarUrl: string;
   };
 }) {
+  const { t } = useTranslation();
   const { isMobile } = useSidebar();
 
   return (
@@ -88,7 +87,7 @@ export default function SidebarUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
-                Upgrade to Pro
+                {t("dashboardSidebar.userMenu.upgradeToPro")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -96,7 +95,7 @@ export default function SidebarUser({
               <DropdownMenuItem asChild>
                 <Link to="/account/edit" viewTransition>
                   <UserCircle2Icon />
-                  Account
+                  {t("dashboardSidebar.userMenu.account")}
                 </Link>
               </DropdownMenuItem>
               {/*
@@ -109,14 +108,14 @@ export default function SidebarUser({
               */}
               <DropdownMenuItem>
                 <Bell />
-                Notifications
+                {t("dashboardSidebar.userMenu.notifications")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link to="/logout">
                 <LogOut />
-                Log out
+                {t("dashboardSidebar.userMenu.logOut")}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

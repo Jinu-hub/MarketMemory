@@ -206,6 +206,57 @@ const ja: Translation = {
     description:
       "ご不明な点やご提案がございましたら、お気軽にお問い合わせください。迅速にご返答いたします。",
   },
+  dashboardSidebar: {
+    groups: {
+      platform: "プラットフォーム",
+      series: "シリーズ",
+    },
+    teamSwitcher: {
+      modes: "モード",
+      switchMode: "モード切替",
+      defaultTeamName: "Default",
+      basicPlan: "Basic mode",
+    },
+    userMenu: {
+      upgradeToPro: "Proにアップグレード",
+      account: "アカウント",
+      notifications: "通知",
+      logOut: "ログアウト",
+    },
+    soonBadge: "Soon",
+    nav: {
+      dashboard: {
+        title: "ダッシュボード",
+        marketBriefing: "マーケットブリーフィング",
+        marketSnapshot: "マーケット概況",
+      },
+      reports: {
+        title: "レポート",
+        library: "レポートライブラリ",
+        explore: "探索",
+        timeline: "タイムライン",
+      },
+      insights: {
+        title: "インサイト",
+        marketMemory: "マーケットメモリ",
+        entityExplore: "エンティティ探索",
+      },
+      admin: {
+        title: "Admin",
+        home: "管理者ホーム",
+        pipelines: "パイプライン",
+        agents: "エージェント",
+        prompts: "プロンプト",
+        apiTests: "APIテスト",
+        similarityMeasurements: "類似度測定",
+        i18nManagement: "多言語管理",
+      },
+    },
+    series: {
+      weeklyAiIssueDigest: "週間AIイシューダイジェスト",
+      weeklyMarketIssues: "週間グローバル市場主要イシュー",
+    },
+  },
 };
 
 export default ja;
