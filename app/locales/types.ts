@@ -187,6 +187,28 @@ export type Translation = {
     title: string;
     description: string;
   };
+  dashboard: {
+    meta: {
+      title: string;
+      description: string;
+    };
+    page: {
+      eyebrow: string;
+      title: string;
+      subtitle: string;
+      tradingDay: string;
+      publishedAtLabel: string;
+      statusLabel: string;
+      draftNote: string;
+      timezoneAbbr: string;
+      datePicker: {
+        triggerLabel: string;
+        title: string;
+        hint: string;
+        latest: string;
+      };
+    };
+  };
   dashboardSidebar: {
     groups: {
       platform: string;

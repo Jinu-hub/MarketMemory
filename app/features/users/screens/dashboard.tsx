@@ -18,6 +18,8 @@
  * loader returns `null` gracefully when access is denied so the screen still
  * renders with helpful empty states.
  */
+import { useTranslation } from "react-i18next";
+
 import type { Route } from "./+types/dashboard";
 
 import i18next from "~/core/lib/i18next.server";
@@ -28,7 +30,6 @@ import { TodayMarketMemoryBlock } from "~/features/dashboard/components/today-ma
 import { LatestReportsBlock } from "~/features/dashboard/components/latest-reports-block";
 import { MemoryRecallBlock } from "~/features/dashboard/components/memory-recall-block";
 import { SignalRadarBlock } from "~/features/dashboard/components/signal-radar-block";
-import { pickDashboardUi } from "~/features/dashboard/i18n";
 import { parseMarketDateParam } from "~/features/dashboard/lib/dates";
 import {
   getAvailableMarketMemoryDates,
@@ -38,19 +39,9 @@ import {
 } from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    { title: `Dashboard | ${import.meta.env.VITE_APP_NAME}` },
-    {
-      name: "description",
-      content:
-        "거래일 기준 시장 브리핑, 스냅샷, 최신 리포트를 한 화면에서 확인합니다.",
-    },
-  ];
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
+  const t = await i18next.getFixedT(request);
   const locale = await i18next.getLocale(request);
 
   const url = new URL(request.url);
@@ -69,26 +60,47 @@ export async function loader({ request }: Route.LoaderArgs) {
     ? await getDailyMarketMemorySources(client, memory.id).catch(() => [])
     : [];
 
-  return { memory, sourceReports, recentReports, availableDates, locale };
+  return {
+    memory,
+    sourceReports,
+    recentReports,
+    availableDates,
+    locale,
+    meta: {
+      title: `${t("dashboard.meta.title")} | ${import.meta.env.VITE_APP_NAME}`,
+      description: t("dashboard.meta.description"),
+    },
+  };
 }
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  const title = data?.meta.title ?? "Dashboard";
+  const description = data?.meta.description ?? "";
+  return [
+    { title },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+  ];
+};
+
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
+  const { t } = useTranslation();
   const { memory, sourceReports, recentReports, availableDates, locale } =
     loaderData;
-  const page = pickDashboardUi(locale).page;
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-2 pb-10 sm:gap-7 sm:px-4 sm:pb-12 md:gap-8 md:px-6 md:pb-16 lg:px-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         <div className="min-w-0 flex-1">
           <p className="text-primary text-[11px] font-medium tracking-wide uppercase sm:text-xs">
-            {page.eyebrow}
+            {t("dashboard.page.eyebrow")}
           </p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
-            {page.title}
+            {t("dashboard.page.title")}
           </h1>
           <p className="text-muted-foreground mt-1.5 max-w-2xl text-xs sm:mt-2 sm:text-sm md:text-base">
-            {page.subtitle}
+            {t("dashboard.page.subtitle")}
           </p>
         </div>
         {memory?.market_date ? (
@@ -97,13 +109,18 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             availableDates={availableDates}
             locale={locale}
             labels={{
-              tradingDay: "Market Date",
-              publishedAt: page.publishedAtLabel,
-              statusLabel: page.statusLabel,
-              draftNote: page.draftNote,
-              timezoneAbbr: page.timezoneAbbr,
+              tradingDay: t("dashboard.page.tradingDay"),
+              publishedAt: t("dashboard.page.publishedAtLabel"),
+              statusLabel: t("dashboard.page.statusLabel"),
+              draftNote: t("dashboard.page.draftNote"),
+              timezoneAbbr: t("dashboard.page.timezoneAbbr"),
             }}
-            pickerLabels={page.datePicker}
+            pickerLabels={{
+              triggerLabel: t("dashboard.page.datePicker.triggerLabel"),
+              title: t("dashboard.page.datePicker.title"),
+              hint: t("dashboard.page.datePicker.hint"),
+              latest: t("dashboard.page.datePicker.latest"),
+            }}
             publishedAt={memory.updated_at ?? memory.generated_at}
             status={memory.status}
             className="shrink-0"

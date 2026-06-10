@@ -206,6 +206,30 @@ const en: Translation = {
     description:
       "If you have any questions or suggestions, please feel free to contact us. We will respond quickly.",
   },
+  dashboard: {
+    meta: {
+      title: "Dashboard",
+      description:
+        "View trading-day market briefings, snapshots, and the latest reports in one place.",
+    },
+    page: {
+      eyebrow: "Dashboard",
+      title: "Latest market briefing",
+      subtitle:
+        "Market memory organized by trading day—summary, themes, mood, and snapshot in one place.",
+      tradingDay: "Market Date",
+      publishedAtLabel: "Published",
+      statusLabel: "Status",
+      draftNote: "In progress",
+      timezoneAbbr: "JST",
+      datePicker: {
+        triggerLabel: "View market memory for another day",
+        title: "Pick a date",
+        hint: "Only trading days with a record are selectable.",
+        latest: "Latest",
+      },
+    },
+  },
   dashboardSidebar: {
     groups: {
       platform: "Platform",

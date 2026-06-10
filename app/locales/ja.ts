@@ -206,6 +206,30 @@ const ja: Translation = {
     description:
       "ご不明な点やご提案がございましたら、お気軽にお問い合わせください。迅速にご返答いたします。",
   },
+  dashboard: {
+    meta: {
+      title: "ダッシュボード",
+      description:
+        "取引日基準の市場ブリーフィング、スナップショット、最新レポートを一画面で確認できます。",
+    },
+    page: {
+      eyebrow: "Dashboard",
+      title: "最新の市場ブリーフィング",
+      subtitle:
+        "取引日ごとに整理した市場メモリ。要約・テーマ・ムードとスナップショットを一画面で見られます。",
+      tradingDay: "取引日",
+      publishedAtLabel: "配信",
+      statusLabel: "状態",
+      draftNote: "処理中",
+      timezoneAbbr: "JST",
+      datePicker: {
+        triggerLabel: "別の日付の市場メモリを見る",
+        title: "日付を選択",
+        hint: "記録がある取引日のみ選択できます。",
+        latest: "最新へ",
+      },
+    },
+  },
   dashboardSidebar: {
     groups: {
       platform: "プラットフォーム",
