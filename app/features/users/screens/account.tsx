@@ -7,9 +7,11 @@ import makeServerClient from "~/core/lib/supa-client.server";
 
 import ChangeEmailForm from "../components/forms/change-email-form";
 import ChangePasswordForm from "../components/forms/change-password-form";
-import ConnectSocialAccountsForm from "../components/forms/connect-social-accounts-form";
+//import ConnectSocialAccountsForm from "../components/forms/connect-social-accounts-form";
 import DeleteAccountForm from "../components/forms/delete-account-form";
 import EditProfileForm from "../components/forms/edit-profile-form";
+//import PlanSection from "../components/forms/plan-info-form";
+//import { getUserProfile, getUserSubscription } from "../queries";
 import { getUserProfile } from "../queries";
 
 export const meta: Route.MetaFunction = () => {
@@ -23,10 +25,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   } = await client.auth.getUser();
   const identities = client.auth.getUserIdentities();
   const profile = getUserProfile(client, { userId: user!.id });
+  //const subscription = getUserSubscription(client, { userId: user!.id });
   return {
     user,
     identities,
     profile,
+    //subscription,
   };
 }
 
@@ -36,7 +40,8 @@ export default function Account({ loaderData }: Route.ComponentProps) {
     (identity) => identity.provider === "email",
   );
   return (
-    <div className="flex w-full flex-col items-center gap-10 pt-0 pb-8">
+    <div className="flex w-full flex-col items-center gap-8 pt-0 pb-12 px-4">
+      {/* Profile Section */}
       <Suspense
         fallback={
           <div className="bg-card animate-fast-pulse h-60 w-full max-w-screen-md rounded-xl border shadow-sm" />
@@ -62,8 +67,36 @@ export default function Account({ loaderData }: Route.ComponentProps) {
           }}
         </Await>
       </Suspense>
-      <ChangeEmailForm email={user?.email ?? ""} />
-      <ChangePasswordForm hasPassword={hasEmailIdentity ?? false} />
+
+      {/* Plan Settings Section */}
+      {/*
+      <Suspense
+        fallback={
+          <div className="bg-card animate-fast-pulse h-60 w-full max-w-screen-md rounded-xl border shadow-sm" />
+        }
+      >
+        <Await
+          resolve={subscription}
+          errorElement={
+            <div className="text-red-500">Could not load plan information</div>
+          }
+        >
+          {(subscription) => (
+            <PlanSection subscription={subscription} />
+          )}
+        </Await>
+      </Suspense>
+      */}
+
+      {/* Security Settings Section */}
+      <div className="w-full max-w-screen-md space-y-8">
+        <div className="space-y-6">
+          <ChangeEmailForm email={user?.email ?? ""} />
+          <ChangePasswordForm hasPassword={hasEmailIdentity ?? false} />
+        </div>
+      </div>
+
+      {/*
       <Suspense
         fallback={
           <div className="bg-card animate-fast-pulse h-60 w-full max-w-screen-md rounded-xl border shadow-sm" />
@@ -95,7 +128,12 @@ export default function Account({ loaderData }: Route.ComponentProps) {
           }}
         </Await>
       </Suspense>
-      <DeleteAccountForm />
+      */}
+
+      {/* Danger Zone */}
+      <div className="w-full max-w-screen-md space-y-8 mt-8">        
+        <DeleteAccountForm />
+      </div>
     </div>
   );
 }

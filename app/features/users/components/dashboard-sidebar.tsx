@@ -126,6 +126,7 @@ export default function DashboardSidebar({
             { title: "프롬프트", url: "/admin/prompts" },
             { title: "API 테스트", url: "/admin/api-tests" },
             { title: "유사도 측정", url: "/admin/similarity-measurements" },
+            { title: "다언어 관리", url: "/admin/i18n-management" },
           ],
         },
         ...data.navMain,

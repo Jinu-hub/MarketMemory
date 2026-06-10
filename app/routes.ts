@@ -173,6 +173,14 @@ export default [
           "/daily-market-memory-n8n-test",
           "features/admin/screens/daily-market-memory-n8n-test.tsx",
         ),
+        route(
+          "/i18n-management",
+          "features/admin/screens/i18n-management.tsx",
+        ),
+        route(
+          "/item-content-reports-i18n",
+          "features/admin/screens/item-content-reports-i18n.tsx",
+        ),
       ]),
     ]),
   ]),

@@ -4,6 +4,7 @@ import {
   ClipboardListIcon,
   GitBranchIcon,
   HomeIcon,
+  LanguagesIcon,
   PackageIcon,
   Share2Icon,
   SparklesIcon,
@@ -62,6 +63,14 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     dashboardTitle: "유사도 측정",
     dashboardDescription:
       "콘텐츠·엔티티 간 유사도를 계산·검증합니다. 리포트·일별 마켓 메모리 유사도를 제공합니다.",
+  },
+  {
+    to: "/admin/i18n-management",
+    label: "다언어 관리",
+    icon: LanguagesIcon,
+    dashboardTitle: "다언어 관리",
+    dashboardDescription:
+      "콘텐츠·리포트의 다언어 번역 결과를 검토·관리합니다. item_content 리포트 번역을 제공합니다.",
   },
 ];
 

@@ -50,3 +50,11 @@ export {
   listDailyMarketMemoriesForSimilarity,
   listDmmSimilarityEdgesForSources,
 } from "./dmm-similarity";
+
+export type { ItemContentI18nListFilters } from "./item-content-i18n";
+
+export {
+  fetchItemContentSourceLang,
+  listItemContentI18nByContentIds,
+  listItemContentsForI18n,
+} from "./item-content-i18n";
