@@ -1,13 +1,18 @@
 import { useTranslation } from "react-i18next";
 
-import { ITEM_REPORTS_MESSAGES, type ItemReportsUiMessages } from "./messages";
+import type { ItemReportsUiMessages } from "~/locales/item-reports/types";
+
+import { ITEM_REPORTS_BY_LOCALE } from "./locales";
 import { resolveItemReportsLocale } from "./resolve";
+
+export type { ItemReportsUiMessages };
 
 export function pickItemReportsUi(
   locale?: string | null,
 ): ItemReportsUiMessages {
   const lang = resolveItemReportsLocale(locale);
-  return ITEM_REPORTS_MESSAGES.ui[lang];
+  const { semantic: _, ...ui } = ITEM_REPORTS_BY_LOCALE[lang];
+  return ui;
 }
 
 /** Resolved UI copy for the active i18next language. */
@@ -37,8 +42,9 @@ export function formatCount(
   locale?: string | null,
 ): string {
   const ui = pickItemReportsUi(locale);
+  const lang = resolveItemReportsLocale(locale);
   const formatted = count.toLocaleString(
-    locale === "en" ? "en-US" : locale === "ja" ? "ja-JP" : "ko-KR",
+    lang === "en" ? "en-US" : lang === "ja" ? "ja-JP" : "ko-KR",
   );
   const suffix = ui.common.countSuffix;
   return suffix ? `${formatted}${suffix}` : formatted;

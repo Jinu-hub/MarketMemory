@@ -1,5 +1,6 @@
 export { ITEM_REPORTS_MESSAGES } from "./messages";
-export type { ItemReportsUiMessages } from "./messages";
+export type { ItemReportsUiMessages } from "./ui";
+export type { ItemReportsTranslation } from "~/locales/item-reports/types";
 export {
   getCategoryLabel,
   getEntityGroupLabel,

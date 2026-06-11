@@ -8,17 +8,24 @@ import type {
   ReportType,
 } from "../constants";
 import type { SimilarityLevel } from "../lib/similarity-style";
-import { ITEM_REPORTS_MESSAGES } from "./messages";
+import { ITEM_REPORTS_BY_LOCALE } from "./locales";
 import { pickLocalized, resolveItemReportsLocale } from "./resolve";
 
-const { semantic } = ITEM_REPORTS_MESSAGES;
+function semanticBucket<K extends keyof (typeof ITEM_REPORTS_BY_LOCALE)["ko"]["semantic"]>(
+  bucket: K,
+  locale?: string | null,
+): (typeof ITEM_REPORTS_BY_LOCALE)["ko"]["semantic"][K] {
+  const lang = resolveItemReportsLocale(locale);
+  return ITEM_REPORTS_BY_LOCALE[lang].semantic[bucket];
+}
 
 export function getCategoryLabel(
   value: string | null | undefined,
   locale?: string | null,
 ): string {
   if (!value) return "";
-  return pickLocalized(semantic.category, locale, value);
+  const bucket = semanticBucket("category", locale) as Record<string, string>;
+  return bucket[value] ?? bucket.unknown ?? value;
 }
 
 export function getReportTypeLabel(
@@ -26,7 +33,8 @@ export function getReportTypeLabel(
   locale?: string | null,
 ): string {
   if (!value) return "";
-  return pickLocalized(semantic.reportType, locale, value);
+  const bucket = semanticBucket("reportType", locale) as Record<string, string>;
+  return bucket[value] ?? value;
 }
 
 export function getReportTierLabel(
@@ -34,7 +42,8 @@ export function getReportTierLabel(
   locale?: string | null,
 ): string {
   if (!value) return "";
-  return pickLocalized(semantic.reportTier, locale, value);
+  const bucket = semanticBucket("reportTier", locale) as Record<string, string>;
+  return bucket[value] ?? value;
 }
 
 export function getRegionLabel(
@@ -42,16 +51,20 @@ export function getRegionLabel(
   locale?: string | null,
 ): string {
   if (!value) return "";
-  const lang = resolveItemReportsLocale(locale);
-  return semantic.region[lang][value as ReportRegion] ?? value;
+  const bucket = semanticBucket("region", locale) as Record<string, string>;
+  return bucket[value as ReportRegion] ?? value;
 }
 
 export function getReportTypeExploreIntro(
   value: string | null | undefined,
   locale?: string | null,
 ): string {
-  if (!value) return pickLocalized(semantic.reportTypeExploreIntro, locale, "unknown");
-  return pickLocalized(semantic.reportTypeExploreIntro, locale, value);
+  const bucket = semanticBucket(
+    "reportTypeExploreIntro",
+    locale,
+  ) as Record<string, string>;
+  if (!value) return bucket.unknown ?? "";
+  return bucket[value] ?? bucket.unknown ?? value;
 }
 
 export function getSimilarityLabel(
@@ -59,14 +72,24 @@ export function getSimilarityLabel(
   locale?: string | null,
 ): string | null {
   if (!level) return null;
-  return pickLocalized(semantic.similarity, locale, level);
+  const bucket = semanticBucket("similarity", locale);
+  return pickLocalized(
+    {
+      ko: bucket as Record<string, string>,
+      en: semanticBucket("similarity", "en") as Record<string, string>,
+      ja: semanticBucket("similarity", "ja") as Record<string, string>,
+    },
+    locale,
+    level,
+  );
 }
 
 export function getEntityGroupLabel(
-  key: keyof (typeof semantic.entityGroup)["ko"],
+  key: keyof (typeof ITEM_REPORTS_BY_LOCALE)["ko"]["semantic"]["entityGroup"],
   locale?: string | null,
 ): string {
-  return pickLocalized(semantic.entityGroup, locale, key);
+  const bucket = semanticBucket("entityGroup", locale) as Record<string, string>;
+  return bucket[key] ?? key;
 }
 
 export function getRegionCardTitle(
@@ -75,7 +98,7 @@ export function getRegionCardTitle(
   locale?: string | null,
 ): string {
   const lang = resolveItemReportsLocale(locale);
-  const copy = ITEM_REPORTS_MESSAGES.ui[lang].explore.regionCard;
+  const copy = ITEM_REPORTS_BY_LOCALE[lang].explore.regionCard;
   if (region === "GLOBAL") return copy.globalTitle;
   if (region === "UNKNOWN") return copy.unknownTitle;
   return copy.defaultTitle.replace("{label}", label);
@@ -86,11 +109,10 @@ export function getRegionExploreIntro(
   locale?: string | null,
 ): string {
   const lang = resolveItemReportsLocale(locale);
-  const copy = ITEM_REPORTS_MESSAGES.ui[lang].explore.regionCard;
+  const copy = ITEM_REPORTS_BY_LOCALE[lang].explore.regionCard;
   if (region === "GLOBAL") return copy.globalIntro;
   if (region === "UNKNOWN") return copy.unknownIntro;
   return copy.defaultIntro;
 }
 
-/** Re-export typed keys for callers that need exhaustiveness. */
 export type { ReportCategory, ReportRegion, ReportTier, ReportType };

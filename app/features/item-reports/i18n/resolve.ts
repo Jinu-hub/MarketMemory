@@ -2,7 +2,7 @@ import i18nConfig, { supportedLngs } from "~/i18n";
 
 /**
  * Locale codes aligned with `app/i18n.ts` (`ko` | `en` | `ja`).
- * Item-reports copy lives here until migrated to `app/locales/*`.
+ * Copy source: app/locales (itemReports key).
  */
 export type ItemReportsLocale = (typeof supportedLngs)[number];
 

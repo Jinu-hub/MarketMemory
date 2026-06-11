@@ -1,4 +1,5 @@
 import type { Translation } from "./types";
+import itemReports from "./item-reports/ja";
 
 const ja: Translation = {
   auth: {
@@ -230,6 +231,7 @@ const ja: Translation = {
       },
     },
   },
+  itemReports,
   dashboardSidebar: {
     groups: {
       platform: "プラットフォーム",

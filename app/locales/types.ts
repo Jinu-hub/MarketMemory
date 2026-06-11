@@ -1,3 +1,5 @@
+import type { ItemReportsTranslation } from "./item-reports/types";
+
 export type Translation = {
   auth: {
     signIn: string;
@@ -209,6 +211,7 @@ export type Translation = {
       };
     };
   };
+  itemReports: ItemReportsTranslation;
   dashboardSidebar: {
     groups: {
       platform: string;

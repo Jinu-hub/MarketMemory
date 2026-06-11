@@ -1,6 +1,7 @@
 import type { Database } from "database.types";
 
-import { ITEM_REPORTS_MESSAGES } from "./i18n/messages";
+import en from "~/locales/en";
+import ko from "~/locales/ko";
 
 export type ReportCategory = Database["public"]["Enums"]["category"];
 export type ReportType = Database["public"]["Enums"]["report_type"];
@@ -21,12 +22,12 @@ export const REPORT_CATEGORIES: ReportCategory[] = [
 ];
 
 /** @deprecated Use `getCategoryLabel` from `~/features/item-reports/i18n` */
-export const REPORT_CATEGORY_LABELS = ITEM_REPORTS_MESSAGES.semantic.category
-  .en as Record<ReportCategory, string>;
+export const REPORT_CATEGORY_LABELS = en.itemReports.semantic
+  .category as Record<ReportCategory, string>;
 
 /** @deprecated Use `getCategoryLabel` from `~/features/item-reports/i18n` */
-export const REPORT_CATEGORY_LABELS_KO = ITEM_REPORTS_MESSAGES.semantic.category
-  .ko as Record<ReportCategory, string>;
+export const REPORT_CATEGORY_LABELS_KO = ko.itemReports.semantic
+  .category as Record<ReportCategory, string>;
 
 export const REPORT_TYPES: ReportType[] = [
   "digest-report",
@@ -40,16 +41,16 @@ export const REPORT_TYPES: ReportType[] = [
 ];
 
 /** @deprecated Use `getReportTypeLabel` from `~/features/item-reports/i18n` */
-export const REPORT_TYPE_LABELS = ITEM_REPORTS_MESSAGES.semantic.reportType
-  .en as Record<ReportType, string>;
+export const REPORT_TYPE_LABELS = en.itemReports.semantic
+  .reportType as Record<ReportType, string>;
 
 /** @deprecated Use `getReportTypeLabel` from `~/features/item-reports/i18n` */
-export const REPORT_TYPE_LABELS_KO = ITEM_REPORTS_MESSAGES.semantic.reportType
-  .ko as Record<ReportType, string>;
+export const REPORT_TYPE_LABELS_KO = ko.itemReports.semantic
+  .reportType as Record<ReportType, string>;
 
 /** @deprecated Use `getReportTypeExploreIntro` from `~/features/item-reports/i18n` */
-export const REPORT_TYPE_EXPLORE_INTRO_KO = ITEM_REPORTS_MESSAGES.semantic
-  .reportTypeExploreIntro.ko as Record<ReportType, string>;
+export const REPORT_TYPE_EXPLORE_INTRO_KO = ko.itemReports.semantic
+  .reportTypeExploreIntro as Record<ReportType, string>;
 
 export const REPORT_REGIONS: ReportRegion[] = [
   "GLOBAL",
@@ -85,18 +86,18 @@ export const REPORT_REGIONS: ReportRegion[] = [
 ];
 
 /** @deprecated Use `getRegionLabel` from `~/features/item-reports/i18n` */
-export const REPORT_REGION_LABELS_KO = ITEM_REPORTS_MESSAGES.semantic.region
-  .ko as Partial<Record<ReportRegion, string>>;
+export const REPORT_REGION_LABELS_KO = ko.itemReports.semantic
+  .region as Partial<Record<ReportRegion, string>>;
 
 export const REPORT_TIERS: ReportTier[] = ["free", "premium", "premium_plus"];
 
 /** @deprecated Use `getReportTierLabel` from `~/features/item-reports/i18n` */
-export const REPORT_TIER_LABELS_KO = ITEM_REPORTS_MESSAGES.semantic.reportTier
-  .ko as Record<ReportTier, string>;
+export const REPORT_TIER_LABELS_KO = ko.itemReports.semantic
+  .reportTier as Record<ReportTier, string>;
 
 /** @deprecated Use `getReportTierLabel` from `~/features/item-reports/i18n` */
-export const REPORT_TIER_LABELS = ITEM_REPORTS_MESSAGES.semantic.reportTier
-  .en as Record<ReportTier, string>;
+export const REPORT_TIER_LABELS = en.itemReports.semantic
+  .reportTier as Record<ReportTier, string>;
 
 export const PAGE_SIZE = 12;
 
