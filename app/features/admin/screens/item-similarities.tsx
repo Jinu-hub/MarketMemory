@@ -22,7 +22,7 @@ import {
   regenerateAllItemSimilarityEdges,
   regenerateItemSimilarityEdgesWithSecondary,
   regenerateReadyItemSimilarityEdges,
-} from "../mutations";
+} from "../mutations/similarity";
 import {
   countItemContentsBySimilarityStatus,
   fetchEmbeddingSourceItemIds,

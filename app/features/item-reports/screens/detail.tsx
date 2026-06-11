@@ -23,7 +23,7 @@ import makeServerClient from "~/core/lib/supa-client.server";
 import {
   DEFAULT_SIMILARITY_METHOD_VERSION,
   regenerateItemSimilarityEdgesWithSecondary,
-} from "~/features/admin/mutations";
+} from "~/features/admin/mutations/similarity";
 
 import type { Route } from "./+types/detail";
 import { ItemReportsNavLink } from "../components/item-reports-nav-link";

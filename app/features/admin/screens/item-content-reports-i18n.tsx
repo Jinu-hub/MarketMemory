@@ -17,7 +17,7 @@ import {
   invokeItemContentI18nWebhookJobs,
   isItemContentI18nWebhookConfigured,
   recordItemContentI18nWebhookRun,
-} from "../mutations/item-content-i18n";
+} from "../mutations/item-content-i18n.server";
 import {
   buildItemContentI18nRowModels,
   filterItemContentI18nRows,
