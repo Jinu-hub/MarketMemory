@@ -1,9 +1,14 @@
+import { dateLocaleTag } from "../i18n/resolve";
+
 import type { ReportListItem } from "../types";
 
-export function formatDate(value: string | null | undefined): string {
+export function formatDate(
+  value: string | null | undefined,
+  locale?: string | null,
+): string {
   if (!value) return "";
   try {
-    return new Date(value).toLocaleDateString("ko-KR", {
+    return new Date(value).toLocaleDateString(dateLocaleTag(locale), {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -15,8 +20,9 @@ export function formatDate(value: string | null | undefined): string {
 
 export function resolveDisplayDate(
   row: Pick<ReportListItem, "market_date" | "created_at">,
+  locale?: string | null,
 ): string {
-  return formatDate(row.market_date ?? row.created_at);
+  return formatDate(row.market_date ?? row.created_at, locale);
 }
 
 /** Calendar year from an ISO-ish date string; invalid or missing → null. */

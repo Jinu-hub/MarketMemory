@@ -3,30 +3,21 @@ import { QuoteIcon, ShareIcon, ZapIcon } from "lucide-react";
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import { useItemReportsLocale, useItemReportsUi } from "../i18n";
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import type { ReportDetail } from "../types";
 import { ReportCategoryBadges } from "./report-category-badges";
 
-/**
- * Long-form reading layout for the detail screen.
- *
- * Wraps the existing `<article>` content and introduces reading-first
- * patterns from the showcase `ReadingLayoutDemo`:
- *   - strong typographic hero (category badge, title, read-time)
- *   - generous measure for body content (handled by `<ReadingBody>` wrapper)
- *
- * The component itself only renders a header + optional footer; body content
- * is rendered as children so the detail screen can compose its own mix of
- * `ReportSummaryMeta`, `ReportMarkdown`, highlight boxes, etc.
- */
 type ReadingHeaderProps = {
   report: ReportDetail;
   className?: string;
 };
 
 export function ReadingHeader({ report, className }: ReadingHeaderProps) {
-  const date = resolveDisplayDate(report);
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
+  const date = resolveDisplayDate(report, locale);
 
   return (
     <header className={cn("space-y-4", className)}>
@@ -41,16 +32,12 @@ export function ReadingHeader({ report, className }: ReadingHeaderProps) {
         }
       />
       <h1 className="text-2xl leading-tight font-bold tracking-tight md:text-3xl lg:text-4xl">
-        {report.title ?? "Untitled report"}
+        {report.title ?? ui.common.untitledReport}
       </h1>
     </header>
   );
 }
 
-/**
- * Decorative pull-quote block, adapted from the showcase ReadingLayoutDemo.
- * Pass a category to tint the left accent.
- */
 type ReadingPullQuoteProps = {
   children: React.ReactNode;
   cite?: React.ReactNode;
@@ -64,7 +51,8 @@ export function ReadingPullQuote({
   category,
   className,
 }: ReadingPullQuoteProps) {
-  const style = getCategoryStyle(category);
+  const locale = useItemReportsLocale();
+  const style = getCategoryStyle(category, locale);
   return (
     <blockquote
       className={cn(
@@ -92,10 +80,6 @@ export function ReadingPullQuote({
   );
 }
 
-/**
- * Inline highlight box matching the showcase "Key Metric" pattern. Use to
- * surface an important fact or metric inside the reading flow.
- */
 type ReadingHighlightBoxProps = {
   title: string;
   children: React.ReactNode;
@@ -111,7 +95,8 @@ export function ReadingHighlightBox({
   category,
   className,
 }: ReadingHighlightBoxProps) {
-  const style = getCategoryStyle(category);
+  const locale = useItemReportsLocale();
+  const style = getCategoryStyle(category, locale);
   const resolvedIcon = icon ?? (
     <ZapIcon className={cn("size-5 shrink-0", style.accentText)} />
   );
@@ -136,10 +121,6 @@ export function ReadingHighlightBox({
   );
 }
 
-/**
- * Footer block that renders a report's SNS / share-ready summary as an
- * editorial pull-out, matching the showcase "Related Insight" pattern.
- */
 type ShareSummaryBlockProps = {
   children?: string | null;
   category?: string | null;
@@ -151,11 +132,13 @@ export function ShareSummaryBlock({
   category,
   className,
 }: ShareSummaryBlockProps) {
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
   if (!children) return null;
-  const style = getCategoryStyle(category);
+  const style = getCategoryStyle(category, locale);
   return (
     <section
-      aria-label="SNS 공유용 요약"
+      aria-label={ui.reading.shareSummaryAria}
       className={cn(
         "my-8 flex items-start gap-3 rounded-lg border border-l-[3px] p-5",
         "border-border",
@@ -166,7 +149,9 @@ export function ShareSummaryBlock({
     >
       <ShareIcon className={cn("mt-0.5 size-4 shrink-0", style.accentText)} />
       <div className="min-w-0 space-y-1">
-        <p className="text-foreground text-sm font-semibold">공유용 요약</p>
+        <p className="text-foreground text-sm font-semibold">
+          {ui.reading.shareSummaryTitle}
+        </p>
         <p className="text-foreground/85 text-sm leading-7 whitespace-pre-line">
           {children}
         </p>

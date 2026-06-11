@@ -1,3 +1,5 @@
+import { pickItemReportsUi, formatItemReportsCopy } from "../i18n/ui";
+
 import type { ReportDateFilter } from "../types";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -88,7 +90,9 @@ export function hasReportDateFilter(filter: ReportDateFilter): boolean {
 
 export function formatReportDateChipLabel(
   filter: ReportDateFilter,
+  locale?: string | null,
 ): string | null {
+  const dateCopy = pickItemReportsUi(locale).filter.date;
   const from =
     filter.dateFrom && isValidIsoDate(filter.dateFrom)
       ? filter.dateFrom
@@ -97,15 +101,20 @@ export function formatReportDateChipLabel(
     filter.dateTo && isValidIsoDate(filter.dateTo) ? filter.dateTo : undefined;
 
   if (from || to) {
-    if (from && to) return `${from} ~ ${to}`;
-    if (from) return `${from} ~`;
-    return `~ ${to}`;
+    if (from && to) {
+      return formatItemReportsCopy(dateCopy.chipFromTo, { from, to });
+    }
+    if (from) return formatItemReportsCopy(dateCopy.chipFrom, { from });
+    return formatItemReportsCopy(dateCopy.chipTo, { to: to! });
   }
 
   if (!filter.year) return null;
 
   if (filter.month && filter.month >= 1 && filter.month <= 12) {
-    return `${filter.year}년 ${filter.month}월`;
+    return formatItemReportsCopy(dateCopy.chipYearMonth, {
+      year: filter.year,
+      month: filter.month,
+    });
   }
-  return `${filter.year}년`;
+  return formatItemReportsCopy(dateCopy.chipYear, { year: filter.year });
 }

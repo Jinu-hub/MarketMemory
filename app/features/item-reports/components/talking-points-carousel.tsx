@@ -4,27 +4,25 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { NexButton } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import { formatItemReportsCopy, useItemReportsUi } from "../i18n";
 import type { CategoryStyle } from "../lib/category-style";
 
 type TalkingPointsCarouselProps = {
   points: string[];
   style: CategoryStyle;
-  /** Accessible label, e.g. "이 리포트의 주목 포인트" */
   "aria-label"?: string;
   className?: string;
 };
 
-/**
- * One talking point per "slide" with editorial pull-quote treatment.
- * Navigation sits *below* the card so chevrons never overlap text (NexCarousel
- * hovers absolute arrows on the track, which collides with content + peeks).
- */
 export function TalkingPointsCarousel({
   points,
   style,
-  "aria-label": ariaLabel = "이 리포트의 주목 포인트",
+  "aria-label": ariaLabel,
   className,
 }: TalkingPointsCarouselProps) {
+  const ui = useItemReportsUi();
+  const carousel = ui.summaryMeta.carousel;
+  const resolvedAriaLabel = ariaLabel ?? ui.summaryMeta.talkingPointsAria;
   const n = points.length;
   const [index, setIndex] = useState(0);
   const canPrev = index > 0;
@@ -58,7 +56,10 @@ export function TalkingPointsCarousel({
       className={cn("w-full", className)}
       role="region"
       aria-roledescription="carousel"
-      aria-label={`${ariaLabel} · 총 ${n}개, 방향 키로 이동할 수 있음.`}
+      aria-label={formatItemReportsCopy(carousel.regionAria, {
+        label: resolvedAriaLabel,
+        count: n,
+      })}
       tabIndex={0}
       onKeyDown={onKeyDown}
     >
@@ -95,9 +96,6 @@ export function TalkingPointsCarousel({
                     {i + 1} / {n}
                   </span>
                 </header>
-                {/* No `"` icon here — the bottom SNS block already carries the
-                    pull-quote motif. Talking points = category accent + bar
-                    only, so the two blocks don't repeat the same glyph. */}
                 <div
                   className={cn(
                     "min-w-0 border-l-2 border-current pl-4",
@@ -114,20 +112,21 @@ export function TalkingPointsCarousel({
         </div>
       </div>
 
-      {/* Dots + prev/next: below the card so nothing overlaps the quote */}
       {n > 1 ? (
         <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div
             className="flex flex-1 items-center justify-center gap-1.5 sm:justify-start"
             role="group"
-            aria-label="슬라이드 위치"
+            aria-label={carousel.slidePosition}
           >
             {points.map((_, i) => (
               <button
                 key={`dot-${i}`}
                 type="button"
                 aria-pressed={i === index}
-                aria-label={`${i + 1}번째 포인트로 이동`}
+                aria-label={formatItemReportsCopy(carousel.goToPoint, {
+                  index: i + 1,
+                })}
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none",
                   i === index
@@ -146,12 +145,12 @@ export function TalkingPointsCarousel({
               variant="ghost"
               size="sm"
               disabled={!canPrev}
-              aria-label="이전 포인트"
+              aria-label={carousel.previousPoint}
               className="shrink-0"
               leftIcon={<ChevronLeft className="size-4" aria-hidden />}
               onClick={goPrev}
             >
-              이전
+              {ui.common.previous}
             </NexButton>
             <span className="text-muted-foreground px-1 text-xs tabular-nums sm:hidden">
               {index + 1} / {n}
@@ -161,12 +160,12 @@ export function TalkingPointsCarousel({
               variant="ghost"
               size="sm"
               disabled={!canNext}
-              aria-label="다음 포인트"
+              aria-label={carousel.nextPoint}
               className="shrink-0"
               rightIcon={<ChevronRight className="size-4" aria-hidden />}
               onClick={goNext}
             >
-              다음
+              {ui.common.next}
             </NexButton>
           </div>
         </div>

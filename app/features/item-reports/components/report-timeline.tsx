@@ -9,6 +9,13 @@ import {
 } from "~/core/components/ui/collapsible";
 import { cn } from "~/core/lib/utils";
 
+import {
+  formatCount,
+  formatItemReportsCopy,
+  useItemReportsLocale,
+  useItemReportsUi,
+} from "../i18n";
+import { dateLocaleTag } from "../i18n/resolve";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import type { ReportListItem } from "../types";
 import { ReportListRow } from "./report-list-row";
@@ -16,20 +23,8 @@ import { ReportListRow } from "./report-list-row";
 type ReportTimelineProps = {
   reports: ReportListItem[];
   className?: string;
-  /**
-   * When `true`, compact variant used as a sidebar / secondary block (smaller
-   * text, denser spacing). Default is `false` (standalone page variant).
-   */
   compact?: boolean;
-  /**
-   * When `false`, hides the per-month `N건` next to group headings (e.g. when
-   * the parent surface already shows the total count).
-   */
   showGroupCounts?: boolean;
-  /**
-   * Override the per-row detail link target so the timeline can live inside a
-   * series (e.g. /weekly-ai-issue-digest/:id). Defaults to /item_reports/:id.
-   */
   detailHref?: (id: string) => string;
 };
 
@@ -39,7 +34,10 @@ type TimelineGroup = {
   reports: ReportListItem[];
 };
 
-function groupByMonth(reports: ReportListItem[]): TimelineGroup[] {
+function groupByMonth(
+  reports: ReportListItem[],
+  locale: string,
+): TimelineGroup[] {
   const buckets = new Map<string, TimelineGroup>();
   for (const report of reports) {
     const raw = report.market_date ?? report.created_at;
@@ -47,7 +45,7 @@ function groupByMonth(reports: ReportListItem[]): TimelineGroup[] {
     const date = new Date(raw);
     if (Number.isNaN(date.getTime())) continue;
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-    const label = date.toLocaleDateString("ko-KR", {
+    const label = date.toLocaleDateString(dateLocaleTag(locale), {
       year: "numeric",
       month: "long",
     });
@@ -59,11 +57,6 @@ function groupByMonth(reports: ReportListItem[]): TimelineGroup[] {
   return Array.from(buckets.values()).sort((a, b) => (a.key < b.key ? 1 : -1));
 }
 
-/**
- * Narrative-oriented timeline inspired by the showcase Timeline pattern.
- * Renders reports as chronologically grouped events with category-colored
- * nodes. Designed for the /item_reports/timeline route and the explore hub.
- */
 export function ReportTimeline({
   reports,
   className,
@@ -71,12 +64,12 @@ export function ReportTimeline({
   showGroupCounts = true,
   detailHref = itemReportsDetailHref,
 }: ReportTimelineProps) {
-  const groups = groupByMonth(reports);
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
+  const groups = groupByMonth(reports, locale);
   if (groups.length === 0) {
     return (
-      <ContentEmptyState>
-        아직 타임라인에 표시할 리포트가 없습니다.
-      </ContentEmptyState>
+      <ContentEmptyState>{ui.timeline.empty}</ContentEmptyState>
     );
   }
 
@@ -109,13 +102,22 @@ function TimelineMonthGroup({
   compact: boolean;
   showGroupCounts: boolean;
   collapsible: boolean;
-  /** 최신 월만 `true` — 그룹은 `groupByMonth` 내림차순 정렬 기준 */
   defaultOpen: boolean;
   detailHref: (id: string) => string;
 }) {
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
   const [open, setOpen] = useState(defaultOpen);
   const panelId = `timeline-month-${group.key}`;
-  const countLabel = showGroupCounts ? `, ${group.reports.length}건` : "";
+  const countLabel = showGroupCounts
+    ? `, ${formatCount(group.reports.length, locale)}`
+    : "";
+  const toggleAction = open ? ui.common.collapse : ui.common.expand;
+  const toggleAria = formatItemReportsCopy(ui.timeline.monthToggleAria, {
+    label: group.label,
+    count: formatCount(group.reports.length, locale),
+    action: toggleAction,
+  });
 
   if (compact && !collapsible) {
     return (
@@ -143,7 +145,7 @@ function TimelineMonthGroup({
               "focus-visible:ring-ring focus-visible:ring-2",
             )}
             aria-controls={panelId}
-            aria-label={`${group.label}${countLabel}, ${open ? "접기" : "펼치기"}`}
+            aria-label={toggleAria}
           >
             <div className="flex min-w-0 items-baseline gap-2">
               <h3 className="text-muted-foreground text-xs font-semibold tracking-tight">
@@ -151,7 +153,7 @@ function TimelineMonthGroup({
               </h3>
               {showGroupCounts ? (
                 <span className="text-muted-foreground/80 text-[11px] tabular-nums">
-                  {group.reports.length}건
+                  {formatCount(group.reports.length, locale)}
                 </span>
               ) : null}
             </div>
@@ -196,7 +198,7 @@ function TimelineMonthGroup({
             "focus-visible:ring-ring focus-visible:ring-2",
           )}
           aria-controls={panelId}
-          aria-label={`${group.label}${countLabel}, ${open ? "접기" : "펼치기"}`}
+          aria-label={`${group.label}${countLabel}, ${toggleAction}`}
         >
           <div className="flex min-w-0 items-baseline gap-2 sm:gap-3">
             <h3 className="text-base font-semibold tracking-tight md:text-lg">
@@ -204,7 +206,7 @@ function TimelineMonthGroup({
             </h3>
             {showGroupCounts ? (
               <span className="text-muted-foreground text-xs tabular-nums">
-                {group.reports.length}건
+                {formatCount(group.reports.length, locale)}
               </span>
             ) : null}
           </div>
@@ -217,7 +219,7 @@ function TimelineMonthGroup({
               )}
               aria-hidden
             >
-              {open ? "접기" : "펼치기"}
+              {toggleAction}
             </span>
             <span
               className={cn(

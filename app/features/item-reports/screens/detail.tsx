@@ -18,6 +18,7 @@ import {
   AccordionTrigger,
 } from "~/core/components/ui/accordion";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
+import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import {
   DEFAULT_SIMILARITY_METHOD_VERSION,
@@ -41,17 +42,23 @@ import {
 } from "../lib/list-navigation-state";
 import { resolveTakeaway } from "../lib/summary-meta";
 import { isPremiumTier } from "../lib/tier-style";
+import { pickItemReportsUi } from "../i18n";
 import { getRelatedReports, getReport } from "../queries";
 import { getUserProfile } from "~/features/users/queries";
 
 export const meta: Route.MetaFunction = ({ data }) => {
   if (!data) {
-    return [{ title: `Not Found | ${import.meta.env.VITE_APP_NAME}` }];
+    return [
+      {
+        title: `Not Found | ${import.meta.env.VITE_APP_NAME}`,
+      },
+    ];
   }
-  const title = data.report.title ?? "Item Report";
+  const ui = pickItemReportsUi(data.locale);
+  const title = data.report.title ?? ui.detail.metaFallbackTitle;
   const description =
     resolveTakeaway(data.report.summary, data.report.summary_meta) ||
-    "Market Memory report";
+    ui.detail.metaFallbackDescription;
   return [
     { title: `${title} | ${import.meta.env.VITE_APP_NAME}` },
     { name: "description", content: description },
@@ -59,6 +66,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 };
 
 export async function loader({ params, request }: Route.LoaderArgs) {
+  const locale = await i18next.getLocale(request);
   const [client] = makeServerClient(request);
   // Fetch the report and the current auth user in parallel — both are
   // independent of each other, and 404-ing has higher priority than the
@@ -84,11 +92,13 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   ]);
 
   const isAdmin = profile?.is_admin === true;
-  return { report, related, isAdmin };
+  return { report, related, isAdmin, locale };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
   requireMethod("POST")(request);
+  const locale = await i18next.getLocale(request);
+  const ui = pickItemReportsUi(locale);
   const [client] = makeServerClient(request);
   await requireAdmin(client);
 
@@ -97,10 +107,10 @@ export async function action({ request, params }: Route.ActionArgs) {
   const sourceItemId = formData.get("source_item_id");
 
   if (intent !== "regenerate_related" || typeof sourceItemId !== "string" || !sourceItemId) {
-    return data({ message: "유효하지 않은 요청입니다." }, { status: 400 });
+    return data({ message: ui.detail.actionInvalidRequest }, { status: 400 });
   }
   if (sourceItemId !== params.id) {
-    return data({ message: "요청한 리포트와 페이지가 일치하지 않습니다." }, { status: 400 });
+    return data({ message: ui.detail.actionReportMismatch }, { status: 400 });
   }
 
   const { inserted, error } = await regenerateItemSimilarityEdgesWithSecondary(
@@ -123,6 +133,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
   const { report, related, isAdmin } = loaderData;
+  const ui = pickItemReportsUi(loaderData.locale);
   const location = useLocation();
   const listLinkState = readItemReportsListLinkState(location.state);
   const listBackHref = resolveItemReportsListBackHref(location.state);
@@ -130,7 +141,7 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">
       <nav className="mb-6">
-        <ItemReportsNavLink to={listBackHref}>리포트 라이브러리</ItemReportsNavLink>
+        <ItemReportsNavLink to={listBackHref}>{ui.nav.library}</ItemReportsNavLink>
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
@@ -150,7 +161,7 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
 
           {report.summary ? (
             <ReadingHighlightBox
-              title="요약"
+              title={ui.detail.summaryTitle}
               category={report.category}
               className="my-0"
             >
@@ -191,7 +202,7 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             >
               <AccordionItem value="meta" className="border-0">
                 <AccordionTrigger className="text-sm font-semibold">
-                  리포트 정보
+                  {ui.meta.title}
                 </AccordionTrigger>
                 <AccordionContent>
                   <ReportMetaSidebar

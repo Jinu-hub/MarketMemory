@@ -2,8 +2,13 @@ import { useEffect, useState } from "react";
 import { Link2Icon, PenLineIcon } from "lucide-react";
 import { useFetcher } from "react-router";
 
-import { cn } from "~/core/lib/utils";
 import { NexBadge, NexButton } from "~/core/components/nex";
+import { cn } from "~/core/lib/utils";
+
+import {
+  formatItemReportsCopy,
+  useItemReportsUi,
+} from "../i18n";
 
 import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
 import type { RelatedReportItem } from "../types";
@@ -66,6 +71,7 @@ function AdminRelatedRegenerateButton({
   sourceReportId: string;
   onRelatedUpdated: (related: RelatedReportItem[]) => void;
 }) {
+  const ui = useItemReportsUi();
   const fetcher = useFetcher<RelatedRegenerateActionData>();
   const busy = fetcher.state !== "idle";
 
@@ -97,9 +103,9 @@ function AdminRelatedRegenerateButton({
           loading={busy}
           disabled={busy}
           leftIcon={<PenLineIcon className="size-4" aria-hidden />}
-          aria-label="이 리포트의 관련 리포트 유사도를 계산해 반영합니다"
+          aria-label={ui.related.regenerateAria}
         >
-          관련성 작성
+          {ui.related.regenerate}
         </NexButton>
       </fetcher.Form>
       {errorMessage ? (
@@ -109,7 +115,9 @@ function AdminRelatedRegenerateButton({
       ) : null}
       {success ? (
         <p className="text-muted-foreground px-0.5 text-xs tabular-nums">
-          반영 완료 · 연결 {success.inserted}건
+          {formatItemReportsCopy(ui.related.regenerateSuccess, {
+            count: success.inserted,
+          })}
         </p>
       ) : null}
     </div>
@@ -124,6 +132,7 @@ export function RelatedReports({
   className,
   maxHeightClassName = "max-h-[28rem]",
 }: RelatedReportsProps) {
+  const ui = useItemReportsUi();
   const [displayReports, setDisplayReports] = useState(reports ?? []);
 
   useEffect(() => {
@@ -151,7 +160,7 @@ export function RelatedReports({
       <div className="border-border/60 flex shrink-0 flex-col gap-3 border-b px-5 py-4">
         <div className="flex items-center gap-2">
           <Link2Icon className="text-muted-foreground size-4 shrink-0" />
-          <h3 className="text-sm font-semibold tracking-tight">관련 리포트</h3>
+          <h3 className="text-sm font-semibold tracking-tight">{ui.related.title}</h3>
           <NexBadge
             variant="secondary"
             size="sm"
@@ -171,12 +180,11 @@ export function RelatedReports({
       {list.length === 0 ? (
         <div className="flex min-h-[8rem] flex-col items-center justify-center gap-2 px-5 py-8 text-center">
           <p className="text-muted-foreground max-w-[240px] text-sm leading-relaxed">
-            아직 표시할 관련 리포트가 없습니다. 같은 주제나 유사한 후속 분석이 연결되면 여기에
-            나타납니다.
+            {ui.related.empty}
           </p>
           {!showAdminLink ? (
             <p className="text-muted-foreground/80 text-xs">
-              유사도 파이프라인이 아직 반영되지 않았을 수 있습니다.
+              {ui.related.pipelineHint}
             </p>
           ) : null}
         </div>

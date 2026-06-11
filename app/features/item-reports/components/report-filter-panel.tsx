@@ -20,6 +20,11 @@ import { cn } from "~/core/lib/utils";
 
 import { ReportDateFilter } from "./report-date-filter";
 import {
+  useItemReportsLocale,
+  useItemReportsUi,
+  formatItemReportsCopy,
+} from "../i18n";
+import {
   countParamsInKeys,
   FILTER_SELECT_ALL_VALUE,
   REPORT_LIST_PANEL_ATTRIBUTE_KEYS,
@@ -32,14 +37,16 @@ import {
 } from "../lib/report-date-params";
 import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
 import {
+  getCategoryLabel,
+  getRegionLabel,
+  getReportTierLabel,
+  getReportTypeLabel,
+} from "../i18n/labels";
+import {
   REPORT_CATEGORIES,
-  REPORT_CATEGORY_LABELS_KO,
   REPORT_REGIONS,
-  REPORT_REGION_LABELS_KO,
   REPORT_TIERS,
-  REPORT_TIER_LABELS_KO,
   REPORT_TYPES,
-  REPORT_TYPE_LABELS_KO,
 } from "../constants";
 
 type FilterPanelTab = "attributes" | "period";
@@ -60,18 +67,13 @@ type ReportFilterPanelProps = {
   };
 };
 
-/**
- * Left-rail filter panel for the list screen.
- *
- * Mixes Nex primitives (`NexInput`, `NexButton`) with shadcn's `Select` and
- * `Label` — these have no Nex equivalent today, so we keep them but style
- * the panel container with semantic tokens so it adapts to warm/dark themes.
- */
 export function ReportFilterPanel({
   className,
   facets,
   availableYears = [],
 }: ReportFilterPanelProps) {
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
   const { searchParams, setFilterParam, resetAllParams } =
     useItemReportsSearchParams();
   const [q, setQ] = useState(
@@ -121,23 +123,26 @@ export function ReportFilterPanel({
 
   const langOptions = Object.keys(facets?.languages ?? {}).sort();
 
+  const facetSuffix = (count?: number) =>
+    count ? ` (${count})` : "";
+
   return (
     <aside
       className={cn(
         "border-border bg-card/60 flex flex-col gap-5 rounded-xl border p-5",
         className,
       )}
-      aria-label="리포트 필터"
+      aria-label={ui.filter.panelAria}
     >
       <form onSubmit={submitSearch} className="space-y-2">
         <Label htmlFor="report-search" className="text-xs font-medium">
-          검색
+          {ui.filter.searchLabel}
         </Label>
         <NexInput
           id="report-search"
           value={q}
           onChange={(event) => setQ(event.target.value)}
-          placeholder="제목 또는 요약 검색"
+          placeholder={ui.filter.searchPlaceholder}
           leftIcon={<SearchIcon className="size-4 opacity-70" />}
           inputSize="sm"
         />
@@ -150,9 +155,14 @@ export function ReportFilterPanel({
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="attributes" className="gap-1.5 text-xs">
-            속성
+            {ui.filter.attributesTab}
             {attributeFilterCount > 0 ? (
-              <FilterTabBadge count={attributeFilterCount} />
+              <FilterTabBadge
+                count={attributeFilterCount}
+                ariaLabel={formatItemReportsCopy(ui.filter.appliedBadgeAria, {
+                  count: attributeFilterCount,
+                })}
+              />
             ) : null}
           </TabsTrigger>
           <TabsTrigger
@@ -160,88 +170,93 @@ export function ReportFilterPanel({
             className="gap-1.5 text-xs"
             disabled={availableYears.length === 0}
           >
-            기간
+            {ui.filter.periodTab}
             {dateFilterCount > 0 ? (
-              <FilterTabBadge count={dateFilterCount} />
+              <FilterTabBadge
+                count={dateFilterCount}
+                ariaLabel={formatItemReportsCopy(ui.filter.appliedBadgeAria, {
+                  count: dateFilterCount,
+                })}
+              />
             ) : null}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="attributes" className="mt-0 flex flex-col gap-5">
           <FilterSelect
-            label="카테고리"
+            label={ui.filter.categoryLabel}
             value={selectedCategory}
             onChange={(value) =>
               setFilterParam(REPORT_LIST_PARAM.category, value)
             }
             options={[
-              { value: FILTER_SELECT_ALL_VALUE, label: "전체 카테고리" },
+              { value: FILTER_SELECT_ALL_VALUE, label: ui.filter.allCategories },
               ...REPORT_CATEGORIES.map((category) => ({
                 value: category,
-                label: `${REPORT_CATEGORY_LABELS_KO[category]}${facets?.categories[category] ? ` (${facets.categories[category]})` : ""}`,
+                label: `${getCategoryLabel(category, locale)}${facetSuffix(facets?.categories[category])}`,
               })),
             ]}
           />
 
           <FilterSelect
-            label="리포트 유형"
+            label={ui.filter.typeLabel}
             value={selectedType}
             onChange={(value) =>
               setFilterParam(REPORT_LIST_PARAM.reportType, value)
             }
             options={[
-              { value: FILTER_SELECT_ALL_VALUE, label: "전체 유형" },
+              { value: FILTER_SELECT_ALL_VALUE, label: ui.filter.allTypes },
               ...REPORT_TYPES.map((type) => ({
                 value: type,
-                label: `${REPORT_TYPE_LABELS_KO[type]}${facets?.reportTypes[type] ? ` (${facets.reportTypes[type]})` : ""}`,
+                label: `${getReportTypeLabel(type, locale)}${facetSuffix(facets?.reportTypes[type])}`,
               })),
             ]}
           />
 
           <FilterSelect
-            label="등급"
+            label={ui.filter.tierLabel}
             value={selectedTier}
             onChange={(value) =>
               setFilterParam(REPORT_LIST_PARAM.reportTier, value)
             }
             options={[
-              { value: FILTER_SELECT_ALL_VALUE, label: "전체 등급" },
+              { value: FILTER_SELECT_ALL_VALUE, label: ui.filter.allTiers },
               ...REPORT_TIERS.map((tier) => ({
                 value: tier,
-                label: `${REPORT_TIER_LABELS_KO[tier]}${facets?.reportTiers[tier] ? ` (${facets.reportTiers[tier]})` : ""}`,
+                label: `${getReportTierLabel(tier, locale)}${facetSuffix(facets?.reportTiers[tier])}`,
               })),
             ]}
           />
 
           <FilterSelect
-            label="지역"
+            label={ui.filter.regionLabel}
             value={selectedRegion}
             onChange={(value) =>
               setFilterParam(REPORT_LIST_PARAM.region, value)
             }
             options={[
-              { value: FILTER_SELECT_ALL_VALUE, label: "전체 지역" },
+              { value: FILTER_SELECT_ALL_VALUE, label: ui.filter.allRegions },
               ...REPORT_REGIONS.filter(
                 (region) => !facets || (facets.regions[region] ?? 0) > 0,
               ).map((region) => ({
                 value: region,
-                label: `${REPORT_REGION_LABELS_KO[region] ?? region}${facets?.regions[region] ? ` (${facets.regions[region]})` : ""}`,
+                label: `${getRegionLabel(region, locale)}${facetSuffix(facets?.regions[region])}`,
               })),
             ]}
           />
 
           {langOptions.length > 1 ? (
             <FilterSelect
-              label="언어"
+              label={ui.filter.languageLabel}
               value={selectedLang}
               onChange={(value) =>
                 setFilterParam(REPORT_LIST_PARAM.lang, value)
               }
               options={[
-                { value: FILTER_SELECT_ALL_VALUE, label: "전체 언어" },
+                { value: FILTER_SELECT_ALL_VALUE, label: ui.filter.allLanguages },
                 ...langOptions.map((lang) => ({
                   value: lang,
-                  label: `${lang.toUpperCase()}${facets?.languages[lang] ? ` (${facets.languages[lang]})` : ""}`,
+                  label: `${lang.toUpperCase()}${facetSuffix(facets?.languages[lang])}`,
                 })),
               ]}
             />
@@ -250,13 +265,10 @@ export function ReportFilterPanel({
 
         <TabsContent value="period" className="mt-0">
           {availableYears.length > 0 ? (
-            <ReportDateFilter
-              availableYears={availableYears}
-              hideTitle
-            />
+            <ReportDateFilter availableYears={availableYears} hideTitle />
           ) : (
             <p className="text-muted-foreground text-xs">
-              기간 필터를 사용할 리포트가 아직 없습니다.
+              {ui.filter.noPeriodReports}
             </p>
           )}
         </TabsContent>
@@ -271,7 +283,7 @@ export function ReportFilterPanel({
           leftIcon={<XIcon className="size-4" />}
           className="justify-start"
         >
-          필터 초기화
+          {ui.filter.resetFilters}
         </NexButton>
       ) : null}
     </aside>
@@ -285,11 +297,17 @@ type FilterSelectProps = {
   options: { value: string; label: string }[];
 };
 
-function FilterTabBadge({ count }: { count: number }) {
+function FilterTabBadge({
+  count,
+  ariaLabel,
+}: {
+  count: number;
+  ariaLabel: string;
+}) {
   return (
     <span
       className="bg-primary text-primary-foreground inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-medium tabular-nums"
-      aria-label={`${count}개 적용됨`}
+      aria-label={ariaLabel}
     >
       {count}
     </span>

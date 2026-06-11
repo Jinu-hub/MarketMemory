@@ -21,6 +21,7 @@
 import { cn } from "~/core/lib/utils";
 import { NexBadge } from "~/core/components/nex";
 
+import { useItemReportsLocale, useItemReportsUi, formatItemReportsCopy } from "../i18n";
 import { getTierStyle } from "../lib/tier-style";
 
 type ReportTierBadgeProps = {
@@ -41,10 +42,12 @@ export function ReportTierBadge({
   showFree = false,
   className,
 }: ReportTierBadgeProps) {
+  const locale = useItemReportsLocale();
+  const ui = useItemReportsUi();
   if (!tier) return null;
   if (tier === "free" && !showFree) return null;
 
-  const style = getTierStyle(tier);
+  const style = getTierStyle(tier, locale);
   const Icon = style.icon;
   const label = variant === "short" ? style.shortLabel : style.label;
 
@@ -53,7 +56,9 @@ export function ReportTierBadge({
       variant={style.badgeVariant}
       size="sm"
       className={cn(style.badgeClassName, className)}
-      aria-label={`${style.label} 등급 리포트`}
+      aria-label={formatItemReportsCopy(ui.meta.tierFilterAria, {
+        tier: style.label,
+      })}
     >
       <Icon className={cn("size-3", iconOnly ? "" : "mr-1")} aria-hidden />
       {iconOnly ? null : label}

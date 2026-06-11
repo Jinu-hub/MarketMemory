@@ -1,20 +1,15 @@
 import type { Database } from "database.types";
 
+import { getSimilarityLabel as getSimilarityLabelI18n } from "../i18n/labels";
+
 export type SimilarityLevel =
   Database["public"]["Enums"]["similarity_level"];
 
-const SIMILARITY_LABEL: Record<SimilarityLevel, string> = {
-  strong: "Strong",
-  high: "High",
-  medium: "Medium",
-  weak: "Weak",
-};
-
 export function getSimilarityLabel(
   level: SimilarityLevel | null | undefined,
+  locale?: string | null,
 ): string | null {
-  if (!level) return null;
-  return SIMILARITY_LABEL[level] ?? null;
+  return getSimilarityLabelI18n(level, locale);
 }
 
 /** Tailwind classes for related-report similarity NexBadge (light / dark / warm). */

@@ -4,6 +4,8 @@ import { Link } from "react-router";
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import { formatCount, useItemReportsUi } from "../i18n";
+
 type ExploreFacetLinkCardProps = {
   to: string;
   ariaLabel: string;
@@ -20,9 +22,6 @@ const cardClassName = cn(
   "hover:-translate-y-0.5 hover:shadow-md",
 );
 
-/**
- * Explore hub — large navigational card linking to a filtered list view.
- */
 export function ExploreFacetLinkCard({
   to,
   ariaLabel,
@@ -32,6 +31,7 @@ export function ExploreFacetLinkCard({
   description,
   variant = "default",
 }: ExploreFacetLinkCardProps) {
+  const ui = useItemReportsUi();
   const isTag = variant === "tag";
 
   return (
@@ -61,14 +61,14 @@ export function ExploreFacetLinkCard({
           </span>
         </div>
         <NexBadge variant="outline" size="sm" className="shrink-0">
-          {count}건
+          {formatCount(count)}
         </NexBadge>
       </div>
       <p className="text-muted-foreground flex-1 text-xs leading-relaxed">
         {description}
       </p>
       <span className="text-primary inline-flex items-center gap-1 text-xs font-medium">
-        목록 열기
+        {ui.common.openList}
         <ArrowRightIcon
           className="size-3.5 transition-transform group-hover:translate-x-0.5"
           aria-hidden

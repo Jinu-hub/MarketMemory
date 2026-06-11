@@ -3,6 +3,10 @@ import { Link } from "react-router";
 
 import { NexBadge } from "~/core/components/nex";
 
+import {
+  formatItemReportsCopy,
+  useItemReportsUi,
+} from "../i18n";
 import type { PeriodMonthFacet, PeriodYearFacet, ReportListItem } from "../types";
 import { ExploreFacetLinkCard } from "./explore-facet-link-card";
 import { ReportCard } from "./report-card";
@@ -19,30 +23,23 @@ type ExplorePeriodPanelProps = {
   highlights: ReportListItem[];
 };
 
-/**
- * Explore hub — period tab (years → months drill-down, shared date filter URLs).
- */
 export function ExplorePeriodPanel({
   yearFacets,
   selectedYear,
   monthFacets,
   highlights,
 }: ExplorePeriodPanelProps) {
+  const ui = useItemReportsUi();
+  const copy = ui.explorePeriod;
+
   if (yearFacets.length === 0) {
-    return (
-      <p className="text-muted-foreground text-sm">
-        기간별로 탐색할 리포트가 아직 없습니다.
-      </p>
-    );
+    return <p className="text-muted-foreground text-sm">{copy.empty}</p>;
   }
 
   if (selectedYear === null) {
     return (
       <div className="space-y-4">
-        <TabScopeIntro
-          title="연도별 바로가기"
-          description="연도를 고르면 월별 미리보기와 목록 필터로 이어집니다. 날짜 기준은 market_date(없으면 created_at)입니다."
-        />
+        <TabScopeIntro title={copy.yearTitle} description={copy.yearDescription} />
         <ul
           className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
           role="list"
@@ -53,11 +50,11 @@ export function ExplorePeriodPanel({
                 to={itemReportsExploreHref({
                   [REPORT_DATE_PARAM_KEYS.year]: year,
                 })}
-                ariaLabel={`${year}년 리포트 월별 탐색`}
+                ariaLabel={formatItemReportsCopy(copy.yearExploreAria, { year })}
                 icon={<CalendarIcon className="size-4" aria-hidden />}
-                title={`${year}년`}
+                title={formatItemReportsCopy(copy.yearLabel, { year })}
                 count={count}
-                description="이 해의 월별 분포와 대표 리포트를 봅니다."
+                description={copy.yearCardDescription}
               />
             </li>
           ))}
@@ -74,22 +71,17 @@ export function ExplorePeriodPanel({
           className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
         >
           <ArrowLeftIcon className="size-3.5" aria-hidden />
-          전체 연도
+          {copy.allYears}
         </Link>
         <NexBadge variant="outline" size="sm">
-          {selectedYear}년
+          {formatItemReportsCopy(copy.yearLabel, { year: selectedYear })}
         </NexBadge>
       </div>
 
       <section className="space-y-4">
-        <TabScopeIntro
-          title="월별 바로가기"
-          description="월을 선택하면 해당 기간 리포트 목록으로 이동합니다."
-        />
+        <TabScopeIntro title={copy.monthTitle} description={copy.monthDescription} />
         {monthFacets.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            이 연도에 해당하는 리포트가 없습니다.
-          </p>
+          <p className="text-muted-foreground text-sm">{copy.noReportsInYear}</p>
         ) : (
           <ul
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
@@ -102,11 +94,17 @@ export function ExplorePeriodPanel({
                     [REPORT_DATE_PARAM_KEYS.year]: selectedYear,
                     [REPORT_DATE_PARAM_KEYS.month]: month,
                   })}
-                  ariaLabel={`${selectedYear}년 ${month}월 리포트 목록`}
+                  ariaLabel={formatItemReportsCopy(copy.monthListAria, {
+                    year: selectedYear,
+                    month,
+                  })}
                   icon={<CalendarIcon className="size-4" aria-hidden />}
-                  title={`${month}월`}
+                  title={formatItemReportsCopy(copy.monthLabel, { month })}
                   count={count}
-                  description={`${selectedYear}년 ${month}월에 발행·게시된 리포트`}
+                  description={formatItemReportsCopy(copy.monthCardDescription, {
+                    year: selectedYear,
+                    month,
+                  })}
                 />
               </li>
             ))}
@@ -118,7 +116,7 @@ export function ExplorePeriodPanel({
         <section className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h4 className="text-base font-semibold tracking-tight md:text-lg">
-              {selectedYear}년 최근 리포트
+              {formatItemReportsCopy(copy.recentTitle, { year: selectedYear })}
             </h4>
             <Link
               to={itemReportsListHref({
@@ -126,7 +124,7 @@ export function ExplorePeriodPanel({
               })}
               className="text-primary hover:text-primary/80 inline-flex items-center gap-1 text-sm font-medium"
             >
-              {selectedYear}년 전체 보기
+              {formatItemReportsCopy(copy.yearViewAll, { year: selectedYear })}
               <ArrowRightIcon className="size-3.5" />
             </Link>
           </div>

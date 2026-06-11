@@ -10,6 +10,11 @@ import { Link } from "react-router";
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import {
+  formatItemReportsCopy,
+  useItemReportsLocale,
+  useItemReportsUi,
+} from "../i18n";
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion, formatReportType } from "../lib/labels";
@@ -42,14 +47,17 @@ export function FeaturedReportBlock({
   report,
   className,
   detailHref = itemReportsDetailHref,
-  footnote = "이 리포트는 현재 공개된 가장 최근의 AI 리서치 콘텐츠입니다.",
+  footnote,
   listLinkState,
 }: FeaturedReportBlockProps) {
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
-  const date = resolveDisplayDate(report);
+  const date = resolveDisplayDate(report, locale);
   const primaryRegion = report.regions?.[0];
   const primaryCountry = report.countries?.[0];
-  const style = getCategoryStyle(report.category);
+  const style = getCategoryStyle(report.category, locale);
+  const resolvedFootnote = footnote ?? ui.featured.footnote;
   const CategoryIcon = style.icon;
   const topTags = (report.tags ?? []).slice(0, 4);
 
@@ -74,7 +82,7 @@ export function FeaturedReportBlock({
             showReportType={false}
             leading={
               <NexBadge variant="secondary" size="sm">
-                Featured
+                {ui.common.featured}
               </NexBadge>
             }
           />
@@ -86,7 +94,7 @@ export function FeaturedReportBlock({
               viewTransition
               className="hover:text-primary transition-colors"
             >
-              {report.title ?? "Untitled report"}
+              {report.title ?? ui.common.untitledReport}
             </Link>
           </h2>
 
@@ -102,9 +110,11 @@ export function FeaturedReportBlock({
               state={listLinkState}
               viewTransition
               className="bg-primary text-primary-foreground ring-primary/30 hover:bg-primary/90 focus-visible:ring-primary/50 inline-flex min-w-44 items-center justify-center gap-2 rounded-lg px-7 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2"
-              aria-label={`${report.title ?? "리포트"} 읽기`}
+              aria-label={formatItemReportsCopy(ui.featured.readReportAria, {
+                title: report.title ?? ui.common.untitled,
+              })}
             >
-              리포트 읽기
+              {ui.featured.readReport}
               <ArrowRightIcon className="size-4" />
             </Link>
           </div>
@@ -120,7 +130,7 @@ export function FeaturedReportBlock({
             {date ? (
               <div>
                 <dt className="text-muted-foreground mb-1 text-[11px] tracking-wider uppercase">
-                  발행일
+                  {ui.featured.publishedAt}
                 </dt>
                 <dd className="flex items-center gap-2">
                   <CalendarIcon className="text-muted-foreground size-4" />
@@ -131,7 +141,7 @@ export function FeaturedReportBlock({
 
             <div>
               <dt className="text-muted-foreground mb-1 text-[11px] tracking-wider uppercase">
-                카테고리
+                {ui.featured.category}
               </dt>
               <dd className="flex items-center gap-2">
                 <CategoryIcon className={cn("size-4", style.accentText)} />
@@ -142,7 +152,7 @@ export function FeaturedReportBlock({
             {report.report_type ? (
               <div>
                 <dt className="text-muted-foreground mb-1 text-[11px] tracking-wider uppercase">
-                  유형
+                  {ui.featured.type}
                 </dt>
                 <dd>
                   <Link
@@ -150,7 +160,7 @@ export function FeaturedReportBlock({
                     className="inline-flex items-center gap-2 font-medium underline-offset-4 hover:underline"
                   >
                     <HashIcon className="text-muted-foreground size-4" />
-                    {formatReportType(report.report_type)}
+                    {formatReportType(report.report_type, locale)}
                   </Link>
                 </dd>
               </div>
@@ -159,11 +169,13 @@ export function FeaturedReportBlock({
             {primaryRegion ? (
               <div>
                 <dt className="text-muted-foreground mb-1 text-[11px] tracking-wider uppercase">
-                  지역
+                  {ui.featured.region}
                 </dt>
                 <dd className="flex items-center gap-2">
                   <MapPinIcon className="text-muted-foreground size-4" />
-                  <span className="font-medium">{formatRegion(primaryRegion)}</span>
+                  <span className="font-medium">
+                    {formatRegion(primaryRegion, locale)}
+                  </span>
                 </dd>
               </div>
             ) : null}
@@ -171,7 +183,7 @@ export function FeaturedReportBlock({
             {primaryCountry ? (
               <div>
                 <dt className="text-muted-foreground mb-1 text-[11px] tracking-wider uppercase">
-                  국가
+                  {ui.featured.country}
                 </dt>
                 <dd className="flex items-center gap-2">
                   <GlobeIcon className="text-muted-foreground size-4" />
@@ -183,7 +195,7 @@ export function FeaturedReportBlock({
             {topTags.length > 0 ? (
               <div>
                 <dt className="text-muted-foreground mb-1 text-[11px] tracking-wider uppercase">
-                  태그
+                  {ui.featured.tags}
                 </dt>
                 <dd className="flex flex-wrap gap-1.5">
                   {topTags.map((tag) => (
@@ -201,7 +213,7 @@ export function FeaturedReportBlock({
           </dl>
 
           <div className="text-muted-foreground text-[11px] leading-5">
-            {footnote}
+            {resolvedFootnote}
           </div>
         </div>
       </div>

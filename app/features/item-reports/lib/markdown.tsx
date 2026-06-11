@@ -24,6 +24,7 @@ import remarkGfm from "remark-gfm";
 
 import { cn } from "~/core/lib/utils";
 
+import { useItemReportsLocale } from "../i18n";
 import { getCategoryStyle } from "./category-style";
 
 type ReportMarkdownProps = {
@@ -161,8 +162,9 @@ export function ReportMarkdown({
   category,
   className,
 }: ReportMarkdownProps) {
+  const locale = useItemReportsLocale();
   if (!children) return null;
-  const style = getCategoryStyle(category);
+  const style = getCategoryStyle(category, locale);
   const CategoryIcon = style.icon;
 
   const components: Components = {

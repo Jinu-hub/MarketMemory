@@ -13,6 +13,11 @@ import { Link } from "react-router";
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import {
+  formatItemReportsCopy,
+  useItemReportsLocale,
+  useItemReportsUi,
+} from "../i18n";
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion, formatReportType } from "../lib/labels";
@@ -26,16 +31,13 @@ type ReportMetaSidebarProps = {
   className?: string;
 };
 
-/**
- * Right-rail metadata sidebar for the report detail view.
- * Uses the same category-accent system as the cards so the whole page reads
- * as a coherent editorial unit, not a collection of disparate panels.
- */
 export function ReportMetaSidebar({
   report,
   className,
 }: ReportMetaSidebarProps) {
-  const style = getCategoryStyle(report.category);
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
+  const style = getCategoryStyle(report.category, locale);
   const CategoryIcon = style.icon;
 
   const rows: Array<{
@@ -46,14 +48,14 @@ export function ReportMetaSidebar({
 
   rows.push({
     icon: <CalendarIcon className="size-4" />,
-    label: "발행",
-    content: resolveDisplayDate(report) || "—",
+    label: ui.meta.published,
+    content: resolveDisplayDate(report, locale) || "—",
   });
 
   if (report.category) {
     rows.push({
       icon: <LayersIcon className="size-4" />,
-      label: "카테고리",
+      label: ui.meta.category,
       content: (
         <Link
           to={itemReportsListHref({ category: report.category })}
@@ -69,28 +71,30 @@ export function ReportMetaSidebar({
   if (report.report_type) {
     rows.push({
       icon: <HashIcon className="size-4" />,
-      label: "유형",
+      label: ui.meta.type,
       content: (
         <Link
           to={itemReportsListHref({ report_type: report.report_type })}
           className="hover:text-primary underline-offset-4 hover:underline"
         >
-          {formatReportType(report.report_type)}
+          {formatReportType(report.report_type, locale)}
         </Link>
       ),
     });
   }
 
   if (report.report_tier) {
-    const tierStyle = getTierStyle(report.report_tier);
+    const tierStyle = getTierStyle(report.report_tier, locale);
     rows.push({
       icon: <ShieldCheckIcon className={cn("size-4", tierStyle.accentText)} />,
-      label: "등급",
+      label: ui.meta.tier,
       content: (
         <Link
           to={itemReportsListHref({ report_tier: report.report_tier })}
           className="inline-flex items-center underline-offset-4 hover:underline"
-          aria-label={`${tierStyle.label} 등급 리포트만 보기`}
+          aria-label={formatItemReportsCopy(ui.meta.tierFilterAria, {
+            tier: tierStyle.label,
+          })}
         >
           <ReportTierBadge tier={report.report_tier} showFree />
         </Link>
@@ -101,7 +105,7 @@ export function ReportMetaSidebar({
   if ((report.regions?.length ?? 0) > 0) {
     rows.push({
       icon: <MapPinIcon className="size-4" />,
-      label: "지역",
+      label: ui.meta.region,
       content: (
         <div className="flex flex-wrap gap-1.5">
           {report.regions!.map((region) => (
@@ -110,7 +114,7 @@ export function ReportMetaSidebar({
               to={itemReportsListHref({ region })}
               className="hover:border-primary/40 bg-background border-border rounded-md border px-2 py-0.5 text-xs transition-colors"
             >
-              {formatRegion(region)}
+              {formatRegion(region, locale)}
             </Link>
           ))}
         </div>
@@ -121,7 +125,7 @@ export function ReportMetaSidebar({
   if ((report.countries?.length ?? 0) > 0) {
     rows.push({
       icon: <GlobeIcon className="size-4" />,
-      label: "국가",
+      label: ui.meta.country,
       content: (
         <div className="flex flex-wrap gap-1.5">
           {report.countries!.map((country) => (
@@ -141,7 +145,7 @@ export function ReportMetaSidebar({
   if (report.lang_code) {
     rows.push({
       icon: <LanguagesIcon className="size-4" />,
-      label: "언어",
+      label: ui.meta.language,
       content: (
         <NexBadge variant="outline" size="sm">
           {report.lang_code.toUpperCase()}
@@ -160,7 +164,7 @@ export function ReportMetaSidebar({
     >
       <div className="flex items-center gap-2">
         <CategoryIcon className={cn("size-4", style.accentText)} />
-        <h3 className="text-sm font-semibold tracking-tight">리포트 정보</h3>
+        <h3 className="text-sm font-semibold tracking-tight">{ui.meta.title}</h3>
       </div>
       <dl className="space-y-3 text-sm">
         {rows.map((row) => (
@@ -178,7 +182,7 @@ export function ReportMetaSidebar({
         <div className="border-border/60 space-y-2 border-t pt-4">
           <div className="text-muted-foreground inline-flex items-center gap-1.5 text-xs tracking-wide uppercase">
             <TagIcon className="size-3" aria-hidden />
-            태그
+            {ui.meta.tags}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {report.tags!.map((tag) => (

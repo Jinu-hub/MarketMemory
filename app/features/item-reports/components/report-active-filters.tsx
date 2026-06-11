@@ -2,6 +2,10 @@ import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import {
+  useItemReportsLocale,
+  useItemReportsUi,
+} from "../i18n";
+import {
   REPORT_LIST_CHIP_PARAM_KEYS,
   type ReportListChipParamKey,
 } from "../lib/filter-keys";
@@ -15,27 +19,20 @@ import { formatReportDateChipLabel } from "../lib/report-date-filter";
 import { parseReportDateFilter } from "../lib/report-date-params";
 import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
 
-const CHIP_LABELS: Record<ReportListChipParamKey, string> = {
-  category: "카테고리",
-  report_type: "유형",
-  report_tier: "등급",
-  region: "지역",
-  country: "국가",
-  tag: "태그",
-  lang: "언어",
-  q: "검색",
-};
-
-function renderChipValue(key: ReportListChipParamKey, value: string): string {
+function renderChipValue(
+  key: ReportListChipParamKey,
+  value: string,
+  locale: string,
+): string {
   switch (key) {
     case "category":
-      return formatCategory(value);
+      return formatCategory(value, locale);
     case "report_type":
-      return formatReportType(value);
+      return formatReportType(value, locale);
     case "report_tier":
-      return formatReportTier(value);
+      return formatReportTier(value, locale);
     case "region":
-      return formatRegion(value);
+      return formatRegion(value, locale);
     case "lang":
       return value.toUpperCase();
     case "tag":
@@ -47,12 +44,9 @@ function renderChipValue(key: ReportListChipParamKey, value: string): string {
 
 type Props = { className?: string };
 
-/**
- * Renders the currently active filters as removable badges above the report
- * grid. Uses NexBadge removable semantics so the whole chip row reads as a
- * single filter state — not as generic UI decoration.
- */
 export function ReportActiveFilters({ className }: Props) {
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
   const { searchParams, removeFilterParam, clearDateFilterParams } =
     useItemReportsSearchParams();
 
@@ -63,13 +57,14 @@ export function ReportActiveFilters({ className }: Props) {
 
   const dateLabel = formatReportDateChipLabel(
     parseReportDateFilter(searchParams),
+    locale,
   );
 
   if (chips.length === 0 && !dateLabel) return null;
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      <span className="text-muted-foreground text-xs">적용된 필터</span>
+      <span className="text-muted-foreground text-xs">{ui.filter.activeFilters}</span>
       {dateLabel ? (
         <NexBadge
           variant="secondary"
@@ -77,7 +72,7 @@ export function ReportActiveFilters({ className }: Props) {
           removable
           onRemove={clearDateFilterParams}
         >
-          <span className="text-muted-foreground mr-1">기간</span>
+          <span className="text-muted-foreground mr-1">{ui.filter.periodChip}</span>
           <span className="font-medium">{dateLabel}</span>
         </NexBadge>
       ) : null}
@@ -89,8 +84,8 @@ export function ReportActiveFilters({ className }: Props) {
           removable
           onRemove={() => removeFilterParam(key)}
         >
-          <span className="text-muted-foreground mr-1">{CHIP_LABELS[key]}</span>
-          <span className="font-medium">{renderChipValue(key, value)}</span>
+          <span className="text-muted-foreground mr-1">{ui.filter.chips[key]}</span>
+          <span className="font-medium">{renderChipValue(key, value, locale)}</span>
         </NexBadge>
       ))}
     </div>

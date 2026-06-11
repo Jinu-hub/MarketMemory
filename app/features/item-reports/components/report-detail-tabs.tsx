@@ -1,25 +1,3 @@
-/**
- * Detail-screen disclosure block.
- *
- * Inspired by the `content-showcase` "Read Detailed Analysis" pattern, but
- * upgraded for production reading: a full-width disclosure trigger reveals
- * the heavyweight body — the markdown report (`리포트`) and SNS briefing
- * (`브리핑`) tabs — directly below it. Built on Radix `Collapsible` so the
- * height transition is smooth in both directions (no snap-close).
- *
- * UX details:
- *   - chevron rotates 180° instead of swapping icons (less visual noise)
- *   - the trigger is the entire row so the touch target is generous
- *   - a one-line subtitle clarifies what's behind the toggle
- *   - admin viewers (profiles.is_admin === true) get a "복사" button next to
- *     the tab list that copies the **currently active** tab's source text
- *     (raw markdown for `리포트`, SNS body for `브리핑`) to the clipboard.
- *     The button is intentionally omitted for non-admin readers so the
- *     editorial reading experience stays uncluttered.
- *   - when the admin copy affordance is active, tab body text cannot be
- *     selected or copied via drag / Ctrl+C — only the dedicated CopyButton
- *     writes to the clipboard (casual copy friction, not DRM).
- */
 import { ChevronDownIcon } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
@@ -37,6 +15,7 @@ import {
 } from "~/core/components/ui/tabs";
 import { cn } from "~/core/lib/utils";
 
+import { useItemReportsUi } from "../i18n";
 import { ReportMarkdown } from "../lib/markdown";
 import { ShareSummaryBlock } from "./reading-layout";
 
@@ -44,17 +23,11 @@ type ReportDetailTabsProps = {
   content?: string | null;
   contentSns?: string | null;
   category?: string | null;
-  /**
-   * When true, an inline "복사" button appears next to the tab list that
-   * copies the active tab's source text to the clipboard. Drive this from
-   * the detail loader using `profiles.is_admin`.
-   */
   isAdmin?: boolean;
 };
 
 type TabValue = "content" | "share";
 
-/** Blocks drag-select and clipboard shortcuts inside tab bodies when admin copy is on. */
 function AdminCopyGuard({
   enabled,
   children,
@@ -88,11 +61,13 @@ export function ReportDetailTabs({
   category,
   isAdmin = false,
 }: ReportDetailTabsProps) {
+  const ui = useItemReportsUi();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("content");
 
   const activeText = activeTab === "share" ? contentSns : content;
   const canCopy = isAdmin && Boolean(activeText);
+  const briefingSuffix = contentSns ? ui.detailTabs.briefingSuffix : "";
 
   return (
     <Collapsible
@@ -122,10 +97,10 @@ export function ReportDetailTabs({
         </span>
         <span className="flex min-w-0 flex-col">
           <span className="text-foreground text-base font-semibold">
-            {open ? "접기" : "자세히 보기"}
+            {open ? ui.detailTabs.collapse : ui.detailTabs.expand}
           </span>
           <span className="text-muted-foreground text-xs font-normal">
-            리포트 본문{contentSns ? "과 SNS 브리핑" : ""} 살펴보기
+            {ui.detailTabs.subtitle.replace("{briefing}", briefingSuffix)}
           </span>
         </span>
       </CollapsibleTrigger>
@@ -142,19 +117,17 @@ export function ReportDetailTabs({
             onValueChange={(v) => setActiveTab(v as TabValue)}
           >
             <div className="flex items-end justify-between gap-3">
-              <TabsList variant="line" aria-label="리포트 보기 모드">
-                <TabsTrigger value="content">리포트</TabsTrigger>
+              <TabsList variant="line" aria-label={ui.detailTabs.tabsAria}>
+                <TabsTrigger value="content">{ui.detailTabs.reportTab}</TabsTrigger>
                 {contentSns ? (
-                  <TabsTrigger value="share">브리핑</TabsTrigger>
+                  <TabsTrigger value="share">{ui.detailTabs.briefingTab}</TabsTrigger>
                 ) : null}
               </TabsList>
               {canCopy ? (
                 <CopyButton
                   text={activeText ?? ""}
-                  label={activeTab === "share" ? "Copy" : "Copy"}
-                  aria-label={`${
-                    activeTab === "share" ? "Copy" : "Copy"
-                  } (관리자 전용)`}
+                  label={ui.common.copy}
+                  aria-label={ui.common.copyAdminOnly}
                   className="cursor-pointer"
                 />
               ) : null}
@@ -162,7 +135,7 @@ export function ReportDetailTabs({
             <AdminCopyGuard enabled={canCopy}>
               <TabsContent
                 value="content"
-                aria-label="본문"
+                aria-label={ui.detailTabs.bodyAria}
                 className="space-y-4 pt-6"
               >
                 <ReportMarkdown category={category}>{content}</ReportMarkdown>
@@ -181,4 +154,3 @@ export function ReportDetailTabs({
     </Collapsible>
   );
 }
-

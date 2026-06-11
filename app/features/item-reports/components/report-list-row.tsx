@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { cn } from "~/core/lib/utils";
 import { NexBadge } from "~/core/components/nex";
 
+import { useItemReportsLocale, useItemReportsUi } from "../i18n";
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
@@ -49,14 +50,16 @@ export function ReportListRow(props: ReportListRowProps) {
     listLinkState,
     className,
   } = props;
-  const style = getCategoryStyle(report.category);
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
+  const style = getCategoryStyle(report.category, locale);
   const CategoryIcon = style.icon;
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
-  const date = resolveDisplayDate(report);
-  const title = report.title ?? "Untitled";
+  const date = resolveDisplayDate(report, locale);
+  const title = report.title ?? ui.common.untitled;
 
   if (props.layout === "related") {
-    const similarityLabel = getSimilarityLabel(props.similarityLevel);
+    const similarityLabel = getSimilarityLabel(props.similarityLevel, locale);
 
     return (
       <Link

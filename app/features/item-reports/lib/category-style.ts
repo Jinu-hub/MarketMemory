@@ -6,7 +6,7 @@
  *  - a matching NexBadge variant (so color language stays consistent)
  *  - a lucide icon (adds a second, non-color signal per rule §15)
  *
- * Display labels come from `REPORT_CATEGORY_LABELS_KO` so copy stays in one place.
+ * Display labels come from `~/features/item-reports/i18n` so copy stays in one place.
  *
  * All classes are chosen to look correct in light, dark, and warm themes.
  */
@@ -24,10 +24,8 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 
-import {
-  REPORT_CATEGORY_LABELS_KO,
-  type ReportCategory,
-} from "../constants";
+import type { ReportCategory } from "../constants";
+import { getCategoryLabel } from "../i18n/labels";
 
 import type { NexBadgeVariant } from "~/core/lib/semantic-style";
 
@@ -44,7 +42,7 @@ export type CategoryStyle = {
   icon: LucideIcon;
 };
 
-/** Visual-only fields; labels are merged from `REPORT_CATEGORY_LABELS_KO`. */
+/** Visual-only fields; labels are merged from i18n at runtime. */
 type CategoryVisual = Omit<CategoryStyle, "label">;
 
 const CATEGORY_VISUAL: Record<ReportCategory, CategoryVisual> = {
@@ -120,29 +118,34 @@ const CATEGORY_VISUAL: Record<ReportCategory, CategoryVisual> = {
   },
 };
 
-/** Fallback style when a report's category is null or unrecognised. */
-const FALLBACK_STYLE: CategoryStyle = {
-  label: "리포트",
-  accentBorder: "border-l-border",
-  accentBg: "bg-muted/30",
-  accentText: "text-muted-foreground",
-  badgeVariant: "outline",
-  icon: BookOpenIcon,
-};
+function fallbackStyle(locale?: string | null): CategoryStyle {
+  return {
+    label: getCategoryLabel("unknown", locale),
+    accentBorder: "border-l-border",
+    accentBg: "bg-muted/30",
+    accentText: "text-muted-foreground",
+    badgeVariant: "outline",
+    icon: BookOpenIcon,
+  };
+}
 
-function styleForCategory(category: ReportCategory): CategoryStyle {
+function styleForCategory(
+  category: ReportCategory,
+  locale?: string | null,
+): CategoryStyle {
   const visual = CATEGORY_VISUAL[category];
   return {
     ...visual,
-    label: REPORT_CATEGORY_LABELS_KO[category],
+    label: getCategoryLabel(category, locale),
   };
 }
 
 export function getCategoryStyle(
   category: string | null | undefined,
+  locale?: string | null,
 ): CategoryStyle {
-  if (!category) return FALLBACK_STYLE;
+  if (!category) return fallbackStyle(locale);
   const key = category as ReportCategory;
-  if (!(key in CATEGORY_VISUAL)) return FALLBACK_STYLE;
-  return styleForCategory(key);
+  if (!(key in CATEGORY_VISUAL)) return fallbackStyle(locale);
+  return styleForCategory(key, locale);
 }

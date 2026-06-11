@@ -1,15 +1,5 @@
 /**
  * Item Reports — List Screen (/item_reports)
- *
- * Filter-first library view. All filters/search state live in the URL so the
- * user can share links, use back/forward, and the page remains loader-driven.
- *
- * Visual hierarchy:
- *   1. Editorial hero with a single `FeaturedReportBlock` (only when no filter
- *      is active and on page 1) — substack-like entry point.
- *   2. Filter rail + sticky sort controls.
- *   3. Responsive card grid with per-category accent.
- *   4. Pagination.
  */
 import {
   ChevronLeftIcon,
@@ -27,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/core/components/ui/select";
+import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import type { Route } from "./+types/list";
@@ -36,6 +27,7 @@ import { ReportCard } from "../components/report-card";
 import { ReportEmptyState } from "../components/report-empty-state";
 import { ReportFilterPanel } from "../components/report-filter-panel";
 import { PAGE_SIZE } from "../constants";
+import { pickItemReportsUi, formatCount } from "../i18n";
 import { itemReportsListPath } from "../lib/item-reports-urls";
 import { buildItemReportsListLinkState } from "../lib/list-navigation-state";
 import { hasActiveListFilter } from "../lib/list-filter-active";
@@ -47,17 +39,8 @@ import {
   getReports,
 } from "../queries";
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    { title: `Item Reports | ${import.meta.env.VITE_APP_NAME}` },
-    {
-      name: "description",
-      content: "카테고리·지역·태그별로 정돈된 리포트 라이브러리",
-    },
-  ];
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
+  const locale = await i18next.getLocale(request);
   const [client] = makeServerClient(request);
   const url = new URL(request.url);
   const filter = parseListFilter(url);
@@ -69,12 +52,33 @@ export async function loader({ request }: Route.LoaderArgs) {
   ]);
 
   const availableYears = yearFacets.map((facet) => facet.year);
+  const ui = pickItemReportsUi(locale);
 
-  return { reports, facets, filter, availableYears };
+  return {
+    reports,
+    facets,
+    filter,
+    availableYears,
+    locale,
+    meta: {
+      title: ui.list.metaTitle,
+      description: ui.list.metaDescription,
+    },
+  };
 }
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  const title = data?.meta.title ?? "Item Reports";
+  const description = data?.meta.description ?? "";
+  return [
+    { title: `${title} | ${import.meta.env.VITE_APP_NAME}` },
+    { name: "description", content: description },
+  ];
+};
+
 export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
-  const { reports, facets, filter, availableYears } = loaderData;
+  const { reports, facets, filter, availableYears, locale } = loaderData;
+  const ui = pickItemReportsUi(locale);
   const { searchParams, setSortParam } = useItemReportsSearchParams();
   const listLinkState = buildItemReportsListLinkState(searchParams);
   const totalPages = Math.max(1, Math.ceil(reports.total / PAGE_SIZE));
@@ -104,14 +108,13 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-primary text-xs font-medium tracking-wide uppercase">
-              Item Reports
+              {ui.list.eyebrow}
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
-              리포트 라이브러리
+              {ui.list.title}
             </h1>
             <p className="text-muted-foreground mt-2 max-w-2xl text-sm md:text-base">
-              카테고리·유형·지역·태그별로 필터링해 읽고 싶은 리포트를 빠르게 찾아보세요.
-              모든 필터는 URL에 저장되어 공유와 북마크가 가능합니다.
+              {ui.list.subtitle}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -122,7 +125,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
                 size="sm"
                 leftIcon={<ClockIcon className="size-4" />}
               >
-                Timeline
+                {ui.common.timeline}
               </NexButton>
             </Link>
             <Link to="/item_reports/explore" viewTransition>
@@ -132,7 +135,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
                 size="sm"
                 leftIcon={<GridIcon className="size-4" />}
               >
-                Explore
+                {ui.common.explore}
               </NexButton>
             </Link>
           </div>
@@ -153,7 +156,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
             <ReportActiveFilters />
             <div className="ml-auto flex items-center gap-3">
               <span className="text-muted-foreground text-xs">
-                {reports.total.toLocaleString("ko-KR")}건
+                {formatCount(reports.total, locale)}
               </span>
               <Select
                 value={filter.sort ?? "newest"}
@@ -163,8 +166,8 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">최신순</SelectItem>
-                  <SelectItem value="oldest">오래된순</SelectItem>
+                  <SelectItem value="newest">{ui.list.sortNewest}</SelectItem>
+                  <SelectItem value="oldest">{ui.list.sortOldest}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -184,16 +187,16 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
 
           {totalPages > 1 ? (
             <nav
-              aria-label="페이지 네비게이션"
+              aria-label={ui.list.paginationAria}
               className="mt-4 flex items-center justify-center gap-3"
             >
               <PageLink
                 to={buildPageHref(reports.page - 1)}
                 disabled={reports.page <= 1}
-                ariaLabel="이전 페이지"
+                ariaLabel={ui.list.previousPageAria}
               >
                 <ChevronLeftIcon className="size-4" />
-                이전
+                {ui.common.previous}
               </PageLink>
               <span className="text-muted-foreground text-sm">
                 {reports.page} / {totalPages}
@@ -201,9 +204,9 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
               <PageLink
                 to={buildPageHref(reports.page + 1)}
                 disabled={reports.page >= totalPages}
-                ariaLabel="다음 페이지"
+                ariaLabel={ui.list.nextPageAria}
               >
-                다음
+                {ui.common.next}
                 <ChevronRightIcon className="size-4" />
               </PageLink>
             </nav>

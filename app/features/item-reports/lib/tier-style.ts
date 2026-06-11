@@ -6,23 +6,13 @@
  * domain, so the visual language is intentionally restrained: a single
  * accent color, a non-color signal (icon), and a quietly themed badge.
  *
- * Design intent (per components.mdc §15):
- *   - "free" should fade into the background; we never want to put a
- *     "FREE" stamp on every card. UIs can opt into showing it via a prop,
- *     but the default treatment is a muted outline.
- *   - "premium" reads as warm/golden but not loud — closer to a magazine
- *     subscriber band than a pricing-page CTA.
- *   - "premium_plus" leans editorial-luxury (violet) and adds a second
- *     icon-level signal so it's distinguishable in monochrome contexts.
- *
- * All classes resolve correctly across light / dark / warm themes; we
- * intentionally pair palette tokens with semantic foreground tokens
- * (`text-muted-foreground`) so warm-mode reading stays comfortable.
+ * Labels resolve via `~/features/item-reports/i18n`.
  */
 import type { LucideIcon } from "lucide-react";
 import { GemIcon, LockIcon, SparklesIcon } from "lucide-react";
 
 import type { ReportTier } from "../constants";
+import { getReportTierLabel } from "../i18n/labels";
 
 import type { NexBadgeVariant } from "~/core/lib/semantic-style";
 
@@ -45,10 +35,10 @@ export type TierStyle = {
   icon: LucideIcon;
 };
 
-export const TIER_STYLES: Record<ReportTier, TierStyle> = {
+type TierVisual = Omit<TierStyle, "label" | "shortLabel">;
+
+const TIER_VISUAL: Record<ReportTier, TierVisual> = {
   free: {
-    label: "무료",
-    shortLabel: "무료",
     badgeVariant: "outline",
     badgeClassName: "",
     accentText: "text-muted-foreground",
@@ -56,8 +46,6 @@ export const TIER_STYLES: Record<ReportTier, TierStyle> = {
     icon: LockIcon,
   },
   premium: {
-    label: "프리미엄",
-    shortLabel: "Premium",
     badgeVariant: "outline",
     badgeClassName:
       "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:border-amber-400/40 dark:text-amber-300",
@@ -66,8 +54,6 @@ export const TIER_STYLES: Record<ReportTier, TierStyle> = {
     icon: SparklesIcon,
   },
   premium_plus: {
-    label: "프리미엄+",
-    shortLabel: "Premium+",
     badgeVariant: "outline",
     badgeClassName:
       "border-violet-500/40 bg-violet-500/5 text-violet-700 dark:border-violet-400/40 dark:text-violet-300",
@@ -77,11 +63,44 @@ export const TIER_STYLES: Record<ReportTier, TierStyle> = {
   },
 };
 
-const FALLBACK_STYLE: TierStyle = TIER_STYLES.free;
+/** @deprecated Use `getTierStyle(tier, locale)` — kept for admin imports. */
+export const TIER_STYLES: Record<ReportTier, TierStyle> = {
+  free: {
+    ...TIER_VISUAL.free,
+    label: "무료",
+    shortLabel: "무료",
+  },
+  premium: {
+    ...TIER_VISUAL.premium,
+    label: "프리미엄",
+    shortLabel: "Premium",
+  },
+  premium_plus: {
+    ...TIER_VISUAL.premium_plus,
+    label: "프리미엄+",
+    shortLabel: "Premium+",
+  },
+};
 
-export function getTierStyle(tier: string | null | undefined): TierStyle {
-  if (!tier) return FALLBACK_STYLE;
-  return TIER_STYLES[tier as ReportTier] ?? FALLBACK_STYLE;
+function styleForTier(tier: ReportTier, locale?: string | null): TierStyle {
+  const visual = TIER_VISUAL[tier];
+  const label = getReportTierLabel(tier, locale);
+  return {
+    ...visual,
+    label,
+    shortLabel:
+      tier === "premium" || tier === "premium_plus"
+        ? label.replace("+", "+")
+        : label,
+  };
+}
+
+export function getTierStyle(
+  tier: string | null | undefined,
+  locale?: string | null,
+): TierStyle {
+  if (!tier) return styleForTier("free", locale);
+  return styleForTier(tier as ReportTier, locale) ?? styleForTier("free", locale);
 }
 
 /** Tiers ranked higher than `free`; used by UIs that hide the default tier. */

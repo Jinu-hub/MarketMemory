@@ -10,14 +10,13 @@ import {
   SelectValue,
 } from "~/core/components/ui/select";
 
+import {
+  formatItemReportsCopy,
+  useItemReportsUi,
+} from "../i18n";
 import { FILTER_SELECT_ALL_VALUE } from "../lib/filter-keys";
 import { REPORT_DATE_PARAM_KEYS } from "../lib/report-date-params";
 import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
-
-const MONTH_LABELS = Array.from({ length: 12 }, (_, index) => {
-  const month = index + 1;
-  return { value: String(month), label: `${month}월` };
-});
 
 type ReportDateFilterProps = {
   availableYears: number[];
@@ -25,14 +24,12 @@ type ReportDateFilterProps = {
   hideTitle?: boolean;
 };
 
-/**
- * Year → month cascade selects plus optional From~To range.
- * URL: `year`, `month`, `date_from`, `date_to` (range clears year/month).
- */
 export function ReportDateFilter({
   availableYears,
   hideTitle = false,
 }: ReportDateFilterProps) {
+  const ui = useItemReportsUi();
+  const dateCopy = ui.filter.date;
   const { searchParams, patchParams } = useItemReportsSearchParams();
   const [dateFrom, setDateFrom] = useState(
     searchParams.get(REPORT_DATE_PARAM_KEYS.dateFrom) ?? "",
@@ -121,24 +118,26 @@ export function ReportDateFilter({
   return (
     <div className="space-y-4">
       {!hideTitle ? (
-        <span className="text-xs font-medium">기간</span>
+        <span className="text-xs font-medium">{dateCopy.title}</span>
       ) : null}
 
       <div className="space-y-2">
-        <Label className="text-xs font-medium">년도</Label>
+        <Label className="text-xs font-medium">{dateCopy.yearLabel}</Label>
         <Select
           value={selectedYear}
           onValueChange={setYear}
           disabled={yearDisabled}
         >
-          <SelectTrigger className="w-full" aria-label="년도 선택">
-            <SelectValue placeholder="전체 년도" />
+          <SelectTrigger className="w-full" aria-label={dateCopy.yearSelectAria}>
+            <SelectValue placeholder={dateCopy.yearPlaceholder} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={FILTER_SELECT_ALL_VALUE}>전체 년도</SelectItem>
+            <SelectItem value={FILTER_SELECT_ALL_VALUE}>
+              {dateCopy.allYears}
+            </SelectItem>
             {availableYears.map((year) => (
               <SelectItem key={year} value={String(year)}>
-                {year}년
+                {formatItemReportsCopy(dateCopy.yearOption, { year })}
               </SelectItem>
             ))}
           </SelectContent>
@@ -146,59 +145,62 @@ export function ReportDateFilter({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs font-medium">월</Label>
+        <Label className="text-xs font-medium">{dateCopy.monthLabel}</Label>
         <Select
           value={selectedMonth}
           onValueChange={setMonth}
           disabled={monthDisabled}
         >
-          <SelectTrigger className="w-full" aria-label="월 선택">
-            <SelectValue placeholder="전체" />
+          <SelectTrigger className="w-full" aria-label={dateCopy.monthSelectAria}>
+            <SelectValue placeholder={dateCopy.monthPlaceholder} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={FILTER_SELECT_ALL_VALUE}>전체</SelectItem>
-            {MONTH_LABELS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
+            <SelectItem value={FILTER_SELECT_ALL_VALUE}>
+              {dateCopy.allMonths}
+            </SelectItem>
+            {Array.from({ length: 12 }, (_, index) => {
+              const month = index + 1;
+              return (
+                <SelectItem key={month} value={String(month)}>
+                  {formatItemReportsCopy(dateCopy.monthOption, { month })}
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
         {monthDisabled && selectedYear === FILTER_SELECT_ALL_VALUE ? (
-          <p className="text-muted-foreground text-xs">
-            년도를 선택하면 월별로 좁힐 수 있어요.
-          </p>
+          <p className="text-muted-foreground text-xs">{dateCopy.monthHint}</p>
         ) : null}
       </div>
 
       <div className="border-border relative flex items-center gap-3 py-1">
         <span className="bg-card/60 text-muted-foreground absolute left-1/2 -translate-x-1/2 px-2 text-[10px] tracking-wide uppercase">
-          또는
+          {ui.common.or}
         </span>
         <div className="border-border flex-1 border-t" />
       </div>
 
       <form onSubmit={applyCustomRange} className="space-y-3">
-        <Label className="text-xs font-medium">From ~ To</Label>
+        <Label className="text-xs font-medium">{dateCopy.rangeLabel}</Label>
         <div className="grid grid-cols-1 gap-2">
           <NexInput
             type="date"
             value={dateFrom}
             onChange={(event) => setDateFrom(event.target.value)}
             inputSize="sm"
-            aria-label="시작일"
+            aria-label={dateCopy.startAria}
           />
           <NexInput
             type="date"
             value={dateTo}
             onChange={(event) => setDateTo(event.target.value)}
             inputSize="sm"
-            aria-label="종료일"
+            aria-label={dateCopy.endAria}
           />
         </div>
         <div className="flex flex-wrap gap-2">
           <NexButton type="submit" variant="secondary" size="sm">
-            기간 적용
+            {dateCopy.apply}
           </NexButton>
           {hasCustomRange ? (
             <NexButton
@@ -207,7 +209,7 @@ export function ReportDateFilter({
               size="sm"
               onClick={clearCustomRangeOnly}
             >
-              기간 해제
+              {dateCopy.clear}
             </NexButton>
           ) : null}
         </div>

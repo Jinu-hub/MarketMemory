@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import { cn } from "~/core/lib/utils";
 
+import { useItemReportsLocale, useItemReportsUi } from "../i18n";
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion } from "../lib/labels";
@@ -39,10 +40,12 @@ export function ReportCard({
   detailHref = itemReportsDetailHref,
   listLinkState,
 }: ReportCardProps) {
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
   const takeaway = resolveTakeaway(report.summary, report.summary_meta);
-  const date = resolveDisplayDate(report);
+  const date = resolveDisplayDate(report, locale);
   const primaryRegion = report.regions?.[0];
-  const style = getCategoryStyle(report.category);
+  const style = getCategoryStyle(report.category, locale);
   const isDense = density === "dense";
   const isCompact = density === "compact";
   const visibleTags = (report.tags ?? []).slice(0, isCompact ? 2 : 3);
@@ -83,7 +86,7 @@ export function ReportCard({
                 : "text-lg leading-snug md:text-xl",
           )}
         >
-          {report.title ?? "Untitled report"}
+          {report.title ?? ui.common.untitledReport}
         </h3>
         {takeaway ? (
           <p
@@ -133,7 +136,7 @@ export function ReportCard({
           {primaryRegion ? (
             <span className="flex min-w-0 max-w-[42%] items-center gap-0.5 sm:max-w-none">
               <MapPinIcon className={cn(isCompact ? "size-3 shrink-0" : "size-3.5")} />
-              <span className="truncate">{formatRegion(primaryRegion)}</span>
+              <span className="truncate">{formatRegion(primaryRegion, locale)}</span>
             </span>
           ) : null}
         </div>

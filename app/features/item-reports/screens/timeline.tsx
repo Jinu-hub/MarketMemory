@@ -1,9 +1,5 @@
 /**
  * Item Reports — Timeline View (/item_reports/timeline)
- *
- * A chronological, narrative-first view of recently published reports.
- * Each entry is grouped by month and rendered through the `ReportTimeline`
- * component so users can track how the research story evolves over time.
  */
 import { ChevronDownIcon, ClockIcon, GridIcon } from "lucide-react";
 import { Link, redirect } from "react-router";
@@ -14,12 +10,18 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/core/components/ui/collapsible";
+import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
 
 import type { Route } from "./+types/timeline";
 import { ItemReportsNavLink } from "../components/item-reports-nav-link";
 import { ReportTimeline } from "../components/report-timeline";
+import {
+  formatCount,
+  formatItemReportsCopy,
+  pickItemReportsUi,
+} from "../i18n";
 import { itemReportsTimelineHref } from "../lib/item-reports-urls";
 import {
   getPublicReportsCount,
@@ -29,17 +31,8 @@ import {
   TIMELINE_ALL_LIMIT,
 } from "../queries";
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    { title: `Reports Timeline | ${import.meta.env.VITE_APP_NAME}` },
-    {
-      name: "description",
-      content: "월별 리포트 연대기 — 최근 발행된 리서치를 시간순으로 확인하세요.",
-    },
-  ];
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
+  const locale = await i18next.getLocale(request);
   const url = new URL(request.url);
   const yearParam = url.searchParams.get("year");
   const [client] = makeServerClient(request);
@@ -68,23 +61,40 @@ export async function loader({ request }: Route.LoaderArgs) {
       ? await getRecentReports(client, TIMELINE_ALL_LIMIT)
       : await getReportsForTimelineYear(client, selectedYear);
 
+  const ui = pickItemReportsUi(locale);
+
   return {
     reports,
     totalReports,
     years,
     selectedYear,
+    locale,
+    meta: {
+      title: ui.timeline.metaTitle,
+      description: ui.timeline.metaDescription,
+    },
   };
 }
+
+export const meta: Route.MetaFunction = ({ data }) => {
+  const title = data?.meta.title ?? "Reports Timeline";
+  const description = data?.meta.description ?? "";
+  return [
+    { title: `${title} | ${import.meta.env.VITE_APP_NAME}` },
+    { name: "description", content: description },
+  ];
+};
 
 export default function ItemReportsTimeline({
   loaderData,
 }: Route.ComponentProps) {
-  const { reports, totalReports, years, selectedYear } = loaderData;
+  const { reports, totalReports, years, selectedYear, locale } = loaderData;
+  const ui = pickItemReportsUi(locale);
 
   return (
     <div className="flex flex-1 flex-col gap-8 px-4 pt-2 pb-16 md:px-8">
       <nav className="flex items-center justify-between">
-        <ItemReportsNavLink to="/item_reports">라이브러리</ItemReportsNavLink>
+        <ItemReportsNavLink to="/item_reports">{ui.nav.libraryShort}</ItemReportsNavLink>
         <Link to="/item_reports/explore" viewTransition>
           <NexButton
             className="cursor-pointer"
@@ -92,7 +102,7 @@ export default function ItemReportsTimeline({
             size="sm"
             leftIcon={<GridIcon className="size-4" />}
           >
-            Explore
+            {ui.common.explore}
           </NexButton>
         </Link>
       </nav>
@@ -101,20 +111,24 @@ export default function ItemReportsTimeline({
         <div className="flex items-center gap-2">
           <NexBadge variant="secondary" size="sm">
             <ClockIcon className="mr-1 size-3" />
-            Timeline
+            {ui.timeline.badge}
           </NexBadge>
           <span className="text-muted-foreground text-xs">
             {selectedYear
-              ? `${selectedYear}년 ${reports.length.toLocaleString("ko-KR")}건`
-              : `총 ${reports.length.toLocaleString("ko-KR")}건`}
+              ? formatItemReportsCopy(ui.timeline.yearCount, {
+                  year: selectedYear,
+                  count: formatCount(reports.length, locale),
+                })
+              : formatItemReportsCopy(ui.timeline.totalCount, {
+                  count: formatCount(reports.length, locale),
+                })}
           </span>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          리포트 연대기
+          {ui.timeline.title}
         </h1>
         <p className="text-muted-foreground max-w-2xl text-sm md:text-base">
-          월별로 정돈된 최근 리포트를 확인하세요. 각 항목의 색상은 카테고리를
-          의미합니다 — 시장, 트렌드, 이슈 흐름의 변화를 한눈에 추적할 수 있어요.
+          {ui.timeline.subtitle}
         </p>
       </header>
 
@@ -128,9 +142,11 @@ export default function ItemReportsTimeline({
             aria-controls="timeline-filter-content"
           >
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold tracking-tight">필터링</h2>
+              <h2 className="text-sm font-semibold tracking-tight">
+                {ui.timeline.filterTitle}
+              </h2>
               <span className="text-muted-foreground text-xs">
-                전체 및 연도별 보기
+                {ui.timeline.filterHint}
               </span>
             </div>
             <ChevronDownIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]/filter:rotate-180" />
@@ -155,7 +171,7 @@ export default function ItemReportsTimeline({
                     : "border-border bg-background hover:border-primary/40",
                 )}
               >
-                전체
+                {ui.common.all}
                 <span
                   className={cn(
                     "text-xs",
@@ -179,7 +195,10 @@ export default function ItemReportsTimeline({
                       : "border-border bg-background hover:border-primary/40",
                   )}
                 >
-                  {year}년
+                  {formatItemReportsCopy(
+                    pickItemReportsUi(locale).filter.date.yearOption,
+                    { year },
+                  )}
                 </Link>
               ))}
             </div>

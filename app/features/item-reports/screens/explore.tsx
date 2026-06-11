@@ -1,11 +1,5 @@
 /**
  * Item Reports — Explore Hub (/item_reports/explore)
- *
- * Editorial discovery page combining:
- *  - Tab shell: controls on top strip; results in left-accent panel
- *  - Tags tab: top N as cards, rest in collapsible chips
- *
- * Goal: feel like a content hub (Substack + Obsidian), not a dashboard.
  */
 import {
   ArrowRightIcon,
@@ -15,7 +9,6 @@ import {
   HashIcon,
   LayoutGridIcon,
   MapPinnedIcon,
-  SparklesIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
@@ -32,29 +25,33 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/core/components/ui/tabs";
-import { cn } from "~/core/lib/utils";
+import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
+import { cn } from "~/core/lib/utils";
 
 import type { Route } from "./+types/explore";
 import { ExploreFacetLinkCard } from "../components/explore-facet-link-card";
 import { ExplorePeriodPanel } from "../components/explore-period-panel";
 import { ReportCard } from "../components/report-card";
+import { REPORT_CATEGORIES } from "../constants";
 import {
-  REPORT_CATEGORIES,
-  REPORT_REGION_LABELS_KO,
-  REPORT_TYPE_EXPLORE_INTRO_KO,
-  REPORT_TYPE_LABELS_KO,
-  type ReportRegion,
-  type ReportType,
-} from "../constants";
-import { getCategoryStyle } from "../lib/category-style";
-import { itemReportsListHref } from "../lib/item-reports-urls";
+  formatCount,
+  formatItemReportsCopy,
+  pickItemReportsUi,
+} from "../i18n";
 import {
   getRegionCardTitle,
   getRegionExploreIcon,
   getRegionExploreIntro,
 } from "../lib/report-region-explore";
 import { getReportTypeExploreIcon } from "../lib/report-type-explore";
+import { getCategoryStyle } from "../lib/category-style";
+import {
+  getRegionLabel,
+  getReportTypeExploreIntro,
+  getReportTypeLabel,
+} from "../i18n/labels";
+import { itemReportsListHref } from "../lib/item-reports-urls";
 import { parseReportYearParam } from "../lib/report-date-params";
 import {
   getCategoryHighlights,
@@ -64,20 +61,10 @@ import {
   getPeriodHighlights,
 } from "../queries";
 
-/** 태그 탭: 상위 N개는 카드, 이후는 접기 영역의 칩 */
 const EXPLORE_TAG_CARD_LEADING = 6;
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    { title: `Explore Reports | ${import.meta.env.VITE_APP_NAME}` },
-    {
-      name: "description",
-      content: "카테고리, 태그, 지역별 리포트 탐색 허브",
-    },
-  ];
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
+  const locale = await i18next.getLocale(request);
   const [client] = makeServerClient(request);
   const url = new URL(request.url);
   const periodYear = parseReportYearParam(url.searchParams.get("year"));
@@ -109,6 +96,8 @@ export async function loader({ request }: Route.LoaderArgs) {
       : Promise.resolve([]),
   ]);
 
+  const ui = pickItemReportsUi(locale);
+
   return {
     facets,
     highlights,
@@ -117,8 +106,22 @@ export async function loader({ request }: Route.LoaderArgs) {
     selectedPeriodYear: validPeriodYear,
     monthFacets,
     periodHighlights,
+    locale,
+    meta: {
+      title: ui.explore.metaTitle,
+      description: ui.explore.metaDescription,
+    },
   };
 }
+
+export const meta: Route.MetaFunction = ({ data }) => {
+  const title = data?.meta.title ?? "Explore Reports";
+  const description = data?.meta.description ?? "";
+  return [
+    { title: `${title} | ${import.meta.env.VITE_APP_NAME}` },
+    { name: "description", content: description },
+  ];
+};
 
 export default function ItemReportsExplore({
   loaderData,
@@ -131,8 +134,10 @@ export default function ItemReportsExplore({
     selectedPeriodYear,
     monthFacets,
     periodHighlights,
+    locale,
   } = loaderData;
 
+  const ui = pickItemReportsUi(locale);
   const exploreTabDefault = selectedPeriodYear ? "period" : "category";
 
   const topRegions = Object.entries(facets.regions)
@@ -151,14 +156,13 @@ export default function ItemReportsExplore({
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-primary text-xs font-medium tracking-wide uppercase">
-            Explore
+            {ui.explore.eyebrow}
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
-            리포트 탐색
+            {ui.explore.title}
           </h1>
           <p className="text-muted-foreground mt-2 max-w-2xl text-sm md:text-base">
-            관심 있는 주제부터 시작해 보세요. 카테고리, 태그, 지역별로 주요 리포트를
-            한 눈에 둘러볼 수 있습니다.
+            {ui.explore.subtitle}
           </p>
         </div>
       </header>
@@ -173,36 +177,36 @@ export default function ItemReportsExplore({
             <div className="border-border space-y-4 border-b bg-card/80 px-4 py-5 md:px-6">
               <div className="space-y-1">
                 <h2 className="text-lg font-semibold tracking-tight md:text-xl">
-                  탐색 기준
+                  {ui.explore.criteriaTitle}
                 </h2>
                 <p className="text-muted-foreground max-w-prose text-sm leading-relaxed">
-                  탭은 상위 기준이고, 아래 영역은 선택한 기준에 속한 결과입니다.
+                  {ui.explore.criteriaDescription}
                 </p>
               </div>
               <TabsList
                 variant="line"
-                aria-label="리포트 탐색 기준"
+                aria-label={ui.explore.criteriaTabsAria}
                 className="flex h-auto min-h-0 w-full max-w-full flex-wrap items-center justify-start gap-x-2 gap-y-2 pb-0.5"
               >
                 <TabsTrigger value="category" className="flex-none gap-1.5">
                   <LayoutGridIcon className="size-3.5" aria-hidden />
-                  카테고리별
+                  {ui.explore.tabs.category}
                 </TabsTrigger>
                 <TabsTrigger value="type" className="flex-none gap-1.5">
                   <FileTextIcon className="size-3.5" aria-hidden />
-                  리포트 유형별
+                  {ui.explore.tabs.type}
                 </TabsTrigger>
                 <TabsTrigger value="region" className="flex-none gap-1.5">
                   <MapPinnedIcon className="size-3.5" aria-hidden />
-                  지역별
+                  {ui.explore.tabs.region}
                 </TabsTrigger>
                 <TabsTrigger value="tags" className="flex-none gap-1.5">
                   <HashIcon className="size-3.5" aria-hidden />
-                  태그별
+                  {ui.explore.tabs.tags}
                 </TabsTrigger>
                 <TabsTrigger value="period" className="flex-none gap-1.5">
                   <CalendarIcon className="size-3.5" aria-hidden />
-                  기간별
+                  {ui.explore.tabs.period}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -210,26 +214,24 @@ export default function ItemReportsExplore({
             <div
               className="border-primary/30 bg-muted/15 border-l-[3px] px-4 py-6 md:px-6 md:py-8"
               role="region"
-              aria-label="선택한 탐색 기준에 대한 결과"
+              aria-label={ui.explore.resultsRegionAria}
             >
               <TabsContent value="category" className="mt-0 outline-none">
                 <div className="space-y-6">
                   <TabScopeHeading
-                    scope="카테고리별"
+                    scope={ui.explore.tabs.category}
                     title=""
-                    description="카테고리별 리포트 목록입니다."
+                    description={ui.explore.categoryDescription}
                   />
 
                   {activeCategories.length === 0 ? (
-                    <ExploreEmptyHint>
-                      아직 공개된 리포트가 없습니다.
-                    </ExploreEmptyHint>
+                    <ExploreEmptyHint>{ui.explore.noPublicReports}</ExploreEmptyHint>
                   ) : (
                     <div className="flex flex-col gap-10">
                       {activeCategories.map((category) => {
                         const rows = highlights[category] ?? [];
                         if (rows.length === 0) return null;
-                        const style = getCategoryStyle(category);
+                        const style = getCategoryStyle(category, locale);
                         const CategoryIcon = style.icon;
                         return (
                           <div key={category} className="space-y-4">
@@ -242,14 +244,17 @@ export default function ItemReportsExplore({
                                   {style.label}
                                 </h4>
                                 <NexBadge variant="outline" size="sm">
-                                  {facets.categories[category] ?? 0}건
+                                  {formatCount(
+                                    facets.categories[category] ?? 0,
+                                    locale,
+                                  )}
                                 </NexBadge>
                               </div>
                               <Link
                                 to={itemReportsListHref({ category })}
                                 className="text-primary hover:text-primary/80 inline-flex items-center gap-1 text-sm font-medium"
                               >
-                                전체 보기
+                                {ui.common.viewAll}
                                 <ArrowRightIcon className="size-3.5" />
                               </Link>
                             </div>
@@ -276,13 +281,13 @@ export default function ItemReportsExplore({
 
               <TabsContent value="type" className="mt-0 outline-none">
                 <TabScopeHeading
-                  scope="리포트 유형별"
-                  title="포맷별 바로가기"
-                  description="작성 포맷에 따라 목록으로 이동합니다."
+                  scope={ui.explore.tabs.type}
+                  title={ui.explore.typeTitle}
+                  description={ui.explore.typeDescription}
                 />
                 {topTypes.length === 0 ? (
                   <p className="text-muted-foreground mt-3 text-sm">
-                    데이터가 아직 부족합니다.
+                    {ui.explore.insufficientData}
                   </p>
                 ) : (
                   <ul
@@ -290,21 +295,18 @@ export default function ItemReportsExplore({
                     role="list"
                   >
                     {topTypes.map(([type, count]) => {
-                      const label =
-                        REPORT_TYPE_LABELS_KO[type as ReportType] ?? type;
+                      const label = getReportTypeLabel(type, locale);
                       const TypeIcon = getReportTypeExploreIcon(type);
                       const cardTitle =
                         type === "full-report"
-                          ? "풀 리포트"
-                          : `${label} 리포트`;
-                      const intro =
-                        REPORT_TYPE_EXPLORE_INTRO_KO[type as ReportType] ??
-                        "이 유형의 공개 리포트만 모아서 볼 수 있습니다.";
+                          ? ui.explore.fullReportTitle
+                          : `${label} ${ui.explore.reportTitleSuffix}`;
+                      const intro = getReportTypeExploreIntro(type, locale);
                       return (
                         <li key={type}>
                           <ExploreFacetLinkCard
                             to={itemReportsListHref({ report_type: type })}
-                            ariaLabel={`${cardTitle} 목록 보기`}
+                            ariaLabel={`${cardTitle} ${ui.explore.typeListAria}`}
                             icon={
                               <TypeIcon className="size-4" aria-hidden />
                             }
@@ -321,13 +323,13 @@ export default function ItemReportsExplore({
 
               <TabsContent value="region" className="mt-0 outline-none">
                 <TabScopeHeading
-                  scope="지역별"
-                  title="권역별 바로가기"
-                  description="국가·권역 기준으로 목록을 엽니다."
+                  scope={ui.explore.tabs.region}
+                  title={ui.explore.regionTitle}
+                  description={ui.explore.regionDescription}
                 />
                 {topRegions.length === 0 ? (
                   <p className="text-muted-foreground mt-3 text-sm">
-                    등록된 지역 데이터가 없습니다.
+                    {ui.explore.noRegionData}
                   </p>
                 ) : (
                   <ul
@@ -335,17 +337,15 @@ export default function ItemReportsExplore({
                     role="list"
                   >
                     {topRegions.map(([region, count]) => {
-                      const labelKo =
-                        REPORT_REGION_LABELS_KO[region as ReportRegion] ??
-                        region;
+                      const label = getRegionLabel(region, locale);
                       const RegionIcon = getRegionExploreIcon(region);
-                      const cardTitle = getRegionCardTitle(region, labelKo);
-                      const intro = getRegionExploreIntro(region);
+                      const cardTitle = getRegionCardTitle(region, label, locale);
+                      const intro = getRegionExploreIntro(region, locale);
                       return (
                         <li key={region}>
                           <ExploreFacetLinkCard
                             to={itemReportsListHref({ region })}
-                            ariaLabel={`${cardTitle} 리포트 목록 보기`}
+                            ariaLabel={`${cardTitle} ${ui.explore.regionListAria}`}
                             icon={
                               <RegionIcon className="size-4" aria-hidden />
                             }
@@ -363,13 +363,15 @@ export default function ItemReportsExplore({
               <TabsContent value="period" className="mt-0 outline-none">
                 <div className="space-y-6">
                   <TabScopeHeading
-                    scope="기간별"
+                    scope={ui.explore.tabs.period}
                     title={
                       selectedPeriodYear
-                        ? `${selectedPeriodYear}년`
-                        : "연도·월별 탐색"
+                        ? formatItemReportsCopy(ui.explore.periodYearSelected, {
+                            year: selectedPeriodYear,
+                          })
+                        : ui.explore.periodYearTitle
                     }
-                    description="연도와 월을 고르면 라이브러리 목록과 동일한 기간 필터로 이어집니다."
+                    description={ui.explore.periodDescription}
                   />
                   <ExplorePeriodPanel
                     yearFacets={yearFacets}
@@ -382,14 +384,12 @@ export default function ItemReportsExplore({
 
               <TabsContent value="tags" className="mt-0 space-y-4 outline-none">
                 <TabScopeHeading
-                  scope="태그별"
-                  title="자주 등장하는 태그"
-                  description="특정 주제·키워드로 빠르게 진입하세요. 상위 태그는 카드, 그 외는 아래에서 펼쳐 볼 수 있습니다."
+                  scope={ui.explore.tabs.tags}
+                  title={ui.explore.tagsTitle}
+                  description={ui.explore.tagsDescription}
                 />
                 {facets.topTags.length === 0 ? (
-                  <ExploreEmptyHint>
-                    아직 수집된 태그가 없습니다.
-                  </ExploreEmptyHint>
+                  <ExploreEmptyHint>{ui.explore.noTags}</ExploreEmptyHint>
                 ) : (
                   <div className="space-y-8">
                     <section
@@ -401,10 +401,12 @@ export default function ItemReportsExplore({
                           id="explore-tags-featured-heading"
                           className="text-foreground text-sm font-semibold tracking-tight"
                         >
-                          인기 태그
+                          {ui.explore.popularTags}
                         </h4>
                         <p className="text-muted-foreground mt-0.5 text-xs">
-                          최근 샘플 기준 빈도가 높은 상위 {tagFeatured.length}개입니다.
+                          {formatItemReportsCopy(ui.explore.popularTagsHint, {
+                            count: tagFeatured.length,
+                          })}
                         </p>
                       </div>
                       <ul
@@ -415,14 +417,14 @@ export default function ItemReportsExplore({
                           <li key={tag}>
                             <ExploreFacetLinkCard
                               to={itemReportsListHref({ tag })}
-                              ariaLabel={`#${tag} 태그 리포트 목록 보기`}
+                              ariaLabel={`#${tag} ${ui.explore.tagListAria}`}
                               variant="tag"
                               icon={
                                 <HashIcon className="size-4" aria-hidden />
                               }
                               title={`#${tag}`}
                               count={count}
-                              description="이 키워드가 붙은 공개 리포트만 모아서 볼 수 있습니다."
+                              description={ui.explore.tagCardDescription}
                             />
                           </li>
                         ))}
@@ -440,14 +442,19 @@ export default function ItemReportsExplore({
                             "border-border bg-muted/20 hover:bg-muted/40 flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors",
                             "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
                           )}
-                          aria-label={`나머지 태그 ${tagMore.length}개 펼치기 또는 접기`}
+                          aria-label={formatItemReportsCopy(
+                            ui.explore.moreTagsToggleAria,
+                            { count: tagMore.length },
+                          )}
                         >
                           <span>
                             <span className="text-foreground font-medium">
-                              나머지 태그
+                              {ui.explore.moreTags}
                             </span>
                             <span className="text-muted-foreground ml-1.5 font-normal">
-                              {tagMore.length}개
+                              {formatItemReportsCopy(ui.explore.moreTagsCount, {
+                                count: tagMore.length,
+                              })}
                             </span>
                           </span>
                           <ChevronDownIcon

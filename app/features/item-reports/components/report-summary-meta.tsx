@@ -8,6 +8,7 @@ import {
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import { useItemReportsLocale, useItemReportsUi } from "../i18n";
 import { parseSummaryMeta } from "../lib/summary-meta";
 import { getCategoryStyle } from "../lib/category-style";
 import { TalkingPointsCarousel } from "./talking-points-carousel";
@@ -18,23 +19,13 @@ type ReportSummaryMetaProps = {
   className?: string;
 };
 
-/**
- * Editorial insight block rendered near the top of a report.
- *
- * Structure inspired by the `DataInsightBlock` showcase pattern:
- *   1. Badge + headline_angle (the angle the author wants to emphasize)
- *   2. Key takeaway highlight (with Target icon) — the "conclusion"
- *   3. Talking points (hooks) — carousel, accent bar + question line (no `"` )
- *   4. summary_sns_short — one-line share blurb, MessageSquare + italic (distinct motif)
- *
- * Returns null if `summary_meta` has no usable content so the detail page
- * doesn't show an empty scaffold.
- */
 export function ReportSummaryMeta({
   value,
   category,
   className,
 }: ReportSummaryMetaProps) {
+  const ui = useItemReportsUi();
+  const locale = useItemReportsLocale();
   const meta = parseSummaryMeta(value);
   if (!meta) return null;
 
@@ -47,11 +38,11 @@ export function ReportSummaryMeta({
     return null;
   }
 
-  const style = getCategoryStyle(category);
+  const style = getCategoryStyle(category, locale);
 
   return (
     <section
-      aria-label="핵심 인사이트"
+      aria-label={ui.summaryMeta.ariaLabel}
       className={cn(
         "bg-card border-border overflow-hidden rounded-xl border border-l-[3px]",
         style.accentBorder,
@@ -62,11 +53,11 @@ export function ReportSummaryMeta({
         <div className="flex items-center gap-2">
           <NexBadge variant={style.badgeVariant} size="sm">
             <SparklesIcon className="mr-1 size-3" />
-            Editorial Angle
+            {ui.summaryMeta.editorialAngle}
           </NexBadge>
           {hasTakeaway && hasHeadline ? (
             <span className="text-muted-foreground text-[11px] tracking-wide uppercase">
-              Insight Block
+              {ui.summaryMeta.insightBlock}
             </span>
           ) : null}
         </div>
@@ -84,7 +75,7 @@ export function ReportSummaryMeta({
             />
             <div className="min-w-0">
               <p className="text-muted-foreground mb-1 text-xs font-semibold tracking-wider uppercase">
-                Key Takeaway
+                {ui.summaryMeta.keyTakeaway}
               </p>
               <p className="text-foreground/90 text-base leading-[1.8] md:text-lg">
                 {meta.one_line_takeaway}
@@ -104,18 +95,15 @@ export function ReportSummaryMeta({
           <div className="mb-4 flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
             <div className="flex items-center gap-2">
               <LightbulbIcon className={cn("size-4", style.accentText)} />
-              {/* "Hooks" is the raw schema key; "Talking Points" is the
-                  surface copy — the angles a reader should walk away
-                  ready to discuss. */}
               <h3 className="text-foreground text-xs font-semibold tracking-wider uppercase">
-                Talking Points
+                {ui.summaryMeta.talkingPoints}
               </h3>
             </div>
           </div>
           <TalkingPointsCarousel
             points={hooks}
             style={style}
-            aria-label="이 리포트의 주목 포인트"
+            aria-label={ui.summaryMeta.talkingPointsAria}
           />
         </div>
       ) : null}
@@ -132,7 +120,7 @@ export function ReportSummaryMeta({
                 {sns}
               </blockquote>
               <figcaption className="text-muted-foreground mt-2 text-[11px] tracking-wide uppercase not-italic">
-                — Editorial summary
+                {ui.summaryMeta.editorialSummary}
               </figcaption>
             </div>
           </div>

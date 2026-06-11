@@ -1,30 +1,45 @@
 import {
-  REPORT_CATEGORY_LABELS_KO,
-  REPORT_REGION_LABELS_KO,
-  REPORT_TIER_LABELS_KO,
-  REPORT_TYPE_LABELS_KO,
-  type ReportCategory,
-  type ReportRegion,
-  type ReportTier,
-  type ReportType,
-} from "../constants";
+  getCategoryLabel,
+  getRegionLabel,
+  getReportTierLabel,
+  getReportTypeLabel,
+} from "../i18n/labels";
 
-export function formatCategory(value: string | null | undefined): string {
-  if (!value) return "";
-  return REPORT_CATEGORY_LABELS_KO[value as ReportCategory] ?? value;
+export {
+  getCategoryLabel,
+  getRegionLabel,
+  getReportTierLabel,
+  getReportTypeLabel,
+} from "../i18n/labels";
+
+/** @deprecated Prefer `getCategoryLabel(value, locale)` */
+export function formatCategory(
+  value: string | null | undefined,
+  locale?: string | null,
+): string {
+  return getCategoryLabel(value, locale);
 }
 
-export function formatReportType(value: string | null | undefined): string {
-  if (!value) return "";
-  return REPORT_TYPE_LABELS_KO[value as ReportType] ?? value;
+/** @deprecated Prefer `getReportTypeLabel(value, locale)` */
+export function formatReportType(
+  value: string | null | undefined,
+  locale?: string | null,
+): string {
+  return getReportTypeLabel(value, locale);
 }
 
-export function formatReportTier(value: string | null | undefined): string {
-  if (!value) return "";
-  return REPORT_TIER_LABELS_KO[value as ReportTier] ?? value;
+/** @deprecated Prefer `getReportTierLabel(value, locale)` */
+export function formatReportTier(
+  value: string | null | undefined,
+  locale?: string | null,
+): string {
+  return getReportTierLabel(value, locale);
 }
 
-export function formatRegion(value: string | null | undefined): string {
-  if (!value) return "";
-  return REPORT_REGION_LABELS_KO[value as ReportRegion] ?? value;
+/** @deprecated Prefer `getRegionLabel(value, locale)` */
+export function formatRegion(
+  value: string | null | undefined,
+  locale?: string | null,
+): string {
+  return getRegionLabel(value, locale);
 }

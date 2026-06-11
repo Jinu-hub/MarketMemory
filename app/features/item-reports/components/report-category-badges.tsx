@@ -1,6 +1,7 @@
 import { NexBadge } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
+import { useItemReportsLocale } from "../i18n";
 import { getCategoryStyle } from "../lib/category-style";
 import { formatReportType } from "../lib/labels";
 import { ReportTierBadge } from "./report-tier-badge";
@@ -37,8 +38,9 @@ export function ReportCategoryBadges({
   leading,
   trailing,
 }: ReportCategoryBadgesProps) {
+  const locale = useItemReportsLocale();
   const isCompact = size === "compact";
-  const style = getCategoryStyle(category);
+  const style = getCategoryStyle(category, locale);
   const CategoryIcon = style.icon;
   const iconClass = cn("mr-1", isCompact ? "size-2.5" : "size-3");
   const badgeTextClass = isCompact ? "text-[11px]" : undefined;
@@ -67,7 +69,7 @@ export function ReportCategoryBadges({
           size="sm"
           className={badgeTextClass}
         >
-          {formatReportType(reportType)}
+          {formatReportType(reportType, locale)}
         </NexBadge>
       ) : null}
       {showTier ? (
