@@ -1,4 +1,5 @@
 import type { ItemReportsTranslation } from "./item-reports/types";
+import type { WeeklyAiIssueDigestTranslation } from "./weekly-ai-issue-digest/types";
 
 export type Translation = {
   auth: {
@@ -212,6 +213,7 @@ export type Translation = {
     };
   };
   itemReports: ItemReportsTranslation;
+  weeklyAiIssueDigest: WeeklyAiIssueDigestTranslation;
   dashboardSidebar: {
     groups: {
       platform: string;

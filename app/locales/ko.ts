@@ -1,5 +1,6 @@
 import type { Translation } from "./types";
 import itemReports from "./item-reports/ko";
+import weeklyAiIssueDigest from "./weekly-ai-issue-digest/ko";
 
 const ko: Translation = {
   auth: {
@@ -232,6 +233,7 @@ const ko: Translation = {
     },
   },
   itemReports,
+  weeklyAiIssueDigest,
   dashboardSidebar: {
     groups: {
       platform: "플랫폼",
