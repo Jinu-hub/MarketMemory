@@ -27,19 +27,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/core/components/ui/select";
+import i18next from "~/core/lib/i18next.server";
 import { cn } from "~/core/lib/utils";
 import { FeaturedReportBlock } from "~/features/item-reports/components/featured-report-block";
 import { ReportCard } from "~/features/item-reports/components/report-card";
 import { ReportEmptyState } from "~/features/item-reports/components/report-empty-state";
 import { ReportTimeline } from "~/features/item-reports/components/report-timeline";
+import { pickItemReportsUi } from "~/features/item-reports/i18n";
 
 import type { Route } from "./+types/list";
-import {
-  PAGE_SIZE,
-  WEEKLY_MARKET_ISSUES_FALLBACK_DESCRIPTION,
-  WEEKLY_MARKET_ISSUES_FALLBACK_TITLE,
-  WEEKLY_MARKET_ISSUES_SLUG,
-} from "../constants";
+import { PAGE_SIZE, WEEKLY_MARKET_ISSUES_SLUG } from "../constants";
+import { formatEpisodeCount, pickWeeklyMarketIssuesUi } from "../i18n";
 import {
   getAllSeriesReports,
   getSeriesBySlug,
@@ -53,9 +51,9 @@ import {
 type DigestView = "card" | "timeline";
 
 export const meta: Route.MetaFunction = ({ data }) => {
-  const title = data?.series?.title ?? WEEKLY_MARKET_ISSUES_FALLBACK_TITLE;
-  const description =
-    data?.series?.description ?? WEEKLY_MARKET_ISSUES_FALLBACK_DESCRIPTION;
+  const ui = pickWeeklyMarketIssuesUi(data?.locale);
+  const title = data?.series?.title ?? ui.fallback.title;
+  const description = data?.series?.description ?? ui.list.metaDescription;
   return [
     { title: `${title} | ${import.meta.env.VITE_APP_NAME}` },
     { name: "description", content: description },
@@ -63,6 +61,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 };
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const locale = await i18next.getLocale(request);
   const url = new URL(request.url);
   const view: DigestView =
     url.searchParams.get("view") === "card" ? "card" : "timeline";
@@ -77,6 +76,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       series,
       view,
       sort,
+      locale,
       reports: { rows: [], total: 0, page, pageSize: PAGE_SIZE },
       timelineReports: [],
     };
@@ -91,6 +91,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       series,
       view,
       sort,
+      locale,
       reports: {
         rows: [],
         total: timelineReports.length,
@@ -102,19 +103,20 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const reports = await getSeriesReports({ seriesId: series.id, page, sort });
-  return { series, view, sort, reports, timelineReports: [] };
+  return { series, view, sort, locale, reports, timelineReports: [] };
 }
 
 export default function WeeklyMarketIssuesList({
   loaderData,
 }: Route.ComponentProps) {
-  const { series, reports, sort, view, timelineReports } = loaderData;
+  const { series, reports, sort, view, timelineReports, locale } = loaderData;
   const [params, setParams] = useSearchParams();
+  const ui = pickWeeklyMarketIssuesUi(locale);
+  const reportsUi = pickItemReportsUi(locale);
 
   const isTimeline = view === "timeline";
-  const title = series?.title ?? WEEKLY_MARKET_ISSUES_FALLBACK_TITLE;
-  const description =
-    series?.description ?? WEEKLY_MARKET_ISSUES_FALLBACK_DESCRIPTION;
+  const title = series?.title ?? ui.fallback.title;
+  const description = series?.description ?? ui.fallback.description;
   const totalPages = Math.max(1, Math.ceil(reports.total / PAGE_SIZE));
 
   const showFeatured =
@@ -163,7 +165,7 @@ export default function WeeklyMarketIssuesList({
               <GlobeIcon className="size-5" />
             </span>
             <NexBadge variant="secondary" size="sm">
-              Series
+              {ui.list.seriesBadge}
             </NexBadge>
           </div>
           <div className="space-y-3">
@@ -177,17 +179,17 @@ export default function WeeklyMarketIssuesList({
         </div>
 
         <div className="border-border/60 flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4 md:px-10">
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
-            <span className="text-foreground font-semibold">
-              {reports.total.toLocaleString("ko-KR")}
-            </span>
-            개 회차
+          <div className="text-muted-foreground text-sm">
+            {formatEpisodeCount(reports.total, locale)}
           </div>
           <div className="flex items-center gap-2">
             <ViewToggle
               view={view}
               cardHref={buildViewHref("card")}
               timelineHref={buildViewHref("timeline")}
+              timelineLabel={ui.view.timeline}
+              cardLabel={ui.view.card}
+              toggleAria={ui.view.toggleAria}
             />
             {isTimeline ? null : (
               <Select value={sort} onValueChange={updateSort}>
@@ -195,8 +197,8 @@ export default function WeeklyMarketIssuesList({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">최신순</SelectItem>
-                  <SelectItem value="oldest">오래된순</SelectItem>
+                  <SelectItem value="newest">{reportsUi.list.sortNewest}</SelectItem>
+                  <SelectItem value="oldest">{reportsUi.list.sortOldest}</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -208,20 +210,23 @@ export default function WeeklyMarketIssuesList({
         <FeaturedReportBlock
           report={featured}
           detailHref={weeklyMarketIssuesDetailHref}
-          footnote="이 시리즈의 가장 최근 회차입니다."
+          footnote={ui.list.featuredFootnote}
         />
       ) : null}
 
       <section className="flex min-w-0 flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-base font-semibold tracking-tight">
-            {showFeatured ? "지난 회차" : "전체 회차"}
+            {showFeatured ? ui.list.pastEpisodes : ui.list.allEpisodes}
           </h2>
         </div>
 
         {isTimeline ? (
           timelineReports.length === 0 ? (
-            <ReportEmptyState />
+            <ReportEmptyState
+              title={ui.empty.title}
+              description={ui.empty.description}
+            />
           ) : (
             <ReportTimeline
               reports={timelineReports}
@@ -232,7 +237,10 @@ export default function WeeklyMarketIssuesList({
         ) : (
           <>
             {reports.rows.length === 0 ? (
-              <ReportEmptyState />
+              <ReportEmptyState
+                title={ui.empty.title}
+                description={ui.empty.description}
+              />
             ) : gridRows.length === 0 ? null : (
               <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {gridRows.map((report) => (
@@ -248,16 +256,16 @@ export default function WeeklyMarketIssuesList({
 
             {totalPages > 1 ? (
               <nav
-                aria-label="페이지 네비게이션"
+                aria-label={reportsUi.list.paginationAria}
                 className="mt-4 flex items-center justify-center gap-3"
               >
                 <PageLink
                   to={buildPageHref(reports.page - 1)}
                   disabled={reports.page <= 1}
-                  ariaLabel="이전 페이지"
+                  ariaLabel={reportsUi.list.previousPageAria}
                 >
                   <ChevronLeftIcon className="size-4" />
-                  이전
+                  {reportsUi.common.previous}
                 </PageLink>
                 <span className="text-muted-foreground text-sm">
                   {reports.page} / {totalPages}
@@ -265,9 +273,9 @@ export default function WeeklyMarketIssuesList({
                 <PageLink
                   to={buildPageHref(reports.page + 1)}
                   disabled={reports.page >= totalPages}
-                  ariaLabel="다음 페이지"
+                  ariaLabel={reportsUi.list.nextPageAria}
                 >
-                  다음
+                  {reportsUi.common.next}
                   <ChevronRightIcon className="size-4" />
                 </PageLink>
               </nav>
@@ -283,10 +291,16 @@ function ViewToggle({
   view,
   cardHref,
   timelineHref,
+  timelineLabel,
+  cardLabel,
+  toggleAria,
 }: {
   view: DigestView;
   cardHref: string;
   timelineHref: string;
+  timelineLabel: string;
+  cardLabel: string;
+  toggleAria: string;
 }) {
   const items: Array<{
     value: DigestView;
@@ -294,14 +308,14 @@ function ViewToggle({
     label: string;
     icon: typeof LayoutGridIcon;
   }> = [
-    { value: "timeline", href: timelineHref, label: "타임라인", icon: ClockIcon },
-    { value: "card", href: cardHref, label: "카드", icon: LayoutGridIcon },
+    { value: "timeline", href: timelineHref, label: timelineLabel, icon: ClockIcon },
+    { value: "card", href: cardHref, label: cardLabel, icon: LayoutGridIcon },
   ];
 
   return (
     <div
       role="group"
-      aria-label="보기 전환"
+      aria-label={toggleAria}
       className="border-border bg-muted/50 inline-flex items-center gap-0.5 rounded-md border p-0.5"
     >
       {items.map((item) => {
