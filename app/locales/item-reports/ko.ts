@@ -24,7 +24,7 @@ const itemReports = {
       "other": "Other"
     },
     "reportTier": {
-      "free": "무료",
+      "free": "노멀",
       "premium": "프리미엄",
       "premium_plus": "프리미엄+"
     },

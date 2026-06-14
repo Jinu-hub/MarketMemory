@@ -67,8 +67,8 @@ const TIER_VISUAL: Record<ReportTier, TierVisual> = {
 export const TIER_STYLES: Record<ReportTier, TierStyle> = {
   free: {
     ...TIER_VISUAL.free,
-    label: "무료",
-    shortLabel: "무료",
+    label: "노멀",
+    shortLabel: "Normal",
   },
   premium: {
     ...TIER_VISUAL.premium,
