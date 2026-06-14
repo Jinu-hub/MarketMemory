@@ -493,8 +493,10 @@ export type Database = {
       item_content_i18n: {
         Row: {
           content: string | null
+          content_sns: string | null
           core_id: string | null
           created_at: string
+          html_body: string | null
           id: string
           input_hash: string | null
           is_public: boolean
@@ -503,14 +505,17 @@ export type Database = {
           pipeline_info: Json | null
           status: string | null
           summary: string | null
+          summary_meta: Json | null
           title: string | null
           tracking: Json | null
           updated_at: string | null
         }
         Insert: {
           content?: string | null
+          content_sns?: string | null
           core_id?: string | null
           created_at?: string
+          html_body?: string | null
           id?: string
           input_hash?: string | null
           is_public?: boolean
@@ -519,14 +524,17 @@ export type Database = {
           pipeline_info?: Json | null
           status?: string | null
           summary?: string | null
+          summary_meta?: Json | null
           title?: string | null
           tracking?: Json | null
           updated_at?: string | null
         }
         Update: {
           content?: string | null
+          content_sns?: string | null
           core_id?: string | null
           created_at?: string
+          html_body?: string | null
           id?: string
           input_hash?: string | null
           is_public?: boolean
@@ -535,6 +543,7 @@ export type Database = {
           pipeline_info?: Json | null
           status?: string | null
           summary?: string | null
+          summary_meta?: Json | null
           title?: string | null
           tracking?: Json | null
           updated_at?: string | null

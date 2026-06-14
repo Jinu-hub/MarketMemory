@@ -260,6 +260,13 @@
       "when": 1780722657903,
       "tag": "0036_peaceful_weapon_omega",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1781423330358,
+      "tag": "0037_brainy_scrambler",
+      "breakpoints": true
     }
   ]
 }
