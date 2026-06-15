@@ -306,8 +306,8 @@ const itemReports = {
     "bodyAria": "Body"
   },
   "reading": {
-    "shareSummaryAria": "SNS share summary",
-    "shareSummaryTitle": "Share summary"
+    "shareSummaryAria": "Briefing summary",
+    "shareSummaryTitle": "Briefing summary"
   },
   "summaryMeta": {
     "ariaLabel": "Key insights",

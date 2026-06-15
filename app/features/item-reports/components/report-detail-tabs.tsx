@@ -100,7 +100,7 @@ export function ReportDetailTabs({
             {open ? ui.detailTabs.collapse : ui.detailTabs.expand}
           </span>
           <span className="text-muted-foreground text-xs font-normal">
-            {ui.detailTabs.subtitle.replace("{briefing}", briefingSuffix)}
+            {ui.detailTabs.subtitle.replace("{briefing}", "")}
           </span>
         </span>
       </CollapsibleTrigger>

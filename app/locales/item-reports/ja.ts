@@ -306,8 +306,8 @@ const itemReports = {
     "bodyAria": "本文"
   },
   "reading": {
-    "shareSummaryAria": "SNS共有用要約",
-    "shareSummaryTitle": "共有用要約"
+    "shareSummaryAria": "ブリーフィング用要約",
+    "shareSummaryTitle": "ブリーフィング要約"
   },
   "summaryMeta": {
     "ariaLabel": "核心インサイト",

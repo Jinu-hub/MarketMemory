@@ -306,8 +306,8 @@ const itemReports = {
     "bodyAria": "본문"
   },
   "reading": {
-    "shareSummaryAria": "SNS 공유용 요약",
-    "shareSummaryTitle": "공유용 요약"
+    "shareSummaryAria": "브리핑 요약",
+    "shareSummaryTitle": "브리핑 요약"
   },
   "summaryMeta": {
     "ariaLabel": "핵심 인사이트",
