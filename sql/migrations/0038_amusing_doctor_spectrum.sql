@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "uq_item_content_i18n_content_lang" ON "item_content_i18n" USING btree ("item_content_id","lang_code");

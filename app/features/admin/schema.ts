@@ -1271,6 +1271,10 @@ export const itemContentI18n = pgTable(
     index("idx_item_content_i18n_created_at").on(desc(table.created_at)),
     index("idx_item_content_i18n_is_public").on(table.is_public),
     index("idx_item_content_i18n_status").on(table.status),
+    uniqueIndex("uq_item_content_i18n_content_lang").on(
+      table.item_content_id,
+      table.lang_code,
+    ),
 
     pgPolicy("ici_select", {
       for: "select",

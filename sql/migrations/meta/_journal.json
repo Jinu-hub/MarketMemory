@@ -267,6 +267,13 @@
       "when": 1781423330358,
       "tag": "0037_brainy_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1781426441800,
+      "tag": "0038_amusing_doctor_spectrum",
+      "breakpoints": true
     }
   ]
 }
