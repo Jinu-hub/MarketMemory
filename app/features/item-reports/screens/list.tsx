@@ -33,6 +33,7 @@ import { buildItemReportsListLinkState } from "../lib/list-navigation-state";
 import { hasActiveListFilter } from "../lib/list-filter-active";
 import { parseListFilter } from "../lib/parse-list-filter";
 import { useItemReportsSearchParams } from "../lib/use-item-reports-search-params";
+import { localizeItemContents } from "../lib/item-content-localization";
 import {
   getExplorePeriodYearFacets,
   getFacets,
@@ -50,6 +51,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     getFacets(client),
     getExplorePeriodYearFacets(client),
   ]);
+
+  reports.rows = await localizeItemContents(client, reports.rows, locale);
 
   const availableYears = yearFacets.map((facet) => facet.year);
   const ui = pickItemReportsUi(locale);

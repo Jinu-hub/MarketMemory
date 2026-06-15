@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/core/components/ui/select";
+import adminClient from "~/core/lib/supa-admin-client.server";
 import i18next from "~/core/lib/i18next.server";
 import { cn } from "~/core/lib/utils";
 import { FeaturedReportBlock } from "~/features/item-reports/components/featured-report-block";
@@ -34,6 +35,7 @@ import { ReportCard } from "~/features/item-reports/components/report-card";
 import { ReportEmptyState } from "~/features/item-reports/components/report-empty-state";
 import { ReportTimeline } from "~/features/item-reports/components/report-timeline";
 import { pickItemReportsUi } from "~/features/item-reports/i18n";
+import { localizeItemContents } from "~/features/item-reports/lib/item-content-localization";
 
 import type { Route } from "./+types/list";
 import { PAGE_SIZE, WEEKLY_MARKET_ISSUES_SLUG } from "../constants";
@@ -83,10 +85,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   if (view === "timeline") {
-    const timelineReports = await getAllSeriesReports({
+    const timelineRows = await getAllSeriesReports({
       seriesId: series.id,
       sort,
     });
+    const timelineReports = await localizeItemContents(
+      adminClient,
+      timelineRows,
+      locale,
+    );
     return {
       series,
       view,
@@ -103,6 +110,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const reports = await getSeriesReports({ seriesId: series.id, page, sort });
+  reports.rows = await localizeItemContents(adminClient, reports.rows, locale);
   return { series, view, sort, locale, reports, timelineReports: [] };
 }
 

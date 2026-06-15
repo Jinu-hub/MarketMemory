@@ -23,6 +23,7 @@ import {
   pickItemReportsUi,
 } from "../i18n";
 import { itemReportsTimelineHref } from "../lib/item-reports-urls";
+import { localizeItemContents } from "../lib/item-content-localization";
 import {
   getPublicReportsCount,
   getRecentReports,
@@ -56,10 +57,12 @@ export async function loader({ request }: Route.LoaderArgs) {
         ? parsedYear
         : defaultYear;
 
-  const reports =
+  const reportRows =
     selectedYear === null
       ? await getRecentReports(client, TIMELINE_ALL_LIMIT)
       : await getReportsForTimelineYear(client, selectedYear);
+
+  const reports = await localizeItemContents(client, reportRows, locale);
 
   const ui = pickItemReportsUi(locale);
 

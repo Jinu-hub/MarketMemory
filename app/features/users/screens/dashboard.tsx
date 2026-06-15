@@ -38,6 +38,7 @@ import {
   getLatestDailyMarketMemory,
 } from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
+import { localizeItemContents } from "~/features/item-reports/lib/item-content-localization";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
@@ -47,7 +48,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const requestedDate = parseMarketDateParam(url.searchParams.get("date"));
 
-  const [memory, recentReports, availableDates] = await Promise.all([
+  const [memory, recentReportsRows, availableDates] = await Promise.all([
     (requestedDate
       ? getDailyMarketMemoryByDate(client, locale, requestedDate)
       : getLatestDailyMarketMemory(client, locale)
@@ -56,9 +57,16 @@ export async function loader({ request }: Route.LoaderArgs) {
     getAvailableMarketMemoryDates(client).catch(() => []),
   ]);
 
-  const sourceReports = memory
+  const sourceReportsRows = memory
     ? await getDailyMarketMemorySources(client, memory.id).catch(() => [])
     : [];
+
+  // Localize report content to the reader's language (item_content_i18n),
+  // falling back to the original-language rows when no translation exists.
+  const [sourceReports, recentReports] = await Promise.all([
+    localizeItemContents(client, sourceReportsRows, locale),
+    localizeItemContents(client, recentReportsRows, locale),
+  ]);
 
   return {
     memory,

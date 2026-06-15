@@ -332,6 +332,15 @@ const itemReports = {
     "regenerateSuccess": "반영 완료 · 연결 {count}건",
     "empty": "아직 표시할 관련 리포트가 없습니다. 같은 주제나 유사한 후속 분석이 연결되면 여기에 나타납니다.",
     "pipelineHint": "유사도 파이프라인이 아직 반영되지 않았을 수 있습니다."
+  },
+  "localization": {
+    "fallbackNoticeTitle": "{language} 리포트는 아직 준비 중이에요",
+    "fallbackNoticeDescription": "지금은 {source} 리포트로 보여드리고 있어요. {language} 리포트가 생성되면 바로 반영됩니다.",
+    "languageNames": {
+      "ko": "한국어",
+      "en": "English",
+      "ja": "일본어"
+    }
   }
 } as const;
 

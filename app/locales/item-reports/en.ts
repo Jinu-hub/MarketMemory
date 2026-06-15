@@ -332,6 +332,15 @@ const itemReports = {
     "regenerateSuccess": "Applied · {count} links",
     "empty": "No related reports yet. They will appear here when similar follow-up analysis is linked.",
     "pipelineHint": "The similarity pipeline may not have run yet."
+  },
+  "localization": {
+    "fallbackNoticeTitle": "The {language} report isn't ready yet",
+    "fallbackNoticeDescription": "Showing the {source} report for now. The {language} report will appear here once it's been generated.",
+    "languageNames": {
+      "ko": "Korean",
+      "en": "English",
+      "ja": "Japanese"
+    }
   }
 } as const;
 

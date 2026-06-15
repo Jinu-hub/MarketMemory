@@ -332,6 +332,15 @@ const itemReports = {
     "regenerateSuccess": "反映完了 · 接続{count}件",
     "empty": "表示する関連レポートはまだありません。同じテーマや類似した後続分析が接続されるとここに表示されます。",
     "pipelineHint": "類似度パイプラインがまだ反映されていない可能性があります。"
+  },
+  "localization": {
+    "fallbackNoticeTitle": "{language}レポートはまだ準備中です",
+    "fallbackNoticeDescription": "現在は{source}レポートを表示しています。{language}レポートの準備ができ次第、こちらに表示されます。",
+    "languageNames": {
+      "ko": "韓国語",
+      "en": "English",
+      "ja": "日本語"
+    }
   }
 } as const;
 

@@ -28,6 +28,11 @@ import { ReportDetailTabs } from "~/features/item-reports/components/report-deta
 import { ReportEntitiesFooter } from "~/features/item-reports/components/report-entities-footer";
 import { ReportMetaSidebar } from "~/features/item-reports/components/report-meta-sidebar";
 import { ReportSummaryMeta } from "~/features/item-reports/components/report-summary-meta";
+import { ReportTranslationNotice } from "~/features/item-reports/components/report-translation-notice";
+import {
+  localizeItemContents,
+  localizeItemContentWithMeta,
+} from "~/features/item-reports/lib/item-content-localization";
 import { resolveTakeaway } from "~/features/item-reports/lib/summary-meta";
 import { isPremiumTier } from "~/features/item-reports/lib/tier-style";
 import { getUserProfile } from "~/features/users/queries";
@@ -69,8 +74,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     throw data(null, { status: 404 });
   }
 
-  const report = await getSeriesReport({ seriesId: series.id, id: params.id });
-  if (!report) {
+  const reportRow = await getSeriesReport({ seriesId: series.id, id: params.id });
+  if (!reportRow) {
     throw data(null, { status: 404 });
   }
 
@@ -78,21 +83,42 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const authResult = await client.auth.getUser();
   const userId = authResult.data.user?.id ?? null;
 
-  const [otherEpisodes, profile] = await Promise.all([
-    getOtherEpisodes({ seriesId: series.id, excludeId: report.id, limit: 8 }),
-    userId
-      ? getUserProfile(client, { userId }).catch(() => null)
-      : Promise.resolve(null),
-  ]);
+  const [{ row: report, localization }, [otherEpisodesRows, profile]] =
+    await Promise.all([
+      localizeItemContentWithMeta(client, reportRow, locale),
+      Promise.all([
+        getOtherEpisodes({
+          seriesId: series.id,
+          excludeId: reportRow.id,
+          limit: 8,
+        }),
+        userId
+          ? getUserProfile(client, { userId }).catch(() => null)
+          : Promise.resolve(null),
+      ]),
+    ]);
 
+  const otherEpisodes = await localizeItemContents(
+    client,
+    otherEpisodesRows,
+    locale,
+  );
   const isAdmin = profile?.is_admin === true;
-  return { report, otherEpisodes, isAdmin, seriesTitle: series.title, locale };
+  return {
+    report,
+    otherEpisodes,
+    isAdmin,
+    seriesTitle: series.title,
+    locale,
+    localization,
+  };
 }
 
 export default function WeeklyMarketIssuesDetail({
   loaderData,
 }: Route.ComponentProps) {
-  const { report, otherEpisodes, isAdmin, seriesTitle, locale } = loaderData;
+  const { report, otherEpisodes, isAdmin, seriesTitle, locale, localization } =
+    loaderData;
   const ui = pickWeeklyMarketIssuesUi(locale);
   const reportsUi = pickItemReportsUi(locale);
   const navTitle = seriesTitle ?? ui.fallback.title;
@@ -108,6 +134,8 @@ export default function WeeklyMarketIssuesDetail({
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
         <article className="mx-auto w-full max-w-[72ch] min-w-0 space-y-8">
           <ReadingHeader report={report} />
+
+          <ReportTranslationNotice localization={localization} locale={locale} />
 
           {isPremiumTier(report.report_tier) ? (
             <ReportSummaryMeta

@@ -54,6 +54,10 @@ import {
 import { itemReportsListHref } from "../lib/item-reports-urls";
 import { parseReportYearParam } from "../lib/report-date-params";
 import {
+  localizeItemContents,
+  type LocalizableRow,
+} from "../lib/item-content-localization";
+import {
   getCategoryHighlights,
   getExplorePeriodMonthFacets,
   getExplorePeriodYearFacets,
@@ -62,6 +66,30 @@ import {
 } from "../queries";
 
 const EXPLORE_TAG_CARD_LEADING = 6;
+
+/**
+ * Localize category highlight buckets with a single batched i18n lookup:
+ * flatten all rows, translate once, then regroup back into their categories.
+ */
+async function localizeHighlightsByCategory<T extends LocalizableRow>(
+  client: Parameters<typeof localizeItemContents<T>>[0],
+  byCategory: Record<string, T[]>,
+  locale: string,
+): Promise<Record<string, T[]>> {
+  const flat = Object.values(byCategory).flat();
+  if (flat.length === 0) {
+    return byCategory;
+  }
+
+  const localized = await localizeItemContents(client, flat, locale);
+  const byId = new Map(localized.map((row) => [row.id, row]));
+
+  const out: Record<string, T[]> = {};
+  for (const [category, rows] of Object.entries(byCategory)) {
+    out[category] = rows.map((row) => byId.get(row.id) ?? row);
+  }
+  return out;
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const locale = await i18next.getLocale(request);
@@ -83,7 +111,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       ? periodYear
       : null;
 
-  const [highlights, monthFacets, periodHighlights] = await Promise.all([
+  const [rawHighlights, monthFacets, periodHighlights] = await Promise.all([
     getCategoryHighlights(client, {
       categories: activeCategories,
       perCategory: 6,
@@ -96,6 +124,19 @@ export async function loader({ request }: Route.LoaderArgs) {
       : Promise.resolve([]),
   ]);
 
+  // Localize every report-bearing result. Category highlights are flattened
+  // into a single i18n lookup, then regrouped, to avoid one query per category.
+  const localizedPeriodHighlights = await localizeItemContents(
+    client,
+    periodHighlights,
+    locale,
+  );
+  const highlights = await localizeHighlightsByCategory(
+    client,
+    rawHighlights,
+    locale,
+  );
+
   const ui = pickItemReportsUi(locale);
 
   return {
@@ -105,7 +146,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     yearFacets,
     selectedPeriodYear: validPeriodYear,
     monthFacets,
-    periodHighlights,
+    periodHighlights: localizedPeriodHighlights,
     locale,
     meta: {
       title: ui.explore.metaTitle,

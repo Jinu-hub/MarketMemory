@@ -36,6 +36,11 @@ import { ReportDetailTabs } from "../components/report-detail-tabs";
 import { ReportEntitiesFooter } from "../components/report-entities-footer";
 import { ReportMetaSidebar } from "../components/report-meta-sidebar";
 import { ReportSummaryMeta } from "../components/report-summary-meta";
+import { ReportTranslationNotice } from "../components/report-translation-notice";
+import {
+  localizeItemContents,
+  localizeItemContentWithMeta,
+} from "../lib/item-content-localization";
 import {
   readItemReportsListLinkState,
   resolveItemReportsListBackHref,
@@ -71,16 +76,24 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   // Fetch the report and the current auth user in parallel — both are
   // independent of each other, and 404-ing has higher priority than the
   // admin lookup, so we await the report result first.
-  const [report, authResult] = await Promise.all([
+  const [reportRow, authResult] = await Promise.all([
     getReport(client, params.id),
     client.auth.getUser(),
   ]);
-  if (!report) {
+  if (!reportRow) {
     throw data(null, { status: 404 });
   }
 
+  // Resolve the displayed language from item_content_i18n (falls back to the
+  // original-language source row when no translation exists yet).
+  const { row: report, localization } = await localizeItemContentWithMeta(
+    client,
+    reportRow,
+    locale,
+  );
+
   const userId = authResult.data.user?.id ?? null;
-  const [related, profile] = await Promise.all([
+  const [relatedRows, profile] = await Promise.all([
     getRelatedReports(client, {
       id: report.id,
       category: report.category,
@@ -91,8 +104,9 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       : Promise.resolve(null),
   ]);
 
+  const related = await localizeItemContents(client, relatedRows, locale);
   const isAdmin = profile?.is_admin === true;
-  return { report, related, isAdmin, locale };
+  return { report, related, isAdmin, locale, localization };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -123,16 +137,17 @@ export async function action({ request, params }: Route.ActionArgs) {
     return data({ message: error.message }, { status: 400 });
   }
 
-  const related = await getRelatedReports(client, {
+  const relatedRows = await getRelatedReports(client, {
     id: sourceItemId,
     limit: 10,
   });
+  const related = await localizeItemContents(client, relatedRows, locale);
 
   return data({ ok: true as const, inserted, related });
 }
 
 export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
-  const { report, related, isAdmin } = loaderData;
+  const { report, related, isAdmin, localization } = loaderData;
   const ui = pickItemReportsUi(loaderData.locale);
   const location = useLocation();
   const listLinkState = readItemReportsListLinkState(location.state);
@@ -147,6 +162,11 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
         <article className="mx-auto w-full max-w-[72ch] min-w-0 space-y-8">
           <ReadingHeader report={report} />
+
+          <ReportTranslationNotice
+            localization={localization}
+            locale={loaderData.locale}
+          />
 
           {/* summary_meta (헤드라인 앵글 + 훅 + 한 줄 요약)는 편집팀이
               가공한 부가가치 정보라 프리미엄 등급(premium / premium_plus)
