@@ -1,5 +1,5 @@
 /**
- * Visual semantic mapping for report tiers (free / premium / premium_plus).
+ * Visual semantic mapping for report tiers (free / standard / premium / premium_plus).
  *
  * Mirrors the Category Semantic Accent System (see category-style.ts) but
  * along a different axis — a tier signals access level rather than topical

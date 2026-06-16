@@ -89,7 +89,12 @@ export const REPORT_REGIONS: ReportRegion[] = [
 export const REPORT_REGION_LABELS_KO = ko.itemReports.semantic
   .region as Partial<Record<ReportRegion, string>>;
 
-export const REPORT_TIERS: ReportTier[] = ["free", "premium", "premium_plus"];
+export const REPORT_TIERS: ReportTier[] = [
+  "free",
+  "standard",
+  "premium",
+  "premium_plus",
+];
 
 /** @deprecated Use `getReportTierLabel` from `~/features/item-reports/i18n` */
 export const REPORT_TIER_LABELS_KO = ko.itemReports.semantic
