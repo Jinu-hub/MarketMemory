@@ -125,6 +125,7 @@ export const reportType = pgEnum("report_type", [
 
 export const reportTier = pgEnum("report_tier", [
   "free",
+  "standard",
   "premium",
   "premium_plus",
 ]);

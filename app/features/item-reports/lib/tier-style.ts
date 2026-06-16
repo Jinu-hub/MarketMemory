@@ -9,7 +9,7 @@
  * Labels resolve via `~/features/item-reports/i18n`.
  */
 import type { LucideIcon } from "lucide-react";
-import { GemIcon, LockIcon, SparklesIcon } from "lucide-react";
+import { GemIcon, LockIcon, LockOpenIcon, SparklesIcon } from "lucide-react";
 
 import type { ReportTier } from "../constants";
 import { getReportTierLabel } from "../i18n/labels";
@@ -45,6 +45,14 @@ const TIER_VISUAL: Record<ReportTier, TierVisual> = {
     accentBg: "bg-muted/30",
     icon: LockIcon,
   },
+  standard: {
+    badgeVariant: "outline",
+    badgeClassName:
+      "border-sky-500/35 bg-sky-500/5 text-sky-700 dark:border-sky-400/35 dark:text-sky-300",
+    accentText: "text-sky-600 dark:text-sky-400",
+    accentBg: "bg-sky-500/5 dark:bg-sky-400/5",
+    icon: LockOpenIcon,
+  },
   premium: {
     badgeVariant: "outline",
     badgeClassName:
@@ -67,17 +75,22 @@ const TIER_VISUAL: Record<ReportTier, TierVisual> = {
 export const TIER_STYLES: Record<ReportTier, TierStyle> = {
   free: {
     ...TIER_VISUAL.free,
-    label: "노멀",
-    shortLabel: "Normal",
+    label: "Free",
+    shortLabel: "Free",
+  },
+  standard: {
+    ...TIER_VISUAL.standard,
+    label: "Standard",
+    shortLabel: "Standard",
   },
   premium: {
     ...TIER_VISUAL.premium,
-    label: "프리미엄",
+    label: "Premium",
     shortLabel: "Premium",
   },
   premium_plus: {
     ...TIER_VISUAL.premium_plus,
-    label: "프리미엄+",
+    label: "Premium+",
     shortLabel: "Premium+",
   },
 };

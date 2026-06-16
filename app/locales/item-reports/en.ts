@@ -24,7 +24,8 @@ const itemReports = {
       "other": "Other"
     },
     "reportTier": {
-      "free": "Normal",
+      "free": "Free",
+      "standard": "Standard",
       "premium": "Premium",
       "premium_plus": "Premium+"
     },

@@ -1767,7 +1767,7 @@ export type Database = {
         | "UK_AND_IRELAND"
         | "UNKNOWN"
         | "WESTERN_EUROPE"
-      report_tier: "free" | "premium" | "premium_plus"
+      report_tier: "free" | "standard" | "premium" | "premium_plus"
       report_type:
         | "digest-report"
         | "full-report"
@@ -1958,7 +1958,7 @@ export const Constants = {
         "UNKNOWN",
         "WESTERN_EUROPE",
       ],
-      report_tier: ["free", "premium", "premium_plus"],
+      report_tier: ["free", "standard", "premium", "premium_plus"],
       report_type: [
         "digest-report",
         "full-report",

@@ -24,9 +24,10 @@ const itemReports = {
       "other": "Other"
     },
     "reportTier": {
-      "free": "ノーマル",
-      "premium": "プレミアム",
-      "premium_plus": "プレミアム+"
+      "free": "Free",
+      "standard": "Standard",
+      "premium": "Premium",
+      "premium_plus": "Premium+"
     },
     "region": {
       "GLOBAL": "グローバル",
