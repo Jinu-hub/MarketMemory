@@ -258,7 +258,8 @@ const ja: Translation = {
       dashboard: {
         title: "ダッシュボード",
         marketBriefing: "マーケットブリーフィング",
-        marketSnapshot: "マーケット概況",
+        weeklyReport: "週間レポート",
+        monthlyReport: "月間レポート",
       },
       reports: {
         title: "レポート",

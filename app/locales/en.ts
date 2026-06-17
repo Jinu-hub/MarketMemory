@@ -258,7 +258,8 @@ const en: Translation = {
       dashboard: {
         title: "Dashboard",
         marketBriefing: "Market Briefing",
-        marketSnapshot: "Market Snapshot",
+        weeklyReport: "Weekly Report",
+        monthlyReport: "Monthly Report",
       },
       reports: {
         title: "Reports",

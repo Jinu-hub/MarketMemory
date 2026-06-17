@@ -35,8 +35,13 @@ export function useDashboardSidebarData() {
             url: "/dashboard",
           },
           {
-            title: t("dashboardSidebar.nav.dashboard.marketSnapshot"),
-            url: "/dashboard/market-snapshot",
+            title: t("dashboardSidebar.nav.dashboard.weeklyReport"),
+            url: "/dashboard/weekly-report",
+            soon: true,
+          },
+          {
+            title: t("dashboardSidebar.nav.dashboard.monthlyReport"),
+            url: "/dashboard/monthly-report",
             soon: true,
           },
         ],

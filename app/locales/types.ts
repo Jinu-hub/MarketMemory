@@ -238,7 +238,8 @@ export type Translation = {
       dashboard: {
         title: string;
         marketBriefing: string;
-        marketSnapshot: string;
+        weeklyReport: string;
+        monthlyReport: string;
       };
       reports: {
         title: string;

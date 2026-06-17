@@ -258,7 +258,8 @@ const ko: Translation = {
       dashboard: {
         title: "대시보드",
         marketBriefing: "마켓 브리핑",
-        marketSnapshot: "마켓 현황",
+        weeklyReport: "주간 리포트",
+        monthlyReport: "월간 리포트",
       },
       reports: {
         title: "리포트",
