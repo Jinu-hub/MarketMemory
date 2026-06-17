@@ -1,26 +1,21 @@
 import { type Route } from "@rr/app/features/users/api/+types/edit-profile";
-import { UserIcon } from "lucide-react";
+import { Check, ImageIcon, UserIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 
-import FetcherFormButton from "~/core/components/fetcher-form-button";
 import FormErrors from "~/core/components/form-error";
 import FormSuccess from "~/core/components/form-success";
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "~/core/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/core/components/ui/card";
+  NexButton,
+  NexCard,
+  NexCardContent,
+  NexCardDescription,
+  NexCardFooter,
+  NexCardHeader,
+  NexCardTitle,
+  NexInput,
+} from "~/core/components/nex";
 import { Checkbox } from "~/core/components/ui/checkbox";
-import { Input } from "~/core/components/ui/input";
 import { Label } from "~/core/components/ui/label";
 
 export default function EditProfileForm({
@@ -34,6 +29,8 @@ export default function EditProfileForm({
 }) {
   const fetcher = useFetcher<Route.ComponentProps["actionData"]>();
   const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (fetcher.data && "success" in fetcher.data && fetcher.data.success) {
       formRef.current?.blur();
@@ -42,13 +39,32 @@ export default function EditProfileForm({
       });
     }
   }, [fetcher.data]);
+
   const [avatar, setAvatar] = useState<string | null>(avatarUrl);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
   const onChangeAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setAvatar(URL.createObjectURL(file));
+      setSelectedFileName(file.name);
     }
   };
+
+  const nameError =
+    fetcher.data &&
+    "fieldErrors" in fetcher.data &&
+    fetcher.data.fieldErrors?.name
+      ? fetcher.data.fieldErrors.name[0]
+      : undefined;
+
+  const marketingConsentError =
+    fetcher.data &&
+    "fieldErrors" in fetcher.data &&
+    fetcher.data.fieldErrors?.marketingConsent
+      ? fetcher.data.fieldErrors.marketingConsent
+      : undefined;
+
   return (
     <fetcher.Form
       method="post"
@@ -57,90 +73,140 @@ export default function EditProfileForm({
       ref={formRef}
       action="/api/users/profile"
     >
-      <Card className="justify-between">
-        <CardHeader>
-          <CardTitle>Edit profile</CardTitle>
-          <CardDescription>Manage your profile information.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex w-full flex-col gap-7">
-            <div className="flex items-center gap-10">
-              <Label
-                htmlFor="avatar"
-                className="flex flex-col items-start gap-2"
-              >
-                <span>Avatar</span>
-                <Avatar className="size-24">
-                  {avatar ? <AvatarImage src={avatar} alt="Avatar" /> : null}
-                  <AvatarFallback>
-                    <UserIcon className="text-muted-foreground size-10" />
-                  </AvatarFallback>
-                </Avatar>
-              </Label>
-              <div className="text-muted-foreground flex w-1/2 flex-col gap-2 text-sm">
-                <div className="flex flex-col gap-1">
-                  <span>Max size: 1MB</span>
-                  <span>Allowed formats: PNG, JPG, GIF</span>
+      <NexCard variant="elevated" padding="lg" className="w-full">
+        <NexCardHeader>
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-3 shadow-lg">
+              <UserIcon className="size-5 text-white" />
+            </div>
+            <div>
+              <NexCardTitle>Edit profile</NexCardTitle>
+              <NexCardDescription>
+                Manage your profile information.
+              </NexCardDescription>
+            </div>
+          </div>
+        </NexCardHeader>
+
+        <NexCardContent>
+          <div className="flex flex-col gap-6">
+            {/* Avatar upload */}
+            <div className="flex flex-col items-center gap-6 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 p-6 sm:flex-row dark:border-indigo-800/50 dark:from-indigo-900/40 dark:to-purple-900/40">
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative">
+                  <div className="flex size-28 items-center justify-center overflow-hidden rounded-full bg-indigo-100 ring-2 ring-indigo-400 dark:bg-indigo-900/60 dark:ring-indigo-500">
+                    {avatar ? (
+                      <img
+                        src={avatar}
+                        alt="Avatar"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <UserIcon className="size-12 text-indigo-400 dark:text-indigo-300" />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 shadow-md transition-transform hover:scale-105"
+                    aria-label="Upload avatar"
+                  >
+                    <ImageIcon className="size-4 text-white" />
+                  </button>
                 </div>
-                <Input
+                <span className="text-sm text-indigo-500 dark:text-indigo-300">
+                  Avatar
+                </span>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <Check className="size-4 shrink-0 text-emerald-500" />
+                    Max size: 1MB
+                  </span>
+                  <span className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <Check className="size-4 shrink-0 text-emerald-500" />
+                    Allowed formats: PNG, JPG, GIF
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <NexButton
+                    type="button"
+                    variant="gradient"
+                    size="md"
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Select file
+                  </NexButton>
+                  <span className="text-muted-foreground text-sm">
+                    {selectedFileName ?? "No file selected"}
+                  </span>
+                </div>
+                <input
+                  ref={fileInputRef}
                   id="avatar"
                   name="avatar"
                   type="file"
+                  accept="image/png,image/jpeg,image/gif"
+                  className="sr-only"
                   onChange={onChangeAvatar}
                 />
               </div>
             </div>
-            <div className="flex flex-col items-start space-y-2">
-              <Label htmlFor="name" className="flex flex-col items-start gap-1">
-                Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                required
-                type="text"
-                placeholder="Nico"
-                defaultValue={name}
-              />
-              {fetcher.data &&
-              "fieldErrors" in fetcher.data &&
-              fetcher.data.fieldErrors?.name ? (
-                <FormErrors errors={fetcher.data?.fieldErrors?.name} />
-              ) : null}
-            </div>
-            <div className="flex items-center gap-2">
+
+            {/* Name */}
+            <NexInput
+              label="Name"
+              id="name"
+              name="name"
+              required
+              type="text"
+              placeholder="Nico"
+              defaultValue={name}
+              leftIcon={<UserIcon className="size-4" />}
+              error={nameError}
+            />
+
+            {/* Marketing consent */}
+            <div className="bg-muted/30 flex items-center gap-3 rounded-xl border-2 border-dashed border-border p-4">
               <Checkbox
                 id="marketingConsent"
                 name="marketingConsent"
                 defaultChecked={marketingConsent}
               />
-              <Label htmlFor="marketingConsent">
+              <Label
+                htmlFor="marketingConsent"
+                className="cursor-pointer font-medium"
+              >
                 Consent to marketing emails
               </Label>
             </div>
-            {fetcher.data &&
-            "fieldErrors" in fetcher.data &&
-            fetcher.data.fieldErrors?.marketingConsent ? (
-              <FormErrors
-                errors={fetcher.data?.fieldErrors?.marketingConsent}
-              />
+            {marketingConsentError ? (
+              <FormErrors errors={marketingConsentError} />
             ) : null}
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <FetcherFormButton
-            submitting={fetcher.state === "submitting"}
-            label="Save profile"
-            className="w-full"
-          />
+        </NexCardContent>
+
+        <NexCardFooter className="flex flex-col gap-4 border-t-0 pt-2">
+          <NexButton
+            type="submit"
+            variant="primary"
+            size="lg"
+            loading={fetcher.state === "submitting"}
+            className="w-full font-semibold"
+          >
+            Save profile
+          </NexButton>
           {fetcher.data && "success" in fetcher.data && fetcher.data.success ? (
             <FormSuccess message="Profile updated" />
           ) : null}
           {fetcher.data && "error" in fetcher.data && fetcher.data.error ? (
             <FormErrors errors={[fetcher.data.error]} />
           ) : null}
-        </CardFooter>
-      </Card>
+        </NexCardFooter>
+      </NexCard>
     </fetcher.Form>
   );
 }

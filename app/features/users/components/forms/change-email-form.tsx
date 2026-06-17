@@ -1,24 +1,28 @@
 import type { Route } from "@rr/app/features/users/api/+types/change-email";
 
+import { ArrowDown, Ban, Mail } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 
-import FetcherFormButton from "~/core/components/fetcher-form-button";
 import FormErrors from "~/core/components/form-error";
 import FormSuccess from "~/core/components/form-success";
-import { CardContent, CardFooter } from "~/core/components/ui/card";
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/core/components/ui/card";
-import { Input } from "~/core/components/ui/input";
-import { Label } from "~/core/components/ui/label";
+  NexButton,
+  NexCard,
+  NexCardContent,
+  NexCardDescription,
+  NexCardFooter,
+  NexCardHeader,
+  NexCardTitle,
+  NexInput,
+} from "~/core/components/nex";
 
 export default function ChangeEmailForm({ email }: { email: string }) {
   const fetcher = useFetcher<Route.ComponentProps["actionData"]>();
   const formRef = useRef<HTMLFormElement>(null);
+  const isChangeMode = Boolean(email);
+  const submitLabel = isChangeMode ? "Change email" : "Add email";
+
   useEffect(() => {
     if (fetcher.data && "success" in fetcher.data && fetcher.data.success) {
       formRef.current?.reset();
@@ -30,6 +34,7 @@ export default function ChangeEmailForm({ email }: { email: string }) {
       });
     }
   }, [fetcher.data]);
+
   return (
     <fetcher.Form
       ref={formRef}
@@ -37,59 +42,93 @@ export default function ChangeEmailForm({ email }: { email: string }) {
       className="w-full max-w-screen-md"
       action="/api/users/email"
     >
-      <Card className="justify-between">
-        <CardHeader>
-          <CardTitle>{email ? "Change email" : "Add email"}</CardTitle>
-          <CardDescription>
-            {email
-              ? "Change your email address."
-              : "Add an email address to your account."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex w-full flex-col gap-7">
-            <div className="flex cursor-not-allowed flex-col items-start space-y-2">
-              <Label
-                htmlFor="currentEmail"
-                className="flex flex-col items-start gap-1"
-              >
-                Current email
-              </Label>
-              <Input
-                id="currentEmail"
-                name="currentEmail"
-                required
-                type="email"
-                disabled
-                value={email}
-              />
+      <NexCard variant="elevated" padding="lg" className="w-full">
+        <NexCardHeader>
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-3 shadow-lg">
+              <Mail className="size-5 text-white" />
             </div>
-            <div className="flex flex-col items-start space-y-2">
-              <Label
-                htmlFor="email"
-                className="flex flex-col items-start gap-1"
-              >
-                New email
-              </Label>
-              <Input id="email" name="email" required type="email" />
+            <div>
+              <NexCardTitle>{submitLabel}</NexCardTitle>
+              <NexCardDescription>
+                {isChangeMode
+                  ? "Change your email address."
+                  : "Add an email address to your account."}
+              </NexCardDescription>
             </div>
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <FetcherFormButton
-            label={email ? "Change email" : "Add email"}
-            className="w-full"
-            submitting={fetcher.state === "submitting"}
+        </NexCardHeader>
+
+        <NexCardContent>
+          <div className="flex flex-col gap-4">
+            {isChangeMode ? (
+              <>
+                <div className="group cursor-not-allowed [&_input]:pointer-events-none">
+                  <NexInput
+                    label="Current email"
+                    id="currentEmail"
+                    name="currentEmail"
+                    required
+                    type="email"
+                    disabled
+                    value={email}
+                    leftIcon={<Mail className="size-4" />}
+                    rightIcon={
+                      <Ban
+                        className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                        aria-hidden="true"
+                      />
+                    }
+                    className="opacity-80 disabled:cursor-not-allowed"
+                    aria-describedby="current-email-hint"
+                  />
+                  <span id="current-email-hint" className="sr-only">
+                    This field cannot be edited
+                  </span>
+                </div>
+
+                <div className="flex justify-center py-1">
+                  <div
+                    className="flex size-8 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md"
+                    aria-hidden="true"
+                  >
+                    <ArrowDown className="size-4 text-white" />
+                  </div>
+                </div>
+              </>
+            ) : null}
+
+            <NexInput
+              label={isChangeMode ? "New email" : "Email"}
+              id="email"
+              name="email"
+              required
+              type="email"
+              placeholder="new-email@example.com"
+              leftIcon={<Mail className="size-4" />}
+            />
+          </div>
+        </NexCardContent>
+
+        <NexCardFooter className="flex flex-col gap-4 border-t-0 pt-2">
+          <NexButton
+            type="submit"
+            variant="primary"
+            size="lg"
+            loading={fetcher.state === "submitting"}
             disabled={fetcher.state === "submitting"}
-          />
+            className="w-full font-semibold"
+          >
+            {submitLabel}
+          </NexButton>
           {fetcher.data && "success" in fetcher.data && fetcher.data.success ? (
             <FormSuccess message="Email update process started. Please check your old email for a verification link." />
           ) : null}
           {fetcher.data && "error" in fetcher.data && fetcher.data.error ? (
             <FormErrors errors={[fetcher.data.error]} />
           ) : null}
-        </CardFooter>
-      </Card>
+        </NexCardFooter>
+      </NexCard>
     </fetcher.Form>
   );
 }
