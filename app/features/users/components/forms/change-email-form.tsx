@@ -2,6 +2,7 @@ import type { Route } from "@rr/app/features/users/api/+types/change-email";
 
 import { ArrowDown, Ban, Mail } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useFetcher } from "react-router";
 
 import FormErrors from "~/core/components/form-error";
@@ -18,10 +19,13 @@ import {
 } from "~/core/components/nex";
 
 export default function ChangeEmailForm({ email }: { email: string }) {
+  const { t } = useTranslation();
   const fetcher = useFetcher<Route.ComponentProps["actionData"]>();
   const formRef = useRef<HTMLFormElement>(null);
   const isChangeMode = Boolean(email);
-  const submitLabel = isChangeMode ? "Change email" : "Add email";
+  const submitLabel = isChangeMode
+    ? t("account.email.changeTitle")
+    : t("account.email.addTitle");
 
   useEffect(() => {
     if (fetcher.data && "success" in fetcher.data && fetcher.data.success) {
@@ -52,8 +56,8 @@ export default function ChangeEmailForm({ email }: { email: string }) {
               <NexCardTitle>{submitLabel}</NexCardTitle>
               <NexCardDescription>
                 {isChangeMode
-                  ? "Change your email address."
-                  : "Add an email address to your account."}
+                  ? t("account.email.changeDescription")
+                  : t("account.email.addDescription")}
               </NexCardDescription>
             </div>
           </div>
@@ -65,7 +69,7 @@ export default function ChangeEmailForm({ email }: { email: string }) {
               <>
                 <div className="group cursor-not-allowed [&_input]:pointer-events-none">
                   <NexInput
-                    label="Current email"
+                    label={t("account.email.currentEmail")}
                     id="currentEmail"
                     name="currentEmail"
                     required
@@ -83,7 +87,7 @@ export default function ChangeEmailForm({ email }: { email: string }) {
                     aria-describedby="current-email-hint"
                   />
                   <span id="current-email-hint" className="sr-only">
-                    This field cannot be edited
+                    {t("account.email.currentEmailHint")}
                   </span>
                 </div>
 
@@ -99,12 +103,16 @@ export default function ChangeEmailForm({ email }: { email: string }) {
             ) : null}
 
             <NexInput
-              label={isChangeMode ? "New email" : "Email"}
+              label={
+                isChangeMode
+                  ? t("account.email.newEmail")
+                  : t("account.email.emailLabel")
+              }
               id="email"
               name="email"
               required
               type="email"
-              placeholder="new-email@example.com"
+              placeholder={t("account.email.emailPlaceholder")}
               leftIcon={<Mail className="size-4" />}
             />
           </div>
@@ -122,7 +130,7 @@ export default function ChangeEmailForm({ email }: { email: string }) {
             {submitLabel}
           </NexButton>
           {fetcher.data && "success" in fetcher.data && fetcher.data.success ? (
-            <FormSuccess message="Email update process started. Please check your old email for a verification link." />
+            <FormSuccess message={t("account.email.updateStarted")} />
           ) : null}
           {fetcher.data && "error" in fetcher.data && fetcher.data.error ? (
             <FormErrors errors={[fetcher.data.error]} />

@@ -1,6 +1,7 @@
 import type { Route } from "@rr/app/features/users/api/+types/delete-account";
 
 import { AlertTriangle, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useFetcher } from "react-router";
 
 import FormErrors from "~/core/components/form-error";
@@ -16,6 +17,7 @@ import { Checkbox } from "~/core/components/ui/checkbox";
 import { Label } from "~/core/components/ui/label";
 
 export default function DeleteAccountForm() {
+  const { t } = useTranslation();
   const fetcher = useFetcher<Route.ComponentProps["actionData"]>();
 
   return (
@@ -38,7 +40,7 @@ export default function DeleteAccountForm() {
               <AlertTriangle className="size-5 text-red-600 dark:text-red-400" />
             </div>
             <NexCardTitle className="text-red-900 dark:text-red-100">
-              Danger zone
+              {t("account.delete.title")}
             </NexCardTitle>
           </div>
         </NexCardHeader>
@@ -47,8 +49,7 @@ export default function DeleteAccountForm() {
           <div className="flex flex-col gap-4">
             <div className="rounded-r-lg border-l-4 border-red-500 bg-red-100/80 px-4 py-3 dark:bg-red-950/50">
               <p className="text-sm leading-relaxed text-red-950 dark:text-red-50">
-                This action cannot be undone. Deleting your account will
-                permanently delete all your data.
+                {t("account.delete.warning")}
               </p>
             </div>
 
@@ -64,7 +65,7 @@ export default function DeleteAccountForm() {
                   htmlFor="confirm-delete"
                   className="cursor-pointer font-medium leading-snug text-foreground"
                 >
-                  I confirm that I want to delete my account.
+                  {t("account.delete.confirmDelete")}
                 </Label>
               </div>
 
@@ -79,7 +80,7 @@ export default function DeleteAccountForm() {
                   htmlFor="confirm-irreversible"
                   className="cursor-pointer font-medium leading-snug text-foreground"
                 >
-                  I understand that this action is irreversible.
+                  {t("account.delete.confirmIrreversible")}
                 </Label>
               </div>
             </div>
@@ -96,7 +97,7 @@ export default function DeleteAccountForm() {
             leftIcon={<Trash2 className="size-4" />}
             className="w-full border border-red-500/25 bg-red-800/90 font-semibold text-red-50 hover:bg-red-800 dark:border-red-500/30 dark:bg-red-950/75 dark:hover:bg-red-900/85"
           >
-            Delete account
+            {t("account.delete.deleteAccount")}
           </NexButton>
           {fetcher.data?.error ? (
             <FormErrors errors={[fetcher.data.error]} />

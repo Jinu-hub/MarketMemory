@@ -216,6 +216,68 @@ export type Translation = {
   itemReports: ItemReportsTranslation;
   weeklyAiIssueDigest: WeeklyAiIssueDigestTranslation;
   weeklyMarketIssues: WeeklyMarketIssuesTranslation;
+  account: {
+    meta: {
+      title: string;
+    };
+    errors: {
+      couldNotLoadProfile: string;
+      couldNotLoadPlan: string;
+      couldNotLoadSocialAccounts: string;
+      errorCode: string;
+      errorMessage: string;
+    };
+    profile: {
+      title: string;
+      description: string;
+      avatar: string;
+      avatarAlt: string;
+      uploadAvatarAriaLabel: string;
+      maxSize: string;
+      allowedFormats: string;
+      selectFile: string;
+      noFileSelected: string;
+      nameLabel: string;
+      namePlaceholder: string;
+      marketingConsent: string;
+      saveProfile: string;
+      profileUpdated: string;
+    };
+    email: {
+      changeTitle: string;
+      addTitle: string;
+      changeDescription: string;
+      addDescription: string;
+      currentEmail: string;
+      currentEmailHint: string;
+      newEmail: string;
+      emailLabel: string;
+      emailPlaceholder: string;
+      updateStarted: string;
+    };
+    password: {
+      changeTitle: string;
+      addTitle: string;
+      changeDescription: string;
+      addDescription: string;
+      newPassword: string;
+      confirmNewPassword: string;
+      requirementsTitle: string;
+      requirements: {
+        minLength: string;
+        upperLower: string;
+        numbers: string;
+      };
+      passwordUpdated: string;
+    };
+    delete: {
+      title: string;
+      warning: string;
+      confirmDelete: string;
+      confirmIrreversible: string;
+      deleteAccount: string;
+    };
+  };
   dashboardSidebar: {
     groups: {
       platform: string;

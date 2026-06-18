@@ -1,6 +1,7 @@
 import { type Route } from "@rr/app/features/users/api/+types/edit-profile";
 import { Check, ImageIcon, UserIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useFetcher } from "react-router";
 
 import FormErrors from "~/core/components/form-error";
@@ -27,6 +28,7 @@ export default function EditProfileForm({
   marketingConsent: boolean;
   avatarUrl: string | null;
 }) {
+  const { t } = useTranslation();
   const fetcher = useFetcher<Route.ComponentProps["actionData"]>();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,9 +82,9 @@ export default function EditProfileForm({
               <UserIcon className="size-5 text-white" />
             </div>
             <div>
-              <NexCardTitle>Edit profile</NexCardTitle>
+              <NexCardTitle>{t("account.profile.title")}</NexCardTitle>
               <NexCardDescription>
-                Manage your profile information.
+                {t("account.profile.description")}
               </NexCardDescription>
             </div>
           </div>
@@ -98,7 +100,7 @@ export default function EditProfileForm({
                     {avatar ? (
                       <img
                         src={avatar}
-                        alt="Avatar"
+                        alt={t("account.profile.avatarAlt")}
                         className="size-full object-cover"
                       />
                     ) : (
@@ -109,13 +111,13 @@ export default function EditProfileForm({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 shadow-md transition-transform hover:scale-105"
-                    aria-label="Upload avatar"
+                    aria-label={t("account.profile.uploadAvatarAriaLabel")}
                   >
                     <ImageIcon className="size-4 text-white" />
                   </button>
                 </div>
                 <span className="text-sm text-indigo-500 dark:text-indigo-300">
-                  Avatar
+                  {t("account.profile.avatar")}
                 </span>
               </div>
 
@@ -123,11 +125,11 @@ export default function EditProfileForm({
                 <div className="flex flex-col gap-1.5">
                   <span className="text-muted-foreground flex items-center gap-2 text-sm">
                     <Check className="size-4 shrink-0 text-emerald-500" />
-                    Max size: 1MB
+                    {t("account.profile.maxSize")}
                   </span>
                   <span className="text-muted-foreground flex items-center gap-2 text-sm">
                     <Check className="size-4 shrink-0 text-emerald-500" />
-                    Allowed formats: PNG, JPG, GIF
+                    {t("account.profile.allowedFormats")}
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -138,10 +140,10 @@ export default function EditProfileForm({
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    Select file
+                    {t("account.profile.selectFile")}
                   </NexButton>
                   <span className="text-muted-foreground text-sm">
-                    {selectedFileName ?? "No file selected"}
+                    {selectedFileName ?? t("account.profile.noFileSelected")}
                   </span>
                 </div>
                 <input
@@ -158,12 +160,12 @@ export default function EditProfileForm({
 
             {/* Name */}
             <NexInput
-              label="Name"
+              label={t("account.profile.nameLabel")}
               id="name"
               name="name"
               required
               type="text"
-              placeholder="Nico"
+              placeholder={t("account.profile.namePlaceholder")}
               defaultValue={name}
               leftIcon={<UserIcon className="size-4" />}
               error={nameError}
@@ -180,7 +182,7 @@ export default function EditProfileForm({
                 htmlFor="marketingConsent"
                 className="cursor-pointer font-medium"
               >
-                Consent to marketing emails
+                {t("account.profile.marketingConsent")}
               </Label>
             </div>
             {marketingConsentError ? (
@@ -197,10 +199,10 @@ export default function EditProfileForm({
             loading={fetcher.state === "submitting"}
             className="w-full font-semibold"
           >
-            Save profile
+            {t("account.profile.saveProfile")}
           </NexButton>
           {fetcher.data && "success" in fetcher.data && fetcher.data.success ? (
-            <FormSuccess message="Profile updated" />
+            <FormSuccess message={t("account.profile.profileUpdated")} />
           ) : null}
           {fetcher.data && "error" in fetcher.data && fetcher.data.error ? (
             <FormErrors errors={[fetcher.data.error]} />

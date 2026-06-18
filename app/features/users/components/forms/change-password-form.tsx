@@ -2,6 +2,7 @@ import type { Route } from "@rr/app/features/users/api/+types/change-password";
 
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useFetcher } from "react-router";
 
 import FormErrors from "~/core/components/form-error";
@@ -17,10 +18,10 @@ import {
   NexInput,
 } from "~/core/components/nex";
 
-const PASSWORD_REQUIREMENTS = [
-  "At least 8 characters",
-  "Contains uppercase and lowercase letters",
-  "Contains numbers",
+const PASSWORD_REQUIREMENT_KEYS = [
+  "account.password.requirements.minLength",
+  "account.password.requirements.upperLower",
+  "account.password.requirements.numbers",
 ] as const;
 
 export default function ChangePasswordForm({
@@ -28,9 +29,12 @@ export default function ChangePasswordForm({
 }: {
   hasPassword: boolean;
 }) {
+  const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement>(null);
   const fetcher = useFetcher<Route.ComponentProps["actionData"]>();
-  const submitLabel = hasPassword ? "Change password" : "Add password";
+  const submitLabel = hasPassword
+    ? t("account.password.changeTitle")
+    : t("account.password.addTitle");
 
   useEffect(() => {
     if (fetcher.data && "success" in fetcher.data && fetcher.data.success) {
@@ -76,8 +80,8 @@ export default function ChangePasswordForm({
               <NexCardTitle>{submitLabel}</NexCardTitle>
               <NexCardDescription>
                 {hasPassword
-                  ? "Change your password."
-                  : "Add a password to your account."}
+                  ? t("account.password.changeDescription")
+                  : t("account.password.addDescription")}
               </NexCardDescription>
             </div>
           </div>
@@ -86,7 +90,7 @@ export default function ChangePasswordForm({
         <NexCardContent>
           <div className="flex flex-col gap-4">
             <NexInput
-              label="New password"
+              label={t("account.password.newPassword")}
               id="password"
               name="password"
               required
@@ -97,7 +101,7 @@ export default function ChangePasswordForm({
             />
 
             <NexInput
-              label="Confirm new password"
+              label={t("account.password.confirmNewPassword")}
               id="confirmPassword"
               name="confirmPassword"
               required
@@ -114,19 +118,19 @@ export default function ChangePasswordForm({
 
             <div className="rounded-xl border border-blue-200 bg-blue-50/80 p-4 dark:border-blue-800/60 dark:bg-blue-950/40">
               <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                Password requirements
+                {t("account.password.requirementsTitle")}
               </p>
               <ul className="mt-2 space-y-1.5">
-                {PASSWORD_REQUIREMENTS.map((requirement) => (
+                {PASSWORD_REQUIREMENT_KEYS.map((requirementKey) => (
                   <li
-                    key={requirement}
+                    key={requirementKey}
                     className="text-muted-foreground flex items-start gap-2 text-sm"
                   >
                     <span
                       className="mt-1.5 size-1.5 shrink-0 rounded-full bg-blue-500 dark:bg-blue-400"
                       aria-hidden="true"
                     />
-                    {requirement}
+                    {t(requirementKey)}
                   </li>
                 ))}
               </ul>
@@ -146,7 +150,7 @@ export default function ChangePasswordForm({
             {submitLabel}
           </NexButton>
           {fetcher.data && "success" in fetcher.data && fetcher.data.success ? (
-            <FormSuccess message="Password updated" />
+            <FormSuccess message={t("account.password.passwordUpdated")} />
           ) : null}
           {fetcher.data && "error" in fetcher.data && fetcher.data.error ? (
             <FormErrors errors={[fetcher.data.error]} />

@@ -1,8 +1,10 @@
 import type { Route } from "./+types/account";
 
 import { Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { Await } from "react-router";
 
+import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import ChangeEmailForm from "../components/forms/change-email-form";
@@ -14,12 +16,9 @@ import EditProfileForm from "../components/forms/edit-profile-form";
 //import { getUserProfile, getUserSubscription } from "../queries";
 import { getUserProfile } from "../queries";
 
-export const meta: Route.MetaFunction = () => {
-  return [{ title: `Account | ${import.meta.env.VITE_APP_NAME}` }];
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
+  const t = await i18next.getFixedT(request);
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -31,10 +30,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     identities,
     profile,
     //subscription,
+    meta: {
+      title: `${t("account.meta.title")} | ${import.meta.env.VITE_APP_NAME}`,
+    },
   };
 }
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  return [{ title: data?.meta.title ?? "Account" }];
+};
+
 export default function Account({ loaderData }: Route.ComponentProps) {
+  const { t } = useTranslation();
   const { user, identities, profile } = loaderData;
   const hasEmailIdentity = user?.identities?.some(
     (identity) => identity.provider === "email",
@@ -50,7 +57,9 @@ export default function Account({ loaderData }: Route.ComponentProps) {
         <Await
           resolve={profile}
           errorElement={
-            <div className="text-red-500">Could not load profile</div>
+            <div className="text-red-500">
+              {t("account.errors.couldNotLoadProfile")}
+            </div>
           }
         >
           {(profile) => {
@@ -78,7 +87,9 @@ export default function Account({ loaderData }: Route.ComponentProps) {
         <Await
           resolve={subscription}
           errorElement={
-            <div className="text-red-500">Could not load plan information</div>
+            <div className="text-red-500">
+              {t("account.errors.couldNotLoadPlan")}
+            </div>
           }
         >
           {(subscription) => (
@@ -105,16 +116,22 @@ export default function Account({ loaderData }: Route.ComponentProps) {
         <Await
           resolve={identities}
           errorElement={
-            <div className="text-red-500">Could not load social accounts</div>
+            <div className="text-red-500">
+              {t("account.errors.couldNotLoadSocialAccounts")}
+            </div>
           }
         >
           {({ data, error }) => {
             if (!data) {
               return (
                 <div className="text-red-500">
-                  <span>Could not load social accounts</span>
-                  <span className="text-xs">Code: {error.code}</span>
-                  <span className="text-xs">Message: {error.message}</span>
+                  <span>{t("account.errors.couldNotLoadSocialAccounts")}</span>
+                  <span className="text-xs">
+                    {t("account.errors.errorCode", { code: error.code })}
+                  </span>
+                  <span className="text-xs">
+                    {t("account.errors.errorMessage", { message: error.message })}
+                  </span>
                 </div>
               );
             }
