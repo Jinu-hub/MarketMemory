@@ -158,7 +158,7 @@ const ui = {
       sections: {
         summary: {
           title: "핵심 요약",
-          hint: "해당 거래일 시장을 어떻게 봐야 하는지",
+          hint: "거래일 흐름과 논점을 짧게 정리한 요약",
         },
         themes: {
           title: "주요 테마",
@@ -181,6 +181,15 @@ const ui = {
         description: "이 시장 메모리를 생성하는 데 사용된 리포트입니다.",
         openAction: "목록 보기",
         empty: "근거 리포트 정보가 없습니다.",
+      },
+      sourceConsistency: {
+        title: "근거 리포트 정합성 불일치",
+        description:
+          "리포트 재생성으로 활성 item_content가 바뀌었습니다. 근거 목록을 현재 활성 리포트 기준으로 맞출 수 있습니다.",
+        detail: "기대 {expected}건 · 현재 {actual}건",
+        action: "정합성 교정",
+        actionAria: "근거 리포트 목록을 현재 활성 리포트 기준으로 다시 작성합니다",
+        success: "교정 완료 · {count}건 반영",
       },
     },
     latestReports: {
@@ -276,7 +285,7 @@ const ui = {
       sections: {
         summary: {
           title: "Core summary",
-          hint: "How to read the market for this trading day",
+          hint: "A short synthesis of the day's moves and themes",
         },
         themes: {
           title: "Key themes",
@@ -299,6 +308,16 @@ const ui = {
         description: "Reports used to generate this market memory.",
         openAction: "View list",
         empty: "No source report information is available.",
+      },
+      sourceConsistency: {
+        title: "Source report mismatch",
+        description:
+          "Active item_content changed after report regeneration. You can realign the source list to current active reports.",
+        detail: "Expected {expected} · Current {actual}",
+        action: "Reconcile sources",
+        actionAria:
+          "Rewrite source reports from current active item_content rows",
+        success: "Reconciled · {count} sources",
       },
     },
     latestReports: {
@@ -394,7 +413,7 @@ const ui = {
       sections: {
         summary: {
           title: "核心要約",
-          hint: "この取引日の市場の見方",
+          hint: "取引日の動きと論点を短くまとめた要約",
         },
         themes: {
           title: "主要テーマ",
@@ -417,6 +436,16 @@ const ui = {
         description: "この市場メモリの生成に使用されたレポートです。",
         openAction: "一覧を見る",
         empty: "根拠レポート情報がありません。",
+      },
+      sourceConsistency: {
+        title: "根拠レポートの不整合",
+        description:
+          "レポート再生成によりアクティブな item_content が変わりました。根拠一覧を現在のアクティブ版に合わせられます。",
+        detail: "想定 {expected}件 · 現在 {actual}件",
+        action: "整合性を修正",
+        actionAria:
+          "根拠レポート一覧を現在のアクティブ item_content 基準で再作成します",
+        success: "修正完了 · {count}件を反映",
       },
     },
     latestReports: {

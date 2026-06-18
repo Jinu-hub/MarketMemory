@@ -22,13 +22,17 @@ import {
 } from "../lib/signal-strength";
 import type { DailyMarketMemorySnapshot, DailyMemoryTheme } from "../types";
 import { ReadingEmpty, ReadingProse } from "./reading-prose";
+import { AdminSourcesReconcileButton } from "./admin-sources-reconcile-button";
 import { SectionLabel } from "./section-label";
 import { SourceReportsSheet } from "./source-reports-sheet";
+import type { DailyMarketMemorySourcesConsistency } from "../lib/daily-market-memory-sources.server";
 
 type TodayMarketMemoryBlockProps = {
   memory: DailyMarketMemorySnapshot | null;
   sourceReports?: ReportListItem[];
   locale: string;
+  isAdmin?: boolean;
+  sourceConsistency?: DailyMarketMemorySourcesConsistency | null;
   className?: string;
 };
 
@@ -36,6 +40,8 @@ export function TodayMarketMemoryBlock({
   memory,
   sourceReports = [],
   locale,
+  isAdmin = false,
+  sourceConsistency = null,
   className,
 }: TodayMarketMemoryBlockProps) {
   const ui = pickDashboardUi(locale);
@@ -80,18 +86,27 @@ export function TodayMarketMemoryBlock({
             </p>
           ) : null}
         </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
-          {memory.source_report_count > 0 ? (
-            <SourceReportsSheet
-              reports={sourceReports}
-              count={memory.source_report_count}
+        <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
+            {memory.source_report_count > 0 ? (
+              <SourceReportsSheet
+                reports={sourceReports}
+                count={memory.source_report_count}
+                locale={locale}
+              />
+            ) : null}
+            {memory.status === "draft" ? (
+              <NexBadge variant="warning" size="sm">
+                {t.draft}
+              </NexBadge>
+            ) : null}
+          </div>
+          {isAdmin && sourceConsistency && !sourceConsistency.ok ? (
+            <AdminSourcesReconcileButton
+              memoryId={memory.id}
               locale={locale}
+              consistency={sourceConsistency}
             />
-          ) : null}
-          {memory.status === "draft" ? (
-            <NexBadge variant="warning" size="sm">
-              {t.draft}
-            </NexBadge>
           ) : null}
         </div>
       </header>

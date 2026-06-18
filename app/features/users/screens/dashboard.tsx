@@ -19,9 +19,12 @@
  * renders with helpful empty states.
  */
 import { useTranslation } from "react-i18next";
+import { data } from "react-router";
+import { z } from "zod";
 
 import type { Route } from "./+types/dashboard";
 
+import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { MarketDatePicker } from "~/features/dashboard/components/market-date-picker";
@@ -32,6 +35,10 @@ import { MemoryRecallBlock } from "~/features/dashboard/components/memory-recall
 import { SignalRadarBlock } from "~/features/dashboard/components/signal-radar-block";
 import { parseMarketDateParam } from "~/features/dashboard/lib/dates";
 import {
+  checkDailyMarketMemorySourcesConsistency,
+  reconcileDailyMarketMemorySources,
+} from "~/features/dashboard/lib/daily-market-memory-sources.server";
+import {
   getAvailableMarketMemoryDates,
   getDailyMarketMemoryByDate,
   getDailyMarketMemorySources,
@@ -39,11 +46,19 @@ import {
 } from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
 import { localizeItemContents } from "~/features/item-reports/lib/item-content-localization";
+import { getUserProfile } from "~/features/users/queries";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   const t = await i18next.getFixedT(request);
   const locale = await i18next.getLocale(request);
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  const profile = user
+    ? await getUserProfile(client, { userId: user.id }).catch(() => null)
+    : null;
+  const isAdmin = profile?.is_admin === true;
 
   const url = new URL(request.url);
   const requestedDate = parseMarketDateParam(url.searchParams.get("date"));
@@ -61,6 +76,13 @@ export async function loader({ request }: Route.LoaderArgs) {
     ? await getDailyMarketMemorySources(client, memory.id).catch(() => [])
     : [];
 
+  const sourceConsistency =
+    isAdmin && memory
+      ? await checkDailyMarketMemorySourcesConsistency(client, memory.id).catch(
+          () => null,
+        )
+      : null;
+
   // Localize report content to the reader's language (item_content_i18n),
   // falling back to the original-language rows when no translation exists.
   const [sourceReports, recentReports] = await Promise.all([
@@ -71,6 +93,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   return {
     memory,
     sourceReports,
+    sourceConsistency,
+    isAdmin,
     recentReports,
     availableDates,
     locale,
@@ -79,6 +103,39 @@ export async function loader({ request }: Route.LoaderArgs) {
       description: t("dashboard.meta.description"),
     },
   };
+}
+
+const reconcileSourcesSchema = z.object({
+  intent: z.literal("reconcile_sources"),
+  memory_id: z.string().uuid(),
+});
+
+export async function action({ request }: Route.ActionArgs) {
+  requireMethod("POST")(request);
+  const [client] = makeServerClient(request);
+  await requireAdmin(client);
+
+  const formData = await request.formData();
+  const parsed = reconcileSourcesSchema.safeParse({
+    intent: formData.get("intent"),
+    memory_id: formData.get("memory_id"),
+  });
+
+  if (!parsed.success) {
+    return data({ message: "Invalid request" }, { status: 400 });
+  }
+
+  try {
+    const result = await reconcileDailyMarketMemorySources(
+      client,
+      parsed.data.memory_id,
+    );
+    return data({ ok: true as const, sourceCount: result.sourceCount });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to reconcile sources";
+    return data({ message }, { status: 400 });
+  }
 }
 
 export const meta: Route.MetaFunction = ({ data }) => {
@@ -94,8 +151,15 @@ export const meta: Route.MetaFunction = ({ data }) => {
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation();
-  const { memory, sourceReports, recentReports, availableDates, locale } =
-    loaderData;
+  const {
+    memory,
+    sourceReports,
+    sourceConsistency,
+    isAdmin,
+    recentReports,
+    availableDates,
+    locale,
+  } = loaderData;
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-2 pb-10 sm:gap-7 sm:px-4 sm:pb-12 md:gap-8 md:px-6 md:pb-16 lg:px-8">
@@ -146,6 +210,8 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         memory={memory}
         sourceReports={sourceReports}
         locale={locale}
+        isAdmin={isAdmin}
+        sourceConsistency={sourceConsistency}
       />
 
       <LatestReportsBlock reports={recentReports} locale={locale} />
