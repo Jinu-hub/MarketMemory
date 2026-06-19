@@ -113,7 +113,7 @@ const itemReports = {
   "list": {
     "eyebrow": "Item Reports",
     "title": "レポートライブラリ",
-    "subtitle": "カテゴリ・タイプ・地域・タグで絞り込み、読みたいレポートを素早く見つけられます。フィルターはすべてURLに保存され、共有とブックマークが可能です。",
+    "subtitle": "カテゴリ・タイプ・地域・タグで絞り込み、読みたいレポートを素早く見つけられます。\nフィルターはすべてURLに保存され、共有とブックマークが可能です。",
     "metaDescription": "カテゴリ・地域・タグ別に整理されたレポートライブラリ",
     "metaTitle": "Item Reports",
     "sortNewest": "新しい順",
@@ -201,10 +201,10 @@ const itemReports = {
   },
   "timeline": {
     "metaTitle": "Reports Timeline",
-    "metaDescription": "月別レポート年表 — 最近発行されたリサーチを時系列で確認できます。",
+    "metaDescription": "月別レポートタイムライン — 最近発行されたリサーチを時系列で確認できます。",
     "badge": "Timeline",
-    "title": "レポート年表",
-    "subtitle": "月別に整理された最近のレポートを確認できます。各項目の色はカテゴリを表し、市場・トレンド・イシューの流れの変化を一目で追えます。",
+    "title": "レポートタイムライン",
+    "subtitle": "月別に整理された最近のレポートを確認できます。\n各項目の色はカテゴリを表し、市場・トレンド・イシューの流れの変化を一目で追えます。",
     "yearCount": "{year}年 {count}件",
     "totalCount": "合計 {count}件",
     "filterTitle": "フィルター",

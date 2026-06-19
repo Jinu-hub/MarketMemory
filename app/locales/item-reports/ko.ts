@@ -113,7 +113,7 @@ const itemReports = {
   "list": {
     "eyebrow": "Item Reports",
     "title": "리포트 라이브러리",
-    "subtitle": "카테고리·유형·지역·태그별로 필터링해 읽고 싶은 리포트를 빠르게 찾아보세요. 모든 필터는 URL에 저장되어 공유와 북마크가 가능합니다.",
+    "subtitle": "카테고리·유형·지역·태그별로 필터링해 읽고 싶은 리포트를 빠르게 찾아보세요. \n모든 필터는 URL에 저장되어 공유와 북마크가 가능합니다.",
     "metaDescription": "카테고리·지역·태그별로 정돈된 리포트 라이브러리",
     "metaTitle": "Item Reports",
     "sortNewest": "최신순",
@@ -204,7 +204,7 @@ const itemReports = {
     "metaDescription": "월별 리포트 연대기 — 최근 발행된 리서치를 시간순으로 확인하세요.",
     "badge": "Timeline",
     "title": "리포트 연대기",
-    "subtitle": "월별로 정돈된 최근 리포트를 확인하세요. 각 항목의 색상은 카테고리를 의미합니다 — 시장, 트렌드, 이슈 흐름의 변화를 한눈에 추적할 수 있어요.",
+    "subtitle": "월별로 정돈된 최근 리포트를 확인하세요. 각 항목의 색상은 카테고리를 의미합니다.\n시장, 트렌드, 이슈 흐름의 변화를 한눈에 추적할 수 있어요.",
     "yearCount": "{year}년 {count}건",
     "totalCount": "총 {count}건",
     "filterTitle": "필터링",

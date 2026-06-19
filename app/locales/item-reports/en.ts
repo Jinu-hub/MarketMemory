@@ -113,7 +113,7 @@ const itemReports = {
   "list": {
     "eyebrow": "Item Reports",
     "title": "Report library",
-    "subtitle": "Filter by category, type, region, or tag to find what you want to read. Every filter lives in the URL so you can share and bookmark views.",
+    "subtitle": "Filter by category, type, region, or tag to find what you want to read. \nEvery filter lives in the URL so you can share and bookmark views.",
     "metaDescription": "A curated report library by category, region, and tag",
     "metaTitle": "Item Reports",
     "sortNewest": "Newest",

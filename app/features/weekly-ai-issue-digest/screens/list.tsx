@@ -183,7 +183,7 @@ export default function WeeklyDigestList({ loaderData }: Route.ComponentProps) {
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl">
               {title}
             </h1>
-            <p className="text-muted-foreground max-w-4xl text-sm leading-relaxed md:text-base">
+            <p className="text-muted-foreground max-w-5xl text-sm leading-relaxed md:text-base">
               {description}
             </p>
           </div>

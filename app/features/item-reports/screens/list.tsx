@@ -116,7 +116,7 @@ export default function ItemReportsList({ loaderData }: Route.ComponentProps) {
             <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
               {ui.list.title}
             </h1>
-            <p className="text-muted-foreground mt-2 max-w-2xl text-sm md:text-base">
+            <p className="text-muted-foreground mt-2 max-w-5xl text-sm leading-relaxed whitespace-pre-line md:text-base">
               {ui.list.subtitle}
             </p>
           </div>

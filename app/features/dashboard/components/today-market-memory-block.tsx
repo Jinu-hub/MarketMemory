@@ -81,7 +81,7 @@ export function TodayMarketMemoryBlock({
             {memory.display_title ?? t.defaultTitle}
           </h2>
           {memory.display_subtitle ? (
-            <p className="text-muted-foreground max-w-2xl text-xs sm:text-sm md:text-base">
+            <p className="text-muted-foreground max-w-3xl text-xs sm:text-sm md:text-base">
               {memory.display_subtitle}
             </p>
           ) : null}

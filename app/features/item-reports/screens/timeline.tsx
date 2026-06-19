@@ -130,7 +130,7 @@ export default function ItemReportsTimeline({
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
           {ui.timeline.title}
         </h1>
-        <p className="text-muted-foreground max-w-2xl text-sm md:text-base">
+        <p className="text-muted-foreground max-w-5xl text-sm leading-relaxed whitespace-pre-line md:text-base">
           {ui.timeline.subtitle}
         </p>
       </header>

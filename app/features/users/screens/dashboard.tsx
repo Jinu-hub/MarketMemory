@@ -171,7 +171,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
           <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
             {t("dashboard.page.title")}
           </h1>
-          <p className="text-muted-foreground mt-1.5 max-w-2xl text-xs sm:mt-2 sm:text-sm md:text-base">
+          <p className="text-muted-foreground mt-1.5 max-w-5xl text-xs leading-relaxed sm:mt-2 sm:text-sm md:text-base">
             {t("dashboard.page.subtitle")}
           </p>
         </div>
