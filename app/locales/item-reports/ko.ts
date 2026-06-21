@@ -17,6 +17,7 @@ const itemReports = {
       "digest-report": "Digest",
       "full-report": "Full Report",
       "analysis-report": "Analysis",
+      "timeline-report": "Timeline",
       "thesis-report": "Thesis",
       "briefing-report": "Briefing",
       "baseline-report": "Baseline",
@@ -62,6 +63,7 @@ const itemReports = {
       "UNKNOWN": "미상"
     },
     "reportTypeExploreIntro": {
+      "timeline-report": "시간의 흐름을 바탕으로 정리된 리포트입니다. 맥락과 흐름을 파악해가며 읽어보세요.",
       "digest-report": "핵심만 압축해 한눈에 흐름을 잡기 좋습니다. 바쁜 날 먼저 훑기에 적합합니다.",
       "full-report": "맥락과 근거가 길게 이어지며, 천천히 읽으며 이해를 쌓기 좋습니다.",
       "analysis-report": "수치·논리로 이슈를 풀어 줍니다. 판단 근거를 다지고 싶을 때입니다.",

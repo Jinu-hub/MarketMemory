@@ -281,6 +281,13 @@
       "when": 1781602270738,
       "tag": "0039_slow_nico_minoru",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1782023194113,
+      "tag": "0040_gray_energizer",
+      "breakpoints": true
     }
   ]
 }

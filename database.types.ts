@@ -1775,6 +1775,7 @@ export type Database = {
         | "thesis-report"
         | "briefing-report"
         | "baseline-report"
+        | "timeline-report"
         | "review"
         | "other"
       similarity_level: "weak" | "medium" | "high" | "strong"
@@ -1966,6 +1967,7 @@ export const Constants = {
         "thesis-report",
         "briefing-report",
         "baseline-report",
+        "timeline-report",
         "review",
         "other",
       ],

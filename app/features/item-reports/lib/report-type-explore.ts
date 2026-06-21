@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
+  Calendar,
   ClipboardList,
   Layers,
   LayoutGrid,
@@ -19,6 +20,7 @@ export const REPORT_TYPE_EXPLORE_ICON: Record<ReportType, LucideIcon> = {
   "digest-report": Newspaper,
   "full-report": BookOpen,
   "analysis-report": LineChart,
+  "timeline-report": Calendar,
   "thesis-report": Lightbulb,
   "briefing-report": Megaphone,
   "baseline-report": Layers,

@@ -119,6 +119,7 @@ export const reportType = pgEnum("report_type", [
   "thesis-report",
   "briefing-report",
   "baseline-report",
+  "timeline-report",
   "review",
   "other",
 ]);

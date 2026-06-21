@@ -36,6 +36,7 @@ export const REPORT_TYPES: ReportType[] = [
   "thesis-report",
   "briefing-report",
   "baseline-report",
+  "timeline-report",
   "review",
   "other",
 ];
