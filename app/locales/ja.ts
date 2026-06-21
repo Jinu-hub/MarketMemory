@@ -213,14 +213,14 @@ const ja: Translation = {
     meta: {
       title: "ダッシュボード",
       description:
-        "取引日基準の市場ブリーフィング、スナップショット、最新レポートを一画面で確認できます。",
+        "MARKET DATE基準の市場ブリーフィング、スナップショット、最新レポートを一画面で確認できます。",
     },
     page: {
       eyebrow: "Dashboard",
       title: "最新の市場ブリーフィング",
       subtitle:
-        "取引日ごとに整理した市場メモリ。要約・テーマ・ムードとスナップショットを一画面で見られます。",
-      tradingDay: "取引日",
+        "MARKET DATEごとに整理した市場メモリ。要約・テーマ・ムードとスナップショットを一画面で見られます。",
+      tradingDay: "MARKET DATE",
       publishedAtLabel: "配信",
       statusLabel: "状態",
       draftNote: "処理中",
@@ -228,7 +228,7 @@ const ja: Translation = {
       datePicker: {
         triggerLabel: "別の日付の市場メモリを見る",
         title: "日付を選択",
-        hint: "記録がある取引日のみ選択できます。",
+        hint: "記録があるMARKET DATEのみ選択できます。",
         latest: "最新へ",
       },
     },
@@ -321,7 +321,7 @@ const ja: Translation = {
     nav: {
       dashboard: {
         title: "ダッシュボード",
-        marketBriefing: "マーケットブリーフィング",
+        marketBriefing: "市場ブリーフィング",
         weeklyReport: "週間レポート",
         monthlyReport: "月間レポート",
       },
@@ -333,7 +333,7 @@ const ja: Translation = {
       },
       insights: {
         title: "インサイト",
-        marketMemory: "マーケットメモリ",
+        marketMemory: "市場メモリ",
         entityExplore: "エンティティ探索",
       },
       admin: {
@@ -349,7 +349,7 @@ const ja: Translation = {
     },
     series: {
       weeklyAiIssueDigest: "週間AIイシューダイジェスト",
-      weeklyMarketIssues: "週間グローバル市場主要イシュー",
+      weeklyMarketIssues: "週間グローバル市場イシュー",
     },
   },
 };

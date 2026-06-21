@@ -213,14 +213,14 @@ const ko: Translation = {
     meta: {
       title: "대시보드",
       description:
-        "거래일 기준 시장 브리핑, 스냅샷, 최신 리포트를 한 화면에서 확인합니다.",
+        "MARKET DATE 기준 시장 브리핑, 스냅샷, 최신 리포트를 한 화면에서 확인합니다.",
     },
     page: {
       eyebrow: "Dashboard",
       title: "마켓 브리핑",
       subtitle:
-        "거래일 기준으로 정리한 마켓 메모리입니다. 핵심 요약, 테마, 분위기와 스냅샷을 한 화면에서 확인할 수 있습니다.",
-      tradingDay: "거래일",
+        "MARKET DATE 기준으로 정리한 마켓 메모리입니다. 핵심 요약, 테마, 분위기와 스냅샷을 한 화면에서 확인할 수 있습니다.",
+      tradingDay: "MARKET DATE",
       publishedAtLabel: "발행",
       statusLabel: "상태",
       draftNote: "처리 중",
@@ -228,7 +228,7 @@ const ko: Translation = {
       datePicker: {
         triggerLabel: "다른 날짜의 시장 메모리 보기",
         title: "날짜 선택",
-        hint: "기록이 있는 거래일만 선택할 수 있어요.",
+        hint: "기록이 있는 MARKET DATE만 선택할 수 있어요.",
         latest: "최신으로",
       },
     },
