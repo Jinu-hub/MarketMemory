@@ -92,7 +92,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
  */
 const PLACEHOLDERS: Record<string, string> = {
   // Last updated dates per document (short ID style)
-  tos_last_updated: '2026-02-12',
+  tos_last_updated: '2026-06-25',
   privacy_last_updated: '2026-06-25',
   refund_last_updated: '2026-01-22',
   security_last_updated: '2026-01-22',
