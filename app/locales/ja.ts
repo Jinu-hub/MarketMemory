@@ -4,6 +4,11 @@ import weeklyAiIssueDigest from "./weekly-ai-issue-digest/ja";
 import weeklyMarketIssues from "./weekly-market-issues/ja";
 
 const ja: Translation = {
+  common: {
+    actions: {
+      back: "戻る",
+    },
+  },
   auth: {
     signIn: "ログイン",
   },

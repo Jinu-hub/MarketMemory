@@ -4,6 +4,11 @@ import weeklyAiIssueDigest from "./weekly-ai-issue-digest/en";
 import weeklyMarketIssues from "./weekly-market-issues/en";
 
 const en: Translation = {
+  common: {
+    actions: {
+      back: "Back",
+    },
+  },
   auth: {
     signIn: "Sign in",
   },

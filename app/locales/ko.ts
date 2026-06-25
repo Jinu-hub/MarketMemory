@@ -4,6 +4,11 @@ import weeklyAiIssueDigest from "./weekly-ai-issue-digest/ko";
 import weeklyMarketIssues from "./weekly-market-issues/ko";
 
 const ko: Translation = {
+  common: {
+    actions: {
+      back: "뒤로",
+    },
+  },
   auth: {
     signIn: "로그인하기",
   },

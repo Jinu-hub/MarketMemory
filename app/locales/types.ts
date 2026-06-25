@@ -3,6 +3,11 @@ import type { WeeklyAiIssueDigestTranslation } from "./weekly-ai-issue-digest/ty
 import type { WeeklyMarketIssuesTranslation } from "./weekly-market-issues/types";
 
 export type Translation = {
+  common: {
+    actions: {
+      back: string;
+    };
+  };
   auth: {
     signIn: string;
   };

@@ -93,14 +93,14 @@ export const meta: Route.MetaFunction = ({ data }) => {
 const PLACEHOLDERS: Record<string, string> = {
   // Last updated dates per document (short ID style)
   tos_last_updated: '2026-02-12',
-  privacy_last_updated: '2026-02-12',
+  privacy_last_updated: '2026-06-25',
   refund_last_updated: '2026-01-22',
   security_last_updated: '2026-01-22',
   commercial_last_updated: '2026-01-22',
   'support email': import.meta.env.VITE_SUPPORT_EMAIL || 'jinu30dev@gmail.com',
-  'company name': 'NexLetter',
+  'company name': 'Market Memory',
   'company address': 'Seoul, South Korea',
-  'service URL': import.meta.env.VITE_SERVICE_URL || 'https://nexone.ink',
+  'service URL': import.meta.env.VITE_SERVICE_URL || 'https://marketmemory.app',
   'company or service provider': 'LinkVerse',
   // Add more placeholders as needed
 };
@@ -223,15 +223,15 @@ export default function Policy({
 }: Route.ComponentProps) {
   // Convert the compiled MDX code into a React component
   const MDXContent = getMDXComponent(code);
-  const { t } = useTranslation("common", { keyPrefix: "common" });
+  const { t } = useTranslation();
   
   return (
     <div className="mx-auto w-full max-w-screen-xl space-y-10 px-5 py-10 md:px-10 md:py-20">
       {/* Navigation button to go back */}
       {/* Using window.history.back() instead of navigate(-1) to ensure proper */}
       {/* locale and auth state are preserved (avoiding prerendered page cache) */}
-      <Button variant="outline" onClick={() => window.history.back()}>
-        &larr; {t("back")}
+      <Button variant="outline" className="cursor-pointer" onClick={() => window.history.back()}>
+        &larr; {t("common.actions.back")}
       </Button>
       
       {/* MDX content container */}
