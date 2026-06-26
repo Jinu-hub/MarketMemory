@@ -101,7 +101,7 @@ export default function Footer() {
     {
       title: t("menu.links.support.title"),
       items: [
-        { label: t("menu.links.support.items.faq"), href: "/faq", disabled: true, tooltip: t("tooltip.soon") },
+        { label: t("menu.links.support.items.faq"), href: "/faq" },
         { label: t("menu.links.support.items.contact"), href: "/contact" },
        // { label: t("menu.links.support.items.community"), href: "/forum", disabled: true, tooltip: t("tooltip.soon") },
       ]

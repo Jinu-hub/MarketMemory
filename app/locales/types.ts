@@ -196,6 +196,40 @@ export type Translation = {
     title: string;
     description: string;
   };
+  faq: {
+    meta: {
+      title: string;
+      description: string;
+    };
+    hero: {
+      badge: string;
+      title: string;
+      subtitle: string;
+    };
+    search: {
+      label: string;
+      placeholder: string;
+    };
+    resultsCount: string;
+    empty: {
+      title: string;
+      description: string;
+      clear: string;
+    };
+    categories: {
+      intro: string;
+      reports: string;
+      account: string;
+      support: string;
+      roadmap: string;
+    };
+    cta: {
+      title: string;
+      description: string;
+      button: string;
+    };
+    disclaimer: string;
+  };
   dashboard: {
     meta: {
       title: string;

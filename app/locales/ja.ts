@@ -214,6 +214,44 @@ const ja: Translation = {
     description:
       "ご不明な点やご提案がございましたら、お気軽にお問い合わせください。迅速にご返答いたします。",
   },
+  faq: {
+    meta: {
+      title: "よくある質問",
+      description:
+        "Market Memoryのサービス、レポート、アカウント、料金に関するよくある質問をまとめました。",
+    },
+    hero: {
+      badge: "ヘルプ · FAQ",
+      title: "よくある質問",
+      subtitle:
+        "Market Memoryを初めてご利用ですか？サービス・レポート・アカウントについて特に多い質問をまとめました。",
+    },
+    search: {
+      label: "FAQを検索",
+      placeholder: "知りたい内容を検索",
+    },
+    resultsCount: "質問 {{count}}件",
+    empty: {
+      title: "検索結果がありません",
+      description: "別のキーワードで検索するか、すべての質問をご覧ください。",
+      clear: "検索をクリア",
+    },
+    categories: {
+      intro: "サービス紹介",
+      reports: "コンテンツ · レポート",
+      account: "アカウント · 料金",
+      support: "フィードバック · サポート",
+      roadmap: "ロードマップ",
+    },
+    cta: {
+      title: "お探しの答えが見つかりませんでしたか？",
+      description:
+        "ご質問やフィードバックがあればいつでもお知らせください。ご意見はサービス改善の大きな助けになります。",
+      button: "お問い合わせ",
+    },
+    disclaimer:
+      "Market Memoryは情報提供を目的としており、投資助言や推奨を行うものではありません。最終的な投資判断はご自身の責任で行ってください。",
+  },
   dashboard: {
     meta: {
       title: "ダッシュボード",

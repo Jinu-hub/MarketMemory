@@ -214,6 +214,44 @@ const ko: Translation = {
     description:
       "질문이나 제안이 있으시면 언제든 연락주세요. 빠른 답변을 드리겠습니다.",
   },
+  faq: {
+    meta: {
+      title: "자주 묻는 질문",
+      description:
+        "Market Memory 서비스, 리포트, 계정, 요금에 대해 자주 묻는 질문을 모았습니다.",
+    },
+    hero: {
+      badge: "도움말 · FAQ",
+      title: "자주 묻는 질문",
+      subtitle:
+        "Market Memory를 처음 사용하시나요? 서비스, 리포트, 계정에 대해 가장 많이 궁금해하는 내용을 정리했습니다.",
+    },
+    search: {
+      label: "FAQ 검색",
+      placeholder: "궁금한 내용을 검색해 보세요",
+    },
+    resultsCount: "질문 {{count}}개",
+    empty: {
+      title: "검색 결과가 없어요",
+      description: "다른 키워드로 검색하거나 전체 질문을 둘러보세요.",
+      clear: "검색 초기화",
+    },
+    categories: {
+      intro: "서비스 소개",
+      reports: "콘텐츠 · 리포트",
+      account: "계정 · 요금",
+      support: "피드백 · 지원",
+      roadmap: "로드맵",
+    },
+    cta: {
+      title: "원하는 답을 찾지 못하셨나요?",
+      description:
+        "궁금한 점이나 피드백이 있다면 언제든지 알려주세요. 사용자 의견은 서비스 개선에 큰 도움이 됩니다.",
+      button: "문의하기",
+    },
+    disclaimer:
+      "Market Memory는 정보 제공을 목적으로 하며 투자 자문이나 추천을 제공하지 않습니다. 최종 투자 판단의 책임은 사용자 본인에게 있습니다.",
+  },
   dashboard: {
     meta: {
       title: "대시보드",

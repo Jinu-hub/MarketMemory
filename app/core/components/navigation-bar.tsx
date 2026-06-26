@@ -290,9 +290,7 @@ export function NavigationBar({
           <Link
             to="/faq"
             viewTransition
-            aria-disabled="true"
-            className="text-muted-foreground hover:text-foreground text-sm transition-colors pointer-events-none opacity-50 cursor-not-allowed"
-            onClick={(e) => e.preventDefault()}
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             {t("menu.links.support.items.faq")}
           </Link>

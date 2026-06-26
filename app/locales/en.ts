@@ -214,6 +214,44 @@ const en: Translation = {
     description:
       "If you have any questions or suggestions, please feel free to contact us. We will respond quickly.",
   },
+  faq: {
+    meta: {
+      title: "FAQ",
+      description:
+        "Answers to common questions about Market Memory's service, reports, account, and pricing.",
+    },
+    hero: {
+      badge: "Help · FAQ",
+      title: "Frequently Asked Questions",
+      subtitle:
+        "New to Market Memory? Here's what people ask most about the service, reports, and accounts.",
+    },
+    search: {
+      label: "Search FAQ",
+      placeholder: "Search for an answer",
+    },
+    resultsCount: "{{count}} questions",
+    empty: {
+      title: "No results found",
+      description: "Try a different keyword or browse all questions.",
+      clear: "Clear search",
+    },
+    categories: {
+      intro: "About the service",
+      reports: "Content & Reports",
+      account: "Account & Pricing",
+      support: "Feedback & Support",
+      roadmap: "Roadmap",
+    },
+    cta: {
+      title: "Didn't find what you were looking for?",
+      description:
+        "Have a question or feedback? Let us know anytime — your input helps us improve the service.",
+      button: "Contact us",
+    },
+    disclaimer:
+      "Market Memory is for informational purposes only and does not provide investment advice or recommendations. All investment decisions remain your own responsibility.",
+  },
   dashboard: {
     meta: {
       title: "Dashboard",
