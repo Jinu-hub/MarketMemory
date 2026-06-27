@@ -19,6 +19,17 @@ import { Form } from "react-router";
 
 import { Button } from "~/core/components/ui/button";
 
+function assertDebugAccess() {
+  if (process.env.NODE_ENV === "production") {
+    throw new Response("Not Found", { status: 404 });
+  }
+}
+
+export async function loader() {
+  assertDebugAccess();
+  return null;
+}
+
 /**
  * Meta function for setting page metadata
  * 
@@ -48,6 +59,7 @@ export const meta: Route.MetaFunction = () => {
  * @throws Error - A test error to be captured by Sentry
  */
 export function action() {
+  assertDebugAccess();
   throw new Error("This is a test error, you should see it in Sentry");
 }
 

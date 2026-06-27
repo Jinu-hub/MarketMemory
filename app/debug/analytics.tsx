@@ -21,6 +21,13 @@ import { Form, useNavigation } from "react-router";
 import { Button } from "~/core/components/ui/button";
 import trackEvent from "~/core/lib/analytics.client";
 
+export async function loader() {
+  if (process.env.NODE_ENV === "production") {
+    throw new Response("Not Found", { status: 404 });
+  }
+  return null;
+}
+
 /**
  * Meta function for setting page metadata
  * 
