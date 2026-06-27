@@ -2,8 +2,12 @@ import type { Config } from "@react-router/dev/config";
 
 import { sentryOnBuildEnd } from "@sentry/react-router";
 import { vercelPreset } from "@vercel/react-router/vite";
-import { readdir } from "node:fs/promises";
-import path from "node:path";
+
+import {
+  getBlogPostPaths,
+  getLegalPolicyPaths,
+  PUBLIC_STATIC_PATHS,
+} from "./app/core/lib/public-urls";
 
 declare module "react-router" {
   interface Future {
@@ -11,22 +15,20 @@ declare module "react-router" {
   }
 }
 
-const urls = (
-  await readdir(path.join(process.cwd(), "app", "features", "blog", "docs"))
-)
-  .filter((file) => file.endsWith(".mdx"))
-  .map((file) => `/blog/${file.replace(".mdx", "")}`);
+const [blogPaths, legalPaths] = await Promise.all([
+  getBlogPostPaths(),
+  getLegalPolicyPaths(),
+]);
 
 export default {
   ssr: true,
   async prerender() {
     return [
-      "/legal/terms-of-service",
-      "/legal/privacy-policy",
-      "/blog",
+      ...PUBLIC_STATIC_PATHS,
+      ...legalPaths,
       "/sitemap.xml",
       "/robots.txt",
-      ...urls,
+      ...blogPaths,
     ];
   },
   presets: [
