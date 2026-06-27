@@ -91,7 +91,7 @@ const itemReports = {
     }
   },
   "common": {
-    "countSuffix": "",
+    "countSuffix": " Items",
     "untitled": "Untitled",
     "untitledReport": "Untitled report",
     "featured": "Featured",

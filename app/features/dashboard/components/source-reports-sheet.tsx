@@ -44,16 +44,16 @@ export function SourceReportsSheet({
         aria-label={`${count}${t.reportCount}, ${labels.openAction}`}
         aria-haspopup="dialog"
         className={cn(
-          "border-primary/35 bg-primary/8 text-primary inline-flex items-center rounded-full border",
-          "px-2.5 py-1 text-xs font-semibold transition-colors",
-          "hover:bg-primary/12 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+          "border-primary/40 bg-primary/10 text-primary inline-flex items-center rounded-full border cursor-pointer",
+          "gap-1 px-4 py-2 text-sm font-semibold shadow-sm transition-colors",
+          "hover:bg-primary/15 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
           className,
         )}
       >
-        <FileTextIcon className="mr-1 size-3" aria-hidden />
+        <FileTextIcon className="size-4 shrink-0" aria-hidden />
         {count}
         {t.reportCount}
-        <ChevronRightIcon className="ml-0.5 size-3 opacity-70" aria-hidden />
+        <ChevronRightIcon className="size-4 shrink-0 opacity-70" aria-hidden />
       </button>
 
       <SheetContent
