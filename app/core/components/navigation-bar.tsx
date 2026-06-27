@@ -68,6 +68,8 @@ function UserMenu({
   email?: string;
   avatarUrl?: string | null;
 }) {
+  const { t } = useTranslation();
+
   return (
     <DropdownMenu>
       {/* Avatar as the dropdown trigger */}
@@ -92,7 +94,7 @@ function UserMenu({
           <SheetClose asChild>
             <Link to="/dashboard" viewTransition>
               <HomeIcon className="size-4" />
-              Dashboard
+              {t("dashboardSidebar.nav.dashboard.title")}
             </Link>
           </SheetClose>
         </DropdownMenuItem>
@@ -102,7 +104,7 @@ function UserMenu({
           <SheetClose asChild>
             <Link to="/logout" viewTransition>
               <LogOutIcon className="size-4" />
-              Log out
+              {t("dashboardSidebar.userMenu.logOut")}
             </Link>
           </SheetClose>
         </DropdownMenuItem>
@@ -127,13 +129,15 @@ function UserMenu({
  * @returns Fragment containing sign in and sign up buttons
  */
 function AuthButtons() {
+  const { t } = useTranslation();
+
   return (
     <>
       {/* Sign in button (less prominent) */}
       <Button variant="ghost" asChild>
         <SheetClose asChild>
           <Link to="/login" viewTransition>
-            Sign in
+            {t("auth.signIn")}
           </Link>
         </SheetClose>
       </Button>
@@ -142,7 +146,7 @@ function AuthButtons() {
       <Button variant="default" asChild>
         <SheetClose asChild>
           <Link to="/join" viewTransition>
-            Sign up
+            {t("auth.signUp")}
           </Link>
         </SheetClose>
       </Button>
@@ -249,7 +253,7 @@ export function NavigationBar({
         <Link to="/" className="flex items-center gap-2">
           <img
             src="/favicon.ico"
-            alt="Market Memory"
+            alt={t("brand.name")}
             width={28}
             height={28}
             className="size-7 shrink-0"

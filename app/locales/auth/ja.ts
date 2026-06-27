@@ -1,7 +1,7 @@
 const authJa = {
   auth: {
     signIn: "ログイン",
-    signUp: "新規登録",
+    signUp: "アカウント作成",
     forgotPassword: "パスワードをお忘れですか？",
     alreadyHaveAccount: "すでにアカウントをお持ちですか？",
     dontHaveAccount: "アカウントをお持ちでないですか？",
