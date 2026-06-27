@@ -1,4 +1,5 @@
 import type { Translation } from "./types";
+import authPages from "./auth/ko";
 import itemReports from "./item-reports/ko";
 import weeklyAiIssueDigest from "./weekly-ai-issue-digest/ko";
 import weeklyMarketIssues from "./weekly-market-issues/ko";
@@ -7,11 +8,21 @@ const ko: Translation = {
   common: {
     actions: {
       back: "뒤로",
+      submit: "제출",
+    },
+    labels: {
+      email: "이메일",
+      password: "비밀번호",
+      name: "이름",
+      confirmPassword: "비밀번호 확인",
+    },
+    links: {
+      terms: "이용약관",
+      privacy: "개인정보처리방침",
+      and: "및",
     },
   },
-  auth: {
-    signIn: "로그인하기",
-  },
+  ...authPages,
   brand: {
     name: "Market Memory",
     tagline: "흩어진 시장의 흐름을,\n하나의 시선으로.",
@@ -155,7 +166,7 @@ const ko: Translation = {
       headline: "오늘의 시장을,",
       headlineEmphasis: "하나의 흐름으로 읽어 보세요.",
       body: "초기 독자를 위해 조용히 공개 중인 리서치 라이브러리입니다.",
-      signInLink: "로그인하기 →",
+      signInLink: "로그인 →",
     },
     categories: {
       market: "시장",

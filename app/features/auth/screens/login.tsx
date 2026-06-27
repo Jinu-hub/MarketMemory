@@ -11,6 +11,7 @@ import type { Route } from "./+types/login";
 import { AlertCircle, Loader2Icon } from "lucide-react";
 import { useRef } from "react";
 import { Form, Link, data, redirect, useFetcher } from "react-router";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import FormButton from "~/core/components/form-button";
@@ -29,56 +30,40 @@ import {
 } from "~/core/components/ui/card";
 import { Input } from "~/core/components/ui/input";
 import { Label } from "~/core/components/ui/label";
+import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import FormErrors from "../../../core/components/form-error";
 import { SignInButtons } from "../components/auth-login-buttons";
 
-/**
- * Meta function for the login page
- *
- * Sets the page title using the application name from environment variables
- */
-export const meta: Route.MetaFunction = () => {
-  return [
-    {
-      title: `Log in | ${import.meta.env.VITE_APP_NAME}`,
+export async function loader({ request }: Route.LoaderArgs) {
+  const t = await i18next.getFixedT(request);
+  return {
+    meta: {
+      title: `${t("login.meta.title")} | ${import.meta.env.VITE_APP_NAME}`,
     },
-  ];
+  };
+}
+
+export const meta: Route.MetaFunction = ({ data }) => {
+  return [{ title: data?.meta.title ?? "Log in" }];
 };
 
-/**
- * Form validation schema for login
- *
- * Uses Zod to validate:
- * - Email: Must be a valid email format
- * - Password: Must be at least 8 characters long
- *
- * Error messages are provided for user feedback
- */
-const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long" }),
-});
+function createLoginSchema(t: Awaited<ReturnType<typeof i18next.getFixedT>>) {
+  return z.object({
+    email: z.string().email({ message: t("auth.validation.invalidEmail") }),
+    password: z.string().min(8, {
+      message: t("auth.validation.passwordMinLength"),
+    }),
+  });
+}
 
 /**
  * Server action for handling login form submission
- *
- * This function processes the login form data and attempts to authenticate the user.
- * The flow is:
- * 1. Parse and validate form data using the login schema
- * 2. Return validation errors if the data is invalid
- * 3. Attempt to sign in with Supabase using email/password
- * 4. Return authentication errors if sign-in fails
- * 5. Redirect to home page with auth cookies if successful
- *
- * @param request - The form submission request
- * @returns Validation errors, auth errors, or redirect on success
  */
 export async function action({ request }: Route.ActionArgs) {
-  // Parse form data from the request
+  const t = await i18next.getFixedT(request);
+  const loginSchema = createLoginSchema(t);
   const formData = await request.formData();
   const {
     data: validData,
@@ -86,77 +71,51 @@ export async function action({ request }: Route.ActionArgs) {
     error,
   } = loginSchema.safeParse(Object.fromEntries(formData));
 
-  // Return validation errors if form data is invalid
   if (!success) {
     return data({ fieldErrors: error.flatten().fieldErrors }, { status: 400 });
   }
 
-  // Create Supabase client with request cookies for authentication
   const [client, headers] = makeServerClient(request);
 
-  // Attempt to sign in with email and password
   const { error: signInError } = await client.auth.signInWithPassword({
     ...validData,
   });
 
-  // Return error if authentication fails
   if (signInError) {
+    if (signInError.message === "Email not confirmed") {
+      return data({ errorCode: "email_not_confirmed" as const }, { status: 400 });
+    }
     return data({ error: signInError.message }, { status: 400 });
   }
 
-  // Redirect to home page with authentication cookies in headers
   return redirect("/dashboard", { headers });
 }
 
-/**
- * Login Component
- *
- * This component renders the login form and handles user interactions.
- * It includes:
- * - Email and password input fields with validation
- * - Error display for form validation and authentication errors
- * - Password reset link
- * - Email verification resend functionality
- * - Social login options
- * - Sign up link for new users
- *
- * @param actionData - Data returned from the form action, including any errors
- */
 export default function Login({ actionData }: Route.ComponentProps) {
-  // Reference to the form element for accessing form data
+  const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement>(null);
-
-  // Fetcher for submitting the email verification resend request
   const fetcher = useFetcher();
 
-  /**
-   * Handler for resending email verification
-   *
-   * When a user tries to log in with an unverified email, they can click
-   * to resend the verification email. This function:
-   * 1. Prevents the default button behavior
-   * 2. Gets the current form data (email only)
-   * 3. Submits it to the resend endpoint
-   */
   const onResendClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
-    formData.delete("password"); // Only need the email for resending verification
+    formData.delete("password");
     fetcher.submit(formData, {
       method: "post",
       action: "/auth/api/resend",
     });
   };
+
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col items-center">
           <CardTitle className="text-2xl font-semibold">
-            Sign into your account
+            {t("login.title")}
           </CardTitle>
           <CardDescription className="text-base">
-            Please enter your details
+            {t("login.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -170,14 +129,14 @@ export default function Login({ actionData }: Route.ComponentProps) {
                 htmlFor="email"
                 className="flex flex-col items-start gap-1"
               >
-                Email
+                {t("common.labels.email")}
               </Label>
               <Input
                 id="email"
                 name="email"
                 required
                 type="email"
-                placeholder="i.e nico@supaplate.com"
+                placeholder={t("login.emailPlaceholder")}
               />
               {actionData &&
               "fieldErrors" in actionData &&
@@ -191,7 +150,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                   htmlFor="password"
                   className="flex flex-col items-start gap-1"
                 >
-                  Password
+                  {t("common.labels.password")}
                 </Label>
                 <Link
                   to="/auth/forgot-password/reset"
@@ -199,7 +158,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                   tabIndex={-1}
                   viewTransition
                 >
-                  Forgot your password?
+                  {t("auth.forgotPassword")}
                 </Link>
               </div>
               <Input
@@ -207,7 +166,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                 name="password"
                 required
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t("login.passwordPlaceholder")}
               />
 
               {actionData &&
@@ -216,20 +175,20 @@ export default function Login({ actionData }: Route.ComponentProps) {
                 <FormErrors errors={actionData.fieldErrors.password} />
               ) : null}
             </div>
-            <FormButton label="Log in" className="w-full" />
-            {actionData && "error" in actionData ? (
-              actionData.error === "Email not confirmed" ? (
+            <FormButton label={t("login.loginButton")} className="w-full" />
+            {actionData && "errorCode" in actionData ? (
+              actionData.errorCode === "email_not_confirmed" ? (
                 <Alert variant="destructive" className="bg-destructive/10">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Email not confirmed</AlertTitle>
+                  <AlertTitle>{t("auth.emailNotConfirmedTitle")}</AlertTitle>
                   <AlertDescription className="flex flex-col items-start gap-2">
-                    Before signing in, please verify your email.
+                    {t("auth.emailNotConfirmedDesc")}
                     <Button
                       variant="outline"
                       className="text-foreground flex items-center justify-between gap-2"
                       onClick={onResendClick}
                     >
-                      Resend confirmation email
+                      {t("auth.resendConfirmation")}
                       {fetcher.state === "submitting" ? (
                         <Loader2Icon
                           data-testid="resend-confirmation-email-spinner"
@@ -239,9 +198,10 @@ export default function Login({ actionData }: Route.ComponentProps) {
                     </Button>
                   </AlertDescription>
                 </Alert>
-              ) : (
-                <FormErrors errors={[actionData.error]} />
-              )
+              ) : null
+            ) : null}
+            {actionData && "error" in actionData ? (
+              <FormErrors errors={[actionData.error]} />
             ) : null}
           </Form>
           <SignInButtons />
@@ -249,14 +209,14 @@ export default function Login({ actionData }: Route.ComponentProps) {
       </Card>
       <div className="flex flex-col items-center justify-center text-sm">
         <p className="text-muted-foreground">
-          Don't have an account?{" "}
+          {t("auth.dontHaveAccount")}{" "}
           <Link
             to="/join"
             viewTransition
             data-testid="form-signup-link"
             className="text-muted-foreground hover:text-foreground text-underline underline transition-colors"
           >
-            Sign up
+            {t("auth.signUp")}
           </Link>
         </p>
       </div>

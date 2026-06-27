@@ -1,4 +1,5 @@
 import type { Translation } from "./types";
+import authPages from "./auth/en";
 import itemReports from "./item-reports/en";
 import weeklyAiIssueDigest from "./weekly-ai-issue-digest/en";
 import weeklyMarketIssues from "./weekly-market-issues/en";
@@ -7,11 +8,21 @@ const en: Translation = {
   common: {
     actions: {
       back: "Back",
+      submit: "Submit",
+    },
+    labels: {
+      email: "Email",
+      password: "Password",
+      name: "Name",
+      confirmPassword: "Confirm password",
+    },
+    links: {
+      terms: "Terms of Service",
+      privacy: "Privacy Policy",
+      and: "and",
     },
   },
-  auth: {
-    signIn: "Sign in",
-  },
+  ...authPages,
   brand: {
     name: "Market Memory",
     tagline: "Scattered market signals,\none coherent lens.",

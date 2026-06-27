@@ -1,4 +1,5 @@
 import type { Translation } from "./types";
+import authPages from "./auth/ja";
 import itemReports from "./item-reports/ja";
 import weeklyAiIssueDigest from "./weekly-ai-issue-digest/ja";
 import weeklyMarketIssues from "./weekly-market-issues/ja";
@@ -7,11 +8,21 @@ const ja: Translation = {
   common: {
     actions: {
       back: "戻る",
+      submit: "送信",
+    },
+    labels: {
+      email: "メールアドレス",
+      password: "パスワード",
+      name: "名前",
+      confirmPassword: "パスワード（確認）",
+    },
+    links: {
+      terms: "利用規約",
+      privacy: "プライバシーポリシー",
+      and: "および",
     },
   },
-  auth: {
-    signIn: "ログイン",
-  },
+  ...authPages,
   brand: {
     name: "Market Memory",
     tagline: "散らばった市場の流れを、\n一つの視点から。",

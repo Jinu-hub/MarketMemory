@@ -1,3 +1,4 @@
+import type { AuthTranslation } from "./auth/types";
 import type { ItemReportsTranslation } from "./item-reports/types";
 import type { WeeklyAiIssueDigestTranslation } from "./weekly-ai-issue-digest/types";
 import type { WeeklyMarketIssuesTranslation } from "./weekly-market-issues/types";
@@ -6,11 +7,21 @@ export type Translation = {
   common: {
     actions: {
       back: string;
+      submit: string;
+    };
+    labels: {
+      email: string;
+      password: string;
+      name: string;
+      confirmPassword: string;
+    };
+    links: {
+      terms: string;
+      privacy: string;
+      and: string;
     };
   };
-  auth: {
-    signIn: string;
-  };
+} & AuthTranslation & {
   brand: {
     name: string;
     tagline: string;
