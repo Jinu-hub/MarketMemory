@@ -14,12 +14,28 @@ function AuthLoginButton({
   logo,
   label,
   href,
+  disabled = false,
 }: {
   logo: React.ReactNode;
   label: string;
   href: string;
+  disabled?: boolean;
 }) {
   const { t } = useTranslation();
+
+  if (disabled) {
+    return (
+      <Button
+        variant="outline"
+        className="inline-flex items-center justify-center gap-2"
+        disabled
+        type="button"
+      >
+        <span>{logo}</span>
+        <span>{t("auth.continueWith", { provider: label })}</span>
+      </Button>
+    );
+  }
 
   return (
     <Button
@@ -66,7 +82,7 @@ function _SignInButtons() {
   );
 }
 
-function SocialLoginButtons() {
+function SocialLoginButtons({ disabled = false }: { disabled?: boolean }) {
   const { t } = useTranslation();
 
   return (
@@ -75,11 +91,13 @@ function SocialLoginButtons() {
         logo={<GoogleLogo className="size-4" />}
         label={t("auth.providers.google")}
         href="/auth/social/start/google"
+        disabled={disabled}
       />
       <AuthLoginButton
         logo={<GithubLogo className="size-4 scale-125 dark:text-white" />}
         label={t("auth.providers.github")}
         href="/auth/social/start/github"
+        disabled={disabled}
       />
     </>
   );
@@ -95,11 +113,11 @@ export function SignInButtons() {
   );
 }
 
-export function SignUpButtons() {
+export function SignUpButtons({ disabled = false }: { disabled?: boolean }) {
   return (
     <>
       <Divider />
-      <SocialLoginButtons />
+      <SocialLoginButtons disabled={disabled} />
     </>
   );
 }

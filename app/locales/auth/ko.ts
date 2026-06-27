@@ -65,6 +65,8 @@ const authKo = {
     accountCreatedTitle: "계정이 생성되었습니다!",
     accountCreatedDesc:
       "로그인하기 전에 이메일을 인증해 주세요. 이 탭은 닫아도 됩니다.",
+    comingSoonDescription:
+      "현재 최종 테스트를 진행중이기에, 회원가입을 지원하지 않습니다. 곧 회원가입이 가능해지므로 조금만 기다려 주세요.",
   },
   forgotPassword: {
     meta: {

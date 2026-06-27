@@ -65,6 +65,8 @@ const authJa = {
     accountCreatedTitle: "アカウントが作成されました！",
     accountCreatedDesc:
       "ログインする前にメールアドレスを確認してください。このタブは閉じて構いません。",
+    comingSoonDescription:
+      "現在、最終テストを実施中のため、会員登録はご利用いただけません。まもなく会員登録が可能になりますので、今しばらくお待ちください。",
   },
   forgotPassword: {
     meta: {

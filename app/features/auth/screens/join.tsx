@@ -30,11 +30,13 @@ import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import { SignUpButtons } from "../components/auth-login-buttons";
+import { isSignupEnabled } from "../lib/signup-enabled";
 import { doesUserExist } from "../lib/queries.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const t = await i18next.getFixedT(request);
   return {
+    signupEnabled: isSignupEnabled(),
     meta: {
       title: `${t("join.meta.title")} | ${import.meta.env.VITE_APP_NAME}`,
     },
@@ -67,6 +69,11 @@ function createJoinSchema(t: Awaited<ReturnType<typeof i18next.getFixedT>>) {
 
 export async function action({ request }: Route.ActionArgs) {
   const t = await i18next.getFixedT(request);
+
+  if (!isSignupEnabled()) {
+    return data({ error: t("join.comingSoonDescription") }, { status: 403 });
+  }
+
   const joinSchema = createJoinSchema(t);
   const formData = await request.formData();
   const {
@@ -116,9 +123,10 @@ export async function action({ request }: Route.ActionArgs) {
   };
 }
 
-export default function Join({ actionData }: Route.ComponentProps) {
+export default function Join({ actionData, loaderData }: Route.ComponentProps) {
   const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement>(null);
+  const signupEnabled = loaderData.signupEnabled;
 
   useEffect(() => {
     if (actionData && "success" in actionData && actionData.success) {
@@ -139,6 +147,14 @@ export default function Join({ actionData }: Route.ComponentProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
+          {!signupEnabled ? (
+            <div
+              role="alert"
+              className="rounded-xl border border-amber-700/50 px-5 py-4 text-sm leading-relaxed text-amber-900/80 dark:border-[#8B5A3C]/80 dark:text-[#E7D9C5]"
+            >
+              {t("join.comingSoonDescription")}
+            </div>
+          ) : null}
           <Form
             className="flex w-full flex-col gap-5"
             method="post"
@@ -154,6 +170,7 @@ export default function Join({ actionData }: Route.ComponentProps) {
                 required
                 type="text"
                 placeholder={t("join.namePlaceholder")}
+                disabled={!signupEnabled}
               />
               {actionData &&
               "fieldErrors" in actionData &&
@@ -174,6 +191,7 @@ export default function Join({ actionData }: Route.ComponentProps) {
                 required
                 type="email"
                 placeholder={t("join.emailPlaceholder")}
+                disabled={!signupEnabled}
               />
               {actionData &&
               "fieldErrors" in actionData &&
@@ -197,6 +215,7 @@ export default function Join({ actionData }: Route.ComponentProps) {
                 required
                 type="password"
                 placeholder={t("join.passwordPlaceholder")}
+                disabled={!signupEnabled}
               />
               {actionData &&
               "fieldErrors" in actionData &&
@@ -217,6 +236,7 @@ export default function Join({ actionData }: Route.ComponentProps) {
                 required
                 type="password"
                 placeholder={t("join.confirmPasswordPlaceholder")}
+                disabled={!signupEnabled}
               />
               {actionData &&
               "fieldErrors" in actionData &&
@@ -227,19 +247,20 @@ export default function Join({ actionData }: Route.ComponentProps) {
             <FormButton
               label={t("join.createAccountButton")}
               className="w-full"
+              {...(signupEnabled ? {} : { disabled: true })}
             />
             {actionData && "error" in actionData && actionData.error ? (
               <FormErrors errors={[actionData.error]} />
             ) : null}
 
             <div className="flex items-center gap-2">
-              <Checkbox id="marketing" name="marketing" />
+              <Checkbox id="marketing" name="marketing" disabled={!signupEnabled} />
               <Label htmlFor="marketing" className="text-muted-foreground">
                 {t("join.marketing")}
               </Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox id="terms" name="terms" checked />
+              <Checkbox id="terms" name="terms" checked disabled={!signupEnabled} />
               <Label htmlFor="terms" className="text-muted-foreground">
                 <span>
                   {t("join.termsPrefix")}{" "}
@@ -274,7 +295,7 @@ export default function Join({ actionData }: Route.ComponentProps) {
               </Alert>
             ) : null}
           </Form>
-          <SignUpButtons />
+          <SignUpButtons disabled={!signupEnabled} />
         </CardContent>
       </Card>
       <div className="flex flex-col items-center justify-center text-sm">

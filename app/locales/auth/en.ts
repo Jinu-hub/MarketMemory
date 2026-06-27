@@ -65,6 +65,8 @@ const authEn = {
     accountCreatedTitle: "Account created!",
     accountCreatedDesc:
       "Before you can sign in, please verify your email. You can close this tab.",
+    comingSoonDescription:
+      "We are currently conducting final testing, so sign-up is not available yet. Registration will open soon—please check back shortly.",
   },
   forgotPassword: {
     meta: {
