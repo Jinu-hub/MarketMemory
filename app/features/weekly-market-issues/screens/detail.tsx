@@ -45,6 +45,7 @@ import {
   getSeriesBySlug,
   getSeriesReport,
 } from "../queries";
+import { stripSummaryAfterMarkdownHeading } from "../lib/summary";
 import {
   WEEKLY_MARKET_ISSUES_BASE_PATH,
   weeklyMarketIssuesDetailHref,
@@ -122,6 +123,9 @@ export default function WeeklyMarketIssuesDetail({
   const ui = pickWeeklyMarketIssuesUi(locale);
   const reportsUi = pickItemReportsUi(locale);
   const navTitle = seriesTitle ?? ui.fallback.title;
+  const displaySummary = report.summary
+    ? stripSummaryAfterMarkdownHeading(report.summary)
+    : null;
 
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">
@@ -144,14 +148,14 @@ export default function WeeklyMarketIssuesDetail({
             />
           ) : null}
 
-          {report.summary ? (
+          {displaySummary ? (
             <ReadingHighlightBox
               title={reportsUi.detail.summaryTitle}
               category={report.category}
               className="my-0"
             >
               <p className="text-base leading-8 whitespace-pre-line md:text-lg">
-                {report.summary}
+                {displaySummary}
               </p>
             </ReadingHighlightBox>
           ) : null}
