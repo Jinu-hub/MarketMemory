@@ -7,8 +7,6 @@ import { z } from "zod";
 
 import { AdminPageHeader, AdminSection } from "../components/admin-ui";
 import { NexButton, NexCard } from "~/core/components/nex";
-import { persistMarketSnapshotStaging } from "~/features/cron/lib/market-snapshot-staging.server";
-import type { MarketSnapshotPayload } from "~/features/cron/lib/market-snapshot.types";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
@@ -47,6 +45,11 @@ type MarketSnapshotApiSuccess = {
     asOf: string | null;
   } | null;
   errors: string[];
+  staging?: {
+    id: string;
+    marketDate: string;
+    marketScope: string;
+  };
 };
 
 type ActionPayload =
@@ -125,11 +128,21 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const endpoint = new URL("/api/cron/market-snapshot", request.url);
+  const cronBody: Record<string, string> = {};
+  if (marketDateOverride) {
+    cronBody.marketDate = marketDateOverride;
+  }
+  if (marketScopeOverride) {
+    cronBody.marketScope = marketScopeOverride;
+  }
+
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       Authorization: authorization,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify(cronBody),
   });
 
   const body: unknown = await response.json().catch(() => null);
@@ -146,41 +159,29 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
-  const snapshot = body as MarketSnapshotApiSuccess;
+  const apiBody = body as MarketSnapshotApiSuccess;
+  const { staging: apiStaging, ...snapshotFields } = apiBody;
+  const snapshot = snapshotFields as Omit<
+    MarketSnapshotApiSuccess,
+    "staging"
+  >;
 
-  let staging: {
-    id: string;
-    marketDate: string;
-    marketScope: string;
-    marketDateSource: "form" | "fetched_at";
-    fetchedAtUtcDate: string;
-  } | null = null;
-  let stagingError: string | null = null;
-
-  try {
-    const saved = await persistMarketSnapshotStaging(client, {
-      snapshot: snapshot as MarketSnapshotPayload,
-      marketDate: marketDateOverride,
-      marketScope: marketScopeOverride,
-    });
-    staging = {
-      id: saved.id,
-      marketDate: saved.marketDate,
-      marketScope: saved.marketScope,
-      marketDateSource: marketDateOverride ? "form" : "fetched_at",
-      fetchedAtUtcDate: new Date(snapshot.fetchedAt).toISOString().slice(0, 10),
-    };
-  } catch (error) {
-    stagingError =
-      error instanceof Error ? error.message : "staging 저장에 실패했습니다.";
-  }
+  const staging = apiStaging
+    ? {
+        id: apiStaging.id,
+        marketDate: apiStaging.marketDate,
+        marketScope: apiStaging.marketScope,
+        marketDateSource: marketDateOverride ? ("form" as const) : ("fetched_at" as const),
+        fetchedAtUtcDate: new Date(snapshot.fetchedAt).toISOString().slice(0, 10),
+      }
+    : null;
 
   return data<ActionPayload>({
     ok: true,
     status: response.status,
     snapshot,
     staging,
-    stagingError,
+    stagingError: staging ? null : "API 응답에 staging 정보가 없습니다.",
   });
 }
 
@@ -220,7 +221,7 @@ export default function MarketSnapshotTestScreen({
 
         <AdminSection
           title="실행"
-          description="API 호출 후 staging에 저장합니다. market_date를 비우면 응답 fetched_at(UTC) 날짜를 사용합니다."
+          description="cron API가 fetch와 staging 저장을 함께 수행합니다. market_date를 비우면 fetched_at(UTC) 날짜를 사용합니다."
         >
           <fetcher.Form method="post" className="max-w-xl space-y-4">
             <div className="space-y-1.5">
