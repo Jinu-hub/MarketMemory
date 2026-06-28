@@ -1667,6 +1667,7 @@ export type Database = {
           vector_score: number
         }[]
       }
+      pop_mailer: { Args: never; Returns: Json }
       preview_daily_market_memory_similarity_edges: {
         Args: {
           p_min_final_score?: number

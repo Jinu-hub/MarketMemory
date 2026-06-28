@@ -102,6 +102,14 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
+  // Get user's locale preference from request (cookie or Accept-Language header)
+  const locale = await i18next.getLocale(request);
+  // Validate locale is supported, default to "ko" if not
+  const supportedLocales = ["en", "ja", "ko"] as const;
+  const validLocale = supportedLocales.includes(locale as typeof supportedLocales[number]) 
+    ? (locale as typeof supportedLocales[number]) 
+    : "ko";
+
   const [client] = makeServerClient(request);
   const { error: signInError } = await client.auth.signUp({
     ...validData,
@@ -110,6 +118,7 @@ export async function action({ request }: Route.ActionArgs) {
         name: validData.name,
         display_name: validData.name,
         marketing_consent: validData.marketing,
+        locale: validLocale,
       },
     },
   });
