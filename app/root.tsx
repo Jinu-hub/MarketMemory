@@ -40,6 +40,7 @@ import {
 } from "remix-themes";
 import { Toaster } from "sonner";
 
+import { ScrollToTop } from "./core/components/scroll-to-top";
 import { Dialog } from "./core/components/ui/dialog";
 import { Sheet } from "./core/components/ui/sheet";
 import i18next from "./core/lib/i18next.server";
@@ -179,6 +180,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="h-full">
         {children}
+        <ScrollToTop />
         <Toaster richColors position="bottom-right" />
         <ScrollRestoration />
         <Scripts />

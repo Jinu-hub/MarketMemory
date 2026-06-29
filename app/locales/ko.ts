@@ -9,6 +9,7 @@ const ko: Translation = {
     actions: {
       back: "뒤로",
       submit: "제출",
+      scrollToTop: "맨 위로 이동",
     },
     labels: {
       email: "이메일",

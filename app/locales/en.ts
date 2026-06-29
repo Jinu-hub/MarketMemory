@@ -9,6 +9,7 @@ const en: Translation = {
     actions: {
       back: "Back",
       submit: "Submit",
+      scrollToTop: "Scroll to top",
     },
     labels: {
       email: "Email",

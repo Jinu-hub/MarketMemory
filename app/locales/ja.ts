@@ -9,6 +9,7 @@ const ja: Translation = {
     actions: {
       back: "戻る",
       submit: "送信",
+      scrollToTop: "トップへ戻る",
     },
     labels: {
       email: "メールアドレス",

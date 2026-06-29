@@ -8,6 +8,7 @@ export type Translation = {
     actions: {
       back: string;
       submit: string;
+      scrollToTop: string;
     };
     labels: {
       email: string;
