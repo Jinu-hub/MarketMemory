@@ -6,8 +6,13 @@ import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "~/core/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/core/components/ui/tooltip";
 
-import { GithubLogo } from "./logos/github";
+import { AppleLogo } from "./logos/apple";
 import { GoogleLogo } from "./logos/google";
 
 function AuthLoginButton({
@@ -48,6 +53,41 @@ function AuthLoginButton({
         <span>{t("auth.continueWith", { provider: label })}</span>
       </Link>
     </Button>
+  );
+}
+
+function AppleComingSoonButton() {
+  const { t } = useTranslation();
+
+  return (
+    <Tooltip delayDuration={200}>
+      <TooltipTrigger asChild>
+        <span className="inline-flex w-full" tabIndex={0}>
+          <Button
+            variant="outline"
+            className="relative inline-flex w-full items-center justify-center gap-2"
+            disabled
+            type="button"
+            aria-label={t("auth.continueWith", {
+              provider: t("auth.providers.apple"),
+            })}
+          >
+            <span>
+              <AppleLogo className="size-4 scale-110 dark:text-white" />
+            </span>
+            <span>
+              {t("auth.continueWith", { provider: t("auth.providers.apple") })}
+            </span>
+            <span className="bg-muted text-muted-foreground absolute top-1/2 right-3 shrink-0 -translate-y-1/2 rounded-full px-1.5 py-px text-[10px] font-medium tracking-wide uppercase">
+              {t("dashboardSidebar.soonBadge")}
+            </span>
+          </Button>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" sideOffset={5}>
+        <p>{t("auth.appComingSoon")}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -93,12 +133,7 @@ function SocialLoginButtons({ disabled = false }: { disabled?: boolean }) {
         href="/auth/social/start/google"
         disabled={disabled}
       />
-      <AuthLoginButton
-        logo={<GithubLogo className="size-4 scale-125 dark:text-white" />}
-        label={t("auth.providers.github")}
-        href="/auth/social/start/github"
-        disabled={disabled}
-      />
+      <AppleComingSoonButton />
     </>
   );
 }

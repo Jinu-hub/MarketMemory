@@ -11,11 +11,13 @@ const authEn = {
     continueWith: "Continue with {{provider}}",
     or: "OR",
     pleaseTryAgain: "Please try again.",
+    appComingSoon: "App coming soon",
     providers: {
       otp: "OTP",
       magicLink: "Magic Link",
       google: "Google",
       github: "GitHub",
+      apple: "Apple",
     },
     validation: {
       invalidEmail: "Invalid email address",

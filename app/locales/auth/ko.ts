@@ -11,11 +11,13 @@ const authKo = {
     continueWith: "{{provider}}(으)로 계속하기",
     or: "또는",
     pleaseTryAgain: "다시 시도해 주세요.",
+    appComingSoon: "추후 앱 출시예정",
     providers: {
       otp: "OTP",
       magicLink: "매직 링크",
       google: "Google",
       github: "GitHub",
+      apple: "Apple",
     },
     validation: {
       invalidEmail: "유효하지 않은 이메일 주소입니다",

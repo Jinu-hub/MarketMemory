@@ -11,11 +11,13 @@ const authJa = {
     continueWith: "{{provider}}で続ける",
     or: "または",
     pleaseTryAgain: "もう一度お試しください。",
+    appComingSoon: "アプリは近日公開予定",
     providers: {
       otp: "OTP",
       magicLink: "マジックリンク",
       google: "Google",
       github: "GitHub",
+      apple: "Apple",
     },
     validation: {
       invalidEmail: "有効なメールアドレスを入力してください",
