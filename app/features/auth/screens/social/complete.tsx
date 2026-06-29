@@ -55,7 +55,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     return data({ error: error.message, meta }, { status: 400 });
   }
 
-  return redirect("/", { headers });
+  return redirect("/dashboard", { headers });
 }
 
 export const meta: Route.MetaFunction = ({ data }) => {

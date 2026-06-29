@@ -28,7 +28,7 @@ export default function ConfirmEmail() {
               </Text>
               <Button
                 className="block rounded-xl bg-black px-6 py-3 text-center text-[15px] font-semibold text-white no-underline"
-                href={`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/`}
+                href={`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/dashboard`}
               >
                 Confirm Email Address
               </Button>
@@ -39,7 +39,7 @@ export default function ConfirmEmail() {
                 URL below into your browser:
               </Text>
               <Text className="mb-4 text-[15px] leading-relaxed text-blue-500">
-                {`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/`}
+                {`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/dashboard`}
               </Text>
               <Text className="mb-4 text-[15px] leading-relaxed text-black">
                 If you did not create an account with Supaplate, you can safely

@@ -84,7 +84,7 @@ export async function action({ request }: Route.ActionArgs) {
     return data({ error: error.message }, { status: 400 });
   }
 
-  return redirect(`/`, { headers });
+  return redirect("/dashboard", { headers });
 }
 
 export default function OtpComplete({

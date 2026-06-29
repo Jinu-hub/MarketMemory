@@ -320,7 +320,7 @@ test.describe.serial("User Registration Flow", () => {
   test("should confirm email", async ({ page }) => {
     await confirmUser(page, UNCONFIRMED_EMAIL);
     // Verify successful confirmation by checking redirect to home page
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/dashboard");
   });
 
   /**

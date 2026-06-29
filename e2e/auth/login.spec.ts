@@ -263,6 +263,6 @@ test.describe.serial("User Login Flow", () => {
     await loginUser(page, TEST_EMAIL, "password");
     
     // Verify successful login by checking redirect to home page
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/dashboard");
   });
 });

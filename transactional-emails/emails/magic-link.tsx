@@ -28,7 +28,7 @@ export default function MagicLink() {
               </Text>
               <Button
                 className="block rounded-xl bg-black px-6 py-3 text-center text-[15px] font-semibold text-white no-underline"
-                href={`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/`}
+                href={`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/dashboard`}
               >
                 Click here to login
               </Button>

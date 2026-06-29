@@ -207,11 +207,11 @@ test.describe.serial("Magic Link Flow", () => {
 
     // Simulate clicking the magic link in the email
     await page.goto(
-      `/auth/confirm?token_hash=${confirmation_token}&type=email&next=/`,
+      `/auth/confirm?token_hash=${confirmation_token}&type=email&next=/dashboard`,
     );
 
     // Verify successful login by checking redirect to home page
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/dashboard");
   });
 
   /**
@@ -253,10 +253,10 @@ test.describe.serial("Magic Link Flow", () => {
 
     // Simulate clicking the magic link in the email
     await page.goto(
-      `/auth/confirm?token_hash=${recovery_token}&type=email&next=/`,
+      `/auth/confirm?token_hash=${recovery_token}&type=email&next=/dashboard`,
     );
 
     // Verify successful login by checking redirect to home page
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/dashboard");
   });
 });

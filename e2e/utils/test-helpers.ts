@@ -134,7 +134,7 @@ export async function confirmUser(page: Page, email: string) {
   
   // Navigate to the confirmation URL with the token
   await page.goto(
-`/auth/confirm?token_hash=${confirmation_token}&type=email&next=/&testid=101281`
+`/auth/confirm?token_hash=${confirmation_token}&type=email&next=/dashboard&testid=101281`
   );
 }
 

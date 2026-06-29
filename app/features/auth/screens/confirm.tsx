@@ -13,7 +13,7 @@ import makeServerClient from "~/core/lib/supa-client.server";
 const searchParamsSchema = z.object({
   token_hash: z.string(),
   type: z.enum(["email", "recovery", "email_change"]),
-  next: z.string().default("/"),
+  next: z.string().default("/dashboard"),
 });
 
 export async function loader({ request }: Route.LoaderArgs) {
