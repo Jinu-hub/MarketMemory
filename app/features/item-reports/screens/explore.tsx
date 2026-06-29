@@ -66,6 +66,8 @@ import {
 } from "../queries";
 
 const EXPLORE_TAG_CARD_LEADING = 6;
+const EXPLORE_CRITERIA_TAB_CLASS =
+  "h-auto flex-none gap-1.5 py-2 after:!bottom-0";
 
 /**
  * Localize category highlight buckets with a single batched i18n lookup:
@@ -215,7 +217,7 @@ export default function ItemReportsExplore({
           className="gap-0"
         >
           <div className="border-border overflow-hidden rounded-2xl border bg-card/40 shadow-xs">
-            <div className="border-border space-y-4 border-b bg-card/80 px-4 py-5 md:px-6">
+            <div className="border-border space-y-4 border-b bg-card/80 px-4 pt-5 pb-5 md:px-6 md:pb-6">
               <div className="space-y-1">
                 <h2 className="text-lg font-semibold tracking-tight md:text-xl">
                   {ui.explore.criteriaTitle}
@@ -227,25 +229,25 @@ export default function ItemReportsExplore({
               <TabsList
                 variant="line"
                 aria-label={ui.explore.criteriaTabsAria}
-                className="flex h-auto min-h-0 w-full max-w-full flex-wrap items-center justify-start gap-x-2 gap-y-2 pb-0.5"
+                className="flex !h-auto min-h-9 w-full flex-wrap items-start justify-start gap-x-2 gap-y-2.5"
               >
-                <TabsTrigger value="category" className="flex-none gap-1.5">
+                <TabsTrigger value="category" className={EXPLORE_CRITERIA_TAB_CLASS}>
                   <LayoutGridIcon className="size-3.5" aria-hidden />
                   {ui.explore.tabs.category}
                 </TabsTrigger>
-                <TabsTrigger value="type" className="flex-none gap-1.5">
+                <TabsTrigger value="type" className={EXPLORE_CRITERIA_TAB_CLASS}>
                   <FileTextIcon className="size-3.5" aria-hidden />
                   {ui.explore.tabs.type}
                 </TabsTrigger>
-                <TabsTrigger value="region" className="flex-none gap-1.5">
+                <TabsTrigger value="region" className={EXPLORE_CRITERIA_TAB_CLASS}>
                   <MapPinnedIcon className="size-3.5" aria-hidden />
                   {ui.explore.tabs.region}
                 </TabsTrigger>
-                <TabsTrigger value="tags" className="flex-none gap-1.5">
+                <TabsTrigger value="tags" className={EXPLORE_CRITERIA_TAB_CLASS}>
                   <HashIcon className="size-3.5" aria-hidden />
                   {ui.explore.tabs.tags}
                 </TabsTrigger>
-                <TabsTrigger value="period" className="flex-none gap-1.5">
+                <TabsTrigger value="period" className={EXPLORE_CRITERIA_TAB_CLASS}>
                   <CalendarIcon className="size-3.5" aria-hidden />
                   {ui.explore.tabs.period}
                 </TabsTrigger>
