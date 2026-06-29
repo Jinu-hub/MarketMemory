@@ -218,6 +218,7 @@ const itemReports = {
     "panelAria": "Report filters",
     "searchLabel": "Search",
     "searchPlaceholder": "Search title or summary",
+    "panelToggleAria": "Search and filters, {action}",
     "attributesTab": "Attributes",
     "periodTab": "Period",
     "appliedBadgeAria": "{count} applied",

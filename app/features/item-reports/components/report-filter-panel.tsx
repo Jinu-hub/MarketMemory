@@ -1,7 +1,12 @@
-import { SearchIcon, XIcon } from "lucide-react";
+import { ChevronDownIcon, SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { NexButton, NexInput } from "~/core/components/nex";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/core/components/ui/collapsible";
 import { Label } from "~/core/components/ui/label";
 import {
   Select,
@@ -49,6 +54,8 @@ import {
   REPORT_TYPES,
 } from "../constants";
 
+const STACKED_LAYOUT_MEDIA_QUERY = "(max-width: 1023px)";
+
 type FilterPanelTab = "attributes" | "period";
 
 function initialPanelTab(params: URLSearchParams): FilterPanelTab {
@@ -79,9 +86,23 @@ export function ReportFilterPanel({
   const [q, setQ] = useState(
     searchParams.get(REPORT_LIST_PARAM.q) ?? "",
   );
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [isStackedLayout, setIsStackedLayout] = useState(() =>
+    typeof window === "undefined"
+      ? true
+      : window.matchMedia(STACKED_LAYOUT_MEDIA_QUERY).matches,
+  );
   const [panelTab, setPanelTab] = useState<FilterPanelTab>(() =>
     initialPanelTab(searchParams),
   );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(STACKED_LAYOUT_MEDIA_QUERY);
+    const syncLayout = () => setIsStackedLayout(mediaQuery.matches);
+    syncLayout();
+    mediaQuery.addEventListener("change", syncLayout);
+    return () => mediaQuery.removeEventListener("change", syncLayout);
+  }, []);
 
   useEffect(() => {
     setQ(searchParams.get(REPORT_LIST_PARAM.q) ?? "");
@@ -126,16 +147,72 @@ export function ReportFilterPanel({
   const facetSuffix = (count?: number) =>
     count ? ` (${count})` : "";
 
+  const appliedFilterCount =
+    attributeFilterCount +
+    dateFilterCount +
+    (searchParams.get(REPORT_LIST_PARAM.q)?.trim() ? 1 : 0);
+  const panelExpanded = isStackedLayout ? panelOpen : true;
+
   return (
     <aside
       className={cn(
-        "border-border bg-card/60 flex flex-col gap-5 rounded-xl border p-5",
+        "border-border bg-card/60 rounded-xl border p-4 lg:p-5",
         className,
       )}
       aria-label={ui.filter.panelAria}
     >
-      <form onSubmit={submitSearch} className="space-y-2">
-        <Label htmlFor="report-search" className="text-xs font-medium">
+      <Collapsible
+        open={panelExpanded}
+        onOpenChange={setPanelOpen}
+        className="group/filter flex flex-col gap-5"
+      >
+        <CollapsibleTrigger
+          type="button"
+          className={cn(
+            "hover:bg-muted/40 focus-visible:ring-ring -mx-1 flex w-[calc(100%+0.5rem)] items-center justify-between rounded-lg px-1 py-1.5 transition-colors outline-none lg:hidden",
+            "focus-visible:ring-2 cursor-pointer",
+          )}
+          aria-controls="report-filter-panel-content"
+          aria-expanded={panelExpanded}
+          aria-label={formatItemReportsCopy(ui.filter.panelToggleAria, {
+            action: panelExpanded ? ui.common.collapse : ui.common.expand,
+          })}
+        >
+          <span className="text-foreground flex items-center gap-1.5 text-sm font-semibold tracking-tight">
+            <SearchIcon className="text-primary size-3.5" aria-hidden />
+            {ui.filter.searchLabel}
+            {appliedFilterCount > 0 ? (
+              <FilterTabBadge
+                count={appliedFilterCount}
+                ariaLabel={formatItemReportsCopy(ui.filter.appliedBadgeAria, {
+                  count: appliedFilterCount,
+                })}
+              />
+            ) : null}
+          </span>
+          <ChevronDownIcon
+            className="text-muted-foreground size-4 shrink-0 transition-transform duration-200 group-data-[state=open]/filter:rotate-180"
+            aria-hidden
+          />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent
+          id="report-filter-panel-content"
+          className={cn(
+            "flex flex-col gap-5 overflow-hidden",
+            "data-[state=closed]:animate-collapsible-up",
+            "data-[state=open]:animate-collapsible-down",
+          )}
+        >
+      <form
+        onSubmit={submitSearch}
+        className="border-border space-y-2.5 border-b pb-5 pt-1 lg:pt-0"
+      >
+        <Label
+          htmlFor="report-search"
+          className="text-foreground hidden items-center gap-1.5 text-sm font-semibold tracking-tight lg:flex"
+        >
+          <SearchIcon className="text-primary size-3.5" aria-hidden />
           {ui.filter.searchLabel}
         </Label>
         <NexInput
@@ -286,6 +363,8 @@ export function ReportFilterPanel({
           {ui.filter.resetFilters}
         </NexButton>
       ) : null}
+        </CollapsibleContent>
+      </Collapsible>
     </aside>
   );
 }

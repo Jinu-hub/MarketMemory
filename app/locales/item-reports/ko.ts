@@ -218,6 +218,7 @@ const itemReports = {
     "panelAria": "리포트 필터",
     "searchLabel": "검색",
     "searchPlaceholder": "제목 또는 요약 검색",
+    "panelToggleAria": "검색 및 필터, {action}",
     "attributesTab": "속성",
     "periodTab": "기간",
     "appliedBadgeAria": "{count}개 적용됨",

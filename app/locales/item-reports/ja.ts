@@ -218,6 +218,7 @@ const itemReports = {
     "panelAria": "レポートフィルター",
     "searchLabel": "検索",
     "searchPlaceholder": "タイトルまたは要約を検索",
+    "panelToggleAria": "検索とフィルター、{action}",
     "attributesTab": "属性",
     "periodTab": "期間",
     "appliedBadgeAria": "{count}件適用",
