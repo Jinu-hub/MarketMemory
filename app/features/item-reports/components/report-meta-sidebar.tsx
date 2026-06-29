@@ -24,6 +24,7 @@ import { formatRegion, formatReportType } from "../lib/labels";
 import { itemReportsListHref } from "../lib/item-reports-urls";
 import { getTierStyle } from "../lib/tier-style";
 import type { ReportDetail } from "../types";
+import { ReportEntitiesFooter } from "./report-entities-footer";
 import { ReportTierBadge } from "./report-tier-badge";
 
 type ReportMetaSidebarProps = {
@@ -197,6 +198,11 @@ export function ReportMetaSidebar({
           </div>
         </div>
       ) : null}
+
+      <ReportEntitiesFooter
+        metadata={report.metadata}
+        className="border-border/60 border-t pt-4 lg:hidden"
+      />
     </div>
   );
 }

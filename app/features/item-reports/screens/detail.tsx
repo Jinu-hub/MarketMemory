@@ -198,7 +198,10 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             isAdmin={isAdmin}
           />
 
-          <ReportEntitiesFooter metadata={report.metadata} />
+          <ReportEntitiesFooter
+            metadata={report.metadata}
+            className="hidden lg:block"
+          />
         </article>
 
         {/*
@@ -217,7 +220,6 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             <Accordion
               type="single"
               collapsible
-              defaultValue="meta"
               className="border-border bg-card/60 rounded-xl border px-4"
             >
               <AccordionItem value="meta" className="border-0">
