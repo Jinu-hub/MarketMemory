@@ -11,7 +11,7 @@ import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 const paramsSchema = z.object({
-  provider: z.enum(["github", "kakao"]),
+  provider: z.enum(["github", "kakao", "google"]),
 });
 
 export async function loader({ params, request }: Route.LoaderArgs) {
