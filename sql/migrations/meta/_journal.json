@@ -288,6 +288,13 @@
       "when": 1782023194113,
       "tag": "0040_gray_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1782728866934,
+      "tag": "0041_conscious_blue_shield",
+      "breakpoints": true
     }
   ]
 }

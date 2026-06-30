@@ -885,6 +885,84 @@ export type Database = {
           },
         ]
       }
+      marketing_posts: {
+        Row: {
+          content: string
+          created_at: string
+          external_post_id: string | null
+          group_key: string | null
+          id: string
+          lang_code: Database["public"]["Enums"]["marketing_lang_code"]
+          like_count: number | null
+          memo: string | null
+          metric_checked_at: string | null
+          metrics: Json | null
+          platform: Database["public"]["Enums"]["marketing_platform"]
+          published_at: string | null
+          published_url: string | null
+          reply_count: number | null
+          repost_count: number | null
+          saved_count: number | null
+          scheduled_at: string | null
+          source_id: string | null
+          source_type: string | null
+          status: Database["public"]["Enums"]["marketing_post_status"]
+          title: string | null
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          external_post_id?: string | null
+          group_key?: string | null
+          id?: string
+          lang_code: Database["public"]["Enums"]["marketing_lang_code"]
+          like_count?: number | null
+          memo?: string | null
+          metric_checked_at?: string | null
+          metrics?: Json | null
+          platform: Database["public"]["Enums"]["marketing_platform"]
+          published_at?: string | null
+          published_url?: string | null
+          reply_count?: number | null
+          repost_count?: number | null
+          saved_count?: number | null
+          scheduled_at?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: Database["public"]["Enums"]["marketing_post_status"]
+          title?: string | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          external_post_id?: string | null
+          group_key?: string | null
+          id?: string
+          lang_code?: Database["public"]["Enums"]["marketing_lang_code"]
+          like_count?: number | null
+          memo?: string | null
+          metric_checked_at?: string | null
+          metrics?: Json | null
+          platform?: Database["public"]["Enums"]["marketing_platform"]
+          published_at?: string | null
+          published_url?: string | null
+          reply_count?: number | null
+          repost_count?: number | null
+          saved_count?: number | null
+          scheduled_at?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: Database["public"]["Enums"]["marketing_post_status"]
+          title?: string | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       normalized_documents: {
         Row: {
           created_at: string
@@ -1734,6 +1812,20 @@ export type Database = {
         | "watchlist"
       content_type: "summary" | "md_summary" | "source_text"
       item_status: "ready" | "running" | "done" | "failed"
+      marketing_lang_code: "ko" | "ja" | "en"
+      marketing_platform:
+        | "threads"
+        | "x"
+        | "instagram"
+        | "linkedin"
+        | "blog"
+        | "other"
+      marketing_post_status:
+        | "draft"
+        | "ready"
+        | "scheduled"
+        | "published"
+        | "archived"
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
       pipeline_status: "draft" | "active" | "deprecated"
       prompt_status: "draft" | "active" | "deprecated" | "archived"
@@ -1925,6 +2017,22 @@ export const Constants = {
       ],
       content_type: ["summary", "md_summary", "source_text"],
       item_status: ["ready", "running", "done", "failed"],
+      marketing_lang_code: ["ko", "ja", "en"],
+      marketing_platform: [
+        "threads",
+        "x",
+        "instagram",
+        "linkedin",
+        "blog",
+        "other",
+      ],
+      marketing_post_status: [
+        "draft",
+        "ready",
+        "scheduled",
+        "published",
+        "archived",
+      ],
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
       pipeline_status: ["draft", "active", "deprecated"],
       prompt_status: ["draft", "active", "deprecated", "archived"],

@@ -156,6 +156,29 @@ export const similarityLevel = pgEnum("similarity_level", [
   "strong",
 ]);
 
+export const marketingPlatform = pgEnum("marketing_platform", [
+  "threads",
+  "x",
+  "instagram",
+  "linkedin",
+  "blog",
+  "other",
+]);
+
+export const marketingLangCode = pgEnum("marketing_lang_code", [
+  "ko",
+  "ja",
+  "en",
+]);
+
+export const marketingPostStatus = pgEnum("marketing_post_status", [
+  "draft",
+  "ready",
+  "scheduled",
+  "published",
+  "archived",
+]);
+
 /* =========================================================
    RLS Helper: Admin only
    ========================================================= */
@@ -1368,7 +1391,83 @@ export const reportsI18n = pgTable(
  */
 
 /* =========================================================
-   9-1) vector_documents (임의 텍스트 벡터 저장)
+   9-1) marketing_posts (SNS·블로그 마케팅 게시물)
+   ========================================================= */
+export const marketingPosts = pgTable(
+  "marketing_posts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    group_key: text("group_key"),
+
+    platform: marketingPlatform("platform").notNull(),
+    lang_code: marketingLangCode("lang_code").notNull(),
+
+    title: text("title"),
+    content: text("content").notNull(),
+
+    status: marketingPostStatus("status").notNull().default("draft"),
+
+    source_type: text("source_type"),
+    source_id: uuid("source_id"),
+
+    scheduled_at: timestamp("scheduled_at", { withTimezone: true }),
+    published_at: timestamp("published_at", { withTimezone: true }),
+    published_url: text("published_url"),
+    external_post_id: text("external_post_id"),
+
+    like_count: integer("like_count"),
+    reply_count: integer("reply_count"),
+    repost_count: integer("repost_count"),
+    view_count: integer("view_count"),
+    saved_count: integer("saved_count"),
+    metric_checked_at: timestamp("metric_checked_at", { withTimezone: true }),
+
+    metrics: jsonb("metrics"),
+    memo: text("memo"),
+
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_marketing_posts_status").on(table.status),
+    index("idx_marketing_posts_platform_lang").on(
+      table.platform,
+      table.lang_code,
+    ),
+    index("idx_marketing_posts_published_at").on(table.published_at),
+    index("idx_marketing_posts_group_key").on(table.group_key),
+
+    pgPolicy("mp_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("mp_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("mp_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("mp_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   9-2) vector_documents (임의 텍스트 벡터 저장)
    ========================================================= */
 export const vectorDocuments = pgTable(
   "vector_documents",
