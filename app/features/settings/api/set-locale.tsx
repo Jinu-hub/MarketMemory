@@ -15,9 +15,9 @@
 import { type LoaderFunctionArgs, data } from "react-router";
 import { z } from "zod";
 
-import { updateProfileLocale } from "~/core/lib/locale.server";
+// import { updateProfileLocale } from "~/core/lib/locale.server";
 import { localeCookie } from "~/core/lib/i18next.server";
-import makeServerClient from "~/core/lib/supa-client.server";
+// import makeServerClient from "~/core/lib/supa-client.server";
 import i18n from "~/i18n";
 
 /**
@@ -53,18 +53,20 @@ export async function action({ request }: LoaderFunctionArgs) {
   // This will throw an error if the locale is not supported
   const locale = localeSchema.parse(url.searchParams.get("locale"));
 
-  const [client] = makeServerClient(request);
-  const {
-    data: { user },
-  } = await client.auth.getUser();
-
-  if (user) {
-    try {
-      await updateProfileLocale(user.id, locale);
-    } catch (error) {
-      console.error("[set-locale] Failed to update profile locale:", error);
-    }
-  }
+  // LangSwitcher는 세션 UI 언어(쿠키)만 바꿉니다.
+  // profiles.locale(기본 언어)은 프로필 설정·회원가입·로그인 시에만 갱신합니다.
+  // const [client] = makeServerClient(request);
+  // const {
+  //   data: { user },
+  // } = await client.auth.getUser();
+  //
+  // if (user) {
+  //   try {
+  //     await updateProfileLocale(user.id, locale);
+  //   } catch (error) {
+  //     console.error("[set-locale] Failed to update profile locale:", error);
+  //   }
+  // }
 
   // Return response with cookie header to set the new locale
   return data(null, {
