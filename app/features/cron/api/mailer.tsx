@@ -20,6 +20,7 @@ import * as Sentry from "@sentry/node";
 import { data } from "react-router";
 import WelcomeEmail from "transactional-emails/emails/welcome-user";
 
+import { normalizeLocale } from "~/core/lib/locale.server";
 import resendClient from "~/core/lib/resend-client.server";
 import adminClient from "~/core/lib/supa-admin-client.server";
 
@@ -113,12 +114,18 @@ export async function action({ request }: Route.LoaderArgs) {
         rawUserMetaData?.full_name || 
         "user";
       
-      // Extract locale from raw_user_meta_data, default to "ko"
-      // Supported locales: "en", "ja", "ko"
-      const locale = (rawUserMetaData?.locale || "ko") as "en" | "ja" | "ko";
-      
-      // Validate locale is supported
-      const validLocale = ["en", "ja", "ko"].includes(locale) ? locale : "ko";
+      const userId = (emailData as { id?: string })?.id;
+      let validLocale: ReturnType<typeof normalizeLocale> = "ko";
+
+      if (userId) {
+        const { data: profile } = await adminClient
+          .from("profiles")
+          .select("locale")
+          .eq("profile_id", userId)
+          .maybeSingle();
+
+        validLocale = normalizeLocale(profile?.locale);
+      }
       
       // Log for debugging if username fallback is used
       if (!rawUserMetaData?.name && !rawUserMetaData?.full_name) {

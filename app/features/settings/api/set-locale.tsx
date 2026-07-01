@@ -15,7 +15,9 @@
 import { type LoaderFunctionArgs, data } from "react-router";
 import { z } from "zod";
 
+import { updateProfileLocale } from "~/core/lib/locale.server";
 import { localeCookie } from "~/core/lib/i18next.server";
+import makeServerClient from "~/core/lib/supa-client.server";
 import i18n from "~/i18n";
 
 /**
@@ -50,7 +52,20 @@ export async function action({ request }: LoaderFunctionArgs) {
   // Validate locale against supported languages
   // This will throw an error if the locale is not supported
   const locale = localeSchema.parse(url.searchParams.get("locale"));
-  
+
+  const [client] = makeServerClient(request);
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+
+  if (user) {
+    try {
+      await updateProfileLocale(user.id, locale);
+    } catch (error) {
+      console.error("[set-locale] Failed to update profile locale:", error);
+    }
+  }
+
   // Return response with cookie header to set the new locale
   return data(null, {
     headers: {

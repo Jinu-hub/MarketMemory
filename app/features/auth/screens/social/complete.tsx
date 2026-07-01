@@ -7,6 +7,7 @@ import { data, redirect } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
+import { getRequestLocale, updateProfileLocale } from "~/core/lib/locale.server";
 import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
@@ -53,6 +54,18 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   if (error) {
     return data({ error: error.message, meta }, { status: 400 });
+  }
+
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+
+  if (user) {
+    try {
+      await updateProfileLocale(user.id, await getRequestLocale(request));
+    } catch (error) {
+      console.error("[social/complete] Failed to set profile locale:", error);
+    }
   }
 
   return redirect("/dashboard", { headers });

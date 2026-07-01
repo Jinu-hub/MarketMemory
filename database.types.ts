@@ -1216,6 +1216,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           is_admin: boolean
+          locale: string
           marketing_consent: boolean
           name: string
           profile_id: string
@@ -1225,6 +1226,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           is_admin?: boolean
+          locale?: string
           marketing_consent?: boolean
           name: string
           profile_id: string
@@ -1234,6 +1236,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           is_admin?: boolean
+          locale?: string
           marketing_consent?: boolean
           name?: string
           profile_id?: string
