@@ -170,7 +170,7 @@ export default function WelcomeUser({
             />
 
             <Section style={styles.buttonWrapper}>
-              <Button href="https://nexletter.app/" style={styles.button}>
+              <Button href="https://marketmemory.app/" style={styles.button}>
                 {t.button}
               </Button>
             </Section>

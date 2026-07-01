@@ -1,12 +1,12 @@
 /**
  * Newsletter System Footer Component
  *
- * A comprehensive footer for the NexLetter internal newsletter system.
+ * A comprehensive footer for the LinkVerse internal Market Memory system.
  * This component provides navigation links, company information, social links,
  * and newsletter subscription functionality.
  *
  * Features:
- * - Modern Nex Design System footer
+ * - Modern LinkVerse Design System footer
  * - Newsletter subscription form
  * - Social media links
  * - Comprehensive navigation
