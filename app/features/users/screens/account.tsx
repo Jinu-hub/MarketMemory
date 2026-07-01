@@ -71,6 +71,7 @@ export default function Account({ loaderData }: Route.ComponentProps) {
                 name={profile.name}
                 marketingConsent={profile.marketing_consent}
                 avatarUrl={profile.avatar_url}
+                locale={profile.locale}
               />
             );
           }}

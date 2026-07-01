@@ -315,6 +315,9 @@ const ja: Translation = {
       nameLabel: "名前",
       namePlaceholder: "Nico",
       marketingConsent: "マーケティングメールの受信に同意する",
+      defaultLocaleLabel: "デフォルト言語",
+      defaultLocaleDescription:
+        "ログイン時に適用されます。メール通知の言語にも使用されます。",
       saveProfile: "プロフィールを保存",
       profileUpdated: "プロフィールを更新しました",
     },

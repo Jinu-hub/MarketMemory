@@ -23,12 +23,14 @@ export default function EditProfileForm({
   name,
   avatarUrl,
   marketingConsent,
+  locale,
 }: {
   name: string;
   marketingConsent: boolean;
   avatarUrl: string | null;
+  locale: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const fetcher = useFetcher<Route.ComponentProps["actionData"]>();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,8 +41,11 @@ export default function EditProfileForm({
       formRef.current?.querySelectorAll("input").forEach((input) => {
         input.blur();
       });
+      if ("locale" in fetcher.data && typeof fetcher.data.locale === "string") {
+        void i18n.changeLanguage(fetcher.data.locale);
+      }
     }
-  }, [fetcher.data]);
+  }, [fetcher.data, i18n]);
 
   const [avatar, setAvatar] = useState<string | null>(avatarUrl);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
@@ -65,6 +70,13 @@ export default function EditProfileForm({
     "fieldErrors" in fetcher.data &&
     fetcher.data.fieldErrors?.marketingConsent
       ? fetcher.data.fieldErrors.marketingConsent
+      : undefined;
+
+  const localeError =
+    fetcher.data &&
+    "fieldErrors" in fetcher.data &&
+    fetcher.data.fieldErrors?.locale
+      ? fetcher.data.fieldErrors.locale
       : undefined;
 
   return (
@@ -170,6 +182,27 @@ export default function EditProfileForm({
               leftIcon={<UserIcon className="size-4" />}
               error={nameError}
             />
+
+            {/* Default locale */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="locale" className="font-medium">
+                {t("account.profile.defaultLocaleLabel")}
+              </Label>
+              <select
+                id="locale"
+                name="locale"
+                defaultValue={locale}
+                className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="ko">{t("navigation.kr")}</option>
+                <option value="ja">{t("navigation.ja")}</option>
+                <option value="en">{t("navigation.en")}</option>
+              </select>
+              <p className="text-muted-foreground text-sm">
+                {t("account.profile.defaultLocaleDescription")}
+              </p>
+              {localeError ? <FormErrors errors={localeError} /> : null}
+            </div>
 
             {/* Marketing consent */}
             <div className="bg-muted/30 flex items-center gap-3 rounded-xl border-2 border-dashed border-border p-4">

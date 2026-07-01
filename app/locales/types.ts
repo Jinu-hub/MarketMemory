@@ -291,6 +291,8 @@ export type Translation = {
       nameLabel: string;
       namePlaceholder: string;
       marketingConsent: string;
+      defaultLocaleLabel: string;
+      defaultLocaleDescription: string;
       saveProfile: string;
       profileUpdated: string;
     };

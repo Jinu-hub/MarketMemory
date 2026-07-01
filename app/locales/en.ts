@@ -315,6 +315,9 @@ const en: Translation = {
       nameLabel: "Name",
       namePlaceholder: "Nico",
       marketingConsent: "Consent to marketing emails",
+      defaultLocaleLabel: "Default language",
+      defaultLocaleDescription:
+        "Applied when you sign in. Also used for email notifications.",
       saveProfile: "Save profile",
       profileUpdated: "Profile updated",
     },

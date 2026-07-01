@@ -315,6 +315,9 @@ const ko: Translation = {
       nameLabel: "이름",
       namePlaceholder: "Nico",
       marketingConsent: "마케팅 이메일 수신 동의",
+      defaultLocaleLabel: "기본 언어",
+      defaultLocaleDescription:
+        "로그인 시 적용되는 언어입니다. 이메일 알림 언어에도 사용됩니다.",
       saveProfile: "프로필 저장",
       profileUpdated: "프로필이 업데이트되었습니다",
     },

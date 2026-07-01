@@ -31,6 +31,10 @@ import {
 import { Input } from "~/core/components/ui/input";
 import { Label } from "~/core/components/ui/label";
 import i18next from "~/core/lib/i18next.server";
+import {
+  appendLocaleCookie,
+  getProfileLocale,
+} from "~/core/lib/locale.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
 import FormErrors from "../../../core/components/form-error";
@@ -77,7 +81,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const [client, headers] = makeServerClient(request);
 
-  const { error: signInError } = await client.auth.signInWithPassword({
+  const { data: signInData, error: signInError } = await client.auth.signInWithPassword({
     ...validData,
   });
 
@@ -88,7 +92,15 @@ export async function action({ request }: Route.ActionArgs) {
     return data({ error: signInError.message }, { status: 400 });
   }
 
-  return redirect("/dashboard", { headers });
+  const profileLocale = signInData.user
+    ? await getProfileLocale(client, signInData.user.id)
+    : null;
+
+  const redirectHeaders = profileLocale
+    ? await appendLocaleCookie(headers, profileLocale)
+    : headers;
+
+  return redirect("/dashboard", { headers: redirectHeaders });
 }
 
 export default function Login({ actionData }: Route.ComponentProps) {

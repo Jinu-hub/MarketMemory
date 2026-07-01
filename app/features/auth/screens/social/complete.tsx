@@ -7,7 +7,12 @@ import { data, redirect } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
-import { getRequestLocale, updateProfileLocale } from "~/core/lib/locale.server";
+import {
+  appendLocaleCookie,
+  getProfileLocale,
+  getRequestLocale,
+  updateProfileLocale,
+} from "~/core/lib/locale.server";
 import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 
@@ -68,7 +73,15 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
   }
 
-  return redirect("/dashboard", { headers });
+  const profileLocale = user
+    ? await getProfileLocale(client, user.id)
+    : null;
+
+  const redirectHeaders = profileLocale
+    ? await appendLocaleCookie(headers, profileLocale)
+    : headers;
+
+  return redirect("/dashboard", { headers: redirectHeaders });
 }
 
 export const meta: Route.MetaFunction = ({ data }) => {

@@ -17,7 +17,9 @@ import type { Route } from "./+types/edit-profile";
 import { data } from "react-router";
 import { z } from "zod";
 
+import { localeCookieHeader, normalizeLocale } from "~/core/lib/locale.server";
 import makeServerClient from "~/core/lib/supa-client.server";
+import i18n from "~/i18n";
 
 import { getUserProfile } from "../queries";
 
@@ -36,6 +38,7 @@ const schema = z.object({
   name: z.string().min(1),
   avatar: z.instanceof(File),
   marketingConsent: z.coerce.boolean(),
+  locale: z.enum(i18n.supportedLngs),
 });
 
 /**
@@ -121,12 +124,14 @@ export async function action({ request }: Route.ActionArgs) {
   }
   
   // Update profile information in the profiles table
+  const locale = normalizeLocale(validData.locale);
   const { error: updateProfileError } = await client
     .from("profiles")
     .update({
       name: validData.name,
       marketing_consent: validData.marketingConsent,
       avatar_url: avatarUrl,
+      locale,
     })
     .eq("profile_id", user.id);
     
@@ -150,8 +155,11 @@ export async function action({ request }: Route.ActionArgs) {
     return data({ error: updateProfileError.message }, { status: 400 });
   }
 
-  // Return success response
-  return {
-    success: true,
-  };
+  // Return success response and sync locale cookie for SSR / client i18n
+  return data(
+    { success: true, locale },
+    {
+      headers: await localeCookieHeader(locale),
+    },
+  );
 }
