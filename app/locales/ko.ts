@@ -279,7 +279,7 @@ const ko: Translation = {
       publishedAtLabel: "발행",
       statusLabel: "상태",
       draftNote: "처리 중",
-      timezoneAbbr: "JST",
+      timezoneAbbr: "KST",
       datePicker: {
         triggerLabel: "다른 날짜의 시장 메모리 보기",
         title: "날짜 선택",

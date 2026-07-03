@@ -279,7 +279,7 @@ const en: Translation = {
       publishedAtLabel: "Published",
       statusLabel: "Status",
       draftNote: "In progress",
-      timezoneAbbr: "JST",
+      timezoneAbbr: "UTC",
       datePicker: {
         triggerLabel: "View market memory for another day",
         title: "Pick a date",

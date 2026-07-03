@@ -74,17 +74,24 @@ export function localDateToMarketKey(date: Date): string {
 
 const DEFAULT_PUBLISH_TIMEZONE = "Asia/Tokyo";
 
+function resolvePublishTimeZone(locale: string | null | undefined): string {
+  if (locale === "ko" || locale === "ja") {
+    return DEFAULT_PUBLISH_TIMEZONE;
+  }
+  return "UTC";
+}
+
 /** Pipeline publish / update time (morning JST/KST cron window). */
 export function formatMemoryPublishedAt(
   value: string | null | undefined,
   locale?: string | null,
-  timeZone: string = DEFAULT_PUBLISH_TIMEZONE,
+  timeZone?: string,
 ): string | null {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
   return date.toLocaleString(resolveBcp47(locale), {
-    timeZone,
+    timeZone: timeZone ?? resolvePublishTimeZone(locale),
     month: "short",
     day: "numeric",
     hour: "2-digit",
