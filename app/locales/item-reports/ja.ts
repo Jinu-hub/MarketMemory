@@ -320,7 +320,7 @@ const itemReports = {
     "keyTakeaway": "Key Takeaway",
     "talkingPoints": "Talking Points",
     "talkingPointsAria": "このレポートの注目ポイント",
-    "editorialSummary": "— Editorial summary",
+    "editorialSummary": "",
     "carousel": {
       "regionAria": "{label} · 全{count}件、方向キーで移動できます。",
       "slidePosition": "スライド位置",

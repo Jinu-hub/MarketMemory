@@ -18,7 +18,6 @@ import {
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion, formatReportType } from "../lib/labels";
-import { resolveTakeaway } from "../lib/summary-meta";
 import { itemReportsDetailHref, itemReportsListHref } from "../lib/item-reports-urls";
 import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
 import type { ReportListItem } from "../types";
@@ -52,7 +51,7 @@ export function FeaturedReportBlock({
 }: FeaturedReportBlockProps) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
-  const takeaway = resolveTakeaway(report.summary, report.summary_meta);
+  const summary = report.summary?.trim() ?? "";
   const date = resolveDisplayDate(report, locale);
   const primaryRegion = report.regions?.[0];
   const primaryCountry = report.countries?.[0];
@@ -98,9 +97,9 @@ export function FeaturedReportBlock({
             </Link>
           </h2>
 
-          {takeaway ? (
+          {summary ? (
             <p className="text-muted-foreground max-w-4xl text-base leading-relaxed md:text-lg">
-              {takeaway}
+              {summary}
             </p>
           ) : null}
 

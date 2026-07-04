@@ -9,7 +9,6 @@ import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion } from "../lib/labels";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
-import { resolveTakeaway } from "../lib/summary-meta";
 import type { ReportListItem } from "../types";
 import { ReportCategoryBadges } from "./report-category-badges";
 
@@ -42,7 +41,7 @@ export function ReportCard({
 }: ReportCardProps) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
-  const takeaway = resolveTakeaway(report.summary, report.summary_meta);
+  const summary = report.summary?.trim() ?? "";
   const date = resolveDisplayDate(report, locale);
   const primaryRegion = report.regions?.[0];
   const style = getCategoryStyle(report.category, locale);
@@ -88,7 +87,7 @@ export function ReportCard({
         >
           {report.title ?? ui.common.untitledReport}
         </h3>
-        {takeaway ? (
+        {summary ? (
           <p
             className={cn(
               "text-muted-foreground",
@@ -99,7 +98,7 @@ export function ReportCard({
                   : "line-clamp-3 text-sm leading-6",
             )}
           >
-            {takeaway}
+            {summary}
           </p>
         ) : null}
       </div>

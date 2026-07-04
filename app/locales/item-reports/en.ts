@@ -320,7 +320,7 @@ const itemReports = {
     "keyTakeaway": "Key Takeaway",
     "talkingPoints": "Talking Points",
     "talkingPointsAria": "Talking points for this report",
-    "editorialSummary": "— Editorial summary",
+    "editorialSummary": "",
     "carousel": {
       "regionAria": "{label} · {count} items; use arrow keys to navigate.",
       "slidePosition": "Slide position",
