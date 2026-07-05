@@ -18,6 +18,7 @@ import {
 import { getCategoryStyle } from "../lib/category-style";
 import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion, formatReportType } from "../lib/labels";
+import { resolveDisplaySummary } from "../lib/summary";
 import { itemReportsDetailHref, itemReportsListHref } from "../lib/item-reports-urls";
 import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
 import type { ReportListItem } from "../types";
@@ -51,7 +52,7 @@ export function FeaturedReportBlock({
 }: FeaturedReportBlockProps) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
-  const summary = report.summary?.trim() ?? "";
+  const summary = resolveDisplaySummary(report.summary);
   const date = resolveDisplayDate(report, locale);
   const primaryRegion = report.regions?.[0];
   const primaryCountry = report.countries?.[0];

@@ -14,7 +14,7 @@ import {
   getSimilarityToneClass,
   type SimilarityLevel,
 } from "../lib/similarity-style";
-import { resolveTakeaway } from "../lib/summary-meta";
+import { resolveDisplaySummary } from "../lib/summary";
 import type { ReportListItem } from "../types";
 import { ReportCategoryBadges } from "./report-category-badges";
 
@@ -41,7 +41,7 @@ export type ReportListRowProps =
 
 /**
  * Shared list-row presentation for reports (related sidebar + timeline).
- * Keeps takeaway, category accent, and title styling in one place.
+ * Keeps summary, category accent, and title styling in one place.
  */
 export function ReportListRow(props: ReportListRowProps) {
   const {
@@ -54,7 +54,7 @@ export function ReportListRow(props: ReportListRowProps) {
   const locale = useItemReportsLocale();
   const style = getCategoryStyle(report.category, locale);
   const CategoryIcon = style.icon;
-  const takeaway = resolveTakeaway(report.summary, report.summary_meta);
+  const summary = resolveDisplaySummary(report.summary);
   const date = resolveDisplayDate(report, locale);
   const title = report.title ?? ui.common.untitled;
 
@@ -100,9 +100,9 @@ export function ReportListRow(props: ReportListRowProps) {
         <div className="group-hover:text-primary line-clamp-2 text-sm leading-snug font-medium transition-colors">
           {title}
         </div>
-        {takeaway ? (
+        {summary ? (
           <p className="text-muted-foreground line-clamp-2 text-xs leading-5">
-            {takeaway}
+            {summary}
           </p>
         ) : null}
         <ArrowRightIcon className="text-muted-foreground size-3 self-end opacity-0 transition-opacity group-hover:opacity-100" />
@@ -162,7 +162,7 @@ export function ReportListRow(props: ReportListRowProps) {
           >
             {title}
           </h4>
-          {takeaway && !compact ? (
+          {summary && !compact ? (
             <p
               className={cn(
                 "text-muted-foreground mt-1 text-sm leading-6",
@@ -171,7 +171,7 @@ export function ReportListRow(props: ReportListRowProps) {
                 "lg:line-clamp-2 lg:max-w-none",
               )}
             >
-              {takeaway}
+              {summary}
             </p>
           ) : null}
         </Link>

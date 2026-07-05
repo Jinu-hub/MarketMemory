@@ -46,6 +46,7 @@ import {
   resolveItemReportsListBackHref,
 } from "../lib/list-navigation-state";
 import { resolveTakeaway } from "../lib/summary-meta";
+import { resolveDisplaySummary } from "../lib/summary";
 import { isPremiumTier } from "../lib/tier-style";
 import { pickItemReportsUi } from "../i18n";
 import { getRelatedReports, getReport } from "../queries";
@@ -153,6 +154,8 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
   const listLinkState = readItemReportsListLinkState(location.state);
   const listBackHref = resolveItemReportsListBackHref(location.state);
 
+  const displaySummary = resolveDisplaySummary(report.summary);
+
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">
       <nav className="mb-6">
@@ -179,13 +182,13 @@ export default function ItemReportDetail({ loaderData }: Route.ComponentProps) {
             />
           ) : null}
 
-          {report.summary ? (
+          {displaySummary ? (
             <ReadingHighlightBox
               title={ui.detail.summaryTitle}
               category={report.category}
               className="my-0"
             >
-              <p className="text-base leading-8 md:text-lg whitespace-pre-line">{report.summary}</p>
+              <p className="text-base leading-8 md:text-lg whitespace-pre-line">{displaySummary}</p>
             </ReadingHighlightBox>
           ) : null}
 

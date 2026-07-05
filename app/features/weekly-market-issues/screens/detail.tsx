@@ -34,6 +34,7 @@ import {
   localizeItemContentWithMeta,
 } from "~/features/item-reports/lib/item-content-localization";
 import { resolveTakeaway } from "~/features/item-reports/lib/summary-meta";
+import { resolveDisplaySummary } from "~/features/item-reports/lib/summary";
 import { isPremiumTier } from "~/features/item-reports/lib/tier-style";
 import { getUserProfile } from "~/features/users/queries";
 
@@ -45,7 +46,6 @@ import {
   getSeriesBySlug,
   getSeriesReport,
 } from "../queries";
-import { stripSummaryAfterMarkdownHeading } from "../lib/summary";
 import {
   WEEKLY_MARKET_ISSUES_BASE_PATH,
   weeklyMarketIssuesDetailHref,
@@ -123,9 +123,7 @@ export default function WeeklyMarketIssuesDetail({
   const ui = pickWeeklyMarketIssuesUi(locale);
   const reportsUi = pickItemReportsUi(locale);
   const navTitle = seriesTitle ?? ui.fallback.title;
-  const displaySummary = report.summary
-    ? stripSummaryAfterMarkdownHeading(report.summary)
-    : null;
+  const displaySummary = resolveDisplaySummary(report.summary);
 
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">

@@ -34,6 +34,7 @@ import {
   localizeItemContentWithMeta,
 } from "~/features/item-reports/lib/item-content-localization";
 import { resolveTakeaway } from "~/features/item-reports/lib/summary-meta";
+import { resolveDisplaySummary } from "~/features/item-reports/lib/summary";
 import { isPremiumTier } from "~/features/item-reports/lib/tier-style";
 import { getUserProfile } from "~/features/users/queries";
 
@@ -119,6 +120,7 @@ export default function WeeklyDigestDetail({
   const ui = pickWeeklyDigestUi(locale);
   const reportsUi = pickItemReportsUi(locale);
   const navTitle = seriesTitle ?? ui.fallback.title;
+  const displaySummary = resolveDisplaySummary(report.summary);
 
   return (
     <div className="flex flex-1 flex-col px-4 pt-2 pb-16 md:px-8">
@@ -141,14 +143,14 @@ export default function WeeklyDigestDetail({
             />
           ) : null}
 
-          {report.summary ? (
+          {displaySummary ? (
             <ReadingHighlightBox
               title={reportsUi.detail.summaryTitle}
               category={report.category}
               className="my-0"
             >
               <p className="text-base leading-8 whitespace-pre-line md:text-lg">
-                {report.summary}
+                {displaySummary}
               </p>
             </ReadingHighlightBox>
           ) : null}

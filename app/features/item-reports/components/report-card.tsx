@@ -9,6 +9,7 @@ import { resolveDisplayDate } from "../lib/dates";
 import { formatRegion } from "../lib/labels";
 import { itemReportsDetailHref } from "../lib/item-reports-urls";
 import type { ItemReportsListLocationState } from "../lib/list-navigation-state";
+import { resolveDisplaySummary } from "../lib/summary";
 import type { ReportListItem } from "../types";
 import { ReportCategoryBadges } from "./report-category-badges";
 
@@ -41,7 +42,7 @@ export function ReportCard({
 }: ReportCardProps) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
-  const summary = report.summary?.trim() ?? "";
+  const summary = resolveDisplaySummary(report.summary);
   const date = resolveDisplayDate(report, locale);
   const primaryRegion = report.regions?.[0];
   const style = getCategoryStyle(report.category, locale);

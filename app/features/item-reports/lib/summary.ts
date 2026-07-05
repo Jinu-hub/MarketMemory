@@ -13,3 +13,14 @@ export function stripSummaryAfterMarkdownHeading(text: string): string {
 
   return text.slice(0, Math.min(...indices)).trimEnd();
 }
+
+/**
+ * 카드·리스트·짧은 요약 블록용 summary 정규화.
+ */
+export function resolveDisplaySummary(
+  summary: string | null | undefined,
+): string {
+  const trimmed = summary?.trim() ?? "";
+  if (!trimmed) return "";
+  return stripSummaryAfterMarkdownHeading(trimmed);
+}
