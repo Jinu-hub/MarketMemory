@@ -1408,8 +1408,7 @@ export const contentPosts = pgTable(
 
     status: postStatus("status").notNull().default("draft"),
 
-    source_type: text("source_type"),
-    source_id: uuid("source_id"),
+    metadata: jsonb("metadata"),
 
     scheduled_at: timestamp("scheduled_at", { withTimezone: true }),
     published_at: timestamp("published_at", { withTimezone: true }),

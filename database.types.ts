@@ -42,6 +42,7 @@ export type Database = {
           lang_code: Database["public"]["Enums"]["lang_code"]
           like_count: number | null
           memo: string | null
+          metadata: Json | null
           metric_checked_at: string | null
           metrics: Json | null
           platform: Database["public"]["Enums"]["platform"]
@@ -51,8 +52,6 @@ export type Database = {
           repost_count: number | null
           saved_count: number | null
           scheduled_at: string | null
-          source_id: string | null
-          source_type: string | null
           status: Database["public"]["Enums"]["post_status"]
           title: string | null
           updated_at: string
@@ -67,6 +66,7 @@ export type Database = {
           lang_code: Database["public"]["Enums"]["lang_code"]
           like_count?: number | null
           memo?: string | null
+          metadata?: Json | null
           metric_checked_at?: string | null
           metrics?: Json | null
           platform: Database["public"]["Enums"]["platform"]
@@ -76,8 +76,6 @@ export type Database = {
           repost_count?: number | null
           saved_count?: number | null
           scheduled_at?: string | null
-          source_id?: string | null
-          source_type?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           title?: string | null
           updated_at?: string
@@ -92,6 +90,7 @@ export type Database = {
           lang_code?: Database["public"]["Enums"]["lang_code"]
           like_count?: number | null
           memo?: string | null
+          metadata?: Json | null
           metric_checked_at?: string | null
           metrics?: Json | null
           platform?: Database["public"]["Enums"]["platform"]
@@ -101,8 +100,6 @@ export type Database = {
           repost_count?: number | null
           saved_count?: number | null
           scheduled_at?: string | null
-          source_id?: string | null
-          source_type?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           title?: string | null
           updated_at?: string
