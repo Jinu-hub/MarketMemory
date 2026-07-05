@@ -23,6 +23,10 @@ export const apiRoutes = prefix("/api", [
       "/daily-market-memory",
       "features/cron/api/daily-market-memory.tsx",
     ),
+    route(
+      "/item-content-i18n",
+      "features/cron/api/item-content-i18n.tsx",
+    ),
   ]),
   ...prefix("/blog", [route("/og", "features/blog/api/og.tsx")]),
 ]);

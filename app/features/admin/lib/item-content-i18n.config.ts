@@ -19,7 +19,7 @@ export interface ItemContentI18nWebhookConfig {
 
 /** n8n 등 다언어 생성 파이프라인 Webhook — URL 확정 전까지 빈 문자열 */
 export const ITEM_CONTENT_I18N_WEBHOOK: ItemContentI18nWebhookConfig = {
-  url: "https://n8n.dev.insights.tech/webhook/item-content-i18n",
+  url: "https://n8n.nex.it.com/webhook/c1220c74-a2e5-4f1e-81a0-bc57b090fb24",
   secret: null,
 };
 
