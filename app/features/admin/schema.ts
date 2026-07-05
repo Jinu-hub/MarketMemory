@@ -156,7 +156,7 @@ export const similarityLevel = pgEnum("similarity_level", [
   "strong",
 ]);
 
-export const marketingPlatform = pgEnum("marketing_platform", [
+export const platform = pgEnum("platform", [
   "threads",
   "x",
   "instagram",
@@ -165,13 +165,13 @@ export const marketingPlatform = pgEnum("marketing_platform", [
   "other",
 ]);
 
-export const marketingLangCode = pgEnum("marketing_lang_code", [
+export const langCode = pgEnum("lang_code", [
   "ko",
   "ja",
   "en",
 ]);
 
-export const marketingPostStatus = pgEnum("marketing_post_status", [
+export const postStatus = pgEnum("post_status", [
   "draft",
   "ready",
   "scheduled",
@@ -1391,22 +1391,22 @@ export const reportsI18n = pgTable(
  */
 
 /* =========================================================
-   9-1) marketing_posts (SNS·블로그 마케팅 게시물)
+   9-1) content_posts (콘텐츠 게시물)
    ========================================================= */
-export const marketingPosts = pgTable(
-  "marketing_posts",
+export const contentPosts = pgTable(
+  "content_posts",
   {
     id: uuid("id").defaultRandom().primaryKey(),
 
     group_key: text("group_key"),
 
-    platform: marketingPlatform("platform").notNull(),
-    lang_code: marketingLangCode("lang_code").notNull(),
+    platform: platform("platform").notNull(),
+    lang_code: langCode("lang_code").notNull(),
 
     title: text("title"),
     content: text("content").notNull(),
 
-    status: marketingPostStatus("status").notNull().default("draft"),
+    status: postStatus("status").notNull().default("draft"),
 
     source_type: text("source_type"),
     source_id: uuid("source_id"),

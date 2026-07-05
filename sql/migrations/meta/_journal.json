@@ -302,6 +302,13 @@
       "when": 1782908015618,
       "tag": "0042_complex_smiling_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1783228022959,
+      "tag": "0043_tense_leader",
+      "breakpoints": true
     }
   ]
 }
