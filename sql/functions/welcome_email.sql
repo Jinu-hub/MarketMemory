@@ -1,25 +1,13 @@
 /**
  * Database Trigger Function: welcome_email
- * 
- * This function is triggered after a new user is inserted into the auth.users table.
- * It sends a welcome email to the newly registered user by adding a message
- * to the 'mailer' queue using PostgreSQL Message Queue (pgmq).
- * 
- * The function constructs a JSON message containing:
- * - The email template to use ('welcome')
- * - The recipient's email address (from user metadata)
- * - User data to populate the email template
- * 
- * Security considerations:
- * - Uses SECURITY DEFINER to run with the privileges of the function owner
- * - Sets an empty search path to prevent search path injection attacks
- * 
- * Dependencies:
- * - Requires the pgmq extension to be installed and configured
- * - Requires a 'mailer' queue to be created in pgmq
- * - Requires a 'welcome' email template to be defined in the application
- * 
- * @returns TRIGGER - Returns the NEW record that triggered the function
+ *
+ * Enqueues a welcome email when a user becomes email-confirmed:
+ * - OAuth signups: INSERT with email_confirmed_at already set
+ * - Email/password signups: UPDATE when email_confirmed_at is first set
+ *
+ * Recipient resolution:
+ * - OAuth users: raw_user_meta_data.email
+ * - Email/password users: auth.users.email
  */
 CREATE OR REPLACE FUNCTION welcome_email()
 RETURNS TRIGGER
@@ -27,36 +15,46 @@ LANGUAGE PLPGSQL
 SECURITY DEFINER
 SET SEARCH_PATH = ''
 AS $$
+DECLARE
+    recipient_email text;
 BEGIN
-    -- Send a message to the 'mailer' queue using pgmq
-    -- This will be processed asynchronously by a worker process
+    recipient_email := COALESCE(
+        new.raw_user_meta_data ->> 'email',
+        new.email
+    );
+
+    IF recipient_email IS NULL OR btrim(recipient_email) = '' THEN
+        RETURN NEW;
+    END IF;
+
     PERFORM pgmq.send(
-            queue_name => 'mailer'::text,  -- Target the 'mailer' queue
-            msg => (json_build_object(
-                'template', 'welcome'::text,  -- Use the 'welcome' email template
-                'to', new.raw_user_meta_data ->> 'email',  -- Recipient's email address
-                'data', row_to_json(new.*)  -- Include all user data for template rendering
-            ))::jsonb
-        );
-    
-    -- Return the user record that triggered this function
+        queue_name => 'mailer'::text,
+        msg => (json_build_object(
+            'template', 'welcome'::text,
+            'to', recipient_email,
+            'data', row_to_json(new.*)
+        ))::jsonb
+    );
+
     RETURN NEW;
 END;
 $$;
 
-/**
- * Database Trigger: welcome_email
- * 
- * This trigger executes the welcome_email function automatically
- * after a new user is inserted into the auth.users table.
- * 
- * The trigger runs once for each row inserted (FOR EACH ROW)
- * and only activates on INSERT operations, not on UPDATE or DELETE.
- * 
- * This ensures that every new user receives a welcome email
- * without requiring explicit calls from the application code.
- */
-CREATE TRIGGER welcome_email
+DROP TRIGGER IF EXISTS welcome_email ON auth.users;
+DROP TRIGGER IF EXISTS welcome_email_on_insert ON auth.users;
+DROP TRIGGER IF EXISTS welcome_email_on_confirm ON auth.users;
+
+CREATE TRIGGER welcome_email_on_insert
 AFTER INSERT ON auth.users
 FOR EACH ROW
+WHEN (NEW.email_confirmed_at IS NOT NULL)
+EXECUTE FUNCTION welcome_email();
+
+CREATE TRIGGER welcome_email_on_confirm
+AFTER UPDATE OF email_confirmed_at ON auth.users
+FOR EACH ROW
+WHEN (
+    OLD.email_confirmed_at IS NULL
+    AND NEW.email_confirmed_at IS NOT NULL
+)
 EXECUTE FUNCTION welcome_email();

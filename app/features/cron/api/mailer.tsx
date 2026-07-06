@@ -103,8 +103,21 @@ export async function action({ request }: Route.LoaderArgs) {
     }
     
     const { to, data: emailData, template } = messageData;
+    const recipientEmail =
+      to ?? (emailData as { email?: string } | undefined)?.email ?? null;
+
     // Process different email templates
     if (template === "welcome") {
+      if (!recipientEmail) {
+        console.error("[cron] Welcome email skipped: missing recipient", {
+          messageData,
+        });
+        Sentry.captureMessage("Welcome email skipped: missing recipient", {
+          level: "warning",
+          extra: { messageData },
+        });
+        return data(null, { status: 200 });
+      }
       // Extract username from raw_user_meta_data
       // For email/phone auth: raw_user_meta_data.name
       // For OAuth auth: raw_user_meta_data.full_name
@@ -131,7 +144,7 @@ export async function action({ request }: Route.LoaderArgs) {
       if (!rawUserMetaData?.name && !rawUserMetaData?.full_name) {
         console.log("[cron] Username not found in raw_user_meta_data, using fallback:", {
           rawUserMetaData,
-          email: to,
+          email: recipientEmail,
         });
       }
       
@@ -145,7 +158,7 @@ export async function action({ request }: Route.LoaderArgs) {
       const { error } = await resendClient.emails.send({
         // Make sure this domain is the Resend domain.
         from: "Market Memory <hello@mail.marketmemory.app>",
-        to: [to],
+        to: [recipientEmail],
         subject: subjectByLocale[validLocale],
         react: WelcomeEmail({
           username: username,
