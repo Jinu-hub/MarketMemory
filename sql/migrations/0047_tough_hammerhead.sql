@@ -1,0 +1,1 @@
+CREATE POLICY "mp_select_published" ON "content_posts" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("content_posts"."status" = 'published');

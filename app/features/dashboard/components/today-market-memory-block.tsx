@@ -92,17 +92,17 @@ export function TodayMarketMemoryBlock({
         </div>
         <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
-            {summaryPost ? (
-              <SummarySheet
-                post={summaryPost}
-                marketDate={memory.market_date}
-                locale={locale}
-              />
-            ) : null}
             {memory.source_report_count > 0 ? (
               <SourceReportsSheet
                 reports={sourceReports}
                 count={memory.source_report_count}
+                locale={locale}
+              />
+            ) : null}
+            {summaryPost ? (
+              <SummarySheet
+                post={summaryPost}
+                marketDate={memory.market_date}
                 locale={locale}
               />
             ) : null}

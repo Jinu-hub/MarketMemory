@@ -1457,6 +1457,11 @@ export const contentPosts = pgTable(
       to: authenticatedRole,
       using: isAdmin,
     }),
+    pgPolicy("mp_select_published", {
+      for: "select",
+      to: authenticatedRole,
+      using: sql`${table.status} = 'published'`,
+    }),
     pgPolicy("mp_insert", {
       for: "insert",
       to: authenticatedRole,

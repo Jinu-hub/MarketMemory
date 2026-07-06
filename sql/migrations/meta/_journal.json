@@ -330,6 +330,13 @@
       "when": 1783327234232,
       "tag": "0046_slimy_thunderbird",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1783336607318,
+      "tag": "0047_tough_hammerhead",
+      "breakpoints": true
     }
   ]
 }
