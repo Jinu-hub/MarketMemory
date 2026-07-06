@@ -6,10 +6,12 @@ import {
   ITEM_CONTENT_I18N_WEBHOOK,
   type ItemContentI18nLangCode,
 } from "~/features/admin/lib/item-content-i18n.config";
-import { groupItemContentI18nByContentAndLang } from "~/features/admin/lib/item-content-i18n-utils";
+import {
+  groupItemContentI18nByContentAndLang,
+  type ItemContentI18nRecordRow,
+} from "~/features/admin/lib/item-content-i18n-utils";
 import type { N8nWebhookInvokeResult } from "~/features/admin/lib/n8n-webhook-test.server";
 import { invokeN8nWebhooks } from "~/features/admin/lib/n8n-webhook-test.server";
-import { listItemContentI18nByContentIds } from "~/features/admin/queries/item-content-i18n";
 
 export type ItemContentI18nCronWebhookItem = {
   job_code: string;
@@ -101,7 +103,8 @@ export async function runItemContentI18nCron(
   const { data: contents, error: contentError } = await client
     .from("item_contents")
     .select("id, lang_code, market_date, report_type, market_memory_items!inner(job_code)")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .neq("i18n_status", "done");
 
   if (contentError) {
     return { ok: false, error: contentError.message, itemCount: 0 };
@@ -112,15 +115,18 @@ export async function runItemContentI18nCron(
     return { ok: true, skipped: true, itemCount: 0, items: [] };
   }
 
-  const { data: i18nRows, error: i18nError } = await listItemContentI18nByContentIds(
-    client,
-    contentRows.map((row) => row.id),
-  );
+  const contentIds = contentRows.map((row) => row.id);
+  const { data: i18nRows, error: i18nError } = await client
+    .from("item_content_i18n")
+    .select("id, item_content_id, lang_code, status, is_public, created_at, updated_at")
+    .in("item_content_id", contentIds);
   if (i18nError) {
     return { ok: false, error: i18nError.message, itemCount: 0 };
   }
 
-  const i18nMap = groupItemContentI18nByContentAndLang(i18nRows ?? []);
+  const i18nMap = groupItemContentI18nByContentAndLang(
+    (i18nRows ?? []) as ItemContentI18nRecordRow[],
+  );
   const items: ItemContentI18nCronWebhookItem[] = [];
 
   for (const content of contentRows) {
