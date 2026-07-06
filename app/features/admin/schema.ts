@@ -1408,6 +1408,7 @@ export const contentPosts = pgTable(
     group_key: text("group_key"),
 
     platform: platform("platform").notNull(),
+    market_date: date("market_date"),
     lang_code: langCode("lang_code").notNull(),
 
     title: text("title"),
@@ -1444,6 +1445,9 @@ export const contentPosts = pgTable(
     index("idx_marketing_posts_platform_lang").on(
       table.platform,
       table.lang_code,
+    ),
+    index("idx_marketing_posts_market_date_lang").on(
+      table.market_date, table.lang_code,
     ),
     index("idx_marketing_posts_published_at").on(table.published_at),
     index("idx_marketing_posts_group_key").on(table.group_key),

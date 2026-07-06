@@ -323,6 +323,13 @@
       "when": 1783323736327,
       "tag": "0045_complex_hedge_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1783327234232,
+      "tag": "0046_slimy_thunderbird",
+      "breakpoints": true
     }
   ]
 }

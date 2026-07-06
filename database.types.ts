@@ -41,6 +41,7 @@ export type Database = {
           id: string
           lang_code: Database["public"]["Enums"]["lang_code"]
           like_count: number | null
+          market_date: string | null
           memo: string | null
           metadata: Json | null
           metric_checked_at: string | null
@@ -65,6 +66,7 @@ export type Database = {
           id?: string
           lang_code: Database["public"]["Enums"]["lang_code"]
           like_count?: number | null
+          market_date?: string | null
           memo?: string | null
           metadata?: Json | null
           metric_checked_at?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           id?: string
           lang_code?: Database["public"]["Enums"]["lang_code"]
           like_count?: number | null
+          market_date?: string | null
           memo?: string | null
           metadata?: Json | null
           metric_checked_at?: string | null
