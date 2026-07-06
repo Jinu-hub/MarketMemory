@@ -59,6 +59,4 @@ export {
   listItemContentsForI18n,
 } from "./item-content-i18n";
 
-export type { AdminUserListRow } from "./users";
-
-export { listProfilesForAdmin } from "./users";
+export type { AdminUserListRow } from "./users.server";

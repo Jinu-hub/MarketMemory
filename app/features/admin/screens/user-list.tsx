@@ -13,7 +13,10 @@ import {
   adminTdClass,
 } from "../components/admin-ui";
 import { useTableSortState } from "../hooks/use-table-sort-filter";
-import { listProfilesForAdmin, type AdminUserListRow } from "../queries/users";
+import {
+  listProfilesForAdmin,
+  type AdminUserListRow,
+} from "../queries/users.server";
 import { NexBadge, NexButton, NexInput } from "~/core/components/nex";
 import {
   Table,
