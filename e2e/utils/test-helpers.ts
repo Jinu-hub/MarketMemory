@@ -17,6 +17,10 @@ import { authUsers } from "drizzle-orm/supabase";
 
 import db from "~/core/db/drizzle-client.server";
 
+/** Meets app password policy: 12+ chars, upper, lower, number. */
+export const TEST_PASSWORD = "TestPassword123";
+export const TEST_PASSWORD_NEW = "NewPassword456";
+
 /**
  * Check if a form field has validation errors
  * 

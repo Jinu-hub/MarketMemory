@@ -343,7 +343,7 @@ const en: Translation = {
       confirmNewPassword: "Confirm new password",
       requirementsTitle: "Password requirements",
       requirements: {
-        minLength: "At least 8 characters",
+        minLength: "At least 12 characters",
         upperLower: "Contains uppercase and lowercase letters",
         numbers: "Contains numbers",
       },

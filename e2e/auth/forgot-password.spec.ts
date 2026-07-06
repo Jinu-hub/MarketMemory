@@ -19,6 +19,8 @@ import {
   deleteUser,
   loginUser,
   registerUser,
+  TEST_PASSWORD,
+  TEST_PASSWORD_NEW,
 } from "e2e/utils/test-helpers";
 
 import db from "~/core/db/drizzle-client.server";
@@ -152,7 +154,7 @@ test.describe.serial("Reset Password Flow", () => {
     /*
      * Create a test user so we can test the reset password flow
      */
-    await registerUser(page, TEST_EMAIL, "password");
+    await registerUser(page, TEST_EMAIL, TEST_PASSWORD);
     await confirmUser(page, TEST_EMAIL);
     await context.close();
   });
@@ -227,8 +229,8 @@ test.describe.serial("Reset Password Flow", () => {
      * Fill in the new password and confirmation, then submit the form
      */
     await test.step("reset password", async () => {
-      await page.locator("#password").fill("newpassword123");
-      await page.locator("#confirmPassword").fill("newpassword123");
+      await page.locator("#password").fill(TEST_PASSWORD_NEW);
+      await page.locator("#confirmPassword").fill(TEST_PASSWORD_NEW);
       await page.getByRole("button", { name: "Update password" }).click();
       
       // Verify the success message
@@ -244,7 +246,7 @@ test.describe.serial("Reset Password Flow", () => {
      */
     await test.step("log out and log in again", async () => {
       await page.goto("/logout");
-      await loginUser(page, TEST_EMAIL, "newpassword123");
+      await loginUser(page, TEST_EMAIL, TEST_PASSWORD_NEW);
       
       // Verify successful login by checking we're redirected to the home page
       await expect(page).toHaveURL("/");

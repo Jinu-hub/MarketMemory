@@ -20,6 +20,7 @@ import {
   deleteUser,
   loginUser,
   registerUser,
+  TEST_PASSWORD,
 } from "e2e/utils/test-helpers";
 
 import db from "~/core/db/drizzle-client.server";
@@ -55,7 +56,7 @@ test.describe("Delete Profile", () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await registerUser(page, TEST_EMAIL, "password");
+    await registerUser(page, TEST_EMAIL, TEST_PASSWORD);
     await confirmUser(page, TEST_EMAIL);
     await context.close();
   });
@@ -81,7 +82,7 @@ test.describe("Delete Profile", () => {
    */
   test("should delete account after confirmation", async ({ page }) => {
     // Log in with the test user account
-    await loginUser(page, TEST_EMAIL, "password");
+    await loginUser(page, TEST_EMAIL, TEST_PASSWORD);
     // Navigate to the account settings page
     await page.goto("/account/edit");
 

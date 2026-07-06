@@ -23,6 +23,7 @@ import {
   confirmUser,
   deleteUser,
   registerUser,
+  TEST_PASSWORD,
 } from "../utils/test-helpers";
 
 /**
@@ -162,8 +163,8 @@ test.describe("User Registration UI", () => {
   test("should show error for invalid email format", async ({ page }) => {
     await page.locator("#name").fill("John Doe");
     await page.locator("#email").fill("invalid@email"); // Invalid email format
-    await page.locator("#password").fill("password");
-    await page.locator("#confirmPassword").fill("password");
+    await page.locator("#password").fill(TEST_PASSWORD);
+    await page.locator("#confirmPassword").fill(TEST_PASSWORD);
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(
       page.getByText("Invalid email address", { exact: true }),
@@ -179,8 +180,8 @@ test.describe("User Registration UI", () => {
   test("should show error when passwords do not match", async ({ page }) => {
     await page.locator("#name").fill("John Doe");
     await page.locator("#email").fill("john.doe@example.com");
-    await page.locator("#password").fill("password");
-    await page.locator("#confirmPassword").fill("password1"); // Different password
+    await page.locator("#password").fill(TEST_PASSWORD);
+    await page.locator("#confirmPassword").fill("TestPassword456"); // Different password
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(
       page.getByText("Passwords must match", { exact: true }),
@@ -194,7 +195,7 @@ test.describe("User Registration UI", () => {
    * and verifies that the appropriate validation errors appear
    * Note: Expects two error messages (one for each password field)
    */
-  test("should show error when passwords are less than 8 characters", async ({
+  test("should show error when passwords are less than 12 characters", async ({
     page,
   }) => {
     await page.locator("#name").fill("John Doe");
@@ -203,7 +204,7 @@ test.describe("User Registration UI", () => {
     await page.locator("#confirmPassword").fill("short"); // Too short password
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(
-      page.getByText("Password must be at least 8 characters long"),
+      page.getByText("Password must be at least 12 characters long"),
     ).toHaveCount(2); // One error for each password field
   });
 });
@@ -233,7 +234,7 @@ test.describe.serial("User Registration Flow", () => {
     /*
      * Create a test user before testing the error message when the email already exists
      */
-    await registerUser(page, EXISTING_EMAIL, "password");
+    await registerUser(page, EXISTING_EMAIL, TEST_PASSWORD);
     await confirmUser(page, EXISTING_EMAIL);
     await context.close();
   });
@@ -270,8 +271,8 @@ test.describe.serial("User Registration Flow", () => {
   }) => {
     await page.locator("#name").fill("Test User");
     await page.locator("#email").fill(EXISTING_EMAIL!); // Email that already exists
-    await page.locator("#password").fill("password");
-    await page.locator("#confirmPassword").fill("password");
+    await page.locator("#password").fill(TEST_PASSWORD);
+    await page.locator("#confirmPassword").fill(TEST_PASSWORD);
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(
       page.getByText("There is an account with this email already.", {
@@ -294,8 +295,8 @@ test.describe.serial("User Registration Flow", () => {
   }) => {
     await page.locator("#name").fill("Test User");
     await page.locator("#email").fill(UNCONFIRMED_EMAIL!); // New email for registration
-    await page.locator("#password").fill("password");
-    await page.locator("#confirmPassword").fill("password");
+    await page.locator("#password").fill(TEST_PASSWORD);
+    await page.locator("#confirmPassword").fill(TEST_PASSWORD);
     await page.locator("#marketing").click(); // Opt in to marketing emails
     await page.getByRole("button", { name: "Create account" }).click();
     

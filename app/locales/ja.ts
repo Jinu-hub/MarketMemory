@@ -343,7 +343,7 @@ const ja: Translation = {
       confirmNewPassword: "新しいパスワード（確認）",
       requirementsTitle: "パスワードの要件",
       requirements: {
-        minLength: "8文字以上",
+        minLength: "12文字以上",
         upperLower: "大文字と小文字を含む",
         numbers: "数字を含む",
       },

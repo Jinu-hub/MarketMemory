@@ -17,33 +17,14 @@
 import type { Route } from "./+types/change-password";
 
 import { data } from "react-router";
-import { z } from "zod";
 
+import {
+  createPasswordWithConfirmSchema,
+  getPasswordValidationMessages,
+} from "~/features/auth/lib/password-schema";
 import { requireAuthentication, requireMethod } from "~/core/lib/guards.server";
+import i18next from "~/core/lib/i18next.server";
 import makeServerClient from "~/core/lib/supa-client.server";
-
-/**
- * Validation schema for password change form data
- *
- * This schema defines the required fields and validation rules:
- * - password: Required, must be at least 8 characters
- * - confirmPassword: Required, must be at least 8 characters
- *
- * Additionally, it includes a refinement to ensure both passwords match,
- * with a specific error message and path for the validation error.
- *
- * The schema is used with Zod's safeParse method to validate form submissions
- * before processing them further.
- */
-const changePasswordSchema = z
-  .object({
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords must match",
-    path: ["confirmPassword"],
-  });
 
 /**
  * Action handler for processing password change requests
@@ -66,39 +47,36 @@ const changePasswordSchema = z
  * @returns Response indicating success or error with appropriate details
  */
 export async function action({ request }: Route.ActionArgs) {
-  // Validate request method (only allow POST)
   requireMethod("POST")(request);
-  
-  // Create a server-side Supabase client with the user's session
+
+  const t = await i18next.getFixedT(request);
+  const changePasswordSchema = createPasswordWithConfirmSchema(
+    getPasswordValidationMessages(t),
+  );
+
   const [client] = makeServerClient(request);
-  
-  // Verify the user is authenticated
+
   await requireAuthentication(client);
-  
-  // Extract and validate form data
+
   const formData = await request.formData();
   const {
     success,
     data: validData,
     error,
   } = changePasswordSchema.safeParse(Object.fromEntries(formData));
-  
-  // Return field-specific validation errors if validation fails
+
   if (!success) {
     return data({ fieldErrors: error.flatten().fieldErrors }, { status: 400 });
   }
-  
-  // Submit password change request to Supabase Auth API
+
   const { error: updateError } = await client.auth.updateUser({
     password: validData.password,
   });
 
-  // Handle API errors
   if (updateError) {
     return data({ error: updateError.message }, { status: 400 });
   }
-  
-  // Return success response
+
   return {
     success: true,
   };

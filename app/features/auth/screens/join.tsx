@@ -9,6 +9,10 @@ import { Form, Link, data } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
+import {
+  createPasswordFieldSchema,
+  getPasswordValidationMessages,
+} from "../lib/password-schema";
 import FormButton from "~/core/components/form-button";
 import FormErrors from "~/core/components/form-error";
 import {
@@ -49,21 +53,20 @@ export const meta: Route.MetaFunction = ({ data }) => {
 };
 
 function createJoinSchema(t: Awaited<ReturnType<typeof i18next.getFixedT>>) {
+  const passwordMessages = getPasswordValidationMessages(t);
+  const passwordField = createPasswordFieldSchema(passwordMessages);
+
   return z
     .object({
       name: z.string().min(1, { message: t("auth.validation.nameRequired") }),
       email: z.string().email({ message: t("auth.validation.invalidEmail") }),
-      password: z.string().min(8, {
-        message: t("auth.validation.passwordMinLength"),
-      }),
-      confirmPassword: z.string().min(8, {
-        message: t("auth.validation.passwordMinLength"),
-      }),
+      password: passwordField,
+      confirmPassword: passwordField,
       marketing: z.coerce.boolean().default(false),
       terms: z.coerce.boolean(),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: t("auth.validation.passwordsMustMatch"),
+      message: passwordMessages.mustMatch,
       path: ["confirmPassword"],
     });
 }

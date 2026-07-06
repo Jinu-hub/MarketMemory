@@ -21,7 +21,10 @@ const authKo = {
     },
     validation: {
       invalidEmail: "유효하지 않은 이메일 주소입니다",
-      passwordMinLength: "비밀번호는 8자 이상이어야 합니다",
+      passwordMinLength: "비밀번호는 12자 이상이어야 합니다",
+      passwordUppercase: "비밀번호에 대문자를 1개 이상 포함해야 합니다",
+      passwordLowercase: "비밀번호에 소문자를 1개 이상 포함해야 합니다",
+      passwordNumber: "비밀번호에 숫자를 1개 이상 포함해야 합니다",
       nameRequired: "이름을 입력해 주세요",
       passwordsMustMatch: "비밀번호가 일치하지 않습니다",
       termsRequired: "이용약관에 동의해야 합니다",
@@ -59,7 +62,8 @@ const authKo = {
     namePlaceholder: "Nico",
     emailPlaceholder: "nico@supaplate.com",
     passwordPlaceholder: "비밀번호를 입력하세요",
-    passwordHint: "8자 이상이어야 합니다.",
+    passwordHint:
+      "12자 이상, 영문 대·소문자·숫자를 각 1개 이상 포함해야 합니다.",
     confirmPasswordPlaceholder: "비밀번호를 다시 입력하세요",
     createAccountButton: "계정 만들기",
     marketing: "마케팅 이메일 수신에 동의합니다",

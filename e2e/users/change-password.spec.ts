@@ -22,6 +22,8 @@ import {
   deleteUser,
   loginUser,
   registerUser,
+  TEST_PASSWORD,
+  TEST_PASSWORD_NEW,
 } from "e2e/utils/test-helpers";
 
 /**
@@ -55,7 +57,7 @@ test.describe("Change Password", () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await registerUser(page, TEST_EMAIL, "password");
+    await registerUser(page, TEST_EMAIL, TEST_PASSWORD);
     await confirmUser(page, TEST_EMAIL);
     await context.close();
   });
@@ -77,7 +79,7 @@ test.describe("Change Password", () => {
    * at the account settings page where the password change form is located.
    */
   test.beforeEach(async ({ page }) => {
-    await loginUser(page, TEST_EMAIL, "password");
+    await loginUser(page, TEST_EMAIL, TEST_PASSWORD);
     await page.goto("/account/edit");
   });
 
@@ -112,8 +114,8 @@ test.describe("Change Password", () => {
      */
     await test.step("should show error if passwords do not match", async () => {
       // Fill in different passwords in each field
-      await page.locator("#password").fill("newpassword123");
-      await page.locator("#confirmPassword").fill("wrongpassword123"); // Different password
+      await page.locator("#password").fill(TEST_PASSWORD_NEW);
+      await page.locator("#confirmPassword").fill("WrongPassword456"); // Different password
       // Attempt to submit the form
       await page.getByRole("button", { name: "Change password" }).click();
       // Verify the password mismatch error appears
@@ -130,8 +132,8 @@ test.describe("Change Password", () => {
      */
     await test.step("should update password successfully", async () => {
       // Fill in matching passwords in both fields
-      await page.locator("#password").fill("newpassword123");
-      await page.locator("#confirmPassword").fill("newpassword123");
+      await page.locator("#password").fill(TEST_PASSWORD_NEW);
+      await page.locator("#confirmPassword").fill(TEST_PASSWORD_NEW);
       // Submit the form
       await page.getByRole("button", { name: "Change password" }).click();
       // Verify the success message appears
@@ -163,7 +165,7 @@ test.describe("Change Password", () => {
       // Log out of the current session
       await page.goto("/logout");
       // Log in with the same email but the new password
-      await loginUser(page, TEST_EMAIL, "newpassword123");
+      await loginUser(page, TEST_EMAIL, TEST_PASSWORD_NEW);
       // Navigate to the dashboard and verify successful login
       await page.goto("/dashboard");
       await expect(page).toHaveTitle(/Dashboard/);

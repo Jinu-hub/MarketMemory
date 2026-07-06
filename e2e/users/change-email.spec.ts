@@ -21,6 +21,7 @@ import {
   deleteUser,
   loginUser,
   registerUser,
+  TEST_PASSWORD,
 } from "e2e/utils/test-helpers";
 
 import db from "~/core/db/drizzle-client.server";
@@ -61,7 +62,7 @@ test.describe("Change Email", async () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await registerUser(page, TEST_EMAIL, "password");
+    await registerUser(page, TEST_EMAIL, TEST_PASSWORD);
     await confirmUser(page, TEST_EMAIL);
     await context.close();
   });
@@ -84,7 +85,7 @@ test.describe("Change Email", async () => {
    * at the account settings page where the email change form is located.
    */
   test.beforeEach(async ({ page }) => {
-    await loginUser(page, TEST_EMAIL, "password");
+    await loginUser(page, TEST_EMAIL, TEST_PASSWORD);
     await page.goto("/account/edit");
   });
 
@@ -228,7 +229,7 @@ test.describe("Change Email", async () => {
       await page.goto("/logout");
       
       // Log in with the new email address
-      await loginUser(page, TEST_NEW_EMAIL, "password");
+      await loginUser(page, TEST_NEW_EMAIL, TEST_PASSWORD);
       
       // Navigate to the dashboard and verify successful login
       await page.goto("/dashboard");

@@ -21,7 +21,10 @@ const authJa = {
     },
     validation: {
       invalidEmail: "有効なメールアドレスを入力してください",
-      passwordMinLength: "パスワードは8文字以上である必要があります",
+      passwordMinLength: "パスワードは12文字以上である必要があります",
+      passwordUppercase: "パスワードには大文字を1文字以上含める必要があります",
+      passwordLowercase: "パスワードには小文字を1文字以上含める必要があります",
+      passwordNumber: "パスワードには数字を1文字以上含める必要があります",
       nameRequired: "名前を入力してください",
       passwordsMustMatch: "パスワードが一致しません",
       termsRequired: "利用規約に同意する必要があります",
@@ -59,7 +62,8 @@ const authJa = {
     namePlaceholder: "Nico",
     emailPlaceholder: "nico@supaplate.com",
     passwordPlaceholder: "パスワードを入力",
-    passwordHint: "8文字以上である必要があります。",
+    passwordHint:
+      "12文字以上で、大文字・小文字・数字をそれぞれ1文字以上含めてください。",
     confirmPasswordPlaceholder: "パスワードを再入力",
     createAccountButton: "アカウント作成",
     marketing: "マーケティングメールの受信に同意する",

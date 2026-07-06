@@ -18,6 +18,7 @@ import {
   confirmUser,
   deleteUser,
   registerUser,
+  TEST_PASSWORD,
 } from "e2e/utils/test-helpers";
 
 import db from "~/core/db/drizzle-client.server";
@@ -111,7 +112,7 @@ test.describe.serial("Magic Link Flow", () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await registerUser(page, TEST_EMAIL, "password");
+    await registerUser(page, TEST_EMAIL, TEST_PASSWORD);
     await context.close();
   });
 
@@ -226,7 +227,7 @@ test.describe.serial("Magic Link Flow", () => {
   test("should show error if user is already confirmed", async ({ page }) => {
     // Create a fresh confirmed user for this test
     await deleteUser(TEST_EMAIL);
-    await registerUser(page, TEST_EMAIL, "password");
+    await registerUser(page, TEST_EMAIL, TEST_PASSWORD);
     await confirmUser(page, TEST_EMAIL);
 
     // Log out to prepare for magic link login

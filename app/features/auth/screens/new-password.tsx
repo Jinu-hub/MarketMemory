@@ -8,8 +8,11 @@ import { useEffect, useRef } from "react";
 import { redirect } from "react-router";
 import { Form, data } from "react-router";
 import { useTranslation } from "react-i18next";
-import { z } from "zod";
 
+import {
+  createPasswordWithConfirmSchema,
+  getPasswordValidationMessages,
+} from "../lib/password-schema";
 import FormButton from "~/core/components/form-button";
 import FormErrors from "~/core/components/form-error";
 import {
@@ -40,19 +43,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 function createUpdatePasswordSchema(
   t: Awaited<ReturnType<typeof i18next.getFixedT>>,
 ) {
-  return z
-    .object({
-      password: z.string().min(8, {
-        message: t("auth.validation.passwordMinLength"),
-      }),
-      confirmPassword: z.string().min(8, {
-        message: t("auth.validation.passwordMinLength"),
-      }),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: t("auth.validation.passwordsMustMatch"),
-      path: ["confirmPassword"],
-    });
+  return createPasswordWithConfirmSchema(getPasswordValidationMessages(t));
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -128,6 +119,9 @@ export default function ChangePassword({ actionData }: Route.ComponentProps) {
                 className="flex flex-col items-start gap-1"
               >
                 {t("common.labels.password")}
+                <small className="text-muted-foreground">
+                  {t("join.passwordHint")}
+                </small>
               </Label>
               <Input
                 id="password"

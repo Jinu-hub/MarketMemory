@@ -343,7 +343,7 @@ const ko: Translation = {
       confirmNewPassword: "새 비밀번호 확인",
       requirementsTitle: "비밀번호 요구사항",
       requirements: {
-        minLength: "8자 이상",
+        minLength: "12자 이상",
         upperLower: "대문자와 소문자 포함",
         numbers: "숫자 포함",
       },

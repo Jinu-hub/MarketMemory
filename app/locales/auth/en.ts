@@ -21,7 +21,10 @@ const authEn = {
     },
     validation: {
       invalidEmail: "Invalid email address",
-      passwordMinLength: "Password must be at least 8 characters long",
+      passwordMinLength: "Password must be at least 12 characters long",
+      passwordUppercase: "Password must include at least one uppercase letter",
+      passwordLowercase: "Password must include at least one lowercase letter",
+      passwordNumber: "Password must include at least one number",
       nameRequired: "Name is required",
       passwordsMustMatch: "Passwords must match",
       termsRequired: "You must agree to the terms of service",
@@ -59,7 +62,8 @@ const authEn = {
     namePlaceholder: "Nico",
     emailPlaceholder: "nico@supaplate.com",
     passwordPlaceholder: "Enter your password",
-    passwordHint: "Must be at least 8 characters.",
+    passwordHint:
+      "At least 12 characters with uppercase, lowercase, and a number.",
     confirmPasswordPlaceholder: "Confirm your password",
     createAccountButton: "Create account",
     marketing: "Sign up for marketing emails",

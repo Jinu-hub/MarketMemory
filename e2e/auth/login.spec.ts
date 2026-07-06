@@ -19,6 +19,7 @@ import {
   deleteUser,
   loginUser,
   registerUser,
+  TEST_PASSWORD,
 } from "e2e/utils/test-helpers";
 
 /**
@@ -177,7 +178,7 @@ test.describe.serial("User Login Flow", () => {
     /*
      * Create a test user that is not confirmed to test the email confirmation alert
      */
-    await registerUser(page, TEST_EMAIL, "password");
+    await registerUser(page, TEST_EMAIL, TEST_PASSWORD);
     await context.close();
   });
 
@@ -213,7 +214,7 @@ test.describe.serial("User Login Flow", () => {
      */
     await test.step("should show email confirmation alert when email is unverified", async () => {
       await page.locator("#email").fill(TEST_EMAIL);
-      await page.locator("#password").fill("password");
+      await page.locator("#password").fill(TEST_PASSWORD);
       await page.getByRole("button", { name: "Log in" }).click();
       
       // Verify the alert appears with an extended timeout
@@ -260,7 +261,7 @@ test.describe.serial("User Login Flow", () => {
     await page.goto("/logout");
     
     // Log in with the confirmed user
-    await loginUser(page, TEST_EMAIL, "password");
+    await loginUser(page, TEST_EMAIL, TEST_PASSWORD);
     
     // Verify successful login by checking redirect to home page
     await expect(page).toHaveURL("/dashboard");
