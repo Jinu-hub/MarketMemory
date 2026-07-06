@@ -149,6 +149,12 @@ export const similarityStatus = pgEnum("similarity_status", [
   "pending",
 ]);
 
+export const i18nStatus = pgEnum("i18n_status", [
+  "ready",
+  "done",
+  "partial",
+]);
+
 export const similarityLevel = pgEnum("similarity_level", [
   "weak",
   "medium",
@@ -590,6 +596,7 @@ export const itemContents = pgTable(
     input_hash: text("input_hash"),
     tracking: jsonb("tracking"),
     similarity_status: similarityStatus("similarity_status").notNull().default("ready"),
+    i18n_status: i18nStatus("i18n_status").notNull().default("ready"),
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

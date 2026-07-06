@@ -115,7 +115,7 @@ const itemReports = {
   "list": {
     "eyebrow": "Item Reports",
     "title": "리포트 라이브러리",
-    "subtitle": "카테고리·유형·지역·태그별로 필터링해 읽고 싶은 리포트를 빠르게 찾아보세요. \n모든 필터는 URL에 저장되어 공유와 북마크가 가능합니다.",
+    "subtitle": "카테고리·유형·지역·태그별로 필터링해 읽고 싶은 리포트를 빠르게 찾아보세요.",
     "metaDescription": "카테고리·지역·태그별로 정돈된 리포트 라이브러리",
     "metaTitle": "Item Reports",
     "sortNewest": "최신순",

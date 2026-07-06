@@ -115,7 +115,7 @@ const itemReports = {
   "list": {
     "eyebrow": "Item Reports",
     "title": "レポートライブラリ",
-    "subtitle": "カテゴリ・タイプ・地域・タグで絞り込み、読みたいレポートを素早く見つけられます。\nフィルターはすべてURLに保存され、共有とブックマークが可能です。",
+    "subtitle": "カテゴリ・タイプ・地域・タグで絞り込み、読みたいレポートを素早く見つけられます。",
     "metaDescription": "カテゴリ・地域・タグ別に整理されたレポートライブラリ",
     "metaTitle": "Item Reports",
     "sortNewest": "新しい順",

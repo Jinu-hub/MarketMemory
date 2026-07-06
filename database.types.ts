@@ -649,6 +649,7 @@ export type Database = {
           countries: string[] | null
           created_at: string
           html_body: string | null
+          i18n_status: Database["public"]["Enums"]["i18n_status"]
           id: string
           input_hash: string | null
           is_active: boolean
@@ -676,6 +677,7 @@ export type Database = {
           countries?: string[] | null
           created_at?: string
           html_body?: string | null
+          i18n_status?: Database["public"]["Enums"]["i18n_status"]
           id?: string
           input_hash?: string | null
           is_active?: boolean
@@ -703,6 +705,7 @@ export type Database = {
           countries?: string[] | null
           created_at?: string
           html_body?: string | null
+          i18n_status?: Database["public"]["Enums"]["i18n_status"]
           id?: string
           input_hash?: string | null
           is_active?: boolean
@@ -1811,6 +1814,7 @@ export type Database = {
         | "review"
         | "watchlist"
       content_type: "summary" | "md_summary" | "source_text"
+      i18n_status: "ready" | "done" | "partial"
       item_status: "ready" | "running" | "done" | "failed"
       lang_code: "ko" | "ja" | "en"
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
@@ -2005,6 +2009,7 @@ export const Constants = {
         "watchlist",
       ],
       content_type: ["summary", "md_summary", "source_text"],
+      i18n_status: ["ready", "done", "partial"],
       item_status: ["ready", "running", "done", "failed"],
       lang_code: ["ko", "ja", "en"],
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
