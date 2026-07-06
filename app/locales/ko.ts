@@ -403,6 +403,7 @@ const ko: Translation = {
         apiTests: "API 테스트",
         similarityMeasurements: "유사도 측정",
         i18nManagement: "다언어 관리",
+        userManagement: "유저 관리",
       },
     },
     series: {

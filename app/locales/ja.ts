@@ -403,6 +403,7 @@ const ja: Translation = {
         apiTests: "APIテスト",
         similarityMeasurements: "類似度測定",
         i18nManagement: "多言語管理",
+        userManagement: "ユーザー管理",
       },
     },
     series: {

@@ -111,6 +111,10 @@ export function useDashboardSidebarData() {
           title: t("dashboardSidebar.nav.admin.i18nManagement"),
           url: "/admin/i18n-management",
         },
+        {
+          title: t("dashboardSidebar.nav.admin.userManagement"),
+          url: "/admin/user-management",
+        },
       ],
     };
 

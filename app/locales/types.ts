@@ -376,6 +376,7 @@ export type Translation = {
         apiTests: string;
         similarityMeasurements: string;
         i18nManagement: string;
+        userManagement: string;
       };
     };
     series: {

@@ -79,6 +79,11 @@ export const privateRoutes = layout(
           "/item-content-reports-i18n",
           "features/admin/screens/item-content-reports-i18n.tsx",
         ),
+        route(
+          "/user-management",
+          "features/admin/screens/user-management.tsx",
+        ),
+        route("/user-list", "features/admin/screens/user-list.tsx"),
       ]),
     ]),
   ],

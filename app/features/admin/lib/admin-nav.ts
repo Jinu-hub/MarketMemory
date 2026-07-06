@@ -8,6 +8,7 @@ import {
   PackageIcon,
   Share2Icon,
   SparklesIcon,
+  UsersIcon,
 } from "lucide-react";
 
 export type AdminNavItem = {
@@ -71,6 +72,14 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     dashboardTitle: "다언어 관리",
     dashboardDescription:
       "콘텐츠·리포트의 다언어 번역 결과를 검토·관리합니다. item_content 리포트 번역을 제공합니다.",
+  },
+  {
+    to: "/admin/user-management",
+    label: "유저 관리",
+    icon: UsersIcon,
+    dashboardTitle: "유저 관리",
+    dashboardDescription:
+      "가입 유저의 프로필·권한·계정 정보를 검토·관리합니다. 유저 리스트 조회를 제공합니다.",
   },
 ];
 

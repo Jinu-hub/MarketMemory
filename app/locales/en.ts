@@ -403,6 +403,7 @@ const en: Translation = {
         apiTests: "API Tests",
         similarityMeasurements: "Similarity Measurements",
         i18nManagement: "i18n Management",
+        userManagement: "User Management",
       },
     },
     series: {
