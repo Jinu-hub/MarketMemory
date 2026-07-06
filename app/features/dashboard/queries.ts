@@ -314,3 +314,42 @@ export async function getDailyMarketMemorySources(
     } satisfies ReportListItem;
   });
 }
+
+/** A published `content_posts` row surfaced as the trading-day market summary. */
+export type MarketSummaryPost = {
+  title: string | null;
+  content: string;
+  lang_code: string;
+  platform: string;
+  published_at: string | null;
+};
+
+const SUMMARY_POST_SELECT = "title,content,lang_code,platform,published_at";
+
+/**
+ * Fetch the published market-summary post for a trading day.
+ *
+ * Matches by `market_date` + `status='published'`, then resolves to the row
+ * matching the reader's language (preferred locale → `en` → first available)
+ * so the summary follows the i18n switch. Returns `null` when nothing is
+ * published (or RLS hides the rows for non-admins).
+ */
+export async function getDailyMarketSummaryPost(
+  client: DB,
+  marketDate: string,
+  preferredLang: string,
+): Promise<MarketSummaryPost | null> {
+  const { data, error } = await client
+    .from("content_posts")
+    .select(SUMMARY_POST_SELECT)
+    .eq("market_date", marketDate)
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
+  if (error && error.code !== "PGRST116") throw error;
+
+  const rows = (data ?? []) as MarketSummaryPost[];
+  if (rows.length === 0) return null;
+
+  return pickBestI18nRow(rows, preferredLang, "en");
+}

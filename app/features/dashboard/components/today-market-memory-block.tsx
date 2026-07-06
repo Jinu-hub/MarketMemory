@@ -25,11 +25,14 @@ import { ReadingEmpty, ReadingProse } from "./reading-prose";
 import { AdminSourcesReconcileButton } from "./admin-sources-reconcile-button";
 import { SectionLabel } from "./section-label";
 import { SourceReportsSheet } from "./source-reports-sheet";
+import { SummarySheet } from "./summary-sheet";
 import type { DailyMarketMemorySourcesConsistency } from "../lib/daily-market-memory-sources.server";
+import type { MarketSummaryPost } from "../queries";
 
 type TodayMarketMemoryBlockProps = {
   memory: DailyMarketMemorySnapshot | null;
   sourceReports?: ReportListItem[];
+  summaryPost?: MarketSummaryPost | null;
   locale: string;
   isAdmin?: boolean;
   sourceConsistency?: DailyMarketMemorySourcesConsistency | null;
@@ -39,6 +42,7 @@ type TodayMarketMemoryBlockProps = {
 export function TodayMarketMemoryBlock({
   memory,
   sourceReports = [],
+  summaryPost = null,
   locale,
   isAdmin = false,
   sourceConsistency = null,
@@ -88,6 +92,13 @@ export function TodayMarketMemoryBlock({
         </div>
         <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
+            {summaryPost ? (
+              <SummarySheet
+                post={summaryPost}
+                marketDate={memory.market_date}
+                locale={locale}
+              />
+            ) : null}
             {memory.source_report_count > 0 ? (
               <SourceReportsSheet
                 reports={sourceReports}

@@ -42,6 +42,7 @@ import {
   getAvailableMarketMemoryDates,
   getDailyMarketMemoryByDate,
   getDailyMarketMemorySources,
+  getDailyMarketSummaryPost,
   getLatestDailyMarketMemory,
 } from "~/features/dashboard/queries";
 import { getRecentReports } from "~/features/item-reports/queries";
@@ -76,6 +77,12 @@ export async function loader({ request }: Route.LoaderArgs) {
     ? await getDailyMarketMemorySources(client, memory.id).catch(() => [])
     : [];
 
+  const summaryPost = memory
+    ? await getDailyMarketSummaryPost(client, memory.market_date, locale).catch(
+        () => null,
+      )
+    : null;
+
   const sourceConsistency =
     isAdmin && memory
       ? await checkDailyMarketMemorySourcesConsistency(client, memory.id).catch(
@@ -93,6 +100,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   return {
     memory,
     sourceReports,
+    summaryPost,
     sourceConsistency,
     isAdmin,
     recentReports,
@@ -154,6 +162,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const {
     memory,
     sourceReports,
+    summaryPost,
     sourceConsistency,
     isAdmin,
     recentReports,
@@ -209,6 +218,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
       <TodayMarketMemoryBlock
         memory={memory}
         sourceReports={sourceReports}
+        summaryPost={summaryPost}
         locale={locale}
         isAdmin={isAdmin}
         sourceConsistency={sourceConsistency}

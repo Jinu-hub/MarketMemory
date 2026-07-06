@@ -182,6 +182,13 @@ const ui = {
         openAction: "목록 보기",
         empty: "근거 리포트 정보가 없습니다.",
       },
+      summaryPost: {
+        button: "요약",
+        title: "시장 요약",
+        description: "이 거래일에 발행된 시장 요약입니다.",
+        openAction: "시장 요약 보기",
+        empty: "발행된 요약 내용이 없습니다.",
+      },
       sourceConsistency: {
         title: "근거 리포트 정합성 불일치",
         description:
@@ -308,6 +315,13 @@ const ui = {
         description: "Reports used to generate this market memory.",
         openAction: "View list",
         empty: "No source report information is available.",
+      },
+      summaryPost: {
+        button: "Summary",
+        title: "Market summary",
+        description: "The published market summary for this trading day.",
+        openAction: "View market summary",
+        empty: "No published summary is available.",
       },
       sourceConsistency: {
         title: "Source report mismatch",
@@ -436,6 +450,13 @@ const ui = {
         description: "この市場メモリの生成に使用されたレポートです。",
         openAction: "一覧を見る",
         empty: "根拠レポート情報がありません。",
+      },
+      summaryPost: {
+        button: "要約",
+        title: "市場要約",
+        description: "この取引日に配信された市場要約です。",
+        openAction: "市場要約を見る",
+        empty: "配信された要約はありません。",
       },
       sourceConsistency: {
         title: "根拠レポートの不整合",
