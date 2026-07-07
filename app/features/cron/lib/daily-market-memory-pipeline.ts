@@ -302,7 +302,6 @@ async function fetchTargetReports(
   inputDateQuery: ResolvedReportInputDateQuery,
   errors: string[],
 ): Promise<ItemContentRow[]> {
-  const langCode = params.langCode ?? "ko";
   const visibility = params.visibility ?? "public_only";
 
   let q = db
@@ -310,8 +309,7 @@ async function fetchTargetReports(
     .select(
       "id, market_memory_item_id, report_type, market_date, lang_code, title, summary, category, regions, countries, confidence, metadata, is_active, is_public, report_tier",
     )
-    .eq("is_active", true)
-    .eq("lang_code", langCode);
+    .eq("is_active", true);
 
   if (visibility === "public_only") {
     q = q.eq("is_public", true);

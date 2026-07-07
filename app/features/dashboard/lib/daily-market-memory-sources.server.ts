@@ -66,14 +66,12 @@ async function fetchExpectedSourceReports(
     memory.coverage_start_at,
     memory.coverage_end_at,
   );
-  const langCode = resolvePipelineLangCode(memory.model_info);
 
   let query = client
     .from("item_contents")
     .select("id,market_memory_item_id,title,report_type,lang_code")
     .eq("is_active", true)
-    .eq("is_public", true)
-    .eq("lang_code", langCode);
+    .eq("is_public", true);
 
   if (inputDateQuery.mode === "coverage_range") {
     query = query

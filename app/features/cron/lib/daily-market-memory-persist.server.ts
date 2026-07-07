@@ -72,7 +72,7 @@ function buildMemoryRow(
     model_info: {
       pipeline: "daily_market_memory",
       visibility: result.visibility,
-      langCode: result.langCode,
+      //langCode: result.langCode,
       ranAt: result.ranAt,
     } as Json,
     updated_at: result.ranAt,
