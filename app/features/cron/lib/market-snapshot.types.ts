@@ -26,7 +26,7 @@ export interface MarketSnapshotItem {
 }
 
 export interface FearGreedSnapshot {
-  source: "alternative-me" | "rapidapi-fear-and-greed";
+  source: "alternative-me" | "feargreedchart-cnn";
   value: number;
   classification: string;
   asOf: string | null;
@@ -72,7 +72,7 @@ export interface MarketItemConfig extends MarketQuoteItemConfig {
 }
 
 /** Fear & Greed 지수 API 라우팅용 프로바이더 키 */
-export type MarketFearGreedProvider = "rapidapi" | "alternative-me";
+export type MarketFearGreedProvider = "feargreedchart" | "alternative-me";
 
 export type MarketFearGreedTarget = "market" | "crypto";
 

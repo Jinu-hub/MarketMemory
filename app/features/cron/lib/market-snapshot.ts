@@ -1,7 +1,7 @@
 import { fetchFearGreedSnapshot as fetchCryptoFearGreedSnapshot } from "./providers/crypto-fear-greed-provider";
 import { fetchFmpMarketItems } from "./providers/fmp-market-provider";
 import { fetchFmpTreasuryItems } from "./providers/fmp-treasury-provider";
-import { fetchFearGreedSnapshot as fetchRapidApiFearGreedSnapshot } from "./providers/rapidapi-provider";
+import { fetchFearGreedSnapshot as fetchFearGreedChartSnapshot } from "./providers/feargreedchart-provider";
 import { fetchRapidApiMarketItems } from "./providers/rapidapi-quote-provider";
 import { fetchTwelveMarketItems } from "./providers/twelve-market-provider";
 import {
@@ -87,8 +87,8 @@ async function fetchFearGreedForTarget(
   }
 
   switch (source.provider) {
-    case "rapidapi":
-      return fetchRapidApiFearGreedSnapshot();
+    case "feargreedchart":
+      return fetchFearGreedChartSnapshot();
     case "alternative-me":
       return fetchCryptoFearGreedSnapshot();
     default: {

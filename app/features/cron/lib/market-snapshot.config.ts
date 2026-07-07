@@ -29,7 +29,7 @@ export const MARKET_SNAPSHOT_QUOTE_SOURCES: MarketItemConfig[] = [
  * `target`: `fearGreed`(주식) / `cryptoFearGreed`(크립토) 필드 매핑.
  */
 export const MARKET_FEAR_GREED_SOURCES: MarketFearGreedSourceConfig[] = [
-  { provider: "rapidapi", target: "market" },
+  { provider: "feargreedchart", target: "market" },
   { provider: "alternative-me", target: "crypto" },
 ];
 
