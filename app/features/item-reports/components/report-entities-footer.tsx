@@ -83,12 +83,12 @@ function EntityRow({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start gap-2">
-      <span className="text-muted-foreground inline-flex h-6 w-14 shrink-0 items-center gap-1.5 text-xs leading-6">
+    <div className="grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-1.5">
+      <span className="text-muted-foreground inline-flex shrink-0 items-center gap-1.5 text-xs whitespace-nowrap">
         <Icon className="size-3 shrink-0" aria-hidden />
         {label}
       </span>
-      <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">{children}</div>
+      <div className="flex min-w-0 flex-wrap gap-1.5">{children}</div>
     </div>
   );
 }
