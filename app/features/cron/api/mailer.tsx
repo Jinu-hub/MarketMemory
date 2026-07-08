@@ -1,17 +1,8 @@
 /**
  * Email Queue Processing API Endpoint
- * 
- * This file implements a cron-triggered API endpoint that processes emails from a Postgres
- * message queue (PGMQ). It's designed to be called by a scheduled job to handle
- * asynchronous email sending, improving performance and reliability by decoupling
- * email sending from user-facing operations.
- * 
- * Key features:
- * - Secured with a CRON_SECRET for authentication
- * - Processes one email at a time from the queue
- * - Supports different email templates
- * - Integrates with Sentry for error tracking
- * - Uses Resend for email delivery
+ *
+ * Cron-triggered endpoint that processes emails from a Postgres message queue (PGMQ).
+ * Pops up to MAILER_BATCH_SIZE messages per run via a single pop_mailer_batch RPC.
  */
 
 import type { Route } from "./+types/mailer";
@@ -24,160 +15,181 @@ import { normalizeLocale } from "~/core/lib/locale.server";
 import resendClient from "~/core/lib/resend-client.server";
 import adminClient from "~/core/lib/supa-admin-client.server";
 
-/**
- * Interface representing an email message in the queue
- * 
- * @property to - Recipient email address
- * @property data - Key-value pairs of dynamic content for the email template
- * @property template - Template identifier (e.g., "welcome") to determine which email to send
- */
-interface EmailMessage {
-  to: string;
-  data: Record<string, string>;
-  template: string;
+const MAILER_BATCH_SIZE_DEFAULT = 3;
+const MAILER_BATCH_SIZE_MAX = 10;
+
+const subjectByLocale = {
+  ko: "Market Memory에 오신 것을 환영합니다!",
+  en: "Welcome to Market Memory!",
+  ja: "Market Memoryへようこそ！",
+} as const;
+
+function resolveMailerBatchSize(): number {
+  const raw = process.env.MAILER_BATCH_SIZE?.trim();
+  if (!raw) {
+    return MAILER_BATCH_SIZE_DEFAULT;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return MAILER_BATCH_SIZE_DEFAULT;
+  }
+
+  return Math.min(parsed, MAILER_BATCH_SIZE_MAX);
 }
 
-/**
- * API endpoint action handler for processing the email queue
- * 
- * This function is triggered by a cron job and processes one email from the queue at a time.
- * The workflow is:
- * 1. Authenticate the request using CRON_SECRET
- * 2. Pop a message from the PGMQ queue
- * 3. Process the message based on the template type
- * 4. Send the email using Resend
- * 5. Track any errors with Sentry
- * 
- * Security considerations:
- * - Requires a valid CRON_SECRET for authentication
- * - Only accepts POST requests
- * - Uses admin client with elevated permissions (safely contained in this endpoint)
- * 
- * @param request - The incoming HTTP request from the cron job
- * @returns A response with appropriate status code (200 for success, 401 for unauthorized)
- */
-export async function action({ request }: Route.LoaderArgs) {
-  /*
-  console.log("[cron] request received:", {
-    method: request.method,
-    auth: request.headers.get("Authorization"),
+function normalizeQueueMessage(message: unknown): Record<string, unknown> | null {
+  if (!message || typeof message !== "object") {
+    return null;
+  }
+
+  if ("message" in message && typeof message.message === "object" && message.message) {
+    return message.message as Record<string, unknown>;
+  }
+
+  return message as Record<string, unknown>;
+}
+
+function parseMailerBatch(data: unknown): unknown[] {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data;
+}
+
+async function processWelcomeEmail(messageData: Record<string, unknown>) {
+  const to = messageData.to;
+  const emailData = messageData.data;
+  const template = messageData.template;
+
+  if (template !== "welcome") {
+    return;
+  }
+
+  const recipientEmail =
+    (typeof to === "string" ? to : null) ??
+    (emailData &&
+    typeof emailData === "object" &&
+    typeof (emailData as { email?: string }).email === "string"
+      ? (emailData as { email: string }).email
+      : null);
+
+  if (!recipientEmail) {
+    console.error("[cron] Welcome email skipped: missing recipient", {
+      messageData,
+    });
+    Sentry.captureMessage("Welcome email skipped: missing recipient", {
+      level: "warning",
+      extra: { messageData },
+    });
+    return;
+  }
+
+  const rawUserMetaData =
+    emailData &&
+    typeof emailData === "object" &&
+    "raw_user_meta_data" in emailData
+      ? (emailData as { raw_user_meta_data?: Record<string, unknown> })
+          .raw_user_meta_data
+      : undefined;
+
+  const username =
+    (typeof rawUserMetaData?.name === "string" ? rawUserMetaData.name : null) ??
+    (typeof rawUserMetaData?.full_name === "string"
+      ? rawUserMetaData.full_name
+      : null) ??
+    "user";
+
+  const userId =
+    emailData && typeof emailData === "object" && "id" in emailData
+      ? (emailData as { id?: string }).id
+      : undefined;
+
+  let validLocale: ReturnType<typeof normalizeLocale> = "ko";
+
+  if (userId) {
+    const { data: profile } = await adminClient
+      .from("profiles")
+      .select("locale")
+      .eq("profile_id", userId)
+      .maybeSingle();
+
+    validLocale = normalizeLocale(profile?.locale);
+  }
+
+  if (
+    !rawUserMetaData?.name &&
+    !rawUserMetaData?.full_name
+  ) {
+    console.log("[cron] Username not found in raw_user_meta_data, using fallback:", {
+      rawUserMetaData,
+      email: recipientEmail,
+    });
+  }
+
+  const { error } = await resendClient.emails.send({
+    from: "Market Memory <hello@mail.marketmemory.app>",
+    to: [recipientEmail],
+    subject: subjectByLocale[validLocale],
+    react: WelcomeEmail({
+      username,
+      locale: validLocale,
+    }),
   });
-  */
-  // Security check: Verify this is a POST request with the correct secret
+
+  if (error) {
+    Sentry.captureException(
+      error instanceof Error ? error : new Error(String(error)),
+    );
+  }
+}
+
+export async function action({ request }: Route.LoaderArgs) {
   if (
     request.method !== "POST" ||
     request.headers.get("Authorization") !== process.env.CRON_SECRET
   ) {
     return data(null, { status: 401 });
   }
-  
-  // Pop a message from the Postgres message queue (PGMQ)
-  // Note: Using admin client is necessary to access the queue  
-  const { data: message, error } = await adminClient.rpc("pop_mailer");
 
-  // Log any errors that occur when accessing the queue
+  const batchSize = resolveMailerBatchSize();
+  const { data: batch, error } = await adminClient.rpc("pop_mailer_batch", {
+    batch_size: batchSize,
+  });
+
   if (error) {
-    console.error("[cron] PGMQ error:", error);
+    console.error("[cron] PGMQ batch error:", error);
     Sentry.captureException(
       error instanceof Error ? error : new Error(String(error)),
     );
-    return data(null, { status: 200 }); // Continue processing even if queue access fails
+    return data(null, { status: 200 });
   }
 
-  // Log successful message retrieval for debugging
-  if (message) {
-    console.log("[cron] Retrieved message:", JSON.stringify(message, null, 2));
+  const messages = parseMailerBatch(batch);
+
+  if (messages.length > 0) {
+    console.log(
+      `[cron] Retrieved ${messages.length} message(s):`,
+      JSON.stringify(messages, null, 2),
+    );
   }
 
-  // Process the message if one was retrieved from the queue
-  if (message && typeof message === "object") {
-    // Handle both direct message format and nested message format
-    let messageData: any;
-    
-    if ("message" in message && typeof (message as any).message === "object") {
-      // Nested message format (from old pop_mailer)
-      messageData = (message as any).message;
-    } else {
-      // Direct message format (from new pop_mailer)
-      messageData = message;
+  for (const message of messages) {
+    const messageData = normalizeQueueMessage(message);
+    if (!messageData) {
+      continue;
     }
-    
-    const { to, data: emailData, template } = messageData;
-    const recipientEmail =
-      to ?? (emailData as { email?: string } | undefined)?.email ?? null;
 
-    // Process different email templates
-    if (template === "welcome") {
-      if (!recipientEmail) {
-        console.error("[cron] Welcome email skipped: missing recipient", {
-          messageData,
-        });
-        Sentry.captureMessage("Welcome email skipped: missing recipient", {
-          level: "warning",
-          extra: { messageData },
-        });
-        return data(null, { status: 200 });
-      }
-      // Extract username from raw_user_meta_data
-      // For email/phone auth: raw_user_meta_data.name
-      // For OAuth auth: raw_user_meta_data.full_name
-      const rawUserMetaData = (emailData as any)?.raw_user_meta_data;
-      const username = 
-        rawUserMetaData?.name || 
-        rawUserMetaData?.full_name || 
-        "user";
-      
-      const userId = (emailData as { id?: string })?.id;
-      let validLocale: ReturnType<typeof normalizeLocale> = "ko";
-
-      if (userId) {
-        const { data: profile } = await adminClient
-          .from("profiles")
-          .select("locale")
-          .eq("profile_id", userId)
-          .maybeSingle();
-
-        validLocale = normalizeLocale(profile?.locale);
-      }
-      
-      // Log for debugging if username fallback is used
-      if (!rawUserMetaData?.name && !rawUserMetaData?.full_name) {
-        console.log("[cron] Username not found in raw_user_meta_data, using fallback:", {
-          rawUserMetaData,
-          email: recipientEmail,
-        });
-      }
-      
-      // Determine subject based on locale
-      const subjectByLocale = {
-        ko: "Market Memory에 오신 것을 환영합니다!",
-        en: "Welcome to Market Memory!",
-        ja: "Market Memoryへようこそ！",
-      };
-      
-      const { error } = await resendClient.emails.send({
-        // Make sure this domain is the Resend domain.
-        from: "Market Memory <hello@mail.marketmemory.app>",
-        to: [recipientEmail],
-        subject: subjectByLocale[validLocale],
-        react: WelcomeEmail({
-          username: username,
-          locale: validLocale,
-        }),
-      });
-      
-      // Log any errors that occur during email sending
-      if (error) {
-        Sentry.captureException(
-          error instanceof Error ? error : new Error(String(error)),
-        );
-      }
+    try {
+      await processWelcomeEmail(messageData);
+    } catch (error) {
+      console.error("[cron] Email processing failed:", error);
+      Sentry.captureException(
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
-    // Additional templates can be handled here with more if/else conditions
   }
-  
-  // Return success response
-  // Note: We return 200 even if there were errors to prevent the cron job from failing
-  // Errors are tracked in Sentry for monitoring and debugging
+
   return data(null, { status: 200 });
 }

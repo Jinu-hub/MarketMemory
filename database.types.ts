@@ -1752,6 +1752,7 @@ export type Database = {
         }[]
       }
       pop_mailer: { Args: never; Returns: Json }
+      pop_mailer_batch: { Args: { batch_size?: number }; Returns: Json }
       preview_daily_market_memory_similarity_edges: {
         Args: {
           p_min_final_score?: number
