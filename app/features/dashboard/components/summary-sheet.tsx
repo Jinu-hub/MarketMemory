@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
-import { ChevronRightIcon, SparklesIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  NotebookPenIcon,
+  SparklesIcon,
+} from "lucide-react";
 
 import { useIsMobile } from "~/core/hooks/use-mobile";
 import { cn } from "~/core/lib/utils";
@@ -22,13 +26,59 @@ type SummarySheetProps = {
   className?: string;
 };
 
-/** A parsed content block: a lead paragraph, a numbered point, or plain text. */
+/** A parsed content block: a lead paragraph, a numbered point, memo callout, or plain text. */
 type SummaryBlock =
   | { kind: "lead"; text: string }
   | { kind: "point"; index: string; text: string }
+  | { kind: "memo"; label: string; text: string }
   | { kind: "text"; text: string };
 
 const NUMBERED_POINT = /^(\d+)\s*[/.)]\s*([\s\S]*)$/;
+
+const MARKET_MEMO_HEADER =
+  /^((?:Today's market memo|오늘의 시장 메모|今日のマーケットメモ)[:：])\s*/i;
+
+function parseMemoBlock(text: string): { label: string; body: string } | null {
+  const trimmed = text.trim();
+  const match = trimmed.match(MARKET_MEMO_HEADER);
+  if (!match) return null;
+
+  const body = trimmed.slice(match[0].length).trim();
+  if (!body) return null;
+
+  return { label: match[1], body };
+}
+
+const MARKET_MEMO_LABEL_ONLY =
+  /^(?:Today's market memo|오늘의 시장 메모|今日のマーケットメモ)[:：]?\s*$/i;
+
+function mergeSplitMemoBlocks(blocks: SummaryBlock[]): SummaryBlock[] {
+  const merged: SummaryBlock[] = [];
+
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const next = blocks[i + 1];
+
+    if (
+      block.kind === "text" &&
+      MARKET_MEMO_LABEL_ONLY.test(block.text.trim()) &&
+      next?.kind === "text"
+    ) {
+      const label = block.text.trim().replace(/[:：]?\s*$/, "");
+      merged.push({
+        kind: "memo",
+        label: `${label}${block.text.includes("：") ? "：" : ":"}`,
+        text: next.text,
+      });
+      i += 1;
+      continue;
+    }
+
+    merged.push(block);
+  }
+
+  return merged;
+}
 
 function parseSummaryBlocks(content: string): SummaryBlock[] {
   const raw = content.trim();
@@ -40,18 +90,25 @@ function parseSummaryBlocks(content: string): SummaryBlock[] {
     .map((part) => part.trim())
     .filter(Boolean);
 
-  return parts.map((part, i) => {
-    const numbered = part.match(NUMBERED_POINT);
-    if (numbered) {
-      return {
-        kind: "point",
-        index: numbered[1].padStart(2, "0"),
-        text: numbered[2].trim(),
-      };
-    }
-    if (i === 0) return { kind: "lead", text: part };
-    return { kind: "text", text: part };
-  });
+  return mergeSplitMemoBlocks(
+    parts.map((part, i) => {
+      const memo = parseMemoBlock(part);
+      if (memo) {
+        return { kind: "memo", label: memo.label, text: memo.body };
+      }
+
+      const numbered = part.match(NUMBERED_POINT);
+      if (numbered) {
+        return {
+          kind: "point",
+          index: numbered[1].padStart(2, "0"),
+          text: numbered[2].trim(),
+        };
+      }
+      if (i === 0) return { kind: "lead", text: part };
+      return { kind: "text", text: part };
+    }),
+  );
 }
 
 export function SummarySheet({
@@ -143,6 +200,36 @@ export function SummarySheet({
                         {block.text}
                       </p>
                     </div>
+                  );
+                }
+
+                if (block.kind === "memo") {
+                  return (
+                    <aside
+                      key={i}
+                      aria-label={block.label}
+                      className={cn(
+                        "border-primary/35 bg-primary/10 mt-2 rounded-xl border border-l-[3px] p-4 sm:p-5",
+                        "shadow-sm",
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span
+                          className="bg-primary/15 text-primary mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg"
+                          aria-hidden
+                        >
+                          <NotebookPenIcon className="size-4" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-primary text-[11px] font-semibold tracking-wider uppercase sm:text-xs">
+                            {block.label}
+                          </p>
+                          <p className="text-foreground mt-2 text-sm leading-7 font-medium whitespace-pre-line sm:text-[15px] sm:leading-8">
+                            {block.text}
+                          </p>
+                        </div>
+                      </div>
+                    </aside>
                   );
                 }
 
