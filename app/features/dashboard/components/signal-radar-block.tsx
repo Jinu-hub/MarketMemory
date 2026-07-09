@@ -11,7 +11,7 @@ import { NexBadge, NexButton } from "~/core/components/nex";
 import { cn } from "~/core/lib/utils";
 
 import {
-  MOCK_SIGNAL_RADAR,
+  pickSignalRadarMocks,
   type SignalRadarSignal,
 } from "../fixtures/signal-radar";
 import { pickDashboardUi } from "../i18n";
@@ -34,6 +34,7 @@ export function SignalRadarBlock({
   className,
 }: SignalRadarBlockProps) {
   const ui = pickDashboardUi(locale).signalRadar;
+  const signalMocks = pickSignalRadarMocks(locale);
   const [isPreviewing, setIsPreviewing] = useState(false);
 
   return (
@@ -82,7 +83,7 @@ export function SignalRadarBlock({
           id="dashboard-signal-radar-preview"
           className="grid grid-cols-1 gap-3 px-4 py-4 sm:gap-3.5 sm:px-5 sm:py-5 md:px-6 md:py-6 lg:grid-cols-3"
         >
-          {MOCK_SIGNAL_RADAR.slice(0, 3).map((signal) => (
+          {signalMocks.slice(0, 3).map((signal) => (
             <SignalCard key={signal.id} signal={signal} locale={locale} />
           ))}
         </div>

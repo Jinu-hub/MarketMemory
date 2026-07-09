@@ -14,8 +14,9 @@ import { ContentTagList } from "~/core/components/content/content-tag-list";
 import { cn } from "~/core/lib/utils";
 
 import {
-  MOCK_RECALL_PATTERNS,
-  MOCK_SIMILAR_MEMORIES,
+  pickRecallPatterns,
+  pickSimilarMemories,
+  type SimilarMemory,
 } from "../fixtures/memory-recall";
 import { pickDashboardUi } from "../i18n";
 import { MEMORY_RECALL_ACCENT } from "../lib/memory-recall-style";
@@ -35,6 +36,8 @@ export function MemoryRecallBlock({
   className,
 }: MemoryRecallBlockProps) {
   const ui = pickDashboardUi(locale).memoryRecall;
+  const similarMemories = pickSimilarMemories(locale);
+  const recallPatterns = pickRecallPatterns(locale);
   const [isPreviewing, setIsPreviewing] = useState(false);
 
   return (
@@ -90,7 +93,7 @@ export function MemoryRecallBlock({
               hint={ui.similar.hint}
             />
             <ul className="space-y-2 sm:space-y-2.5">
-              {MOCK_SIMILAR_MEMORIES.map((item) => (
+              {similarMemories.map((item) => (
                 <li key={item.id}>
                   <RecallRow {...item} locale={locale} />
                 </li>
@@ -109,7 +112,7 @@ export function MemoryRecallBlock({
               hint={ui.patterns.hint}
             />
             <ul className="space-y-2">
-              {MOCK_RECALL_PATTERNS.map((pattern) => (
+              {recallPatterns.map((pattern) => (
                 <li
                   key={pattern.id}
                   className="bg-background border-border rounded-lg border p-3"
@@ -200,7 +203,7 @@ function RecallRow({
   similarity,
   tags,
   locale,
-}: (typeof MOCK_SIMILAR_MEMORIES)[number] & { locale?: string }) {
+}: SimilarMemory & { locale?: string }) {
   const similar = pickDashboardUi(locale).memoryRecall.similar;
 
   return (
