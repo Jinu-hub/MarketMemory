@@ -134,6 +134,17 @@ const authJa = {
       title: "確認",
     },
   },
+  inAppBrowser: {
+    title: "外部ブラウザで開いてください",
+    description:
+      "現在アプリ内ブラウザで表示しています。この環境ではGoogleログインがブロックされる場合があります。外部ブラウザで開くと問題なくログインできます。",
+    openInBrowser: "デフォルトのブラウザで開く",
+    iosGuideTitle: "Safariで開く方法",
+    iosStep1: "右上の ⋯ メニューをタップしてください",
+    iosStep2: "「外部ブラウザで開く（Safariで開く）」を選択してください",
+    continueAnyway: "このまま続ける",
+    close: "閉じる",
+  },
 };
 
 export default authJa;
