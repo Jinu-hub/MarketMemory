@@ -35,11 +35,31 @@ type SummaryBlock =
 
 const NUMBERED_POINT = /^(\d+)\s*[/.)]\s*([\s\S]*)$/;
 
-const MARKET_MEMO_HEADER =
-  /^((?:Today's market memo|오늘의 시장 메모|今日のマーケットメモ)[:：])\s*/i;
+/** Straight and typographic apostrophes (AI output often uses U+2019). */
+function normalizeMemoText(text: string): string {
+  return text.replace(/[\u2018\u2019\u201B`´]/g, "'");
+}
+
+const MEMO_LABEL_PATTERN =
+  "(?:Today's\\s+market\\s+memo|오늘의\\s+시장\\s+메모|今日のマーケットメモ)";
+
+const MARKET_MEMO_HEADER = new RegExp(
+  `^(${MEMO_LABEL_PATTERN}[:：])\\s*`,
+  "i",
+);
+
+const MARKET_MEMO_LABEL_ONLY = new RegExp(
+  `^${MEMO_LABEL_PATTERN}[:：]?\\s*$`,
+  "i",
+);
+
+const MARKET_MEMO_SUFFIX = new RegExp(
+  `(${MEMO_LABEL_PATTERN}[:：])\\s*([\\s\\S]+)$`,
+  "i",
+);
 
 function parseMemoBlock(text: string): { label: string; body: string } | null {
-  const trimmed = text.trim();
+  const trimmed = normalizeMemoText(text.trim());
   const match = trimmed.match(MARKET_MEMO_HEADER);
   if (!match) return null;
 
@@ -49,8 +69,52 @@ function parseMemoBlock(text: string): { label: string; body: string } | null {
   return { label: match[1], body };
 }
 
-const MARKET_MEMO_LABEL_ONLY =
-  /^(?:Today's market memo|오늘의 시장 메모|今日のマーケットメモ)[:：]?\s*$/i;
+function extractTrailingMemo(
+  text: string,
+): { prefix: string; label: string; body: string } | null {
+  const trimmed = normalizeMemoText(text.trim());
+  const match = trimmed.match(MARKET_MEMO_SUFFIX);
+  if (!match) return null;
+
+  const body = match[2].trim();
+  if (!body) return null;
+
+  const prefix = trimmed.slice(0, match.index).trim();
+  return { prefix, label: match[1], body };
+}
+
+function expandEmbeddedMemos(blocks: SummaryBlock[]): SummaryBlock[] {
+  const expanded: SummaryBlock[] = [];
+
+  for (const block of blocks) {
+    if (block.kind === "memo" || block.kind === "point") {
+      expanded.push(block);
+      continue;
+    }
+
+    const extracted = extractTrailingMemo(block.text);
+    if (!extracted) {
+      expanded.push(block);
+      continue;
+    }
+
+    if (extracted.prefix) {
+      expanded.push(
+        block.kind === "lead"
+          ? { kind: "lead", text: extracted.prefix }
+          : { kind: "text", text: extracted.prefix },
+      );
+    }
+
+    expanded.push({
+      kind: "memo",
+      label: extracted.label,
+      text: extracted.body,
+    });
+  }
+
+  return expanded;
+}
 
 function mergeSplitMemoBlocks(blocks: SummaryBlock[]): SummaryBlock[] {
   const merged: SummaryBlock[] = [];
@@ -60,14 +124,15 @@ function mergeSplitMemoBlocks(blocks: SummaryBlock[]): SummaryBlock[] {
     const next = blocks[i + 1];
 
     if (
-      block.kind === "text" &&
-      MARKET_MEMO_LABEL_ONLY.test(block.text.trim()) &&
+      (block.kind === "text" || block.kind === "lead") &&
+      MARKET_MEMO_LABEL_ONLY.test(normalizeMemoText(block.text.trim())) &&
       next?.kind === "text"
     ) {
-      const label = block.text.trim().replace(/[:：]?\s*$/, "");
+      const normalized = normalizeMemoText(block.text.trim());
+      const label = normalized.replace(/[:：]?\s*$/, "");
       merged.push({
         kind: "memo",
-        label: `${label}${block.text.includes("：") ? "：" : ":"}`,
+        label: `${label}${normalized.includes("：") ? "：" : ":"}`,
         text: next.text,
       });
       i += 1;
@@ -90,24 +155,26 @@ function parseSummaryBlocks(content: string): SummaryBlock[] {
     .map((part) => part.trim())
     .filter(Boolean);
 
-  return mergeSplitMemoBlocks(
-    parts.map((part, i) => {
-      const memo = parseMemoBlock(part);
-      if (memo) {
-        return { kind: "memo", label: memo.label, text: memo.body };
-      }
+  return expandEmbeddedMemos(
+    mergeSplitMemoBlocks(
+      parts.map((part, i) => {
+        const memo = parseMemoBlock(part);
+        if (memo) {
+          return { kind: "memo", label: memo.label, text: memo.body };
+        }
 
-      const numbered = part.match(NUMBERED_POINT);
-      if (numbered) {
-        return {
-          kind: "point",
-          index: numbered[1].padStart(2, "0"),
-          text: numbered[2].trim(),
-        };
-      }
-      if (i === 0) return { kind: "lead", text: part };
-      return { kind: "text", text: part };
-    }),
+        const numbered = part.match(NUMBERED_POINT);
+        if (numbered) {
+          return {
+            kind: "point",
+            index: numbered[1].padStart(2, "0"),
+            text: numbered[2].trim(),
+          };
+        }
+        if (i === 0) return { kind: "lead", text: part };
+        return { kind: "text", text: part };
+      }),
+    ),
   );
 }
 
@@ -209,8 +276,7 @@ export function SummarySheet({
                       key={i}
                       aria-label={block.label}
                       className={cn(
-                        "border-primary/35 bg-primary/10 mt-2 rounded-xl border border-l-[3px] p-4 sm:p-5",
-                        "shadow-sm",
+                        "bg-primary/10 mt-2 rounded-xl border-y border-r border-border border-l-[3px] border-l-primary/70 p-4 sm:p-5",
                       )}
                     >
                       <div className="flex items-start gap-3">
