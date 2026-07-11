@@ -283,7 +283,7 @@ export function NavigationBar({
             {t("menu.links.info.items.about")}
           </Link>
           <Link
-            to="https://linkverse.app/blog"
+            to="https://linkverse.app/blog?series=Market+Memory&sort=latest"
             target="_blank"
             rel="noopener noreferrer"
             viewTransition
@@ -367,7 +367,7 @@ export function NavigationBar({
               <Link to="/about">{t("menu.links.info.items.about")}</Link>
             </SheetClose>
             <SheetClose asChild>
-              <Link to="https://linkverse.app/blog" target="_blank" rel="noopener noreferrer">{t("menu.links.info.items.blog")}</Link>
+              <Link to="https://linkverse.app/blog?series=Market+Memory&sort=latest" target="_blank" rel="noopener noreferrer">{t("menu.links.info.items.blog")}</Link>
             </SheetClose>
             <SheetClose asChild>
               <Link to="/faq">{t("menu.links.support.items.faq")}</Link>

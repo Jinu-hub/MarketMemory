@@ -94,7 +94,7 @@ export default function Footer() {
       title: t("menu.links.info.title"),
       items: [
         { label: t("menu.links.info.items.about"), href: "/about" , disabled: true, tooltip: t("tooltip.soon") },
-        { label: t("menu.links.info.items.blog"), href: "https://linkverse.app/blog", external: true },
+        { label: t("menu.links.info.items.blog"), href: "https://linkverse.app/blog?series=Market+Memory&sort=latest", external: true },
         //{ label: t("menu.links.info.items.sitemap"), href: "/site-map", disabled: true, tooltip: t("tooltip.soon") },
       ]
     },
