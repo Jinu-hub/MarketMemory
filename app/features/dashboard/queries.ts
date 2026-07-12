@@ -130,10 +130,16 @@ async function hydrateDailyMarketMemory(
 /**
  * Fetch the latest `daily_market_memories` row (final > draft) merged with the
  * best-matching `daily_market_memory_i18n` row for the requested locale.
+ *
+ * `options.finalOnly` disables the draft fallback and returns `null` when no
+ * finalized row exists. Public/anonymous surfaces (which read via the
+ * service-role client and therefore bypass RLS) MUST pass `finalOnly: true`
+ * so unpublished drafts can never leak to logged-out visitors.
  */
 export async function getLatestDailyMarketMemory(
   client: DB,
   preferredLang: string,
+  options: { finalOnly?: boolean } = {},
 ): Promise<DailyMarketMemorySnapshot | null> {
   // 1) Try to find the most recent finalized record first.
   let { data: memoryRow, error: finalError } = await client
@@ -151,8 +157,8 @@ export async function getLatestDailyMarketMemory(
     throw finalError;
   }
 
-  // 2) If no final row exists, take the most recent draft.
-  if (!memoryRow) {
+  // 2) If no final row exists, take the most recent draft (unless finalOnly).
+  if (!memoryRow && !options.finalOnly) {
     const { data: draftRow, error: draftError } = await client
       .from("daily_market_memories")
       .select(MEMORY_SELECT)
@@ -186,6 +192,7 @@ export async function getDailyMarketMemoryByDate(
   client: DB,
   preferredLang: string,
   marketDate: string,
+  options: { finalOnly?: boolean } = {},
 ): Promise<DailyMarketMemorySnapshot | null> {
   let { data: memoryRow, error: finalError } = await client
     .from("daily_market_memories")
@@ -200,7 +207,7 @@ export async function getDailyMarketMemoryByDate(
     throw finalError;
   }
 
-  if (!memoryRow) {
+  if (!memoryRow && !options.finalOnly) {
     const { data: anyRow, error: anyError } = await client
       .from("daily_market_memories")
       .select(MEMORY_SELECT)
@@ -230,13 +237,20 @@ export async function getDailyMarketMemoryByDate(
  */
 export async function getAvailableMarketMemoryDates(
   client: DB,
-  limit = 180,
+  options: { limit?: number; finalOnly?: boolean } = {},
 ): Promise<string[]> {
-  const { data, error } = await client
+  const { limit = 180, finalOnly = false } = options;
+  let query = client
     .from("daily_market_memories")
     .select("market_date")
     .order("market_date", { ascending: false })
     .limit(limit);
+
+  if (finalOnly) {
+    query = query.eq("status", "final");
+  }
+
+  const { data, error } = await query;
 
   if (error && error.code !== "PGRST116") throw error;
 
