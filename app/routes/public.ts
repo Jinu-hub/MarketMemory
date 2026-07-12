@@ -7,6 +7,10 @@ export const publicRoutes = layout("core/layouts/navigation.layout.tsx", [
   route("/showcase/design", "core/components/showcase/design-showcase.tsx"),
   route("/showcase/content", "core/components/showcase/content-showcase.tsx"),
   route("/showcase/data", "core/components/showcase/data-showcase.tsx"),
+  route(
+    "/public-dashboard",
+    "features/public-dashboard/screens/public-dashboard.tsx",
+  ),
   layout("core/layouts/public.layout.tsx", [
     route("/login", "features/auth/screens/login.tsx"),
     route("/join", "features/auth/screens/join.tsx"),

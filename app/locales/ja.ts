@@ -43,6 +43,7 @@ const ja: Translation = {
       tagline: "ニュースを超えて、市場の文脈とつながりを整理します。",
       description:
         "毎日のグローバルリサーチを読み、テーマ別に探索し、流れとしてつなげて見られるリサーチライブラリ",
+      viewSamples: "サンプルを見る",
       features: {
         editedResearch: "編集されたリサーチ",
         exploreByTopic: "テーマ別探索",

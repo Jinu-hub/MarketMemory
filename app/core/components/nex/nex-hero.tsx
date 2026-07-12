@@ -19,6 +19,14 @@ export interface NexHeroProps extends React.HTMLAttributes<HTMLElement> {
   subtitle?: string;
   description?: string;
   actions?: {
+    tertiary?: {
+      label: string;
+      href?: string;
+      onClick?: () => void;
+      variant?: 'primary' | 'secondary' | 'ghost' | 'gradient';
+      icon?: React.ReactNode;
+      className?: string;
+    };
     primary?: {
       label: string;
       href?: string;
@@ -131,6 +139,17 @@ export const NexHero: React.FC<NexHeroProps> = ({
           
           {actions && (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {actions.tertiary && (
+                <NexButton
+                  variant={actions.tertiary.variant || 'secondary'}
+                  size="lg"
+                  onClick={createButtonHandler(actions.tertiary)}
+                  leftIcon={actions.tertiary.icon}
+                  className={cn("cursor-pointer", actions.tertiary.className)}
+                >
+                  {actions.tertiary.label}
+                </NexButton>
+              )}
               {actions.primary && (
                 <NexButton
                   variant={actions.primary.variant || 'primary'}
@@ -201,6 +220,17 @@ export const NexHero: React.FC<NexHeroProps> = ({
               
               {actions && (
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                  {actions.tertiary && (
+                    <NexButton
+                      variant={actions.tertiary.variant || 'secondary'}
+                      size="lg"
+                      onClick={createButtonHandler(actions.tertiary)}
+                      leftIcon={actions.tertiary.icon}
+                      className={cn("cursor-pointer", actions.tertiary.className)}
+                    >
+                      {actions.tertiary.label}
+                    </NexButton>
+                  )}
                   {actions.primary && (
                     <NexButton
                       variant={actions.primary.variant || 'primary'}
@@ -354,6 +384,17 @@ export const NexHero: React.FC<NexHeroProps> = ({
         
         {actions && (
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            {actions.tertiary && (
+              <NexButton
+                variant={actions.tertiary.variant || 'secondary'}
+                size="lg"
+                onClick={createButtonHandler(actions.tertiary)}
+                leftIcon={actions.tertiary.icon}
+                className={cn("cursor-pointer", actions.tertiary.className)}
+              >
+                {actions.tertiary.label}
+              </NexButton>
+            )}
             {actions.primary && (
               <NexButton
                 variant={actions.primary.variant || 'primary'}

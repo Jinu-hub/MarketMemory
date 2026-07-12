@@ -86,7 +86,7 @@ export default function Footer() {
       title: t("menu.links.product.title"),
       items: [
         //{ label: t("menu.links.product.items.howItWorks"), href: "/how-it-works", disabled: true, tooltip: t("tooltip.soon") },
-        { label: t("menu.links.product.items.samples"), href: "/samples", disabled: true, tooltip: t("tooltip.soon") },
+        { label: t("menu.links.product.items.samples"), href: "/public-dashboard" },
         { label: t("menu.links.product.items.pricing"), href: "/pricing", disabled: true, tooltip: t("tooltip.soon") },
       ]
     },

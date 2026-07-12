@@ -40,6 +40,7 @@ export type Translation = {
       badge: string;
       tagline: string;
       description: string;
+      viewSamples: string;
       features: {
         editedResearch: string;
         exploreByTopic: string;

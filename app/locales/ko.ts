@@ -43,6 +43,7 @@ const ko: Translation = {
       tagline: "뉴스를 넘어서, 시장의 맥락과 연결을 정리합니다.",
       description:
         "매일의 글로벌 리서치를 읽고, 주제별로 탐색하고, 흐름으로 연결해 볼 수 있는 리서치 라이브러리",
+      viewSamples: "샘플 보기",
       features: {
         editedResearch: "편집된 리서치",
         exploreByTopic: "주제별 탐색",

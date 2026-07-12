@@ -283,6 +283,13 @@ export function NavigationBar({
             {t("menu.links.info.items.about")}
           </Link>
           <Link
+            to="/public-dashboard"
+            viewTransition
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+          >
+            {t("menu.links.product.items.samples")}
+          </Link>
+          <Link
             to="https://linkverse.app/blog?series=Market+Memory&sort=latest"
             target="_blank"
             rel="noopener noreferrer"
@@ -365,6 +372,9 @@ export function NavigationBar({
             */}
             <SheetClose asChild>
               <Link to="/about">{t("menu.links.info.items.about")}</Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link to="/public-dashboard">{t("menu.links.product.items.samples")}</Link>
             </SheetClose>
             <SheetClose asChild>
               <Link to="https://linkverse.app/blog?series=Market+Memory&sort=latest" target="_blank" rel="noopener noreferrer">{t("menu.links.info.items.blog")}</Link>

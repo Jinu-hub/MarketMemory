@@ -43,6 +43,7 @@ const en: Translation = {
       tagline: "Beyond the headlines — context and connections, organized.",
       description:
         "A research library to read daily global research, explore by topic, and follow the threads that shape the market.",
+      viewSamples: "View samples",
       features: {
         editedResearch: "Edited research",
         exploreByTopic: "Explore by topic",

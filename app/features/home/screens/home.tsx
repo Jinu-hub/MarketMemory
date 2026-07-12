@@ -180,6 +180,14 @@ function HeroSection() {
         subtitle={t("home.hero.tagline")}
         description={t("home.hero.description")}
         actions={{
+          tertiary: {
+            label: t("home.hero.viewSamples"),
+            href: "/public-dashboard",
+            variant: "gradient",
+            icon: <SparklesIcon className="h-4 w-4" />,
+            className:
+              "from-[#5E6AD2] to-[#8B7CF6] shadow-[0_6px_20px_rgba(94,106,210,0.35)] hover:shadow-[0_10px_28px_rgba(94,106,210,0.5)] dark:from-[#7C89F9] dark:to-[#A78BFA]",
+          },
           primary: {
             label: t("home.getStarted"),
             href: "/join",
