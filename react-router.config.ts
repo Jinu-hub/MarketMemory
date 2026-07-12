@@ -6,7 +6,6 @@ import { vercelPreset } from "@vercel/react-router/vite";
 import {
   getBlogPostPaths,
   getLegalPolicyPaths,
-  PUBLIC_STATIC_PATHS,
 } from "./app/core/lib/public-urls";
 
 declare module "react-router" {
@@ -23,8 +22,14 @@ const [blogPaths, legalPaths] = await Promise.all([
 export default {
   ssr: true,
   async prerender() {
+    // NOTE: The interactive pages in `PUBLIC_STATIC_PATHS` (/, /blog, /login,
+    // /join, /contact, /faq) are rendered from runtime i18n resources, so they
+    // must be server-rendered per request — NOT prerendered. Prerendering would
+    // freeze them into the build-time language, breaking `?lang=` and the locale
+    // cookie in production (both work locally only because dev always SSRs).
+    // Those paths still power the sitemap via `PUBLIC_STATIC_PATHS`.
+    // Only content-driven, locale-file-based routes are prerendered here.
     return [
-      ...PUBLIC_STATIC_PATHS,
       ...legalPaths,
       "/sitemap.xml",
       "/robots.txt",
