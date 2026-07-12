@@ -37,6 +37,8 @@ type TodayMarketMemoryBlockProps = {
   isAdmin?: boolean;
   sourceConsistency?: DailyMarketMemorySourcesConsistency | null;
   className?: string;
+  /** Render source reports as links to their detail page. Defaults to true. */
+  linkSourceReports?: boolean;
 };
 
 export function TodayMarketMemoryBlock({
@@ -47,6 +49,7 @@ export function TodayMarketMemoryBlock({
   isAdmin = false,
   sourceConsistency = null,
   className,
+  linkSourceReports = true,
 }: TodayMarketMemoryBlockProps) {
   const ui = pickDashboardUi(locale);
 
@@ -97,6 +100,7 @@ export function TodayMarketMemoryBlock({
                 reports={sourceReports}
                 count={memory.source_report_count}
                 locale={locale}
+                linkReports={linkSourceReports}
               />
             ) : null}
             {summaryPost ? (

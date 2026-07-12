@@ -23,6 +23,12 @@ type ReportListRowBaseProps = {
   detailHref?: (id: string) => string;
   listLinkState?: ItemReportsListLocationState;
   className?: string;
+  /**
+   * When false, titles render as plain text instead of links to the report
+   * detail page. Used by logged-out surfaces (e.g. the public dashboard) that
+   * intentionally expose no navigation. Defaults to true.
+   */
+  linkReports?: boolean;
 };
 
 type ReportListRowRelatedProps = ReportListRowBaseProps & {
@@ -49,6 +55,7 @@ export function ReportListRow(props: ReportListRowProps) {
     detailHref = itemReportsDetailHref,
     listLinkState,
     className,
+    linkReports = true,
   } = props;
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
@@ -61,17 +68,8 @@ export function ReportListRow(props: ReportListRowProps) {
   if (props.layout === "related") {
     const similarityLabel = getSimilarityLabel(props.similarityLevel, locale);
 
-    return (
-      <Link
-        to={detailHref(report.id)}
-        state={listLinkState}
-        viewTransition
-        className={cn(
-          "hover:bg-accent/50 group flex flex-col gap-1 rounded-md border-l-[3px] px-3 py-2.5 transition-colors",
-          style.accentBorder,
-          className,
-        )}
-      >
+    const relatedContent = (
+      <>
         <div className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
           <CategoryIcon className={cn("size-3", style.accentText)} />
           <span>{style.label}</span>
@@ -105,12 +103,68 @@ export function ReportListRow(props: ReportListRowProps) {
             {summary}
           </p>
         ) : null}
-        <ArrowRightIcon className="text-muted-foreground size-3 self-end opacity-0 transition-opacity group-hover:opacity-100" />
+        {linkReports ? (
+          <ArrowRightIcon className="text-muted-foreground size-3 self-end opacity-0 transition-opacity group-hover:opacity-100" />
+        ) : null}
+      </>
+    );
+
+    if (!linkReports) {
+      return (
+        <div
+          className={cn(
+            "flex flex-col gap-1 rounded-md border-l-[3px] px-3 py-2.5",
+            style.accentBorder,
+            className,
+          )}
+        >
+          {relatedContent}
+        </div>
+      );
+    }
+
+    return (
+      <Link
+        to={detailHref(report.id)}
+        state={listLinkState}
+        viewTransition
+        className={cn(
+          "hover:bg-accent/50 group flex flex-col gap-1 rounded-md border-l-[3px] px-3 py-2.5 transition-colors",
+          style.accentBorder,
+          className,
+        )}
+      >
+        {relatedContent}
       </Link>
     );
   }
 
   const compact = props.compact ?? false;
+
+  const timelineTitleContent = (
+    <>
+      <h4
+        className={cn(
+          "group-hover:text-primary font-semibold transition-colors",
+          compact ? "text-sm leading-snug" : "text-base leading-snug md:text-lg",
+        )}
+      >
+        {title}
+      </h4>
+      {summary && !compact ? (
+        <p
+          className={cn(
+            "text-muted-foreground mt-1 text-sm leading-6",
+            "line-clamp-4 max-w-5xl",
+            "md:line-clamp-3 md:max-w-6xl",
+            "lg:line-clamp-2 lg:max-w-none",
+          )}
+        >
+          {summary}
+        </p>
+      ) : null}
+    </>
+  );
 
   return (
     <li
@@ -146,35 +200,18 @@ export function ReportListRow(props: ReportListRowProps) {
           />
         </div>
 
-        <Link
-          to={detailHref(report.id)}
-          state={listLinkState}
-          viewTransition
-          className="group block"
-        >
-          <h4
-            className={cn(
-              "group-hover:text-primary font-semibold transition-colors",
-              compact
-                ? "text-sm leading-snug"
-                : "text-base leading-snug md:text-lg",
-            )}
+        {linkReports ? (
+          <Link
+            to={detailHref(report.id)}
+            state={listLinkState}
+            viewTransition
+            className="group block"
           >
-            {title}
-          </h4>
-          {summary && !compact ? (
-            <p
-              className={cn(
-                "text-muted-foreground mt-1 text-sm leading-6",
-                "line-clamp-4 max-w-5xl",
-                "md:line-clamp-3 md:max-w-6xl",
-                "lg:line-clamp-2 lg:max-w-none",
-              )}
-            >
-              {summary}
-            </p>
-          ) : null}
-        </Link>
+            {timelineTitleContent}
+          </Link>
+        ) : (
+          <div className="block">{timelineTitleContent}</div>
+        )}
       </div>
     </li>
   );

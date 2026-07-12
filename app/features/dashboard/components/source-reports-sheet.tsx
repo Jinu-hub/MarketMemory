@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { ChevronRightIcon, FileTextIcon } from "lucide-react";
+import { ChevronRightIcon, FileTextIcon, LockIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 import { useIsMobile } from "~/core/hooks/use-mobile";
 import { cn } from "~/core/lib/utils";
@@ -21,6 +23,8 @@ type SourceReportsSheetProps = {
   count: number;
   locale: string;
   className?: string;
+  /** Render source rows as links to their detail page. Defaults to true. */
+  linkReports?: boolean;
 };
 
 export function SourceReportsSheet({
@@ -28,9 +32,11 @@ export function SourceReportsSheet({
   count,
   locale,
   className,
+  linkReports = true,
 }: SourceReportsSheetProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { t: tr } = useTranslation();
   const t = pickDashboardUi(locale).todayMemory;
   const labels = t.sourceReports;
 
@@ -66,6 +72,22 @@ export function SourceReportsSheet({
         <SheetHeader className="border-border shrink-0 border-b px-5 py-4 text-left">
           <SheetTitle>{labels.title}</SheetTitle>
           <SheetDescription>{labels.description}</SheetDescription>
+          {!linkReports ? (
+            <div className="border-primary/25 bg-primary/[0.06] mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border px-3 py-2 text-xs">
+              <LockIcon className="text-primary size-3.5 shrink-0" aria-hidden />
+              <span className="text-muted-foreground">
+                {tr("publicDashboard.loginNotice")}
+              </span>
+              <Link
+                to="/login"
+                viewTransition
+                onClick={() => setOpen(false)}
+                className="text-primary hover:text-primary/80 ml-auto inline-flex shrink-0 items-center gap-1 font-medium transition-colors"
+              >
+                {tr("auth.signIn")}
+              </Link>
+            </div>
+          ) : null}
         </SheetHeader>
 
         {reports.length === 0 ? (
@@ -79,7 +101,11 @@ export function SourceReportsSheet({
           >
             {reports.map((report) => (
               <li key={report.id}>
-                <ReportListRow layout="related" report={report} />
+                <ReportListRow
+                  layout="related"
+                  report={report}
+                  linkReports={linkReports}
+                />
               </li>
             ))}
           </ul>

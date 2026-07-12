@@ -16,12 +16,18 @@ type LatestReportsBlockProps = {
   reports: ReportListItem[];
   locale?: string;
   className?: string;
+  /** Show the "view all" link in the header. Defaults to true. */
+  showViewAll?: boolean;
+  /** Render report rows as links to their detail page. Defaults to true. */
+  linkReports?: boolean;
 };
 
 export function LatestReportsBlock({
   reports,
   locale,
   className,
+  showViewAll = true,
+  linkReports = true,
 }: LatestReportsBlockProps) {
   const ui = pickDashboardUi(locale).latestReports;
   const rows = reports.slice(0, 7);
@@ -49,20 +55,27 @@ export function LatestReportsBlock({
             {ui.countSuffix}
           </NexBadge>
         </div>
-        <Link
-          to={itemReportsTimelineHref({})}
-          viewTransition
-          className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center gap-1 pt-0.5 text-[11px] font-medium sm:text-xs"
-        >
-          {ui.viewAll}
-          <ArrowRightIcon className="size-3" />
-        </Link>
+        {showViewAll ? (
+          <Link
+            to={itemReportsTimelineHref({})}
+            viewTransition
+            className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center gap-1 pt-0.5 text-[11px] font-medium sm:text-xs"
+          >
+            {ui.viewAll}
+            <ArrowRightIcon className="size-3" />
+          </Link>
+        ) : null}
       </header>
 
       {rows.length === 0 ? (
         <ContentEmptyState>{ui.empty}</ContentEmptyState>
       ) : (
-        <ReportTimeline reports={rows} compact showGroupCounts={false} />
+        <ReportTimeline
+          reports={rows}
+          compact
+          showGroupCounts={false}
+          linkReports={linkReports}
+        />
       )}
     </DashboardBlockShell>
   );

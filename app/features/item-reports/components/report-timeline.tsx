@@ -26,6 +26,8 @@ type ReportTimelineProps = {
   compact?: boolean;
   showGroupCounts?: boolean;
   detailHref?: (id: string) => string;
+  /** When false, report titles render without links (no navigation). */
+  linkReports?: boolean;
 };
 
 type TimelineGroup = {
@@ -63,6 +65,7 @@ export function ReportTimeline({
   compact = false,
   showGroupCounts = true,
   detailHref = itemReportsDetailHref,
+  linkReports = true,
 }: ReportTimelineProps) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
@@ -84,6 +87,7 @@ export function ReportTimeline({
           collapsible={!compact || groups.length > 1}
           defaultOpen={index === 0}
           detailHref={detailHref}
+          linkReports={linkReports}
         />
       ))}
     </div>
@@ -97,6 +101,7 @@ function TimelineMonthGroup({
   collapsible,
   defaultOpen,
   detailHref,
+  linkReports,
 }: {
   group: TimelineGroup;
   compact: boolean;
@@ -104,6 +109,7 @@ function TimelineMonthGroup({
   collapsible: boolean;
   defaultOpen: boolean;
   detailHref: (id: string) => string;
+  linkReports: boolean;
 }) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
@@ -125,7 +131,12 @@ function TimelineMonthGroup({
         <h3 className="text-muted-foreground text-xs font-semibold tracking-tight">
           {group.label}
         </h3>
-        <TimelineMonthList group={group} compact detailHref={detailHref} />
+        <TimelineMonthList
+          group={group}
+          compact
+          detailHref={detailHref}
+          linkReports={linkReports}
+        />
       </section>
     );
   }
@@ -176,7 +187,12 @@ function TimelineMonthGroup({
             )}
           >
             <div className="border-border/50 bg-muted/5 border-t px-3 pb-3 pt-2">
-              <TimelineMonthList group={group} compact detailHref={detailHref} />
+              <TimelineMonthList
+                group={group}
+                compact
+                detailHref={detailHref}
+                linkReports={linkReports}
+              />
             </div>
           </CollapsibleContent>
         </section>
@@ -248,7 +264,12 @@ function TimelineMonthGroup({
           )}
         >
           <div className="border-border/50 bg-muted/5 border-t px-4 pb-5 pt-3 md:px-5 md:pb-6">
-            <TimelineMonthList group={group} compact={false} detailHref={detailHref} />
+            <TimelineMonthList
+              group={group}
+              compact={false}
+              detailHref={detailHref}
+              linkReports={linkReports}
+            />
           </div>
         </CollapsibleContent>
       </section>
@@ -260,10 +281,12 @@ function TimelineMonthList({
   group,
   compact,
   detailHref,
+  linkReports,
 }: {
   group: TimelineGroup;
   compact: boolean;
   detailHref: (id: string) => string;
+  linkReports: boolean;
 }) {
   return (
     <div className={cn("relative", compact ? "pt-0.5" : "pt-0")}>
@@ -281,6 +304,7 @@ function TimelineMonthList({
             report={report}
             compact={compact}
             detailHref={detailHref}
+            linkReports={linkReports}
           />
         ))}
       </ul>

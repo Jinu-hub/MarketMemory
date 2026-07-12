@@ -289,6 +289,9 @@ const ja: Translation = {
       },
     },
   },
+  publicDashboard: {
+    loginNotice: "レポート詳細ページの閲覧はログイン後にご利用いただけます。",
+  },
   itemReports,
   weeklyAiIssueDigest,
   weeklyMarketIssues,

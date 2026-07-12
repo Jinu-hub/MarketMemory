@@ -289,6 +289,9 @@ const en: Translation = {
       },
     },
   },
+  publicDashboard: {
+    loginNotice: "Reading full report pages is available after signing in.",
+  },
   itemReports,
   weeklyAiIssueDigest,
   weeklyMarketIssues,

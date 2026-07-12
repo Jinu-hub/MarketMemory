@@ -289,6 +289,9 @@ const ko: Translation = {
       },
     },
   },
+  publicDashboard: {
+    loginNotice: "리포트 상세 페이지 열람은 로그인 후 이용할 수 있어요.",
+  },
   itemReports,
   weeklyAiIssueDigest,
   weeklyMarketIssues,

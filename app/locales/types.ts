@@ -265,6 +265,9 @@ export type Translation = {
       };
     };
   };
+  publicDashboard: {
+    loginNotice: string;
+  };
   itemReports: ItemReportsTranslation;
   weeklyAiIssueDigest: WeeklyAiIssueDigestTranslation;
   weeklyMarketIssues: WeeklyMarketIssuesTranslation;
