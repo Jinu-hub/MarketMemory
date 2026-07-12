@@ -54,6 +54,13 @@ export const localeCookie = createCookie("locale", {
 const i18next = new RemixI18Next({
   // Language detection configuration
   detection: {
+    // Detection order: URL query param (?lang=) takes precedence over the
+    // persisted cookie, which in turn falls back to the Accept-Language header.
+    // This lets links like `/?lang=ja` switch the UI language on the fly.
+    order: ["searchParams", "cookie", "header"],
+    // Read the requested language from the `lang` query parameter
+    // (e.g. `?lang=ja`, `?lang=en`, `?lang=ko`).
+    searchParamKey: "lang",
     // Use the localeCookie for persistent language preference
     cookie: localeCookie,
     // Languages supported by the application

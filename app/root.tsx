@@ -25,6 +25,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  data,
   isRouteErrorResponse,
   useLocation,
   useNavigate,
@@ -43,10 +44,11 @@ import { Toaster } from "sonner";
 import { ScrollToTop } from "./core/components/scroll-to-top";
 import { Dialog } from "./core/components/ui/dialog";
 import { Sheet } from "./core/components/ui/sheet";
-import i18next from "./core/lib/i18next.server";
+import i18next, { localeCookie } from "./core/lib/i18next.server";
 import { themeSessionResolver } from "./core/lib/theme-session.server";
 import { cn } from "./core/lib/utils";
 import NotFound from "./core/screens/404";
+import { supportedLngs } from "./i18n";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: "/favicon.ico" },
@@ -101,10 +103,31 @@ export async function loader({ request }: Route.LoaderArgs) {
     i18next.getLocale(request),
   ]);
 
-  return {
+  const payload = {
     theme: getTheme(),
     locale,
   };
+
+  // Persist an explicit `?lang=` request in the locale cookie so the choice
+  // survives subsequent navigations (the LangSwitcher writes to the same
+  // cookie). `getLocale` already honours the query param via the detection
+  // config, so `locale` matches the requested language when it is supported.
+  // We only write the cookie when the param is a supported language, to avoid
+  // clobbering the stored preference with an invalid value.
+  const langParam = new URL(request.url).searchParams.get("lang");
+  const shouldPersistLang =
+    langParam !== null &&
+    (supportedLngs as readonly string[]).includes(langParam);
+
+  if (shouldPersistLang) {
+    return data(payload, {
+      headers: {
+        "Set-Cookie": await localeCookie.serialize(langParam),
+      },
+    });
+  }
+
+  return payload;
 }
 
 /**
