@@ -291,6 +291,9 @@ const en: Translation = {
   },
   publicDashboard: {
     loginNotice: "Reading full report pages is available after signing in.",
+    headerLoginNotice:
+      "Sign in to access detailed reports and all features.",
+    floatingJoinCta: "Start for free",
   },
   itemReports,
   weeklyAiIssueDigest,

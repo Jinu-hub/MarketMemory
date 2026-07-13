@@ -291,6 +291,9 @@ const ja: Translation = {
   },
   publicDashboard: {
     loginNotice: "レポート詳細ページの閲覧はログイン後にご利用いただけます。",
+    headerLoginNotice:
+      "詳細レポートとすべての機能をご利用いただくには、ログインが必要です。",
+    floatingJoinCta: "無料で始める",
   },
   itemReports,
   weeklyAiIssueDigest,

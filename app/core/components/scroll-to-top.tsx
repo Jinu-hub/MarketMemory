@@ -13,7 +13,8 @@
  *    so it reads well in light, dark, and warm themes.
  *  - Generous tap target (44px+) for mobile ergonomics.
  *  - Respects `prefers-reduced-motion` by skipping smooth scroll animation.
- *  - Fully keyboard accessible with an i18n `aria-label`.
+ *  - When a page mounts a bottom-right sibling (e.g. FloatingJoinCta), that
+ *    page sets `--mm-scroll-to-top-offset` so this control stacks above it.
  */
 import { ArrowUpIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -87,7 +88,8 @@ export function ScrollToTop({
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
       className={cn(
-        "fixed right-4 bottom-4 z-50 sm:right-6 sm:bottom-6",
+        "fixed right-4 z-50 cursor-pointer sm:right-6",
+        "bottom-[var(--mm-scroll-to-top-offset,1rem)] sm:bottom-[var(--mm-scroll-to-top-offset,1.5rem)]",
         "flex size-11 items-center justify-center rounded-full sm:size-12",
         "bg-card/90 text-foreground border-border border shadow-lg backdrop-blur",
         "transition-all duration-300 ease-out",

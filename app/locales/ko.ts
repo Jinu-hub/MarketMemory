@@ -291,6 +291,9 @@ const ko: Translation = {
   },
   publicDashboard: {
     loginNotice: "리포트 상세 페이지 열람은 로그인 후 이용할 수 있어요.",
+    headerLoginNotice:
+      "상세 리포트와 전체 기능을 이용하려면 로그인이 필요합니다.",
+    floatingJoinCta: "무료로 시작하기",
   },
   itemReports,
   weeklyAiIssueDigest,

@@ -11,7 +11,9 @@
  *  - "Latest Reports" has no "view all" link and its rows are not linked.
  *  - No admin-only affordances (reconcile button, draft states).
  */
+import { LockIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 import i18next from "~/core/lib/i18next.server";
 import { parseMarketDateParam } from "~/features/dashboard/lib/dates";
@@ -23,6 +25,7 @@ import { MemoryRecallBlock } from "~/features/dashboard/components/memory-recall
 import { SignalRadarBlock } from "~/features/dashboard/components/signal-radar-block";
 
 import type { Route } from "./+types/public-dashboard";
+import { FloatingJoinCta } from "../components/floating-join-cta";
 import { getPublicDashboardData } from "../queries.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -68,6 +71,23 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="mx-auto -mt-10 flex w-full max-w-screen-2xl flex-1 flex-col gap-6 px-4 pb-12 sm:gap-7 sm:px-6 md:-mt-24 md:gap-8 md:px-8 md:pb-16">
+      <div
+        role="status"
+        className="border-primary/25 bg-primary/[0.06] flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3.5 py-2.5 text-xs sm:text-sm"
+      >
+        <LockIcon className="text-primary size-3.5 shrink-0" aria-hidden />
+        <span className="text-muted-foreground min-w-0 flex-1">
+          {t("publicDashboard.headerLoginNotice")}
+        </span>
+        <Link
+          to="/login"
+          viewTransition
+          className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center font-medium transition-colors"
+        >
+          {t("auth.signIn")}
+        </Link>
+      </div>
+
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         <div className="min-w-0 flex-1">
           <p className="text-primary text-[11px] font-medium tracking-wide uppercase sm:text-xs">
@@ -126,6 +146,8 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
       <MemoryRecallBlock locale={locale} />
 
       <SignalRadarBlock locale={locale} />
+
+      <FloatingJoinCta />
     </div>
   );
 }

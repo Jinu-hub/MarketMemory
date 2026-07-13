@@ -267,6 +267,8 @@ export type Translation = {
   };
   publicDashboard: {
     loginNotice: string;
+    headerLoginNotice: string;
+    floatingJoinCta: string;
   };
   itemReports: ItemReportsTranslation;
   weeklyAiIssueDigest: WeeklyAiIssueDigestTranslation;
