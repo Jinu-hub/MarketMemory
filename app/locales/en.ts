@@ -305,7 +305,8 @@ const en: Translation = {
       description:
         "Today’s market memo is only the starting point. We are opening archives, themes, and personalization step by step.",
       badge: "Building",
-      footer: "Sign in to unlock all features and full report pages.",
+      footer:
+        "These are directions we’re building toward—we’ll open them step by step as they’re ready.",
       items: {
         archive: "Archive of past market flows",
         themes: "Theme-based report collections",

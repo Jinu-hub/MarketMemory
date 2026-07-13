@@ -53,7 +53,7 @@ const ROADMAP_ITEMS: {
     icon: ArchiveIcon,
     accent: {
       border: "border-l-sky-500 dark:border-l-sky-400",
-      bg: "bg-sky-500/[0.04] dark:bg-sky-400/[0.06]",
+      bg: "bg-sky-500/[0.015] dark:bg-sky-400/[0.025]",
       text: "text-sky-600 dark:text-sky-400",
       iconBg: "bg-sky-500/10 dark:bg-sky-400/15 ring-sky-500/20 dark:ring-sky-400/25",
       rail: "from-sky-500/0 via-sky-500/50 to-sky-500/0 dark:via-sky-400/50",
@@ -64,7 +64,7 @@ const ROADMAP_ITEMS: {
     icon: BrainIcon,
     accent: {
       border: "border-l-violet-500 dark:border-l-violet-400",
-      bg: "bg-violet-500/[0.04] dark:bg-violet-400/[0.06]",
+      bg: "bg-violet-500/[0.015] dark:bg-violet-400/[0.025]",
       text: "text-violet-600 dark:text-violet-400",
       iconBg:
         "bg-violet-500/10 dark:bg-violet-400/15 ring-violet-500/20 dark:ring-violet-400/25",
@@ -76,7 +76,7 @@ const ROADMAP_ITEMS: {
     icon: LayersIcon,
     accent: {
       border: "border-l-amber-500 dark:border-l-amber-400",
-      bg: "bg-amber-500/[0.04] dark:bg-amber-400/[0.06]",
+      bg: "bg-amber-500/[0.015] dark:bg-amber-400/[0.025]",
       text: "text-amber-600 dark:text-amber-400",
       iconBg:
         "bg-amber-500/10 dark:bg-amber-400/15 ring-amber-500/20 dark:ring-amber-400/25",
@@ -88,7 +88,7 @@ const ROADMAP_ITEMS: {
     icon: CalendarRangeIcon,
     accent: {
       border: "border-l-emerald-500 dark:border-l-emerald-400",
-      bg: "bg-emerald-500/[0.04] dark:bg-emerald-400/[0.06]",
+      bg: "bg-emerald-500/[0.015] dark:bg-emerald-400/[0.025]",
       text: "text-emerald-600 dark:text-emerald-400",
       iconBg:
         "bg-emerald-500/10 dark:bg-emerald-400/15 ring-emerald-500/20 dark:ring-emerald-400/25",
@@ -100,7 +100,7 @@ const ROADMAP_ITEMS: {
     icon: BookmarkIcon,
     accent: {
       border: "border-l-rose-500 dark:border-l-rose-400",
-      bg: "bg-rose-500/[0.04] dark:bg-rose-400/[0.06]",
+      bg: "bg-rose-500/[0.015] dark:bg-rose-400/[0.025]",
       text: "text-rose-600 dark:text-rose-400",
       iconBg: "bg-rose-500/10 dark:bg-rose-400/15 ring-rose-500/20 dark:ring-rose-400/25",
       rail: "from-rose-500/0 via-rose-500/50 to-rose-500/0 dark:via-rose-400/50",
@@ -111,7 +111,7 @@ const ROADMAP_ITEMS: {
     icon: BellIcon,
     accent: {
       border: "border-l-orange-500 dark:border-l-orange-400",
-      bg: "bg-orange-500/[0.04] dark:bg-orange-400/[0.06]",
+      bg: "bg-orange-500/[0.015] dark:bg-orange-400/[0.025]",
       text: "text-orange-600 dark:text-orange-400",
       iconBg:
         "bg-orange-500/10 dark:bg-orange-400/15 ring-orange-500/20 dark:ring-orange-400/25",
@@ -123,7 +123,7 @@ const ROADMAP_ITEMS: {
     icon: LanguagesIcon,
     accent: {
       border: "border-l-teal-500 dark:border-l-teal-400",
-      bg: "bg-teal-500/[0.04] dark:bg-teal-400/[0.06]",
+      bg: "bg-teal-500/[0.015] dark:bg-teal-400/[0.025]",
       text: "text-teal-600 dark:text-teal-400",
       iconBg: "bg-teal-500/10 dark:bg-teal-400/15 ring-teal-500/20 dark:ring-teal-400/25",
       rail: "from-teal-500/0 via-teal-500/50 to-teal-500/0 dark:via-teal-400/50",
@@ -134,7 +134,7 @@ const ROADMAP_ITEMS: {
     icon: SearchIcon,
     accent: {
       border: "border-l-blue-500 dark:border-l-blue-400",
-      bg: "bg-blue-500/[0.04] dark:bg-blue-400/[0.06]",
+      bg: "bg-blue-500/[0.015] dark:bg-blue-400/[0.025]",
       text: "text-blue-600 dark:text-blue-400",
       iconBg: "bg-blue-500/10 dark:bg-blue-400/15 ring-blue-500/20 dark:ring-blue-400/25",
       rail: "from-blue-500/0 via-blue-500/50 to-blue-500/0 dark:via-blue-400/50",

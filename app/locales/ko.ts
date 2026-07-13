@@ -305,7 +305,8 @@ const ko: Translation = {
       description:
         "오늘의 시장 메모는 시작점입니다. 과거 흐름, 테마, 개인화까지 단계적으로 열어갑니다.",
       badge: "Building",
-      footer: "로그인하면 전체 기능과 상세 리포트를 이용할 수 있어요.",
+      footer:
+        "위 항목은 앞으로 열어갈 방향입니다. 준비되는 대로 순차적으로 공개할게요.",
       items: {
         archive: "과거 시장 흐름 아카이브",
         themes: "테마별 리포트 모음",
