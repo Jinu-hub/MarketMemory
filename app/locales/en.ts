@@ -293,6 +293,9 @@ const en: Translation = {
     loginNotice: "Reading full report pages is available after signing in.",
     headerLoginNotice:
       "Sign in to access detailed reports and all features.",
+    previewNotice:
+      "This is a preview. Sign in to browse the full report library.",
+    backToDashboard: "Back to dashboard",
     floatingJoinCta: "Start for free",
     roadmap: {
       eyebrow: "Roadmap",

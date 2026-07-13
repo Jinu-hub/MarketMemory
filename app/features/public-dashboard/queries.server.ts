@@ -1,17 +1,19 @@
 /**
  * Public Dashboard — server-only queries
  *
- * The `/public-dashboard` screen is shown to logged-out visitors. The
- * `daily_market_memories` table only exposes a `select` RLS policy to the
- * `authenticated` role, so anonymous requests read nothing through the normal
- * client. To surface the daily market memory publicly we therefore go through
- * the service-role `adminClient` (which bypasses RLS) and **hard-enforce
- * `status = 'final'`** (via `finalOnly`) so unpublished drafts can never leak.
+ * The `/public-dashboard` screen is shown to logged-out visitors. Tables such
+ * as `daily_market_memories` and `item_contents` only expose `select` RLS to
+ * the `authenticated` role, so anonymous requests read nothing through the
+ * normal client. Public surfaces therefore go through the service-role
+ * `adminClient` (which bypasses RLS) and **hard-enforce** published-only
+ * filters (`finalOnly`, `is_public`/`is_active`) so drafts never leak.
  *
- * This module is the single, audited entry point for public dashboard data —
- * keep the service-role access confined here. It mirrors the data the private
- * `/dashboard` loader collects, minus admin-only concerns (`isAdmin`,
- * `sourceConsistency`, and the reconcile action).
+ * This module is the single, audited entry point for public-dashboard data —
+ * keep the service-role access confined here.
+ *
+ * Preview report detail (`/public-dashboard/reports/:id`) is gated the same
+ * way: only the newest `PUBLIC_PREVIEW_REPORT_LIMIT` public reports may be
+ * fetched, even though service-role could otherwise read any row.
  */
 import adminClient from "~/core/lib/supa-admin-client.server";
 import {
@@ -23,12 +25,26 @@ import {
   type MarketSummaryPost,
 } from "~/features/dashboard/queries";
 import type { DailyMarketMemorySnapshot } from "~/features/dashboard/types";
-import { localizeItemContents } from "~/features/item-reports/lib/item-content-localization";
-import { getRecentReports } from "~/features/item-reports/queries";
-import type { ReportListItem } from "~/features/item-reports/types";
+import {
+  localizeItemContents,
+  localizeItemContentWithMeta,
+  type ItemContentLocalization,
+} from "~/features/item-reports/lib/item-content-localization";
+import { getRecentReports, getReport } from "~/features/item-reports/queries";
+import type {
+  ReportDetail,
+  ReportListItem,
+} from "~/features/item-reports/types";
 
 /** How many latest reports the dashboard's "Latest Reports" section shows. */
 const RECENT_REPORTS_LIMIT = 7;
+
+/**
+ * How many of the newest public reports anonymous visitors may open in detail
+ * under `/public-dashboard/reports/:id`. Keep this tight — service-role bypass
+ * means the allowlist is the real access boundary.
+ */
+export const PUBLIC_PREVIEW_REPORT_LIMIT = 2;
 
 export type PublicDashboardData = {
   /** Latest finalized daily market memory (or the one for `marketDate`). */
@@ -39,9 +55,64 @@ export type PublicDashboardData = {
   summaryPost: MarketSummaryPost | null;
   /** 7 most recent public reports, localized. */
   recentReports: ReportListItem[];
+  /**
+   * IDs of the newest reports that may be linked to the public preview detail
+   * route. Always a prefix of `recentReports` (length ≤ {@link PUBLIC_PREVIEW_REPORT_LIMIT}).
+   */
+  previewReportIds: string[];
   /** Finalized trading days available for the date picker (newest first). */
   availableDates: string[];
 };
+
+export type PublicPreviewReport = {
+  report: ReportDetail;
+  localization: ItemContentLocalization;
+};
+
+/**
+ * Newest public `item_contents` ids (service-role + public visibility filters).
+ * Used as the allowlist for `/public-dashboard/reports/:id`.
+ */
+export async function getPublicPreviewReportIds(
+  limit: number = PUBLIC_PREVIEW_REPORT_LIMIT,
+): Promise<string[]> {
+  const rows = await getRecentReports(adminClient, limit);
+  return rows.map((row) => row.id);
+}
+
+/**
+ * Load a single public report for the anonymous preview detail route.
+ *
+ * Returns `null` when:
+ *  - `id` is not among the newest {@link PUBLIC_PREVIEW_REPORT_LIMIT} public reports, or
+ *  - the row is missing / not public+active.
+ *
+ * Localization mirrors the private `/item_reports/:id` loader.
+ */
+export async function getPublicPreviewReport(params: {
+  id: string;
+  locale: string;
+}): Promise<PublicPreviewReport | null> {
+  const { id, locale } = params;
+
+  const allowedIds = await getPublicPreviewReportIds();
+  if (!allowedIds.includes(id)) {
+    return null;
+  }
+
+  const reportRow = await getReport(adminClient, id);
+  if (!reportRow) {
+    return null;
+  }
+
+  const { row: report, localization } = await localizeItemContentWithMeta(
+    adminClient,
+    reportRow,
+    locale,
+  );
+
+  return { report, localization };
+}
 
 /**
  * Collect everything the public dashboard needs to render, mirroring the
@@ -90,11 +161,16 @@ export async function getPublicDashboardData(params: {
     localizeItemContents(adminClient, recentReportsRows, locale),
   ]);
 
+  const previewReportIds = recentReports
+    .slice(0, PUBLIC_PREVIEW_REPORT_LIMIT)
+    .map((row) => row.id);
+
   return {
     memory,
     sourceReports,
     summaryPost,
     recentReports,
+    previewReportIds,
     availableDates,
   };
 }

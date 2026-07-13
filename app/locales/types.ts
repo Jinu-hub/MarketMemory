@@ -268,6 +268,8 @@ export type Translation = {
   publicDashboard: {
     loginNotice: string;
     headerLoginNotice: string;
+    previewNotice: string;
+    backToDashboard: string;
     floatingJoinCta: string;
     roadmap: {
       eyebrow: string;

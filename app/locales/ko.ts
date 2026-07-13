@@ -293,6 +293,9 @@ const ko: Translation = {
     loginNotice: "리포트 상세 페이지 열람은 로그인 후 이용할 수 있어요.",
     headerLoginNotice:
       "상세 리포트와 전체 기능을 이용하려면 로그인이 필요합니다.",
+    previewNotice:
+      "미리보기입니다. 전체 리포트 라이브러리는 로그인 후 이용할 수 있어요.",
+    backToDashboard: "대시보드로 돌아가기",
     floatingJoinCta: "무료로 시작하기",
     roadmap: {
       eyebrow: "Roadmap",

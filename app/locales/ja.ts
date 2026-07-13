@@ -293,6 +293,9 @@ const ja: Translation = {
     loginNotice: "レポート詳細ページの閲覧はログイン後にご利用いただけます。",
     headerLoginNotice:
       "詳細レポートとすべての機能をご利用いただくには、ログインが必要です。",
+    previewNotice:
+      "これはプレビューです。レポートライブラリ全体はログイン後にご利用いただけます。",
+    backToDashboard: "ダッシュボードに戻る",
     floatingJoinCta: "無料で始める",
     roadmap: {
       eyebrow: "Roadmap",
