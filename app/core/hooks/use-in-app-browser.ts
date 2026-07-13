@@ -55,7 +55,7 @@ function detectPlatform(ua: string): InAppBrowserPlatform {
  * KakaoTalk, or Line, along with the platform (iOS/Android).
  *
  * Returns a safe default (`isInApp: false`) on the server and during the
- * first paint so the modal never flashes before hydration.
+ * first paint so Google sign-in is not intercepted before hydration.
  */
 export function useInAppBrowser(): InAppBrowserInfo {
   const [info, setInfo] = React.useState<InAppBrowserInfo>(DEFAULT_INFO);

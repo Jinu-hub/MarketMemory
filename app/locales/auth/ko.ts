@@ -137,13 +137,14 @@ const authKo = {
   inAppBrowser: {
     title: "외부 브라우저로 열어주세요",
     description:
-      "지금 앱 내 브라우저로 접속하셨어요. 이 환경에서는 Google 로그인이 차단될 수 있습니다. 외부 브라우저에서 열면 정상적으로 로그인할 수 있어요.",
+      "지금 앱 내 브라우저로 접속하셨어요. 이 환경에서는 Google 로그인이 차단됩니다. 외부 브라우저에서 열면 정상적으로 로그인할 수 있어요.",
     openInBrowser: "기본 브라우저로 열기",
     iosGuideTitle: "Safari로 여는 방법",
     iosStep1: "우측 상단의 ⋯ 메뉴를 눌러주세요",
     iosStep2: "‘외부 브라우저로 열기(Safari로 열기)’를 선택하세요",
-    continueAnyway: "그냥 계속 진행하기",
     close: "닫기",
+    continueWithEmailSignIn: "이메일로 로그인할게요",
+    continueWithEmailSignUp: "이메일로 가입할게요",
   },
 };
 

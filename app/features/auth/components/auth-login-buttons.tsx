@@ -1,6 +1,7 @@
 /**
  * Authentication Login Buttons Module
  */
+import { useState } from "react";
 import { LockIcon, MailIcon } from "lucide-react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -11,20 +12,26 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/core/components/ui/tooltip";
+import { useInAppBrowser } from "~/core/hooks/use-in-app-browser";
 
+import { InAppBrowserModal } from "./in-app-browser-modal";
 import { AppleLogo } from "./logos/apple";
 import { GoogleLogo } from "./logos/google";
+
+const GOOGLE_AUTH_HREF = "/auth/social/start/google";
 
 function AuthLoginButton({
   logo,
   label,
   href,
   disabled = false,
+  onClick,
 }: {
   logo: React.ReactNode;
   label: string;
   href: string;
   disabled?: boolean;
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
 }) {
   const { t } = useTranslation();
 
@@ -48,7 +55,7 @@ function AuthLoginButton({
       className="inline-flex items-center justify-center gap-2"
       asChild
     >
-      <Link to={href}>
+      <Link to={href} onClick={onClick}>
         <span>{logo}</span>
         <span>{t("auth.continueWith", { provider: label })}</span>
       </Link>
@@ -122,18 +129,38 @@ function _SignInButtons() {
   );
 }
 
-function SocialLoginButtons({ disabled = false }: { disabled?: boolean }) {
+function SocialLoginButtons({
+  disabled = false,
+  intent,
+}: {
+  disabled?: boolean;
+  intent: "sign-in" | "sign-up";
+}) {
   const { t } = useTranslation();
+  const { isInApp } = useInAppBrowser();
+  const [inAppModalOpen, setInAppModalOpen] = useState(false);
+
+  const handleGoogleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isInApp) return;
+    event.preventDefault();
+    setInAppModalOpen(true);
+  };
 
   return (
     <>
       <AuthLoginButton
         logo={<GoogleLogo className="size-4" />}
         label={t("auth.providers.google")}
-        href="/auth/social/start/google"
+        href={GOOGLE_AUTH_HREF}
         disabled={disabled}
+        onClick={handleGoogleClick}
       />
       <AppleComingSoonButton />
+      <InAppBrowserModal
+        open={inAppModalOpen}
+        onOpenChange={setInAppModalOpen}
+        intent={intent}
+      />
     </>
   );
 }
@@ -142,7 +169,7 @@ export function SignInButtons() {
   return (
     <>
       <Divider />
-      <SocialLoginButtons />
+      <SocialLoginButtons intent="sign-in" />
       <_SignInButtons />
     </>
   );
@@ -152,7 +179,7 @@ export function SignUpButtons({ disabled = false }: { disabled?: boolean }) {
   return (
     <>
       <Divider />
-      <SocialLoginButtons disabled={disabled} />
+      <SocialLoginButtons disabled={disabled} intent="sign-up" />
     </>
   );
 }

@@ -137,13 +137,14 @@ const authEn = {
   inAppBrowser: {
     title: "Open in your browser",
     description:
-      "You're viewing this inside an in-app browser. Google sign-in may be blocked here. Open it in an external browser to sign in without issues.",
+      "You're viewing this inside an in-app browser. Google sign-in is blocked here. Open it in an external browser to sign in without issues.",
     openInBrowser: "Open in default browser",
     iosGuideTitle: "How to open in Safari",
     iosStep1: "Tap the ⋯ menu in the top-right corner",
     iosStep2: "Choose “Open in external browser (Open in Safari)”",
-    continueAnyway: "Continue anyway",
     close: "Close",
+    continueWithEmailSignIn: "I'll sign in with email",
+    continueWithEmailSignUp: "I'll sign up with email",
   },
 };
 

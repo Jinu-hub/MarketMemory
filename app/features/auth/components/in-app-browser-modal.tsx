@@ -1,17 +1,17 @@
 /**
  * In-App Browser Modal
  *
- * Detects when the user has entered through a mobile in-app browser (WebView)
- * such as Threads, Instagram, Facebook, KakaoTalk, or Line — where Google
- * OAuth is often blocked (403 disallowed_useragent) — and guides them to open
- * the current page in an external browser.
+ * Shown when the user tries Google sign-in inside a mobile in-app browser
+ * (WebView) such as Threads, Instagram, Facebook, KakaoTalk, or Line — where
+ * Google OAuth is often blocked (403 disallowed_useragent) — and guides them
+ * to open the current page in an external browser.
  *
  * - Android: offers a button that force-opens Chrome via the `intent://` scheme
  *   (with a KakaoTalk-specific `openExternal` fallback).
  * - iOS: shows a visual guide pointing to the top-right `...` menu, since iOS
  *   WebViews cannot programmatically launch an external browser.
  */
-import { useId, useState } from "react";
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArrowUpRightIcon,
@@ -25,14 +25,31 @@ import { NexButton } from "~/core/components/nex";
 import { useInAppBrowser } from "~/core/hooks/use-in-app-browser";
 import { cn } from "~/core/lib/utils";
 
-export function InAppBrowserModal() {
+type InAppBrowserModalProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** Determines the dismiss CTA copy (login vs join). */
+  intent: "sign-in" | "sign-up";
+};
+
+export function InAppBrowserModal({
+  open,
+  onOpenChange,
+  intent,
+}: InAppBrowserModalProps) {
   const { t } = useTranslation();
-  const { isInApp, platform, appName } = useInAppBrowser();
-  const [dismissed, setDismissed] = useState(false);
+  const { platform, appName } = useInAppBrowser();
   const titleId = useId();
   const descId = useId();
 
-  if (!isInApp || dismissed) return null;
+  if (!open) return null;
+
+  const handleClose = () => onOpenChange(false);
+
+  const continueWithEmailLabel =
+    intent === "sign-up"
+      ? t("inAppBrowser.continueWithEmailSignUp")
+      : t("inAppBrowser.continueWithEmailSignIn");
 
   const handleOpenExternal = () => {
     if (typeof window === "undefined") return;
@@ -60,6 +77,7 @@ export function InAppBrowserModal() {
       <div
         aria-hidden
         className="bg-background/70 absolute inset-0 backdrop-blur-sm"
+        onClick={handleClose}
       />
 
       <div
@@ -70,7 +88,7 @@ export function InAppBrowserModal() {
       >
         <button
           type="button"
-          onClick={() => setDismissed(true)}
+          onClick={handleClose}
           aria-label={t("inAppBrowser.close")}
           className="text-muted-foreground hover:text-foreground hover:bg-muted absolute top-4 right-4 inline-flex size-8 items-center justify-center rounded-lg transition-colors"
         >
@@ -116,10 +134,10 @@ export function InAppBrowserModal() {
 
         <button
           type="button"
-          onClick={() => setDismissed(true)}
+          onClick={handleClose}
           className="text-muted-foreground hover:text-foreground mt-4 w-full text-center text-sm underline-offset-4 transition-colors hover:underline"
         >
-          {t("inAppBrowser.continueAnyway")}
+          {continueWithEmailLabel}
         </button>
       </div>
     </div>
