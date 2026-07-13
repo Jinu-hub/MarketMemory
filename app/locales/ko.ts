@@ -295,6 +295,8 @@ const ko: Translation = {
       "상세 리포트와 전체 기능을 이용하려면 로그인이 필요합니다.",
     previewNotice:
       "미리보기입니다. 전체 리포트 라이브러리는 로그인 후 이용할 수 있어요.",
+    previewReportsNote:
+      "비회원은 최근 리포트 2건만 상세 내용을 볼 수 있어요. 전체 라이브러리는 로그인 후 이용할 수 있습니다.",
     backToDashboard: "대시보드로 돌아가기",
     floatingJoinCta: "무료로 시작하기",
     roadmap: {

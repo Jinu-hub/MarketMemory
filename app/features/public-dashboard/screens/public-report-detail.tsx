@@ -9,8 +9,8 @@
  * the authenticated `/item_reports/:id` experience.
  */
 import { LockIcon } from "lucide-react";
-import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 import {
   Accordion,
@@ -104,25 +104,26 @@ export default function PublicReportDetail({
   const displaySummary = resolveDisplaySummary(report.summary);
 
   return (
-    <div className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col px-4 pt-2 pb-16 sm:px-6 md:px-8">
+    <div className="mx-auto -mt-10 flex w-full max-w-screen-2xl flex-1 flex-col px-4 pb-16 sm:px-6 md:-mt-24 md:px-8">
       <div
         role="status"
-        className="border-primary/25 bg-primary/[0.06] mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3.5 py-2.5 text-xs sm:text-sm"
+        className="border-primary/25 bg-primary/[0.06] mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3.5 py-2 text-xs sm:mb-4 sm:text-sm"
       >
         <LockIcon className="text-primary size-3.5 shrink-0" aria-hidden />
         <span className="text-muted-foreground min-w-0 flex-1">
           {t("publicDashboard.previewNotice")}
         </span>
+        {/* Nav already exposes Login/Join from md up; keep the inline CTA for mobile only. */}
         <Link
-          to="/join"
+          to="/login"
           viewTransition
-          className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center font-medium transition-colors"
+          className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center font-medium transition-colors md:hidden"
         >
-          {t("publicDashboard.floatingJoinCta")}
+          {t("auth.signIn")}
         </Link>
       </div>
 
-      <nav className="mb-6">
+      <nav className="mb-4 sm:mb-5">
         <ItemReportsNavLink to={publicDashboardHref()}>
           {t("publicDashboard.backToDashboard")}
         </ItemReportsNavLink>

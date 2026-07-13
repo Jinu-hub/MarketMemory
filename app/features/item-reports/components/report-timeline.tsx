@@ -28,6 +28,13 @@ type ReportTimelineProps = {
   detailHref?: (id: string) => string;
   /** When false, report titles render without links (no navigation). */
   linkReports?: boolean;
+  /**
+   * When set, only these ids render as links. Takes precedence over a blanket
+   * `linkReports` flag for allowlisted public previews.
+   */
+  linkReportIds?: readonly string[];
+  /** When true, linked rows show a trailing arrow affordance. */
+  showLinkArrow?: boolean;
 };
 
 type TimelineGroup = {
@@ -66,10 +73,17 @@ export function ReportTimeline({
   showGroupCounts = true,
   detailHref = itemReportsDetailHref,
   linkReports = true,
+  linkReportIds,
+  showLinkArrow = false,
 }: ReportTimelineProps) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
   const groups = groupByMonth(reports, locale);
+  const linkIdSet =
+    linkReportIds === undefined ? null : new Set(linkReportIds);
+  const shouldLinkReport = (id: string) =>
+    linkIdSet ? linkIdSet.has(id) : linkReports;
+
   if (groups.length === 0) {
     return (
       <ContentEmptyState>{ui.timeline.empty}</ContentEmptyState>
@@ -87,7 +101,8 @@ export function ReportTimeline({
           collapsible={!compact || groups.length > 1}
           defaultOpen={index === 0}
           detailHref={detailHref}
-          linkReports={linkReports}
+          shouldLinkReport={shouldLinkReport}
+          showLinkArrow={showLinkArrow}
         />
       ))}
     </div>
@@ -101,7 +116,8 @@ function TimelineMonthGroup({
   collapsible,
   defaultOpen,
   detailHref,
-  linkReports,
+  shouldLinkReport,
+  showLinkArrow,
 }: {
   group: TimelineGroup;
   compact: boolean;
@@ -109,7 +125,8 @@ function TimelineMonthGroup({
   collapsible: boolean;
   defaultOpen: boolean;
   detailHref: (id: string) => string;
-  linkReports: boolean;
+  shouldLinkReport: (id: string) => boolean;
+  showLinkArrow: boolean;
 }) {
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
@@ -135,7 +152,8 @@ function TimelineMonthGroup({
           group={group}
           compact
           detailHref={detailHref}
-          linkReports={linkReports}
+          shouldLinkReport={shouldLinkReport}
+          showLinkArrow={showLinkArrow}
         />
       </section>
     );
@@ -191,7 +209,8 @@ function TimelineMonthGroup({
                 group={group}
                 compact
                 detailHref={detailHref}
-                linkReports={linkReports}
+                shouldLinkReport={shouldLinkReport}
+                showLinkArrow={showLinkArrow}
               />
             </div>
           </CollapsibleContent>
@@ -268,7 +287,8 @@ function TimelineMonthGroup({
               group={group}
               compact={false}
               detailHref={detailHref}
-              linkReports={linkReports}
+              shouldLinkReport={shouldLinkReport}
+              showLinkArrow={showLinkArrow}
             />
           </div>
         </CollapsibleContent>
@@ -281,12 +301,14 @@ function TimelineMonthList({
   group,
   compact,
   detailHref,
-  linkReports,
+  shouldLinkReport,
+  showLinkArrow,
 }: {
   group: TimelineGroup;
   compact: boolean;
   detailHref: (id: string) => string;
-  linkReports: boolean;
+  shouldLinkReport: (id: string) => boolean;
+  showLinkArrow: boolean;
 }) {
   return (
     <div className={cn("relative", compact ? "pt-0.5" : "pt-0")}>
@@ -304,7 +326,8 @@ function TimelineMonthList({
             report={report}
             compact={compact}
             detailHref={detailHref}
-            linkReports={linkReports}
+            linkReports={shouldLinkReport(report.id)}
+            showLinkArrow={showLinkArrow}
           />
         ))}
       </ul>

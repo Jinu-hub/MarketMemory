@@ -295,6 +295,8 @@ const ja: Translation = {
       "詳細レポートとすべての機能をご利用いただくには、ログインが必要です。",
     previewNotice:
       "これはプレビューです。レポートライブラリ全体はログイン後にご利用いただけます。",
+    previewReportsNote:
+      "ゲストは最新レポート2件のみ詳細を閲覧できます。ライブラリ全体はログイン後にご利用いただけます。",
     backToDashboard: "ダッシュボードに戻る",
     floatingJoinCta: "無料で始める",
     roadmap: {

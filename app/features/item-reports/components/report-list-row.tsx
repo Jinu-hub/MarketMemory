@@ -25,10 +25,15 @@ type ReportListRowBaseProps = {
   className?: string;
   /**
    * When false, titles render as plain text instead of links to the report
-   * detail page. Used by logged-out surfaces (e.g. the public dashboard) that
-   * intentionally expose no navigation. Defaults to true.
+   * detail page. Used by logged-out surfaces that only expose an allowlisted
+   * subset of rows. Defaults to true.
    */
   linkReports?: boolean;
+  /**
+   * When true, linked titles show a trailing arrow so clickable rows stand out
+   * (e.g. public dashboard preview allowlist).
+   */
+  showLinkArrow?: boolean;
 };
 
 type ReportListRowRelatedProps = ReportListRowBaseProps & {
@@ -56,6 +61,7 @@ export function ReportListRow(props: ReportListRowProps) {
     listLinkState,
     className,
     linkReports = true,
+    showLinkArrow = false,
   } = props;
   const ui = useItemReportsUi();
   const locale = useItemReportsLocale();
@@ -145,7 +151,10 @@ export function ReportListRow(props: ReportListRowProps) {
     <>
       <h4
         className={cn(
-          "group-hover:text-primary font-semibold transition-colors",
+          "font-semibold transition-colors",
+          linkReports
+            ? "group-hover:text-primary"
+            : "text-muted-foreground",
           compact ? "text-sm leading-snug" : "text-base leading-snug md:text-lg",
         )}
       >
@@ -179,6 +188,7 @@ export function ReportListRow(props: ReportListRowProps) {
           className={cn(
             "bg-background flex size-4 items-center justify-center rounded-full border-2 md:size-5",
             style.accentText,
+            !linkReports && "opacity-50",
           )}
           style={{ borderColor: "currentColor" }}
         >
@@ -205,9 +215,23 @@ export function ReportListRow(props: ReportListRowProps) {
             to={detailHref(report.id)}
             state={listLinkState}
             viewTransition
-            className="group block"
+            className={cn(
+              "group",
+              showLinkArrow ? "flex items-start gap-2" : "block",
+            )}
           >
-            {timelineTitleContent}
+            <div className={showLinkArrow ? "min-w-0 flex-1" : undefined}>
+              {timelineTitleContent}
+            </div>
+            {showLinkArrow ? (
+              <ArrowRightIcon
+                className={cn(
+                  "text-primary mt-0.5 size-4 shrink-0 transition-transform",
+                  "opacity-70 group-hover:translate-x-0.5 group-hover:opacity-100",
+                )}
+                aria-hidden
+              />
+            ) : null}
           </Link>
         ) : (
           <div className="block">{timelineTitleContent}</div>

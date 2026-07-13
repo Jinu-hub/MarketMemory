@@ -295,6 +295,8 @@ const en: Translation = {
       "Sign in to access detailed reports and all features.",
     previewNotice:
       "This is a preview. Sign in to browse the full report library.",
+    previewReportsNote:
+      "Guests can open the 2 most recent reports in detail. Sign in to browse the full library.",
     backToDashboard: "Back to dashboard",
     floatingJoinCta: "Start for free",
     roadmap: {

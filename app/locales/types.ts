@@ -269,6 +269,7 @@ export type Translation = {
     loginNotice: string;
     headerLoginNotice: string;
     previewNotice: string;
+    previewReportsNote: string;
     backToDashboard: string;
     floatingJoinCta: string;
     roadmap: {

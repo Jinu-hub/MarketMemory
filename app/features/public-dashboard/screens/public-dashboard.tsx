@@ -8,7 +8,8 @@
  *
  * Differences from `/dashboard`:
  *  - Market Date is fixed to the latest edition (no date picker / navigation).
- *  - "Latest Reports" has no "view all" link and its rows are not linked.
+ *  - "Latest Reports" has no "view all" link; only the newest preview-allowlisted
+ *    reports link to `/public-dashboard/reports/:id`.
  *  - Memory Recall / Signal Radar previews are replaced by a Roadmap block.
  *  - No admin-only affordances (reconcile button, draft states).
  */
@@ -26,6 +27,7 @@ import { LatestReportsBlock } from "~/features/dashboard/components/latest-repor
 import type { Route } from "./+types/public-dashboard";
 import { FloatingJoinCta } from "../components/floating-join-cta";
 import { RoadmapBlock } from "../components/roadmap-block";
+import { publicDashboardReportHref } from "../lib/urls";
 import { getPublicDashboardData } from "../queries.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -37,7 +39,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   // Service-role read, final-only — mirrors the private dashboard dataset
   // (minus admin-only fields) for logged-out visitors.
-  const { memory, sourceReports, summaryPost, recentReports } =
+  const { memory, sourceReports, summaryPost, recentReports, previewReportIds } =
     await getPublicDashboardData({ locale, marketDate: requestedDate });
 
   return {
@@ -45,6 +47,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     sourceReports,
     summaryPost,
     recentReports,
+    previewReportIds,
     locale,
     meta: {
       title: `${t("dashboard.meta.title")} | ${import.meta.env.VITE_APP_NAME}`,
@@ -66,8 +69,14 @@ export const meta: Route.MetaFunction = ({ data }) => {
 
 export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation();
-  const { memory, sourceReports, summaryPost, recentReports, locale } =
-    loaderData;
+  const {
+    memory,
+    sourceReports,
+    summaryPost,
+    recentReports,
+    previewReportIds,
+    locale,
+  } = loaderData;
 
   return (
     <div className="mx-auto -mt-10 flex w-full max-w-screen-2xl flex-1 flex-col gap-6 px-4 pb-12 sm:gap-7 sm:px-6 md:-mt-24 md:gap-8 md:px-8 md:pb-16">
@@ -141,7 +150,9 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
         reports={recentReports}
         locale={locale}
         showViewAll={false}
-        linkReports={false}
+        linkReportIds={previewReportIds}
+        detailHref={publicDashboardReportHref}
+        footerNote={t("publicDashboard.previewReportsNote")}
       />
 
       <RoadmapBlock />

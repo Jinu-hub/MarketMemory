@@ -20,6 +20,15 @@ type LatestReportsBlockProps = {
   showViewAll?: boolean;
   /** Render report rows as links to their detail page. Defaults to true. */
   linkReports?: boolean;
+  /**
+   * When set, only these report ids are linked (overrides a blanket
+   * `linkReports={true}`). Used by the public dashboard preview allowlist.
+   */
+  linkReportIds?: readonly string[];
+  /** Detail URL builder. Defaults to `/item_reports/:id`. */
+  detailHref?: (id: string) => string;
+  /** Optional note rendered below the list (e.g. public preview limit copy). */
+  footerNote?: string;
 };
 
 export function LatestReportsBlock({
@@ -28,9 +37,13 @@ export function LatestReportsBlock({
   className,
   showViewAll = true,
   linkReports = true,
+  linkReportIds,
+  detailHref,
+  footerNote,
 }: LatestReportsBlockProps) {
   const ui = pickDashboardUi(locale).latestReports;
   const rows = reports.slice(0, 7);
+  const showLinkArrow = Boolean(linkReportIds?.length);
 
   return (
     <DashboardBlockShell
@@ -75,8 +88,17 @@ export function LatestReportsBlock({
           compact
           showGroupCounts={false}
           linkReports={linkReports}
+          linkReportIds={linkReportIds}
+          detailHref={detailHref}
+          showLinkArrow={showLinkArrow}
         />
       )}
+
+      {footerNote ? (
+        <p className="text-muted-foreground border-border/60 mt-4 border-t pt-3 text-[11px] leading-relaxed sm:text-xs">
+          {footerNote}
+        </p>
+      ) : null}
     </DashboardBlockShell>
   );
 }
