@@ -294,6 +294,24 @@ const ja: Translation = {
     headerLoginNotice:
       "詳細レポートとすべての機能をご利用いただくには、ログインが必要です。",
     floatingJoinCta: "無料で始める",
+    roadmap: {
+      eyebrow: "Roadmap",
+      title: "広がり続けるマーケットメモリ",
+      description:
+        "今日の市場メモは出発点です。過去の流れ、テーマ、パーソナライズへと段階的に開いていきます。",
+      badge: "Building",
+      footer: "ログインすると、すべての機能と詳細レポートをご利用いただけます。",
+      items: {
+        archive: "過去の市場フローのアーカイブ",
+        themes: "テーマ別レポート集",
+        digests: "週次・月次の市場サマリー",
+        personalization: "関心テーマに基づくパーソナライズ",
+        alerts: "メールまたは通知レポート",
+        i18nQuality: "多言語レポート品質の向上",
+        searchFilters: "より精緻な検索・フィルタ機能",
+        memoryRecall: "類似する市場局面の回想",
+      },
+    },
   },
   itemReports,
   weeklyAiIssueDigest,

@@ -269,6 +269,23 @@ export type Translation = {
     loginNotice: string;
     headerLoginNotice: string;
     floatingJoinCta: string;
+    roadmap: {
+      eyebrow: string;
+      title: string;
+      description: string;
+      badge: string;
+      footer: string;
+      items: {
+        archive: string;
+        themes: string;
+        digests: string;
+        personalization: string;
+        alerts: string;
+        i18nQuality: string;
+        searchFilters: string;
+        memoryRecall: string;
+      };
+    };
   };
   itemReports: ItemReportsTranslation;
   weeklyAiIssueDigest: WeeklyAiIssueDigestTranslation;

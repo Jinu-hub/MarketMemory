@@ -294,6 +294,24 @@ const ko: Translation = {
     headerLoginNotice:
       "상세 리포트와 전체 기능을 이용하려면 로그인이 필요합니다.",
     floatingJoinCta: "무료로 시작하기",
+    roadmap: {
+      eyebrow: "Roadmap",
+      title: "계속 확장되는 시장 메모리",
+      description:
+        "오늘의 시장 메모는 시작점입니다. 과거 흐름, 테마, 개인화까지 단계적으로 열어갑니다.",
+      badge: "Building",
+      footer: "로그인하면 전체 기능과 상세 리포트를 이용할 수 있어요.",
+      items: {
+        archive: "과거 시장 흐름 아카이브",
+        themes: "테마별 리포트 모음",
+        digests: "주간·월간 시장 요약",
+        personalization: "관심 테마 기반 개인화",
+        alerts: "이메일 또는 알림 리포트",
+        i18nQuality: "다국어 리포트 품질 개선",
+        searchFilters: "더 정교한 검색 및 필터 기능",
+        memoryRecall: "유사 시장 국면 회상",
+      },
+    },
   },
   itemReports,
   weeklyAiIssueDigest,

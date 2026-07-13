@@ -294,6 +294,24 @@ const en: Translation = {
     headerLoginNotice:
       "Sign in to access detailed reports and all features.",
     floatingJoinCta: "Start for free",
+    roadmap: {
+      eyebrow: "Roadmap",
+      title: "A market memory that keeps expanding",
+      description:
+        "Today’s market memo is only the starting point. We are opening archives, themes, and personalization step by step.",
+      badge: "Building",
+      footer: "Sign in to unlock all features and full report pages.",
+      items: {
+        archive: "Archive of past market flows",
+        themes: "Theme-based report collections",
+        digests: "Weekly and monthly market digests",
+        personalization: "Personalization by themes you follow",
+        alerts: "Email or notification reports",
+        i18nQuality: "Higher-quality multilingual reports",
+        searchFilters: "More precise search and filters",
+        memoryRecall: "Recall of similar market regimes",
+      },
+    },
   },
   itemReports,
   weeklyAiIssueDigest,

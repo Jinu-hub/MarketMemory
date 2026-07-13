@@ -9,6 +9,7 @@
  * Differences from `/dashboard`:
  *  - Market Date is fixed to the latest edition (no date picker / navigation).
  *  - "Latest Reports" has no "view all" link and its rows are not linked.
+ *  - Memory Recall / Signal Radar previews are replaced by a Roadmap block.
  *  - No admin-only affordances (reconcile button, draft states).
  */
 import { LockIcon } from "lucide-react";
@@ -21,11 +22,10 @@ import { DashboardMarketDate } from "~/features/dashboard/components/dashboard-m
 import { MarketSnapshotBar } from "~/features/dashboard/components/market-snapshot-bar";
 import { TodayMarketMemoryBlock } from "~/features/dashboard/components/today-market-memory-block";
 import { LatestReportsBlock } from "~/features/dashboard/components/latest-reports-block";
-import { MemoryRecallBlock } from "~/features/dashboard/components/memory-recall-block";
-import { SignalRadarBlock } from "~/features/dashboard/components/signal-radar-block";
 
 import type { Route } from "./+types/public-dashboard";
 import { FloatingJoinCta } from "../components/floating-join-cta";
+import { RoadmapBlock } from "../components/roadmap-block";
 import { getPublicDashboardData } from "../queries.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -79,10 +79,11 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
         <span className="text-muted-foreground min-w-0 flex-1">
           {t("publicDashboard.headerLoginNotice")}
         </span>
+        {/* Nav already exposes Login/Join from md up; keep the inline CTA for mobile only. */}
         <Link
           to="/login"
           viewTransition
-          className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center font-medium transition-colors"
+          className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center font-medium transition-colors md:hidden"
         >
           {t("auth.signIn")}
         </Link>
@@ -143,9 +144,7 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
         linkReports={false}
       />
 
-      <MemoryRecallBlock locale={locale} />
-
-      <SignalRadarBlock locale={locale} />
+      <RoadmapBlock />
 
       <FloatingJoinCta />
     </div>
