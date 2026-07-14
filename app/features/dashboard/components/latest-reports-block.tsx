@@ -52,21 +52,26 @@ export function LatestReportsBlock({
       className={cn("p-4 sm:p-5 md:p-6", className)}
     >
       <header className="flex flex-wrap items-start justify-between gap-3 pb-3 sm:pb-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <ClockIcon
-            className="text-muted-foreground size-4 shrink-0"
-            aria-hidden
-          />
-          <h2
-            id="dashboard-latest-reports-heading"
-            className="text-sm font-semibold tracking-tight sm:text-base md:text-lg"
-          >
-            {ui.title}
-          </h2>
-          <NexBadge variant="outline" size="sm" className="shrink-0">
-            {rows.length}
-            {ui.countSuffix}
-          </NexBadge>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <ClockIcon
+              className="text-muted-foreground size-4 shrink-0"
+              aria-hidden
+            />
+            <h2
+              id="dashboard-latest-reports-heading"
+              className="text-sm font-semibold tracking-tight sm:text-base md:text-lg"
+            >
+              {ui.title}
+            </h2>
+            <NexBadge variant="outline" size="sm" className="shrink-0">
+              {rows.length}
+              {ui.countSuffix}
+            </NexBadge>
+          </div>
+          <p className="text-muted-foreground mt-1 text-[11px] leading-relaxed sm:text-xs">
+            {ui.description}
+          </p>
         </div>
         {showViewAll ? (
           <Link

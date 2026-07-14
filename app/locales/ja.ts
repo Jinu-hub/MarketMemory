@@ -292,21 +292,21 @@ const ja: Translation = {
   publicDashboard: {
     loginNotice: "レポート詳細ページの閲覧はログイン後にご利用いただけます。",
     headerLoginNotice:
-      "詳細レポートとすべての機能をご利用いただくには、ログインが必要です。",
+      "本日の公開ダッシュボードです。\n毎取引日、最新のマーケットメモリが自動で更新されます。\nすべての機能はログイン後にご利用いただけます。",
     previewNotice:
       "これはプレビューです。レポートライブラリ全体はログイン後にご利用いただけます。",
     previewReportsNote:
       "ゲストは最新レポート2件のみ詳細を閲覧できます。ライブラリ全体はログイン後にご利用いただけます。",
     backToDashboard: "ダッシュボードに戻る",
-    floatingJoinCta: "無料で始める",
+    floatingJoinCta: "Market Memoryを始める",
     roadmap: {
       eyebrow: "Roadmap",
       title: "広がり続けるマーケットメモリ",
       description:
-        "今日の市場メモは出発点です。過去の流れ、テーマ、パーソナライズへと段階的に開いていきます。",
+        "機能拡張は続きます。過去の流れ、テーマ、パーソナライズまで、準備が整い次第、順次公開する予定です。",
       badge: "Building",
       footer:
-        "機能拡張は続きます。準備が整い次第、順次公開する予定です。",
+        "Market Memoryは、毎取引日のデータだけでなく、機能もともに成長します。",
       items: {
         archive: "過去の市場フローのアーカイブ",
         themes: "テーマ別レポート集",

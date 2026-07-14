@@ -85,7 +85,7 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
         className="border-primary/25 bg-primary/[0.06] flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3.5 py-2.5 text-xs sm:text-sm"
       >
         <LockIcon className="text-primary size-3.5 shrink-0" aria-hidden />
-        <span className="text-muted-foreground min-w-0 flex-1">
+        <span className="text-muted-foreground min-w-0 flex-1 whitespace-pre-line">
           {t("publicDashboard.headerLoginNotice")}
         </span>
         {/* Nav already exposes Login/Join from md up; keep the inline CTA for mobile only. */}

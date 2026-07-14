@@ -292,21 +292,21 @@ const ko: Translation = {
   publicDashboard: {
     loginNotice: "리포트 상세 페이지 열람은 로그인 후 이용할 수 있어요.",
     headerLoginNotice:
-      "상세 리포트와 전체 기능을 이용하려면 로그인이 필요합니다.",
+      "오늘의 공개 대시보드입니다.\n매 거래일 최신 시장 메모리가 자동으로 갱신됩니다.\n전체 기능은 로그인 후 이용 가능합니다.",
     previewNotice:
       "미리보기입니다. 전체 리포트 라이브러리는 로그인 후 이용할 수 있어요.",
     previewReportsNote:
       "비회원은 최근 리포트 2건만 상세 내용을 볼 수 있어요. 전체 라이브러리는 로그인 후 이용할 수 있습니다.",
     backToDashboard: "대시보드로 돌아가기",
-    floatingJoinCta: "무료로 시작하기",
+    floatingJoinCta: "Market Memory 시작하기",
     roadmap: {
       eyebrow: "Roadmap",
       title: "계속 확장되는 시장 메모리",
       description:
-        "오늘의 시장 메모는 시작점입니다. 과거 흐름, 테마, 개인화까지 단계적으로 열어갑니다.",
+        "기능 확장은 계속됩니다. 과거 흐름, 테마, 개인화까지 준비되는 대로 순차적으로 공개될 예정이에요.",
       badge: "Building",
       footer:
-        "기능 확장은 계속됩니다. 준비되는 대로 순차적으로 공개할 예정이에요.",
+        "Market Memory는 매 거래일 데이터뿐 아니라, 기능도 함께 성장합니다.",
       items: {
         archive: "과거 시장 흐름 아카이브",
         themes: "테마별 리포트 모음",

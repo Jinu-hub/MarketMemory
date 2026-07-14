@@ -201,6 +201,7 @@ const ui = {
     },
     latestReports: {
       title: "최신 리포트",
+      description: "리포트를 선택해 상세 내용을 확인해 보세요.",
       viewAll: "전체보기",
       countSuffix: "건",
       empty: "아직 공개된 리포트가 없습니다.",
@@ -336,6 +337,7 @@ const ui = {
     },
     latestReports: {
       title: "Latest reports",
+      description: "Select a report to view its details.",
       viewAll: "View all",
       countSuffix: "",
       empty: "No published reports yet.",
@@ -471,6 +473,7 @@ const ui = {
     },
     latestReports: {
       title: "最新レポート",
+      description: "レポートを選んで詳細を確認してみてください。",
       viewAll: "すべて見る",
       countSuffix: "件",
       empty: "公開されたレポートはまだありません。",

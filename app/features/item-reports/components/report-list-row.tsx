@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon, LockIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import { cn } from "~/core/lib/utils";
@@ -31,7 +31,8 @@ type ReportListRowBaseProps = {
   linkReports?: boolean;
   /**
    * When true, linked titles show a trailing arrow so clickable rows stand out
-   * (e.g. public dashboard preview allowlist).
+   * (e.g. public dashboard preview allowlist). Unlinked rows in the same mode
+   * show a lock icon in the same slot.
    */
   showLinkArrow?: boolean;
 };
@@ -234,7 +235,21 @@ export function ReportListRow(props: ReportListRowProps) {
             ) : null}
           </Link>
         ) : (
-          <div className="block">{timelineTitleContent}</div>
+          <div
+            className={cn(
+              showLinkArrow ? "flex items-start gap-2" : "block",
+            )}
+          >
+            <div className={showLinkArrow ? "min-w-0 flex-1" : undefined}>
+              {timelineTitleContent}
+            </div>
+            {showLinkArrow ? (
+              <LockIcon
+                className="text-muted-foreground mt-0.5 size-4 shrink-0 opacity-70"
+                aria-hidden
+              />
+            ) : null}
+          </div>
         )}
       </div>
     </li>

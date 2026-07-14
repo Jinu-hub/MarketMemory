@@ -292,21 +292,21 @@ const en: Translation = {
   publicDashboard: {
     loginNotice: "Reading full report pages is available after signing in.",
     headerLoginNotice:
-      "Sign in to access detailed reports and all features.",
+      "This is today's public dashboard.\nThe latest market memory updates automatically each trading day.\nSign in to access all features.",
     previewNotice:
       "This is a preview. Sign in to browse the full report library.",
     previewReportsNote:
       "Guests can open the 2 most recent reports in detail. Sign in to browse the full library.",
     backToDashboard: "Back to dashboard",
-    floatingJoinCta: "Start for free",
+    floatingJoinCta: "Start Market Memory",
     roadmap: {
       eyebrow: "Roadmap",
       title: "A market memory that keeps expanding",
       description:
-        "Today’s market memo is only the starting point. We are opening archives, themes, and personalization step by step.",
+        "Feature expansion continues. Historical flows, themes, and personalization will be rolled out step by step as they're ready.",
       badge: "Building",
       footer:
-        "Feature expansion continues. We'll open them step by step as they're ready.",
+        "Market Memory grows not only with every trading day's data, but with its features too.",
       items: {
         archive: "Archive of past market flows",
         themes: "Theme-based report collections",
