@@ -5,6 +5,7 @@
  * Optional JSON body:
  * { "marketDate": "YYYY-MM-DD", "coverageStartAt"?: ISO, "coverageEndAt"?: ISO, "visibility": ... }
  * coverage가 양쪽 모두 유효하면 item_contents.market_date 구간 조회, 아니면 market_date 단일일.
+ * marketDate 생략 시 DAILY_MARKET_MEMORY_TZ(기본 Asia/Tokyo) 기준 어제(D-1).
  */
 import type { Route } from "./+types/daily-market-memory";
 
@@ -12,7 +13,7 @@ import * as Sentry from "@sentry/node";
 import { data } from "react-router";
 
 import {
-  formatMarketDateInTimeZone,
+  resolveCronDefaultMarketDate,
   runDailyMarketMemoryPipeline,
   type DailyMarketMemoryVisibility,
 } from "~/features/cron/lib/daily-market-memory-pipeline";
@@ -28,7 +29,7 @@ export async function action({ request }: Route.ActionArgs) {
   const timeZone =
     process.env.DAILY_MARKET_MEMORY_TZ?.trim() || "Asia/Tokyo";
 
-  let marketDate = formatMarketDateInTimeZone(new Date(), timeZone);
+  let marketDate = resolveCronDefaultMarketDate(timeZone);
   let visibility: DailyMarketMemoryVisibility = "public_only";
   let coverageStartAt: string | null = null;
   let coverageEndAt: string | null = null;

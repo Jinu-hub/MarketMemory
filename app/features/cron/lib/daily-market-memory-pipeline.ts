@@ -597,3 +597,33 @@ export function formatMarketDateInTimeZone(date: Date, timeZone: string): string
     day: "2-digit",
   }).format(date);
 }
+
+/**
+ * `timeZone` 기준 달력일에 `dayOffset`일을 더한 YYYY-MM-DD.
+ * 예: Tokyo 오늘이 2026-07-15이고 offset -1 → 2026-07-14
+ */
+export function formatMarketDateInTimeZoneOffsetDays(
+  date: Date,
+  timeZone: string,
+  dayOffset: number,
+): string {
+  const base = formatMarketDateInTimeZone(date, timeZone);
+  const [y, m, d] = base.split("-").map(Number);
+  const shifted = new Date(Date.UTC(y, m - 1, d + dayOffset));
+  return shifted.toISOString().slice(0, 10);
+}
+
+/** Supabase/앱 크론 기본 market_date 오프셋 (타임존 기준 어제). */
+export const DAILY_MARKET_MEMORY_CRON_DAY_OFFSET = -1;
+
+/** 크론 기본 market_date: `DAILY_MARKET_MEMORY_TZ`(기본 Asia/Tokyo) 기준 어제. */
+export function resolveCronDefaultMarketDate(
+  timeZone?: string,
+  dayOffset: number = DAILY_MARKET_MEMORY_CRON_DAY_OFFSET,
+): string {
+  const tz =
+    timeZone?.trim() ||
+    process.env.DAILY_MARKET_MEMORY_TZ?.trim() ||
+    "Asia/Tokyo";
+  return formatMarketDateInTimeZoneOffsetDays(new Date(), tz, dayOffset);
+}
