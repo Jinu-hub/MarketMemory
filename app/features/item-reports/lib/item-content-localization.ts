@@ -24,7 +24,9 @@
  *
  * Only textual/editorial fields are translated. Language-neutral fields
  * (`category`, `tags`, `regions`, `countries`, `market_date`, tiers, …) always
- * come from the source row and are never overwritten.
+ * come from the source row and are never overwritten. When a translation is
+ * applied, `lang_code` is updated to the i18n row's language so UI surfaces
+ * (e.g. Report Info) reflect the language currently on screen.
  *
  * Performance
  * -----------
@@ -129,6 +131,10 @@ function overlayRow<T extends LocalizableRow>(
     if (value !== undefined && value !== null) {
       out[field] = value;
     }
+  }
+  // Displayed content is in the translation's language, not the source's.
+  if (i18n.lang_code) {
+    out.lang_code = i18n.lang_code;
   }
   return out as T;
 }
@@ -283,7 +289,7 @@ export async function localizeItemContentWithMeta<T extends LocalizableRow>(
       localization: {
         requestedLocale: locale,
         sourceLang,
-        resolvedLang: locale,
+        resolvedLang: overlay.lang_code ?? locale,
         isTranslated: true,
         isFallback: false,
       },
