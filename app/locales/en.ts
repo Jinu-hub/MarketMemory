@@ -292,7 +292,7 @@ const en: Translation = {
   publicDashboard: {
     loginNotice: "Reading full report pages is available after signing in.",
     headerLoginNotice:
-      "This is today's public dashboard.\nThe latest market memory updates automatically each trading day.\nSign in to access all features.",
+      "Today's public dashboard.\nMarket memory updates each trading day.\nSign in for full access.",
     previewNotice:
       "This is a preview. Sign in to browse the full report library.",
     previewReportsNote:

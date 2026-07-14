@@ -13,9 +13,8 @@
  *  - Memory Recall / Signal Radar previews are replaced by a Roadmap block.
  *  - No admin-only affordances (reconcile button, draft states).
  */
-import { LockIcon } from "lucide-react";
+import { InfoIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
 
 import i18next from "~/core/lib/i18next.server";
 import { parseMarketDateParam } from "~/features/dashboard/lib/dates";
@@ -82,20 +81,15 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
     <div className="mx-auto -mt-10 flex w-full max-w-screen-2xl flex-1 flex-col gap-6 px-4 pb-12 sm:gap-7 sm:px-6 md:-mt-24 md:gap-8 md:px-8 md:pb-16">
       <div
         role="status"
-        className="border-primary/25 bg-primary/[0.06] flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3.5 py-2.5 text-xs sm:text-sm"
+        className="border-primary/25 bg-primary/[0.06] flex items-start gap-2 rounded-lg border px-3.5 py-2.5 text-xs sm:text-sm"
       >
-        <LockIcon className="text-primary size-3.5 shrink-0" aria-hidden />
-        <span className="text-muted-foreground min-w-0 flex-1 whitespace-pre-line">
+        <InfoIcon
+          className="text-primary mt-0.5 size-3.5 shrink-0"
+          aria-hidden
+        />
+        <span className="text-muted-foreground min-w-0 flex-1 whitespace-pre-line leading-relaxed">
           {t("publicDashboard.headerLoginNotice")}
         </span>
-        {/* Nav already exposes Login/Join from md up; keep the inline CTA for mobile only. */}
-        <Link
-          to="/login"
-          viewTransition
-          className="text-primary hover:text-primary/80 inline-flex shrink-0 items-center font-medium transition-colors md:hidden"
-        >
-          {t("auth.signIn")}
-        </Link>
       </div>
 
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
