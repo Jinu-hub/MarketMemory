@@ -37,6 +37,7 @@ import { Link } from "react-router";
 
 import { NexBadge, NexButton, NexHero } from "~/core/components/nex";
 import i18next from "~/core/lib/i18next.server";
+import { socialShareMeta } from "~/core/lib/social-meta";
 import { cn } from "~/core/lib/utils";
 import { brandPageTitle, brandSignature } from "~/locales/brand";
 
@@ -58,8 +59,11 @@ export const meta: Route.MetaFunction = ({ data }) => {
   return [
     { title },
     { name: "description", content: description },
-    { property: "og:title", content: title },
-    { property: "og:description", content: description },
+    ...socialShareMeta({
+      title,
+      description,
+      url: "/",
+    }),
   ];
 };
 

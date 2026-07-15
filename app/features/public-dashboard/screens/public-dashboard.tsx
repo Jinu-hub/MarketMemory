@@ -17,6 +17,7 @@ import { InfoIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import i18next from "~/core/lib/i18next.server";
+import { socialShareMeta } from "~/core/lib/social-meta";
 import { parseMarketDateParam } from "~/features/dashboard/lib/dates";
 import { DashboardMarketDate } from "~/features/dashboard/components/dashboard-market-date";
 import { MarketSnapshotBar } from "~/features/dashboard/components/market-snapshot-bar";
@@ -61,8 +62,11 @@ export const meta: Route.MetaFunction = ({ data }) => {
   return [
     { title },
     { name: "description", content: description },
-    { property: "og:title", content: title },
-    { property: "og:description", content: description },
+    ...socialShareMeta({
+      title,
+      description,
+      url: "/public-dashboard",
+    }),
   ];
 };
 

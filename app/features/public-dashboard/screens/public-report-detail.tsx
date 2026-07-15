@@ -19,6 +19,7 @@ import {
   AccordionTrigger,
 } from "~/core/components/ui/accordion";
 import i18next from "~/core/lib/i18next.server";
+import { socialShareMeta } from "~/core/lib/social-meta";
 import { ItemReportsNavLink } from "~/features/item-reports/components/item-reports-nav-link";
 import {
   ReadingHeader,
@@ -90,6 +91,11 @@ export const meta: Route.MetaFunction = ({ data }) => {
   return [
     { title: `${title} | ${import.meta.env.VITE_APP_NAME}` },
     { name: "description", content: description },
+    ...socialShareMeta({
+      title: `${title} | ${import.meta.env.VITE_APP_NAME}`,
+      description,
+      url: `/public-dashboard/reports/${loaderData.report.id}`,
+    }),
   ];
 };
 
