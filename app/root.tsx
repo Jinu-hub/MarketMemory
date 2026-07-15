@@ -6,7 +6,7 @@
  * - Internationalization (i18n) configuration
  * - Global UI components like dialogs and sheets
  * - Error boundaries and 404 handling
- * - Analytics integrations (Google Tag Manager)
+ * - Analytics integrations (Vercel Analytics, Google Tag Manager)
  * - Customer support integration (Channel.io)
  * - Progress indicators for navigation
  */
@@ -15,6 +15,7 @@ import "./app.css";
 import type { Route } from "./+types/root";
 
 import * as Sentry from "@sentry/react-router";
+import { Analytics } from "@vercel/analytics/react";
 import NProgress from "nprogress";
 import nProgressStyles from "nprogress/nprogress.css?url";
 import { useEffect } from "react";
@@ -207,6 +208,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         <Toaster richColors position="bottom-right" />
         <ScrollRestoration />
         <Scripts />
+        <Analytics route={pathname} path={pathname} />
         {import.meta.env.VITE_GOOGLE_TAG_ID &&
           import.meta.env.VITE_GOOGLE_TAG_ID !== "" && (
             <>
