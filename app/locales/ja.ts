@@ -269,14 +269,14 @@ const ja: Translation = {
     meta: {
       title: "ダッシュボード",
       description:
-        "MARKET DATE基準の市場ブリーフィング、スナップショット、最新レポートを一画面で確認できます。",
+        "MARKET SESSION 基準の市場ブリーフィング、スナップショット、最新レポートを一画面で確認できます。",
     },
     page: {
       eyebrow: "Dashboard",
       title: "最新の市場ブリーフィング",
       subtitle:
-        "MARKET DATEごとに整理した市場メモリ。要約・テーマ・ムードとスナップショットを一画面で見られます。",
-      tradingDay: "MARKET DATE",
+        "直近で完了したグローバル取引日ごとに整理した市場メモリ。要約・テーマ・ムード・スナップショットを一画面で確認できます。",
+      tradingDay: "MARKET SESSION",
       publishedAtLabel: "配信",
       statusLabel: "状態",
       draftNote: "処理中",

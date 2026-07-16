@@ -275,8 +275,8 @@ const en: Translation = {
       eyebrow: "Dashboard",
       title: "Latest market briefing",
       subtitle:
-        "Market memory organized by trading day—summary, themes, mood, and snapshot in one place.",
-      tradingDay: "Market Date",
+        "Market memory organized by latest completed global trading day—summary, themes, mood, and snapshot in one place.",
+      tradingDay: "Market Session",
       publishedAtLabel: "Published",
       statusLabel: "Status",
       draftNote: "In progress",
