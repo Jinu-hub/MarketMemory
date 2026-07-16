@@ -299,6 +299,17 @@ const ja: Translation = {
       "ゲストは最新レポート2件のみ詳細を閲覧できます。ライブラリ全体はログイン後にご利用いただけます。",
     backToDashboard: "ダッシュボードに戻る",
     floatingJoinCta: "Market Memoryを始める",
+    sampleReports: {
+      eyebrow: "Sample Reports",
+      title: "今すぐ読める最新レポート",
+      description:
+        "カードをタップして、実際のリーディング体験を試してみてください。公開ダッシュボードでは、最新レポート2件のみサンプルとして閲覧できます。",
+      badge: "サンプル {{count}}件",
+      ctaHint: "カードをクリック → 詳細へ",
+      limitNotice:
+        "公開ダッシュボードでは、最新レポート2件のみ詳細ページを開けます。ライブラリ全体とより深いインサイトはログイン後にご利用いただけます。",
+      empty: "まだ公開できるサンプルレポートがありません。",
+    },
     roadmap: {
       eyebrow: "Roadmap",
       title: "広がり続けるマーケットメモリ",

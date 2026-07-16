@@ -272,6 +272,15 @@ export type Translation = {
     previewReportsNote: string;
     backToDashboard: string;
     floatingJoinCta: string;
+    sampleReports: {
+      eyebrow: string;
+      title: string;
+      description: string;
+      badge: string;
+      ctaHint: string;
+      limitNotice: string;
+      empty: string;
+    };
     roadmap: {
       eyebrow: string;
       title: string;

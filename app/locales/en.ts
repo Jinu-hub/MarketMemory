@@ -299,6 +299,17 @@ const en: Translation = {
       "Guests can open the 2 most recent reports in detail. Sign in to browse the full library.",
     backToDashboard: "Back to dashboard",
     floatingJoinCta: "Start Market Memory",
+    sampleReports: {
+      eyebrow: "Sample Reports",
+      title: "Try the latest reports right away",
+      description:
+        "Tap a card to preview the reading experience. On the public dashboard, only the 2 newest reports are available as samples.",
+      badge: "{{count}} samples",
+      ctaHint: "Click a card → read",
+      limitNotice:
+        "On the public dashboard, you can open only the 2 newest reports in detail. Sign in for the full library and deeper insights.",
+      empty: "No sample reports are available yet.",
+    },
     roadmap: {
       eyebrow: "Roadmap",
       title: "A market memory that keeps expanding",

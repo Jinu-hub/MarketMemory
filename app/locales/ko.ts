@@ -299,6 +299,17 @@ const ko: Translation = {
       "비회원은 최근 리포트 2건만 상세 내용을 볼 수 있어요. 전체 라이브러리는 로그인 후 이용할 수 있습니다.",
     backToDashboard: "대시보드로 돌아가기",
     floatingJoinCta: "Market Memory 시작하기",
+    sampleReports: {
+      eyebrow: "Sample Reports",
+      title: "지금 바로 읽어보는 최신 리포트",
+      description:
+        "카드를 눌러 실제 리딩 경험을 미리 느껴보세요. 공개 대시보드에서는 가장 최신 리포트 2건만 샘플로 열어볼 수 있어요.",
+      badge: "샘플 {{count}}건",
+      ctaHint: "카드 클릭 → 상세 보기",
+      limitNotice:
+        "공개 대시보드에서는 최신 리포트 2건만 상세 페이지로 들어갈 수 있어요. 전체 라이브러리와 더 많은 인사이트는 로그인 후 이용할 수 있습니다.",
+      empty: "아직 공개할 샘플 리포트가 없어요.",
+    },
     roadmap: {
       eyebrow: "Roadmap",
       title: "계속 확장되는 시장 메모리",

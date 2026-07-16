@@ -305,6 +305,7 @@ export function NavigationBar({
           >
             {t("menu.links.support.items.faq")}
           </Link>
+          {/*
           <Link
             to="/pricing"
             viewTransition
@@ -314,6 +315,7 @@ export function NavigationBar({
           >
             {t("menu.links.product.items.pricing")}
           </Link>
+          */}
           <Link
             to="/contact"
             viewTransition

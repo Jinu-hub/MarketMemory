@@ -7,6 +7,7 @@
  * ever see published content.
  *
  * Differences from `/dashboard`:
+ *  - Opens with a Sample Reports card block (newest 2 preview-allowlisted reports).
  *  - Market Date is fixed to the latest edition (no date picker / navigation).
  *  - "Latest Reports" has no "view all" link; only the newest preview-allowlisted
  *    reports link to `/public-dashboard/reports/:id`.
@@ -27,6 +28,7 @@ import { LatestReportsBlock } from "~/features/dashboard/components/latest-repor
 import type { Route } from "./+types/public-dashboard";
 import { FloatingJoinCta } from "../components/floating-join-cta";
 import { RoadmapBlock } from "../components/roadmap-block";
+import { SampleReportsBlock } from "../components/sample-reports-block";
 import { publicDashboardReportHref } from "../lib/urls";
 import { getPublicDashboardData } from "../queries.server";
 
@@ -95,6 +97,11 @@ export default function PublicDashboard({ loaderData }: Route.ComponentProps) {
           {t("publicDashboard.headerLoginNotice")}
         </span>
       </div>
+
+      <SampleReportsBlock
+        reports={recentReports}
+        previewReportIds={previewReportIds}
+      />
 
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         <div className="min-w-0 flex-1">
