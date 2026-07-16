@@ -13,7 +13,12 @@ const OG_IMAGE_WIDTH = "1200";
 const OG_IMAGE_HEIGHT = "630";
 
 export function getSiteUrl(): string {
-  const fromEnv = process.env.SITE_URL?.trim();
+  // `meta` can re-run in the browser during hydration/navigation. Node's
+  // `process` is unavailable there, so guard before reading SITE_URL.
+  const fromEnv =
+    typeof process !== "undefined"
+      ? process.env.SITE_URL?.trim()
+      : undefined;
   if (fromEnv) return fromEnv.replace(/\/$/, "");
   return DEFAULT_SITE_URL;
 }
