@@ -181,6 +181,7 @@ const en: Translation = {
     en: "English",
     kr: "Korean",
     ja: "Japanese",
+    language: "Change language",
   },
   tooltip: {
     soon: "Coming soon",

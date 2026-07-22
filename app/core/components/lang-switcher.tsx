@@ -5,13 +5,14 @@
  * This component provides internationalization (i18n) support throughout the application.
  *
  * Features:
- * - Visual indication of the current language with country flag emoji
+ * - Neutral languages trigger that matches other nav icon controls
  * - Dropdown menu with language options
  * - Integration with i18next for language switching
  * - Server-side persistence of language preference
  * - Support for multiple languages (English, Korean, Japanese)
  * - Translated language names in the current language
  */
+import { GlobeIcon, LanguagesIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useFetcher } from "react-router";
 
@@ -25,74 +26,71 @@ import {
 
 /**
  * LangSwitcher component for changing the application language
- * 
+ *
  * This component uses i18next and React Router to handle language switching.
- * It displays a dropdown menu with language options, with the current language
- * indicated by the appropriate country flag emoji on the trigger button.
- * 
+ * The trigger always shows a languages icon so it stays visually consistent with
+ * neighboring nav controls (e.g. theme toggle). Locale-specific markers live
+ * in the dropdown only.
+ *
  * When a language is selected, it:
  * 1. Changes the language in the i18n context (client-side)
  * 2. Persists the language preference on the server via an API call
- * 
+ *
  * @returns A dropdown menu component for switching languages
  */
 export default function LangSwitcher() {
-  // Get translation function and i18n instance
   const { t, i18n } = useTranslation();
-  
-  // Get fetcher for making API requests
   const fetcher = useFetcher();
-  
+
   /**
    * Handle language change by updating both client and server state
    * @param locale - The language code to switch to (e.g., 'en', 'ko', 'ja')
    */
   const handleLocaleChange = async (locale: string) => {
-    // Change language in i18n context (client-side)
     i18n.changeLanguage(locale);
-    
-    // Persist language preference on the server
+
     await fetcher.submit(null, {
       method: "POST",
       action: "/api/settings/locale?locale=" + locale,
     });
   };
-  
+
   return (
     <DropdownMenu>
-      {/* Dropdown trigger button with current language flag */}
       <DropdownMenuTrigger
         asChild
         className="cursor-pointer"
-        data-testid="lang-switcher" // For testing purposes
+        data-testid="lang-switcher"
       >
-        <Button variant="ghost" size="icon" className="text-lg">
-          {/* Conditionally render the appropriate flag based on current language */}
-          {i18n.language === "en"
-            ? "🇺🇸" // US flag for English
-            : i18n.language === "ko"
-              ? "🇰🇷" // South Korea flag for Korean
-              : i18n.language === "ja"
-                ? "🇯🇵" // Japan flag for Japanese
-                : null}
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("navigation.language")}
+        >
+          <LanguagesIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
-      
-      {/* Dropdown menu with language options */}
+
       <DropdownMenuContent align="end">
-        {/* Japanese language option */}
         <DropdownMenuItem onClick={() => handleLocaleChange("ja")}>
-          🇯🇵 {t("navigation.ja")} {/* Translated name of Japanese */}
+          <span className="inline-flex w-5 justify-center" aria-hidden>
+            🇯🇵
+          </span>
+          {t("navigation.ja")}
         </DropdownMenuItem>
-        
-        {/* Korean language option */}
+
         <DropdownMenuItem onClick={() => handleLocaleChange("ko")}>
-          🇰🇷 {t("navigation.kr")} {/* Translated name of Korean */}
+          <span className="inline-flex w-5 justify-center" aria-hidden>
+            🇰🇷
+          </span>
+          {t("navigation.kr")}
         </DropdownMenuItem>
-        
-        {/* English language option */}
+
         <DropdownMenuItem onClick={() => handleLocaleChange("en")}>
-          🇺🇸 {t("navigation.en")} {/* Translated name of English */}
+          <span className="inline-flex w-5 justify-center" aria-hidden>
+            <GlobeIcon className="size-4 text-foreground" />
+          </span>
+          {t("navigation.en")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

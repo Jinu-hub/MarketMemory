@@ -164,6 +164,7 @@ export type Translation = {
     en: string;
     kr: string;
     ja: string;
+    language: string;
   };
   tooltip: {
     soon: string;

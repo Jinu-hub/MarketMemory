@@ -181,6 +181,7 @@ const ko: Translation = {
     kr: "한국어",
     ja: "일본어",
     en: "영어",
+    language: "언어 변경",
   },
   tooltip: {
     soon: "추후공개예정",

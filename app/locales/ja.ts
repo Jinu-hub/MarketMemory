@@ -181,6 +181,7 @@ const ja: Translation = {
     en: "英語",
     kr: "韓国語",
     ja: "日本語",
+    language: "言語を変更",
   },
   tooltip: {
     soon: "近日公開",
