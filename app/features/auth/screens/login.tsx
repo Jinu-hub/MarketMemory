@@ -9,7 +9,7 @@
 import type { Route } from "./+types/login";
 
 import { AlertCircle, Loader2Icon } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Form, Link, data, redirect, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -30,6 +30,12 @@ import {
 } from "~/core/components/ui/card";
 import { Input } from "~/core/components/ui/input";
 import { Label } from "~/core/components/ui/label";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/core/components/ui/tabs";
 import i18next from "~/core/lib/i18next.server";
 import {
   appendLocaleCookie,
@@ -39,6 +45,8 @@ import makeServerClient from "~/core/lib/supa-client.server";
 
 import FormErrors from "../../../core/components/form-error";
 import { SignInButtons } from "../components/auth-login-buttons";
+
+type AuthTab = "social" | "email";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const t = await i18next.getFixedT(request);
@@ -103,10 +111,28 @@ export async function action({ request }: Route.ActionArgs) {
   return redirect("/dashboard", { headers: redirectHeaders });
 }
 
+function shouldOpenEmailTab(actionData: Route.ComponentProps["actionData"]) {
+  if (!actionData) return false;
+  return (
+    "fieldErrors" in actionData ||
+    "error" in actionData ||
+    "errorCode" in actionData
+  );
+}
+
 export default function Login({ actionData }: Route.ComponentProps) {
   const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement>(null);
   const fetcher = useFetcher();
+  const [tab, setTab] = useState<AuthTab>(
+    shouldOpenEmailTab(actionData) ? "email" : "social",
+  );
+
+  useEffect(() => {
+    if (shouldOpenEmailTab(actionData)) {
+      setTab("email");
+    }
+  }, [actionData]);
 
   const onResendClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -130,93 +156,111 @@ export default function Login({ actionData }: Route.ComponentProps) {
             {t("login.description")}
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
-          <Form
-            className="flex w-full flex-col gap-5"
-            method="post"
-            ref={formRef}
+        <CardContent>
+          <Tabs
+            value={tab}
+            onValueChange={(value) => setTab(value as AuthTab)}
+            className="gap-4"
           >
-            <div className="flex flex-col items-start space-y-2">
-              <Label
-                htmlFor="email"
-                className="flex flex-col items-start gap-1"
-              >
-                {t("common.labels.email")}
-              </Label>
-              <Input
-                id="email"
-                name="email"
-                required
-                type="email"
-                placeholder={t("login.emailPlaceholder")}
-              />
-              {actionData &&
-              "fieldErrors" in actionData &&
-              actionData.fieldErrors.email ? (
-                <FormErrors errors={actionData.fieldErrors.email} />
-              ) : null}
-            </div>
-            <div className="flex flex-col items-start space-y-2">
-              <div className="flex w-full items-center justify-between">
-                <Label
-                  htmlFor="password"
-                  className="flex flex-col items-start gap-1"
-                >
-                  {t("common.labels.password")}
-                </Label>
-                <Link
-                  to="/auth/forgot-password/reset"
-                  className="text-muted-foreground text-underline hover:text-foreground self-end text-sm underline transition-colors"
-                  tabIndex={-1}
-                  viewTransition
-                >
-                  {t("auth.forgotPassword")}
-                </Link>
-              </div>
-              <Input
-                id="password"
-                name="password"
-                required
-                type="password"
-                placeholder={t("login.passwordPlaceholder")}
-              />
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="social">{t("login.tabSocial")}</TabsTrigger>
+              <TabsTrigger value="email" data-testid="auth-email-tab">
+                {t("auth.tabs.email")}
+              </TabsTrigger>
+            </TabsList>
 
-              {actionData &&
-              "fieldErrors" in actionData &&
-              actionData.fieldErrors.password ? (
-                <FormErrors errors={actionData.fieldErrors.password} />
-              ) : null}
-            </div>
-            <FormButton label={t("login.loginButton")} className="w-full" />
-            {actionData && "errorCode" in actionData ? (
-              actionData.errorCode === "email_not_confirmed" ? (
-                <Alert variant="destructive" className="bg-destructive/10">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>{t("auth.emailNotConfirmedTitle")}</AlertTitle>
-                  <AlertDescription className="flex flex-col items-start gap-2">
-                    {t("auth.emailNotConfirmedDesc")}
-                    <Button
-                      variant="outline"
-                      className="text-foreground flex items-center justify-between gap-2"
-                      onClick={onResendClick}
+            <TabsContent value="social" className="mt-0">
+              <SignInButtons />
+            </TabsContent>
+
+            <TabsContent value="email" className="mt-0">
+              <Form
+                className="flex w-full flex-col gap-5"
+                method="post"
+                ref={formRef}
+              >
+                <div className="flex flex-col items-start space-y-2">
+                  <Label
+                    htmlFor="email"
+                    className="flex flex-col items-start gap-1"
+                  >
+                    {t("common.labels.email")}
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    required
+                    type="email"
+                    placeholder={t("login.emailPlaceholder")}
+                  />
+                  {actionData &&
+                  "fieldErrors" in actionData &&
+                  actionData.fieldErrors.email ? (
+                    <FormErrors errors={actionData.fieldErrors.email} />
+                  ) : null}
+                </div>
+                <div className="flex flex-col items-start space-y-2">
+                  <div className="flex w-full items-center justify-between">
+                    <Label
+                      htmlFor="password"
+                      className="flex flex-col items-start gap-1"
                     >
-                      {t("auth.resendConfirmation")}
-                      {fetcher.state === "submitting" ? (
-                        <Loader2Icon
-                          data-testid="resend-confirmation-email-spinner"
-                          className="size-4 animate-spin"
-                        />
-                      ) : null}
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              ) : null
-            ) : null}
-            {actionData && "error" in actionData ? (
-              <FormErrors errors={[actionData.error]} />
-            ) : null}
-          </Form>
-          <SignInButtons />
+                      {t("common.labels.password")}
+                    </Label>
+                    <Link
+                      to="/auth/forgot-password/reset"
+                      className="text-muted-foreground text-underline hover:text-foreground self-end text-sm underline transition-colors"
+                      tabIndex={-1}
+                      viewTransition
+                    >
+                      {t("auth.forgotPassword")}
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    name="password"
+                    required
+                    type="password"
+                    placeholder={t("login.passwordPlaceholder")}
+                  />
+
+                  {actionData &&
+                  "fieldErrors" in actionData &&
+                  actionData.fieldErrors.password ? (
+                    <FormErrors errors={actionData.fieldErrors.password} />
+                  ) : null}
+                </div>
+                <FormButton label={t("login.loginButton")} className="w-full" />
+                {actionData && "errorCode" in actionData ? (
+                  actionData.errorCode === "email_not_confirmed" ? (
+                    <Alert variant="destructive" className="bg-destructive/10">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>{t("auth.emailNotConfirmedTitle")}</AlertTitle>
+                      <AlertDescription className="flex flex-col items-start gap-2">
+                        {t("auth.emailNotConfirmedDesc")}
+                        <Button
+                          variant="outline"
+                          className="text-foreground flex items-center justify-between gap-2"
+                          onClick={onResendClick}
+                        >
+                          {t("auth.resendConfirmation")}
+                          {fetcher.state === "submitting" ? (
+                            <Loader2Icon
+                              data-testid="resend-confirmation-email-spinner"
+                              className="size-4 animate-spin"
+                            />
+                          ) : null}
+                        </Button>
+                      </AlertDescription>
+                    </Alert>
+                  ) : null
+                ) : null}
+                {actionData && "error" in actionData ? (
+                  <FormErrors errors={[actionData.error]} />
+                ) : null}
+              </Form>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
       <div className="flex flex-col items-center justify-center text-sm">

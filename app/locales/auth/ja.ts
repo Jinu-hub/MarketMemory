@@ -42,13 +42,17 @@ const authJa = {
     social: {
       loginFailedTitle: "ログインに失敗しました",
     },
+    tabs: {
+      email: "メール",
+    },
   },
   login: {
     meta: {
       title: "ログイン",
     },
     title: "アカウントにログイン",
-    description: "情報を入力してください",
+    description: "ログイン方法を選択してください",
+    tabSocial: "かんたんログイン",
     emailPlaceholder: "例: nico@supaplate.com",
     passwordPlaceholder: "パスワードを入力",
     loginButton: "ログイン",
@@ -58,7 +62,8 @@ const authJa = {
       title: "アカウント作成",
     },
     title: "アカウント作成",
-    description: "アカウント作成のため情報を入力してください",
+    description: "登録方法を選択してください",
+    tabSocial: "かんたん登録",
     namePlaceholder: "Nico",
     emailPlaceholder: "nico@supaplate.com",
     passwordPlaceholder: "パスワードを入力",

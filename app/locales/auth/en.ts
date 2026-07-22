@@ -42,13 +42,17 @@ const authEn = {
     social: {
       loginFailedTitle: "Login failed",
     },
+    tabs: {
+      email: "Email",
+    },
   },
   login: {
     meta: {
       title: "Log in",
     },
     title: "Sign into your account",
-    description: "Please enter your details",
+    description: "Choose how you'd like to sign in",
+    tabSocial: "Quick sign-in",
     emailPlaceholder: "i.e nico@supaplate.com",
     passwordPlaceholder: "Enter your password",
     loginButton: "Log in",
@@ -58,7 +62,8 @@ const authEn = {
       title: "Create an account",
     },
     title: "Create an account",
-    description: "Enter your details to create an account",
+    description: "Choose how you'd like to create an account",
+    tabSocial: "Quick sign-up",
     namePlaceholder: "Nico",
     emailPlaceholder: "nico@supaplate.com",
     passwordPlaceholder: "Enter your password",

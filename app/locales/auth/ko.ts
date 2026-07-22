@@ -42,13 +42,17 @@ const authKo = {
     social: {
       loginFailedTitle: "로그인에 실패했습니다",
     },
+    tabs: {
+      email: "이메일",
+    },
   },
   login: {
     meta: {
       title: "로그인",
     },
     title: "계정에 로그인",
-    description: "정보를 입력해 주세요",
+    description: "로그인 방법을 선택해 주세요",
+    tabSocial: "간편 로그인",
     emailPlaceholder: "예: nico@supaplate.com",
     passwordPlaceholder: "비밀번호를 입력하세요",
     loginButton: "로그인",
@@ -58,7 +62,8 @@ const authKo = {
       title: "회원가입",
     },
     title: "계정 만들기",
-    description: "계정 생성을 위해 정보를 입력해 주세요",
+    description: "가입 방법을 선택해 주세요",
+    tabSocial: "간편 회원가입",
     namePlaceholder: "Nico",
     emailPlaceholder: "nico@supaplate.com",
     passwordPlaceholder: "비밀번호를 입력하세요",

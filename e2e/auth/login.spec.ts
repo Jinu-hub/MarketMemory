@@ -18,6 +18,7 @@ import {
   confirmUser,
   deleteUser,
   loginUser,
+  openEmailAuthTab,
   registerUser,
   TEST_PASSWORD,
 } from "e2e/utils/test-helpers";
@@ -58,6 +59,7 @@ test.describe("User Login UI", () => {
    */
   test("should display login form", async ({ page }) => {
     await expect(page.getByText("Sign into your account")).toBeVisible();
+    await openEmailAuthTab(page);
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
   });
@@ -67,12 +69,12 @@ test.describe("User Login UI", () => {
    * 
    * This ensures that users have multiple authentication options beyond
    * the traditional email/password approach, including:
-   * - Social logins (GitHub, Kakao)
+   * - Social logins (Google, Apple)
    * - Passwordless options (OTP, Magic Link)
    */
   test("should show alternative login methods", async ({ page }) => {
-    await expect(page.getByText("Continue with GitHub")).toBeVisible();
-    await expect(page.getByText("Continue with Kakao")).toBeVisible();
+    await expect(page.getByText("Continue with Google")).toBeVisible();
+    await expect(page.getByText("Continue with Apple")).toBeVisible();
     await expect(page.getByText("Continue with OTP")).toBeVisible();
     await expect(page.getByText("Continue with Magic Link")).toBeVisible();
   });
@@ -84,6 +86,7 @@ test.describe("User Login UI", () => {
    * if they've forgotten their password, improving the user experience
    */
   test("should have a link to forgot password page", async ({ page }) => {
+    await openEmailAuthTab(page);
     const link = page.getByText("Forgot your password?", { exact: true });
     await expect(link).toBeVisible();
     await link.click();
@@ -111,6 +114,7 @@ test.describe("User Login UI", () => {
    * and verifies that the appropriate validation error appears
    */
   test("should show error for short password", async ({ page }) => {
+    await openEmailAuthTab(page);
     await page.locator("#email").fill("john.doe@example.com");
     await page.locator("#password").fill("short"); // Too short password
     await page.getByRole("button", { name: "Log in" }).click();
@@ -130,6 +134,7 @@ test.describe("User Login UI", () => {
   test("should show error when submitting with empty fields", async ({
     page,
   }) => {
+    await openEmailAuthTab(page);
     await page.getByRole("button", { name: "Log in" }).click();
     await checkInvalidField(page, "email");
     await checkInvalidField(page, "password");
@@ -144,6 +149,7 @@ test.describe("User Login UI", () => {
    * Note: This test uses a deliberately non-existent email address
    */
   test("should show error for invalid credentials", async ({ page }) => {
+    await openEmailAuthTab(page);
     await page
       .locator("#email")
       .fill("thisuserdoesnotexist@seriouslyimsure.com"); // Non-existent email
@@ -213,6 +219,7 @@ test.describe.serial("User Login Flow", () => {
      * that the appropriate alert message is displayed
      */
     await test.step("should show email confirmation alert when email is unverified", async () => {
+      await openEmailAuthTab(page);
       await page.locator("#email").fill(TEST_EMAIL);
       await page.locator("#password").fill(TEST_PASSWORD);
       await page.getByRole("button", { name: "Log in" }).click();

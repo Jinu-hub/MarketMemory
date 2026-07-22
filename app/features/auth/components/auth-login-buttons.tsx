@@ -98,19 +98,7 @@ function AppleComingSoonButton() {
   );
 }
 
-function Divider() {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex items-center gap-4">
-      <span className="bg-input h-px w-full"></span>
-      <span className="text-muted-foreground text-xs">{t("auth.or")}</span>
-      <span className="bg-input h-px w-full"></span>
-    </div>
-  );
-}
-
-function _SignInButtons() {
+function PasswordlessLoginButtons() {
   const { t } = useTranslation();
 
   return (
@@ -167,19 +155,17 @@ function SocialLoginButtons({
 
 export function SignInButtons() {
   return (
-    <>
-      <Divider />
+    <div className="grid gap-3">
       <SocialLoginButtons intent="sign-in" />
-      <_SignInButtons />
-    </>
+      <PasswordlessLoginButtons />
+    </div>
   );
 }
 
 export function SignUpButtons({ disabled = false }: { disabled?: boolean }) {
   return (
-    <>
-      <Divider />
+    <div className="grid gap-3">
       <SocialLoginButtons disabled={disabled} intent="sign-up" />
-    </>
+    </div>
   );
 }

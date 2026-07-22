@@ -22,6 +22,7 @@ import {
   checkInvalidField,
   confirmUser,
   deleteUser,
+  openEmailAuthTab,
   registerUser,
   TEST_PASSWORD,
 } from "../utils/test-helpers";
@@ -70,6 +71,7 @@ test.describe("User Registration UI", () => {
     await expect(
       page.getByText("Create an account", { exact: true }),
     ).toBeVisible();
+    await openEmailAuthTab(page);
     await expect(page.locator("#name")).toBeVisible();
     await expect(page.locator("#email")).toBeVisible();
     await expect(page.locator("#password")).toBeVisible();
@@ -92,8 +94,8 @@ test.describe("User Registration UI", () => {
    * beyond the traditional email/password approach
    */
   test("should show alternative login methods", async ({ page }) => {
-    await expect(page.getByText("Continue with GitHub")).toBeVisible();
-    await expect(page.getByText("Continue with Kakao")).toBeVisible();
+    await expect(page.getByText("Continue with Google")).toBeVisible();
+    await expect(page.getByText("Continue with Apple")).toBeVisible();
   });
 
   /**
@@ -117,6 +119,7 @@ test.describe("User Registration UI", () => {
    * which is important for legal compliance and transparency
    */
   test("should have a link to terms of service page", async ({ page }) => {
+    await openEmailAuthTab(page);
     await page
       .locator("form")
       .getByRole("link", { name: "Terms of Service" })
@@ -131,6 +134,7 @@ test.describe("User Registration UI", () => {
    * which is important for legal compliance and transparency
    */
   test("should have a link to privacy policy page", async ({ page }) => {
+    await openEmailAuthTab(page);
     await page
       .locator("form")
       .getByRole("link", { name: "Privacy Policy" })
@@ -147,6 +151,7 @@ test.describe("User Registration UI", () => {
   test("should show validation error when any field is empty", async ({
     page,
   }) => {
+    await openEmailAuthTab(page);
     await page.getByRole("button", { name: "Create account" }).click();
     await checkInvalidField(page, "name");
     await checkInvalidField(page, "email");
@@ -161,6 +166,7 @@ test.describe("User Registration UI", () => {
    * and verifies that the appropriate validation error appears
    */
   test("should show error for invalid email format", async ({ page }) => {
+    await openEmailAuthTab(page);
     await page.locator("#name").fill("John Doe");
     await page.locator("#email").fill("invalid@email"); // Invalid email format
     await page.locator("#password").fill(TEST_PASSWORD);
@@ -178,6 +184,7 @@ test.describe("User Registration UI", () => {
    * and verifies that the appropriate validation error appears
    */
   test("should show error when passwords do not match", async ({ page }) => {
+    await openEmailAuthTab(page);
     await page.locator("#name").fill("John Doe");
     await page.locator("#email").fill("john.doe@example.com");
     await page.locator("#password").fill(TEST_PASSWORD);
@@ -198,6 +205,7 @@ test.describe("User Registration UI", () => {
   test("should show error when passwords are less than 12 characters", async ({
     page,
   }) => {
+    await openEmailAuthTab(page);
     await page.locator("#name").fill("John Doe");
     await page.locator("#email").fill("john.doe@example.com");
     await page.locator("#password").fill("short"); // Too short password
@@ -269,6 +277,7 @@ test.describe.serial("User Registration Flow", () => {
   test("should show error if account with email already exists", async ({
     page,
   }) => {
+    await openEmailAuthTab(page);
     await page.locator("#name").fill("Test User");
     await page.locator("#email").fill(EXISTING_EMAIL!); // Email that already exists
     await page.locator("#password").fill(TEST_PASSWORD);
@@ -293,6 +302,7 @@ test.describe.serial("User Registration Flow", () => {
   test("should reset the form after successful submission", async ({
     page,
   }) => {
+    await openEmailAuthTab(page);
     await page.locator("#name").fill("Test User");
     await page.locator("#email").fill(UNCONFIRMED_EMAIL!); // New email for registration
     await page.locator("#password").fill(TEST_PASSWORD);

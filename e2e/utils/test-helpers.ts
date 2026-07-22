@@ -58,6 +58,16 @@ export async function checkInvalidField(page: Page, fieldId: string) {
 export async function createTestUser(page: Page) {}
 
 /**
+ * Open the email/password auth tab on login or join screens.
+ *
+ * Social / passwordless methods are the default tab, so email form fields
+ * are hidden until this tab is selected.
+ */
+export async function openEmailAuthTab(page: Page) {
+  await page.getByTestId("auth-email-tab").click();
+}
+
+/**
  * Log in a user with email and password
  * 
  * This function navigates to the login page, fills in the credentials,
@@ -73,6 +83,7 @@ export async function createTestUser(page: Page) {}
 export async function loginUser(page: Page, email: string, password: string) {
   // Navigate to the login page
   await page.goto("/login");
+  await openEmailAuthTab(page);
   // Fill in the email and password fields
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(password);
@@ -102,6 +113,7 @@ export async function registerUser(
 ) {
   // Navigate to the registration page
   await page.goto("/join");
+  await openEmailAuthTab(page);
   // Fill in the registration form
   await page.locator("#name").fill(email.split("@")[0]); // Use part before @ as name
   await page.locator("#email").fill(email);
