@@ -1,7 +1,7 @@
 import type { CollectionRunRow, FounderOsDb, ObservationRow } from "../lib/db";
 
 export const RECENT_RUNS_LIMIT = 10;
-export const RECENT_OBSERVATIONS_LIMIT = 20;
+export const RUN_OBSERVATIONS_LIMIT = 200;
 
 const RUN_COLUMNS =
   "id, source, keywords, content_type, sort_mode, time_range, requested_limit, status, fetched_count, post_fetched_count, comment_fetched_count, matched_count, filtered_by_date_count, inserted_count, duplicate_count, failed_count, title_only_count, substantive_body_count, high_priority_count, keyword_stats, content_type_stats, observation_strategy, error_message, started_at, finished_at, duration_ms, created_at";
@@ -48,13 +48,15 @@ export async function listRecentCollectionRuns(
     .limit(limit);
 }
 
-export async function listRecentObservations(
+export async function listObservationsByRun(
   client: FounderOsDb,
-  limit = RECENT_OBSERVATIONS_LIMIT,
+  runId: string,
+  limit = RUN_OBSERVATIONS_LIMIT,
 ) {
   return client
     .from("observations")
     .select(OBSERVATION_COLUMNS)
+    .eq("collection_run_id", runId)
     .order("created_at", { ascending: false })
     .limit(limit);
 }

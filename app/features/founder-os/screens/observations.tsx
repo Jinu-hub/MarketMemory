@@ -9,7 +9,13 @@ import type { Route } from "./+types/observations";
 
 import { ArrowLeftIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, data, useFetcher, useRevalidator } from "react-router";
+import {
+  Link,
+  data,
+  useFetcher,
+  useRevalidator,
+  useSearchParams,
+} from "react-router";
 
 import { NexButton } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
@@ -21,8 +27,7 @@ import {
   AdminSection,
 } from "~/features/admin/components/admin-ui";
 
-import { CollectionResultSummary } from "../components/collection-result-summary";
-import { CollectionRunTable } from "../components/collection-run-table";
+import { CollectionRunSelector } from "../components/collection-run-selector";
 import { ObservationCollectorForm } from "../components/observation-collector-form";
 import { ObservationTable } from "../components/observation-table";
 import { parseKeywordsInput } from "../domain/match-keywords";
@@ -42,8 +47,8 @@ import {
   touchCollectionPreset,
 } from "../server/presets.server";
 import {
+  listObservationsByRun,
   listRecentCollectionRuns,
-  listRecentObservations,
 } from "../server/queries.server";
 import { runCollection } from "../server/run-collection.server";
 import { SourceNotImplementedError } from "../sources/source-adapter";
@@ -56,6 +61,7 @@ type LoaderData = {
   runs: RecentCollectionRun[];
   observations: RecentObservation[];
   presets: CollectionPresetRow[];
+  selectedRunId: string | null;
   loadError: string | null;
 };
 
@@ -115,11 +121,18 @@ export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   await requireAdmin(client);
 
-  const [runs, observations, presets] = await Promise.all([
+  const [runs, presets] = await Promise.all([
     listRecentCollectionRuns(client),
-    listRecentObservations(client),
     listCollectionPresets(client),
   ]);
+
+  const runRows = (runs.data ?? []) as RecentCollectionRun[];
+  const requestedRunId = new URL(request.url).searchParams.get("runId");
+  const selectedRun =
+    runRows.find((run) => run.id === requestedRunId) ?? runRows[0] ?? null;
+  const observations = selectedRun
+    ? await listObservationsByRun(client, selectedRun.id)
+    : { data: [] as RecentObservation[], error: null };
 
   const loadError =
     runs.error?.message ??
@@ -131,9 +144,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const payload: LoaderData = {
-    runs: (runs.data ?? []) as RecentCollectionRun[],
+    runs: runRows,
     observations: (observations.data ?? []) as RecentObservation[],
     presets: (presets.data ?? []) as CollectionPresetRow[],
+    selectedRunId: selectedRun?.id ?? null,
     loadError,
   };
   return payload;
@@ -280,9 +294,11 @@ export async function action({ request }: Route.ActionArgs) {
 export default function FounderOsObservationsScreen({
   loaderData,
 }: Route.ComponentProps) {
-  const { runs, observations, presets, loadError } = loaderData as LoaderData;
+  const { runs, observations, presets, selectedRunId, loadError } =
+    loaderData as LoaderData;
   const fetcher = useFetcher<ActionPayload>();
   const revalidator = useRevalidator();
+  const [, setSearchParams] = useSearchParams();
   const busy =
     fetcher.state !== "idle" &&
     (fetcher.formData?.get("_intent") === "collect" ||
@@ -312,8 +328,14 @@ export default function FounderOsObservationsScreen({
     if (payload.kind === "save_preset" || payload.kind === "delete_preset") {
       setStatusMessage(payload.message);
       revalidator.revalidate();
+      return;
     }
-  }, [payload, revalidator]);
+    if (payload.kind === "collect") {
+      setStatusMessage("수집을 완료했습니다. 최신 실행을 표시합니다.");
+      setSearchParams({}, { replace: true });
+      revalidator.revalidate();
+    }
+  }, [payload, revalidator, setSearchParams]);
 
   function loadFromRun(run: RecentCollectionRun) {
     setInitialValues(
@@ -331,9 +353,13 @@ export default function FounderOsObservationsScreen({
     setStatusMessage("실행 이력을 폼에 불러왔습니다.");
   }
 
-  const collectSummary =
-    payload && payload.ok && payload.kind === "collect" ? payload.summary : null;
   const actionError = payload && !payload.ok ? payload.message : null;
+  const selectedRun =
+    runs.find((run) => run.id === selectedRunId) ?? runs[0] ?? null;
+
+  function selectRun(runId: string) {
+    setSearchParams({ runId });
+  }
 
   return (
     <>
@@ -372,7 +398,7 @@ export default function FounderOsObservationsScreen({
 
         <AdminSection
           title="실행 결과"
-          description="가장 최근 실행의 처리 결과입니다."
+          description="기본으로 최신 실행을 표시합니다. 이전 실행을 선택하면 해당 실행의 조건과 수집 데이터로 전환됩니다."
         >
           {busy ? (
             <AdminPanel padding="lg">
@@ -383,28 +409,19 @@ export default function FounderOsObservationsScreen({
             </AdminPanel>
           ) : actionError ? (
             <AdminErrorAlert message={actionError} context="수집 실행" />
-          ) : collectSummary ? (
-            <CollectionResultSummary summary={collectSummary} />
           ) : (
-            <AdminPanel padding="lg">
-              <p className="text-muted-foreground text-sm">
-                아직 실행 결과가 없습니다. 위에서 조건을 입력하고 수집을 실행해
-                주세요.
-              </p>
-            </AdminPanel>
+            <CollectionRunSelector
+              runs={runs}
+              selectedRun={selectedRun}
+              onSelect={selectRun}
+              onLoadConditions={loadFromRun}
+            />
           )}
         </AdminSection>
 
         <AdminSection
-          title="최근 실행 이력"
-          description="최근 수집 실행 기록입니다. 「불러오기」로 그때의 조건을 폼에 다시 채울 수 있습니다."
-        >
-          <CollectionRunTable runs={runs} onLoadRun={loadFromRun} />
-        </AdminSection>
-
-        <AdminSection
-          title="최근 수집 데이터"
-          description="가장 최근에 저장된 관찰 데이터입니다. 원문 링크로 출처를 바로 확인할 수 있습니다."
+          title="선택한 실행의 수집 데이터"
+          description="위에서 선택한 실행에 의해 신규 저장된 관찰 데이터만 표시합니다."
         >
           <ObservationTable observations={observations} />
         </AdminSection>

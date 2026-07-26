@@ -81,8 +81,12 @@ function resolveHeadline(observation: RecentObservation) {
 
 export function ObservationTable({
   observations,
+  emptyTitle = "선택한 실행에서 신규 저장된 데이터가 없습니다.",
+  emptyHint = "모두 기존 데이터와 중복되었거나 키워드에 매칭된 결과가 없을 수 있습니다.",
 }: {
   observations: RecentObservation[];
+  emptyTitle?: string;
+  emptyHint?: string;
 }) {
   const [filter, setFilter] = useState<FilterKey>("all");
 
@@ -95,8 +99,8 @@ export function ObservationTable({
     return (
       <AdminPanel padding="none">
         <AdminEmptyState
-          title="아직 저장된 관찰 데이터가 없습니다."
-          hint="수집을 실행하면 키워드와 매칭된 게시물·댓글이 여기에 쌓입니다."
+          title={emptyTitle}
+          hint={emptyHint}
         />
       </AdminPanel>
     );
