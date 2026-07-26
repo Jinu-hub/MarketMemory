@@ -32,6 +32,51 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_presets: {
+        Row: {
+          content_type: string
+          created_at: string
+          id: string
+          keywords: string[]
+          last_used_at: string | null
+          name: string
+          observation_strategy: Json | null
+          requested_limit: number
+          sort_mode: string
+          source: Database["public"]["Enums"]["observation_source"]
+          time_range: string
+          updated_at: string
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          keywords?: string[]
+          last_used_at?: string | null
+          name: string
+          observation_strategy?: Json | null
+          requested_limit?: number
+          sort_mode?: string
+          source: Database["public"]["Enums"]["observation_source"]
+          time_range?: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          keywords?: string[]
+          last_used_at?: string | null
+          name?: string
+          observation_strategy?: Json | null
+          requested_limit?: number
+          sort_mode?: string
+          source?: Database["public"]["Enums"]["observation_source"]
+          time_range?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       collection_runs: {
         Row: {
           comment_fetched_count: number

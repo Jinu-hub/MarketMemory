@@ -210,3 +210,58 @@ export const observations = pgTable(
     }),
   ],
 );
+
+/* =========================================================
+   3) collection_presets (저장한 수집 조건)
+   ========================================================= */
+export const collectionPresets = pgTable(
+  "collection_presets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    source: observationSource("source").notNull(),
+    keywords: text("keywords").array().notNull().default([]),
+    content_type: text("content_type").notNull().default("all"),
+    sort_mode: text("sort_mode").notNull().default("relevance"),
+    time_range: text("time_range").notNull().default("all"),
+    requested_limit: integer("requested_limit").notNull().default(50),
+    /**
+     * 관찰 대상·문제 신호 스냅샷.
+     * 예: { domains: [{ id, label }], signals: [{ id, label }] }
+     */
+    observation_strategy: jsonb("observation_strategy"),
+    last_used_at: timestamp("last_used_at", { withTimezone: true }),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_collection_presets_updated_at").on(table.updated_at),
+    index("idx_collection_presets_last_used_at").on(table.last_used_at),
+
+    pgPolicy("cp_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+    pgPolicy("cp_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("cp_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("cp_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);

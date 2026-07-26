@@ -53,7 +53,13 @@ function readStrategy(
   return { domains, signals };
 }
 
-export function CollectionRunTable({ runs }: { runs: RecentCollectionRun[] }) {
+export function CollectionRunTable({
+  runs,
+  onLoadRun,
+}: {
+  runs: RecentCollectionRun[];
+  onLoadRun?: (run: RecentCollectionRun) => void;
+}) {
   if (runs.length === 0) {
     return (
       <AdminTableShell>
@@ -85,6 +91,9 @@ export function CollectionRunTable({ runs }: { runs: RecentCollectionRun[] }) {
             <TableHead className={cn(adminThClass, "text-right")}>
               실행 시간
             </TableHead>
+            {onLoadRun ? (
+              <TableHead className={adminThClass}>조건</TableHead>
+            ) : null}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -177,6 +186,18 @@ export function CollectionRunTable({ runs }: { runs: RecentCollectionRun[] }) {
               >
                 {formatDuration(run.duration_ms)}
               </TableCell>
+              {onLoadRun ? (
+                <TableCell className={adminTdClass}>
+                  <button
+                    type="button"
+                    onClick={() => onLoadRun(run)}
+                    className="text-foreground hover:bg-muted rounded-md border border-border px-2 py-1 text-xs font-medium"
+                    aria-label="이 실행 조건을 폼에 불러오기"
+                  >
+                    불러오기
+                  </button>
+                </TableCell>
+              ) : null}
             </TableRow>
           ))}
         </TableBody>

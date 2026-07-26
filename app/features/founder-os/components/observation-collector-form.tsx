@@ -2,9 +2,11 @@ import type { ComponentType, FormEvent, KeyboardEvent, ReactNode } from "react";
 
 import {
   AlertTriangleIcon,
+  BookmarkIcon,
   ChevronDownIcon,
   PlusIcon,
   TelescopeIcon,
+  Trash2Icon,
   XIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -17,9 +19,12 @@ import {
   normalizeKeywords,
   parseKeywordsInput,
 } from "../domain/match-keywords";
+import type { CollectFormValues } from "../lib/collect-form-values";
+import {
+  DEFAULT_COLLECT_FORM_VALUES,
+} from "../lib/collect-form-values";
 import {
   CONTENT_TYPE_OPTIONS,
-  DEFAULT_COLLECT_LIMIT,
   MAX_COLLECT_LIMIT,
   MAX_KEYWORDS,
   MIN_COLLECT_LIMIT,
@@ -29,12 +34,17 @@ import {
   TIME_RANGE_OPTIONS,
   findSourceOption,
 } from "../lib/collect-request";
+import type { ObservationSource } from "../domain/observation.types";
+import {
+  OBSERVATION_SOURCES,
+} from "../domain/observation.types";
 import {
   OBSERVATION_DOMAINS,
   PROBLEM_SIGNALS,
   buildSearchCandidates,
   findObservationDomain,
 } from "../lib/observation-strategy";
+import type { CollectionPresetRow } from "../server/presets.server";
 
 type FormComponent = ComponentType<{
   method?: "post";
@@ -46,6 +56,12 @@ type FormComponent = ComponentType<{
 const KEYWORDS_PLACEHOLDER = "직접 입력 후 Enter 또는 추가";
 
 const fieldLabelClass = "text-foreground text-sm font-medium";
+
+function asSource(value: string): ObservationSource {
+  return OBSERVATION_SOURCES.includes(value as ObservationSource)
+    ? (value as ObservationSource)
+    : "hacker_news";
+}
 
 function keywordKey(value: string) {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
@@ -123,21 +139,39 @@ function CandidateChip({
 export function ObservationCollectorForm({
   Form,
   busy,
+  presets,
+  initialValues = DEFAULT_COLLECT_FORM_VALUES,
+  presetBusy = false,
 }: {
   Form: FormComponent;
   busy: boolean;
+  presets: CollectionPresetRow[];
+  initialValues?: CollectFormValues;
+  presetBusy?: boolean;
 }) {
-  const [source, setSource] = useState<string>(SOURCE_OPTIONS[0].value);
-  const [domainIds, setDomainIds] = useState<string[]>([]);
-  const [signalIds, setSignalIds] = useState<string[]>([]);
+  const [source, setSource] = useState(initialValues.source);
+  const [domainIds, setDomainIds] = useState(initialValues.domainIds);
+  const [signalIds, setSignalIds] = useState(initialValues.signalIds);
   const [draft, setDraft] = useState("");
-  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const [selectedKeywords, setSelectedKeywords] = useState(
+    initialValues.keywords,
+  );
+  const [limit, setLimit] = useState(String(initialValues.limit));
+  const [sortMode, setSortMode] = useState(initialValues.sortMode);
+  const [timeRange, setTimeRange] = useState(initialValues.timeRange);
+  const [contentType, setContentType] = useState(initialValues.contentType);
   const [topicOpen, setTopicOpen] = useState(true);
+  const [presetName, setPresetName] = useState("");
 
   const selectedSource = findSourceOption(source);
   const sourceReady = selectedSource?.implemented ?? false;
   const atKeywordLimit = selectedKeywords.length >= MAX_KEYWORDS;
   const canSubmit = sourceReady && selectedKeywords.length > 0 && !busy;
+  const canSavePreset =
+    selectedKeywords.length > 0 &&
+    presetName.trim().length > 0 &&
+    !busy &&
+    !presetBusy;
   const selectedKeys = new Set(selectedKeywords.map(keywordKey));
 
   const searchCandidates = useMemo(
@@ -197,20 +231,96 @@ export function ObservationCollectorForm({
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    if (!canSubmit) {
+    const submitter = (event.nativeEvent as SubmitEvent)
+      .submitter as HTMLButtonElement | null;
+    const intent = submitter?.getAttribute("value") ?? "collect";
+    if (intent === "collect" && !canSubmit) {
       event.preventDefault();
+      return;
     }
+    if (intent === "save_preset" && !canSavePreset) {
+      event.preventDefault();
+      return;
+    }
+    // load/delete 는 키워드 검증 없이 통과
   }
 
   return (
     <Form method="post" className="space-y-5" onSubmit={handleSubmit}>
-      <input
-        type="hidden"
-        name="keywords"
-        value={selectedKeywords.join(", ")}
-      />
+      <input type="hidden" name="keywords" value={selectedKeywords.join(", ")} />
       <input type="hidden" name="domainIds" value={domainIds.join(",")} />
       <input type="hidden" name="signalIds" value={signalIds.join(",")} />
+
+      {/* 저장된 조건 */}
+      <div className="border-border space-y-2 rounded-lg border p-3">
+        <div className="flex items-center justify-between gap-2">
+          <p className={fieldLabelClass}>저장된 조건</p>
+          <span className="text-muted-foreground text-[11px]">
+            {presets.length}개
+          </span>
+        </div>
+
+        {presets.length > 0 ? (
+          <ul className="flex flex-wrap gap-1.5">
+            {presets.map((preset) => (
+              <li key={preset.id} className="flex items-center gap-0.5">
+                <button
+                  type="submit"
+                  name="_intent"
+                  value={`load_preset:${preset.id}`}
+                  formNoValidate
+                  className="border-border bg-background text-foreground hover:border-primary/40 rounded-md border px-2.5 py-1 text-xs font-medium"
+                  title={`${preset.keywords.slice(0, 3).join(", ")}${preset.keywords.length > 3 ? "…" : ""}`}
+                >
+                  {preset.name}
+                </button>
+                <button
+                  type="submit"
+                  name="_intent"
+                  value={`delete_preset:${preset.id}`}
+                  formNoValidate
+                  className="text-muted-foreground hover:text-destructive inline-flex size-6 items-center justify-center rounded"
+                  aria-label={`${preset.name} 삭제`}
+                >
+                  <Trash2Icon className="size-3" aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground text-xs">
+            자주 쓰는 조건을 이름 붙여 저장해 두면 다음에 바로 불러올 수
+            있습니다.
+          </p>
+        )}
+
+        <div className="flex gap-2">
+          <div className="min-w-0 flex-1">
+            <NexInput
+              name="presetName"
+              inputSize="md"
+              value={presetName}
+              onChange={(event) => setPresetName(event.target.value)}
+              placeholder="조건 이름 (예: 업무·시간낭비)"
+              autoComplete="off"
+              disabled={busy || presetBusy}
+            />
+          </div>
+          <NexButton
+            type="submit"
+            name="_intent"
+            value="save_preset"
+            variant="secondary"
+            size="md"
+            loading={presetBusy}
+            disabled={!canSavePreset}
+            leftIcon={<BookmarkIcon className="size-4" aria-hidden />}
+            formNoValidate
+          >
+            저장
+          </NexButton>
+        </div>
+      </div>
 
       {/* 기본 설정 */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -222,7 +332,7 @@ export function ObservationCollectorForm({
             id="collector-source"
             name="source"
             value={source}
-            onChange={(event) => setSource(event.target.value)}
+            onChange={(event) => setSource(asSource(event.target.value))}
             className={adminSelectClassName}
             title={selectedSource?.description}
           >
@@ -244,7 +354,8 @@ export function ObservationCollectorForm({
             name="limit"
             type="number"
             inputSize="md"
-            defaultValue={DEFAULT_COLLECT_LIMIT}
+            value={limit}
+            onChange={(event) => setLimit(event.target.value)}
             min={MIN_COLLECT_LIMIT}
             max={MAX_COLLECT_LIMIT}
             step={1}
@@ -258,7 +369,8 @@ export function ObservationCollectorForm({
           <select
             id="collector-sort"
             name="sortMode"
-            defaultValue={SORT_MODE_OPTIONS[0].value}
+            value={sortMode}
+            onChange={(event) => setSortMode(event.target.value as typeof sortMode)}
             className={adminSelectClassName}
           >
             {SORT_MODE_OPTIONS.map((option) => (
@@ -276,7 +388,10 @@ export function ObservationCollectorForm({
           <select
             id="collector-time-range"
             name="timeRange"
-            defaultValue="all"
+            value={timeRange}
+            onChange={(event) =>
+              setTimeRange(event.target.value as typeof timeRange)
+            }
             className={adminSelectClassName}
           >
             {TIME_RANGE_OPTIONS.map((option) => (
@@ -293,9 +408,7 @@ export function ObservationCollectorForm({
         <div className="space-y-1.5">
           <div className="flex items-baseline justify-between gap-2">
             <p className={fieldLabelClass}>관찰 대상</p>
-            <span className="text-muted-foreground text-[11px]">
-              복수 선택
-            </span>
+            <span className="text-muted-foreground text-[11px]">복수 선택</span>
           </div>
           <ul className="flex flex-wrap gap-1.5">
             {OBSERVATION_DOMAINS.map((domain) => (
@@ -471,7 +584,7 @@ export function ObservationCollectorForm({
       {/* 콘텐츠 타입 */}
       <fieldset className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <legend className={cn(fieldLabelClass, "mr-1")}>콘텐츠</legend>
-        {CONTENT_TYPE_OPTIONS.map((option, index) => (
+        {CONTENT_TYPE_OPTIONS.map((option) => (
           <label
             key={option.value}
             className="text-foreground flex items-center gap-1.5 text-sm"
@@ -480,7 +593,8 @@ export function ObservationCollectorForm({
               type="radio"
               name="contentType"
               value={option.value}
-              defaultChecked={index === 0}
+              checked={contentType === option.value}
+              onChange={() => setContentType(option.value)}
               className="accent-primary size-3.5"
             />
             {option.label}
@@ -500,6 +614,8 @@ export function ObservationCollectorForm({
 
       <NexButton
         type="submit"
+        name="_intent"
+        value="collect"
         variant="primary"
         size="lg"
         loading={busy}
