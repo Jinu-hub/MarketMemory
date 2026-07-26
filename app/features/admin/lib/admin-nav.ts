@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+
 import {
   ActivityIcon,
   ClipboardListIcon,
@@ -8,6 +9,7 @@ import {
   PackageIcon,
   Share2Icon,
   SparklesIcon,
+  TelescopeIcon,
   UsersIcon,
 } from "lucide-react";
 
@@ -48,6 +50,14 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     label: "프롬프트 릴리스",
     icon: PackageIcon,
     dashboardDescription: "환경별 활성 프롬프트를 고정합니다.",
+  },
+  {
+    to: "/admin/founder-os",
+    label: "Founder OS",
+    icon: TelescopeIcon,
+    dashboardTitle: "Founder OS",
+    dashboardDescription:
+      "사람들의 이야기를 관찰해 문제를 발견하는 영역입니다. 현재는 외부 소스 수집을 제공합니다.",
   },
   {
     to: "/admin/api-tests",

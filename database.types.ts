@@ -32,6 +32,96 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_runs: {
+        Row: {
+          comment_fetched_count: number
+          content_type: string
+          content_type_stats: Json | null
+          created_at: string
+          duplicate_count: number
+          duration_ms: number | null
+          error_message: string | null
+          failed_count: number
+          fetched_count: number
+          filtered_by_date_count: number
+          finished_at: string | null
+          high_priority_count: number
+          id: string
+          inserted_count: number
+          keyword_stats: Json | null
+          keywords: string[]
+          matched_count: number
+          observation_strategy: Json | null
+          post_fetched_count: number
+          requested_limit: number
+          sort_mode: string
+          source: Database["public"]["Enums"]["observation_source"]
+          started_at: string
+          status: Database["public"]["Enums"]["collection_run_status"]
+          substantive_body_count: number
+          time_range: string
+          title_only_count: number
+        }
+        Insert: {
+          comment_fetched_count?: number
+          content_type?: string
+          content_type_stats?: Json | null
+          created_at?: string
+          duplicate_count?: number
+          duration_ms?: number | null
+          error_message?: string | null
+          failed_count?: number
+          fetched_count?: number
+          filtered_by_date_count?: number
+          finished_at?: string | null
+          high_priority_count?: number
+          id?: string
+          inserted_count?: number
+          keyword_stats?: Json | null
+          keywords: string[]
+          matched_count?: number
+          observation_strategy?: Json | null
+          post_fetched_count?: number
+          requested_limit: number
+          sort_mode?: string
+          source: Database["public"]["Enums"]["observation_source"]
+          started_at?: string
+          status?: Database["public"]["Enums"]["collection_run_status"]
+          substantive_body_count?: number
+          time_range?: string
+          title_only_count?: number
+        }
+        Update: {
+          comment_fetched_count?: number
+          content_type?: string
+          content_type_stats?: Json | null
+          created_at?: string
+          duplicate_count?: number
+          duration_ms?: number | null
+          error_message?: string | null
+          failed_count?: number
+          fetched_count?: number
+          filtered_by_date_count?: number
+          finished_at?: string | null
+          high_priority_count?: number
+          id?: string
+          inserted_count?: number
+          keyword_stats?: Json | null
+          keywords?: string[]
+          matched_count?: number
+          observation_strategy?: Json | null
+          post_fetched_count?: number
+          requested_limit?: number
+          sort_mode?: string
+          source?: Database["public"]["Enums"]["observation_source"]
+          started_at?: string
+          status?: Database["public"]["Enums"]["collection_run_status"]
+          substantive_body_count?: number
+          time_range?: string
+          title_only_count?: number
+        }
+        Relationships: []
+      }
       content_posts: {
         Row: {
           content: string
@@ -1014,6 +1104,110 @@ export type Database = {
         }
         Relationships: []
       }
+      observations: {
+        Row: {
+          author: string | null
+          body: string
+          collection_run_id: string | null
+          comment_count: number | null
+          community: string | null
+          content_hash: string
+          content_quality: string | null
+          content_type: Database["public"]["Enums"]["observation_content_type"]
+          created_at: string
+          discussion_url: string | null
+          external_content_url: string | null
+          external_id: string
+          external_parent_id: string | null
+          external_story_id: string | null
+          fetched_at: string
+          has_substantive_body: boolean | null
+          hn_type: string | null
+          id: string
+          matched_keywords: string[]
+          observation_priority: string | null
+          parent_observation_id: string | null
+          priority_reasons: string[] | null
+          published_at: string | null
+          raw_payload: Json | null
+          score: number | null
+          source: Database["public"]["Enums"]["observation_source"]
+          source_url: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          body: string
+          collection_run_id?: string | null
+          comment_count?: number | null
+          community?: string | null
+          content_hash: string
+          content_quality?: string | null
+          content_type: Database["public"]["Enums"]["observation_content_type"]
+          created_at?: string
+          discussion_url?: string | null
+          external_content_url?: string | null
+          external_id: string
+          external_parent_id?: string | null
+          external_story_id?: string | null
+          fetched_at?: string
+          has_substantive_body?: boolean | null
+          hn_type?: string | null
+          id?: string
+          matched_keywords?: string[]
+          observation_priority?: string | null
+          parent_observation_id?: string | null
+          priority_reasons?: string[] | null
+          published_at?: string | null
+          raw_payload?: Json | null
+          score?: number | null
+          source: Database["public"]["Enums"]["observation_source"]
+          source_url: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          body?: string
+          collection_run_id?: string | null
+          comment_count?: number | null
+          community?: string | null
+          content_hash?: string
+          content_quality?: string | null
+          content_type?: Database["public"]["Enums"]["observation_content_type"]
+          created_at?: string
+          discussion_url?: string | null
+          external_content_url?: string | null
+          external_id?: string
+          external_parent_id?: string | null
+          external_story_id?: string | null
+          fetched_at?: string
+          has_substantive_body?: boolean | null
+          hn_type?: string | null
+          id?: string
+          matched_keywords?: string[]
+          observation_priority?: string | null
+          parent_observation_id?: string | null
+          priority_reasons?: string[] | null
+          published_at?: string | null
+          raw_payload?: Json | null
+          score?: number | null
+          source?: Database["public"]["Enums"]["observation_source"]
+          source_url?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "observations_collection_run_id_collection_runs_id_fk"
+            columns: ["collection_run_id"]
+            isOneToOne: false
+            referencedRelation: "collection_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ocr_job_pages: {
         Row: {
           created_at: string
@@ -1817,10 +2011,18 @@ export type Database = {
         | "narrative_analysis"
         | "review"
         | "watchlist"
+      collection_run_status:
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed"
+        | "partial"
       content_type: "summary" | "md_summary" | "source_text"
       i18n_status: "ready" | "done" | "partial"
       item_status: "ready" | "running" | "done" | "failed"
       lang_code: "ko" | "ja" | "en"
+      observation_content_type: "post" | "comment"
+      observation_source: "hacker_news" | "github" | "reddit"
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
       pipeline_status: "draft" | "active" | "deprecated"
       platform: "threads" | "x" | "instagram" | "linkedin" | "blog" | "other"
@@ -2012,10 +2214,19 @@ export const Constants = {
         "review",
         "watchlist",
       ],
+      collection_run_status: [
+        "pending",
+        "running",
+        "completed",
+        "failed",
+        "partial",
+      ],
       content_type: ["summary", "md_summary", "source_text"],
       i18n_status: ["ready", "done", "partial"],
       item_status: ["ready", "running", "done", "failed"],
       lang_code: ["ko", "ja", "en"],
+      observation_content_type: ["post", "comment"],
+      observation_source: ["hacker_news", "github", "reddit"],
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
       pipeline_status: ["draft", "active", "deprecated"],
       platform: ["threads", "x", "instagram", "linkedin", "blog", "other"],

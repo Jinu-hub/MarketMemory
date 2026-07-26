@@ -11,22 +11,16 @@ export const apiRoutes = prefix("/api", [
     route("/email", "features/users/api/change-email.tsx"),
     route("/profile", "features/users/api/edit-profile.tsx"),
     route("/providers", "features/users/api/connect-provider.tsx"),
-    route(
-      "/providers/:provider",
-      "features/users/api/disconnect-provider.tsx",
-    ),
+    route("/providers/:provider", "features/users/api/disconnect-provider.tsx"),
   ]),
   ...prefix("/cron", [
     route("/mailer", "features/cron/api/mailer.tsx"),
     route("/market-snapshot", "features/cron/api/market-snapshot.tsx"),
-    route(
-      "/daily-market-memory",
-      "features/cron/api/daily-market-memory.tsx",
-    ),
-    route(
-      "/item-content-i18n",
-      "features/cron/api/item-content-i18n.tsx",
-    ),
+    route("/daily-market-memory", "features/cron/api/daily-market-memory.tsx"),
+    route("/item-content-i18n", "features/cron/api/item-content-i18n.tsx"),
+  ]),
+  ...prefix("/admin", [
+    route("/observations/collect", "features/founder-os/api/collect.tsx"),
   ]),
   ...prefix("/blog", [route("/og", "features/blog/api/og.tsx")]),
 ]);

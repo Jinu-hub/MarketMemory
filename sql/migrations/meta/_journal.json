@@ -337,6 +337,27 @@
       "when": 1783336607318,
       "tag": "0047_tough_hammerhead",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1785037431583,
+      "tag": "0048_brainy_blue_marvel",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1785040743576,
+      "tag": "0049_complete_living_lightning",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1785044214248,
+      "tag": "0050_optimal_logan",
+      "breakpoints": true
     }
   ]
 }

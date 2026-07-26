@@ -42,15 +42,19 @@ export const privateRoutes = layout(
           route("/new", "features/admin/screens/prompt-new.tsx"),
           route("/:id", "features/admin/screens/prompt-detail.tsx"),
         ]),
+        ...prefix("/founder-os", [
+          index("features/founder-os/screens/index.tsx"),
+          route(
+            "/observations",
+            "features/founder-os/screens/observations.tsx",
+          ),
+        ]),
         route("/api-tests", "features/admin/screens/api-tests.tsx"),
         route(
           "/similarity-measurements",
           "features/admin/screens/similarity-measurements.tsx",
         ),
-        route(
-          "/prompt-releases",
-          "features/admin/screens/prompt-releases.tsx",
-        ),
+        route("/prompt-releases", "features/admin/screens/prompt-releases.tsx"),
         route(
           "/item-similarities",
           "features/admin/screens/item-similarities.tsx",
@@ -71,18 +75,12 @@ export const privateRoutes = layout(
           "/daily-market-memory-n8n-test",
           "features/admin/screens/daily-market-memory-n8n-test.tsx",
         ),
-        route(
-          "/i18n-management",
-          "features/admin/screens/i18n-management.tsx",
-        ),
+        route("/i18n-management", "features/admin/screens/i18n-management.tsx"),
         route(
           "/item-content-reports-i18n",
           "features/admin/screens/item-content-reports-i18n.tsx",
         ),
-        route(
-          "/user-management",
-          "features/admin/screens/user-management.tsx",
-        ),
+        route("/user-management", "features/admin/screens/user-management.tsx"),
         route("/user-list", "features/admin/screens/user-list.tsx"),
       ]),
     ]),
