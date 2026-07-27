@@ -1149,6 +1149,56 @@ export type Database = {
         }
         Relationships: []
       }
+      observation_analyses: {
+        Row: {
+          analyzed_at: string
+          confidence: number
+          disposition: Database["public"]["Enums"]["observation_analysis_disposition"]
+          evidence_strength: Database["public"]["Enums"]["evidence_strength"]
+          extracted_data: Json | null
+          id: string
+          model: string
+          observation_id: string
+          prompt_version: string
+          signal_types: string[]
+          summary: string
+        }
+        Insert: {
+          analyzed_at?: string
+          confidence: number
+          disposition: Database["public"]["Enums"]["observation_analysis_disposition"]
+          evidence_strength: Database["public"]["Enums"]["evidence_strength"]
+          extracted_data?: Json | null
+          id?: string
+          model: string
+          observation_id: string
+          prompt_version: string
+          signal_types?: string[]
+          summary: string
+        }
+        Update: {
+          analyzed_at?: string
+          confidence?: number
+          disposition?: Database["public"]["Enums"]["observation_analysis_disposition"]
+          evidence_strength?: Database["public"]["Enums"]["evidence_strength"]
+          extracted_data?: Json | null
+          id?: string
+          model?: string
+          observation_id?: string
+          prompt_version?: string
+          signal_types?: string[]
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "observation_analyses_observation_id_observations_id_fk"
+            columns: ["observation_id"]
+            isOneToOne: false
+            referencedRelation: "observations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       observations: {
         Row: {
           author: string | null
@@ -1450,6 +1500,106 @@ export type Database = {
           pipeline_key?: string
           status?: Database["public"]["Enums"]["pipeline_status"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      problem_evidence: {
+        Row: {
+          created_at: string
+          evidence_type: Database["public"]["Enums"]["problem_evidence_type"]
+          id: string
+          observation_analysis_id: string | null
+          observation_id: string
+          problem_id: string
+          relationship: Database["public"]["Enums"]["problem_evidence_relationship"]
+          relevance_score: number
+        }
+        Insert: {
+          created_at?: string
+          evidence_type: Database["public"]["Enums"]["problem_evidence_type"]
+          id?: string
+          observation_analysis_id?: string | null
+          observation_id: string
+          problem_id: string
+          relationship: Database["public"]["Enums"]["problem_evidence_relationship"]
+          relevance_score: number
+        }
+        Update: {
+          created_at?: string
+          evidence_type?: Database["public"]["Enums"]["problem_evidence_type"]
+          id?: string
+          observation_analysis_id?: string | null
+          observation_id?: string
+          problem_id?: string
+          relationship?: Database["public"]["Enums"]["problem_evidence_relationship"]
+          relevance_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "problem_evidence_observation_analysis_id_observation_analyses_i"
+            columns: ["observation_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "observation_analyses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "problem_evidence_observation_id_observations_id_fk"
+            columns: ["observation_id"]
+            isOneToOne: false
+            referencedRelation: "observations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "problem_evidence_problem_id_problems_id_fk"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "problems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      problems: {
+        Row: {
+          affected_users: string | null
+          confidence: number
+          context: string | null
+          description: string
+          evidence_count: number
+          first_seen_at: string
+          id: string
+          last_seen_at: string
+          root_cause_hypotheses: string[]
+          source_count: number
+          status: Database["public"]["Enums"]["problem_status"]
+          title: string
+        }
+        Insert: {
+          affected_users?: string | null
+          confidence: number
+          context?: string | null
+          description: string
+          evidence_count?: number
+          first_seen_at: string
+          id?: string
+          last_seen_at: string
+          root_cause_hypotheses?: string[]
+          source_count?: number
+          status?: Database["public"]["Enums"]["problem_status"]
+          title: string
+        }
+        Update: {
+          affected_users?: string | null
+          confidence?: number
+          context?: string | null
+          description?: string
+          evidence_count?: number
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          root_cause_hypotheses?: string[]
+          source_count?: number
+          status?: Database["public"]["Enums"]["problem_status"]
+          title?: string
         }
         Relationships: []
       }
@@ -2063,15 +2213,44 @@ export type Database = {
         | "failed"
         | "partial"
       content_type: "summary" | "md_summary" | "source_text"
+      evidence_strength: "weak" | "moderate" | "strong"
       i18n_status: "ready" | "done" | "partial"
       item_status: "ready" | "running" | "done" | "failed"
       lang_code: "ko" | "ja" | "en"
+      observation_analysis_disposition:
+        | "problem"
+        | "insight"
+        | "mixed"
+        | "noise"
+        | "unclear"
       observation_content_type: "post" | "comment"
       observation_source: "hacker_news" | "github" | "reddit"
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
       pipeline_status: "draft" | "active" | "deprecated"
       platform: "threads" | "x" | "instagram" | "linkedin" | "blog" | "other"
       post_status: "draft" | "ready" | "scheduled" | "published" | "archived"
+      problem_evidence_relationship:
+        | "supports"
+        | "exemplifies"
+        | "contradicts"
+        | "contextualizes"
+      problem_evidence_representation:
+        | "quote"
+        | "paraphrase"
+        | "structured_extraction"
+      problem_evidence_type:
+        | "first_person_experience"
+        | "direct_report"
+        | "observed_behavior"
+        | "operational_observation"
+        | "third_party_claim"
+        | "general_opinion"
+      problem_status:
+        | "candidate"
+        | "investigating"
+        | "validated"
+        | "dismissed"
+        | "archived"
       prompt_status: "draft" | "active" | "deprecated" | "archived"
       region:
         | "AFRICA"
@@ -2267,15 +2446,49 @@ export const Constants = {
         "partial",
       ],
       content_type: ["summary", "md_summary", "source_text"],
+      evidence_strength: ["weak", "moderate", "strong"],
       i18n_status: ["ready", "done", "partial"],
       item_status: ["ready", "running", "done", "failed"],
       lang_code: ["ko", "ja", "en"],
+      observation_analysis_disposition: [
+        "problem",
+        "insight",
+        "mixed",
+        "noise",
+        "unclear",
+      ],
       observation_content_type: ["post", "comment"],
       observation_source: ["hacker_news", "github", "reddit"],
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
       pipeline_status: ["draft", "active", "deprecated"],
       platform: ["threads", "x", "instagram", "linkedin", "blog", "other"],
       post_status: ["draft", "ready", "scheduled", "published", "archived"],
+      problem_evidence_relationship: [
+        "supports",
+        "exemplifies",
+        "contradicts",
+        "contextualizes",
+      ],
+      problem_evidence_representation: [
+        "quote",
+        "paraphrase",
+        "structured_extraction",
+      ],
+      problem_evidence_type: [
+        "first_person_experience",
+        "direct_report",
+        "observed_behavior",
+        "operational_observation",
+        "third_party_claim",
+        "general_opinion",
+      ],
+      problem_status: [
+        "candidate",
+        "investigating",
+        "validated",
+        "dismissed",
+        "archived",
+      ],
       prompt_status: ["draft", "active", "deprecated", "archived"],
       region: [
         "AFRICA",
