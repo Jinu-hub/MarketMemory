@@ -251,15 +251,17 @@ Planned directions include:
 
 ---
 
-## Repository Notice
+## License
 
-This repository contains the source code of the Market Memory product.
+Market Memory is **source-available, not open source**.
 
-The project was built using licensed Supaplate resources. Public visibility of this repository does **not** grant permission to copy, redistribute, resell, or reuse the source code or its licensed components.
+Selected portions of the source code are publicly visible for product
+transparency, technical demonstration, and evaluation purposes.
 
-Please review [LICENSE.md](./LICENSE.md) before using any part of this repository.
+Use, copying, modification, redistribution, deployment, and derivative works
+require prior written approval. Commercial use is prohibited.
 
-This repository is presented primarily for product development, technical documentation, and project transparency. It is not distributed as an open-source starter template.
+See [LICENSE.md](./LICENSE.md) for the full terms.
 
 ---
 
