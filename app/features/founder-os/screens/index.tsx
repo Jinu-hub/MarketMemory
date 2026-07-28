@@ -1,6 +1,6 @@
 import type { Route } from "./+types/index";
 
-import { ArrowUpRightIcon, TelescopeIcon } from "lucide-react";
+import { ArrowUpRightIcon, BrainCircuitIcon, TelescopeIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import { NexButton, NexCard } from "~/core/components/nex";
@@ -22,6 +22,25 @@ export async function loader({ request }: Route.LoaderArgs) {
   return {};
 }
 
+const FEATURES = [
+  {
+    to: "/admin/founder-os/observations",
+    title: "소스 수집",
+    description:
+      "Hacker News 등 외부 소스에서 키워드와 관련된 게시물·댓글을 수집하고, 정규화·중복 제거 후 저장합니다.",
+    icon: TelescopeIcon,
+    cta: "소스 수집",
+  },
+  {
+    to: "/admin/founder-os/observation-intelligence",
+    title: "Observation Intelligence",
+    description:
+      "수집 실행을 선택해 Intelligence 파이프라인을 돌립니다. intelligence_number를 올리고 n8n 웹훅으로 분석을 요청합니다.",
+    icon: BrainCircuitIcon,
+    cta: "Observation Intelligence",
+  },
+] as const;
+
 export default function FounderOsIndexScreen() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
@@ -35,49 +54,53 @@ export default function FounderOsIndexScreen() {
         description="아래 항목을 선택해 세부 화면으로 이동하세요."
       >
         <ul className="grid gap-5 sm:grid-cols-2">
-          <li>
-            <Link
-              to="/admin/founder-os/observations"
-              className="group focus-visible:ring-ring/50 block h-full rounded-xl outline-none focus-visible:ring-[3px]"
-            >
-              <NexCard
-                variant="elevated"
-                padding="lg"
-                hoverable
-                className={cn(
-                  "border-border bg-card text-card-foreground h-full border shadow-md",
-                  "transition-[transform,box-shadow] duration-200",
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="bg-muted/80 text-muted-foreground group-hover:bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors">
-                    <TelescopeIcon className="size-5" aria-hidden />
-                  </div>
-                  <ArrowUpRightIcon
-                    className="text-muted-foreground group-hover:text-foreground size-4 shrink-0 opacity-0 transition-all group-hover:opacity-100"
-                    aria-hidden
-                  />
-                </div>
-                <h2 className="text-foreground mt-4 text-lg font-semibold tracking-tight">
-                  소스 수집
-                </h2>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                  Hacker News 등 외부 소스에서 키워드와 관련된 게시물·댓글을
-                  수집하고, 정규화·중복 제거 후 저장합니다.
-                </p>
-                <div className="mt-5">
-                  <NexButton
-                    type="button"
-                    variant="primary"
-                    leftIcon={<TelescopeIcon className="size-4" aria-hidden />}
-                    tabIndex={-1}
+          {FEATURES.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <li key={feature.to}>
+                <Link
+                  to={feature.to}
+                  className="group focus-visible:ring-ring/50 block h-full rounded-xl outline-none focus-visible:ring-[3px]"
+                >
+                  <NexCard
+                    variant="elevated"
+                    padding="lg"
+                    hoverable
+                    className={cn(
+                      "border-border bg-card text-card-foreground h-full border shadow-md",
+                      "transition-[transform,box-shadow] duration-200",
+                    )}
                   >
-                    소스 수집
-                  </NexButton>
-                </div>
-              </NexCard>
-            </Link>
-          </li>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="bg-muted/80 text-muted-foreground group-hover:bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors">
+                        <Icon className="size-5" aria-hidden />
+                      </div>
+                      <ArrowUpRightIcon
+                        className="text-muted-foreground group-hover:text-foreground size-4 shrink-0 opacity-0 transition-all group-hover:opacity-100"
+                        aria-hidden
+                      />
+                    </div>
+                    <h2 className="text-foreground mt-4 text-lg font-semibold tracking-tight">
+                      {feature.title}
+                    </h2>
+                    <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                      {feature.description}
+                    </p>
+                    <div className="mt-5">
+                      <NexButton
+                        type="button"
+                        variant="primary"
+                        leftIcon={<Icon className="size-4" aria-hidden />}
+                        tabIndex={-1}
+                      >
+                        {feature.cta}
+                      </NexButton>
+                    </div>
+                  </NexCard>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </AdminSection>
     </div>

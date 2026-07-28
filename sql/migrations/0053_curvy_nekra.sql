@@ -1,0 +1,1 @@
+ALTER TABLE "collection_runs" ADD COLUMN "intelligence_number" integer DEFAULT 0 NOT NULL;

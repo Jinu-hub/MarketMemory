@@ -48,6 +48,10 @@ export const privateRoutes = layout(
             "/observations",
             "features/founder-os/screens/observations.tsx",
           ),
+          route(
+            "/observation-intelligence",
+            "features/founder-os/screens/observation-intelligence.tsx",
+          ),
         ]),
         route("/api-tests", "features/admin/screens/api-tests.tsx"),
         route(

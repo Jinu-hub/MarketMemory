@@ -93,6 +93,7 @@ export type Database = {
           high_priority_count: number
           id: string
           inserted_count: number
+          intelligence_number: number
           keyword_stats: Json | null
           keywords: string[]
           matched_count: number
@@ -122,6 +123,7 @@ export type Database = {
           high_priority_count?: number
           id?: string
           inserted_count?: number
+          intelligence_number?: number
           keyword_stats?: Json | null
           keywords: string[]
           matched_count?: number
@@ -151,6 +153,7 @@ export type Database = {
           high_priority_count?: number
           id?: string
           inserted_count?: number
+          intelligence_number?: number
           keyword_stats?: Json | null
           keywords?: string[]
           matched_count?: number

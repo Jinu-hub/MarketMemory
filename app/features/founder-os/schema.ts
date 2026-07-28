@@ -172,6 +172,7 @@ export const collectionRuns = pgTable(
     created_at: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
+    intelligence_number: integer("intelligence_number").notNull().default(0),
   },
   (table) => [
     index("idx_collection_runs_started_at").on(table.started_at),
