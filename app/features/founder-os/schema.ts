@@ -41,84 +41,83 @@ export const collectionRunStatus = pgEnum("collection_run_status", [
   "partial",
 ]);
 
-/**
- * Observation 분석 결과의 전체 판정.
- *
- * - problem: 하나 이상의 의미 있는 문제 신호가 발견됨
- * - insight: 문제 증거는 아니지만 재사용 가능한 인사이트가 발견됨
- * - mixed: 문제 신호와 비문제 인사이트가 함께 발견됨
- * - noise: 저장할 가치가 없는 키워드 일치, 일반론, 중복 등의 노이즈
- * - unclear: 추가 문맥 없이는 안전하게 판단하기 어려움
- */
-export const observationAnalysisDisposition = pgEnum(
-  "observation_analysis_disposition",
-  ["problem", "insight", "mixed", "noise", "unclear"],
-);
-
-/**
- * 분석이 추출한 증거의 강도.
- *
- * 증거가 없는 noise 또는 판단 불가능한 unclear에서는
- * 해당 컬럼을 nullable로 두는 것을 권장한다.
- */
-export const evidenceStrength = pgEnum("evidence_strength", [
-  "weak",
-  "moderate",
-  "strong",
-]);
-
-/**
- * Problem의 검증 및 관리 상태.
- *
- * open은 의미가 모호하므로, 아직 검증되지 않은 초기 상태를
- * 명확히 표현하는 candidate를 사용한다.
- */
-export const problemStatus = pgEnum("problem_status", [
-  "candidate",
-  "investigating",
-  "validated",
-  "dismissed",
-  "archived",
-]);
-
-/**
- * Problem과 Observation 증거 사이의 의미적 관계.
- *
- * - supports: 문제의 존재 또는 설명을 뒷받침함
- * - exemplifies: 해당 문제의 구체적인 실제 사례임
- * - contradicts: 문제에 대한 기존 해석이나 가설에 반대되는 증거임
- * - contextualizes: 문제를 직접 증명하지는 않지만 이해에 필요한 문맥을 제공함
- */
-export const problemEvidenceRelationship = pgEnum(
-  "problem_evidence_relationship",
-  ["supports", "exemplifies", "contradicts", "contextualizes"],
-);
-
-/**
- * 증거가 어떤 성격의 관찰인지 나타낸다.
- *
- * quote/paraphrase 같은 표현 형식과
- * first-person/direct-report 같은 증거 성격을 혼합하지 않는다.
- */
-export const problemEvidenceType = pgEnum("problem_evidence_type", [
-  "first_person_experience",
-  "direct_report",
-  "observed_behavior",
-  "operational_observation",
-  "third_party_claim",
-  "general_opinion",
-]);
-
-/**
- * 증거가 DB에 어떤 형태로 보존되었는지 나타낸다.
- *
- * 증거의 신뢰 성격과는 별개의 개념이다.
- */
-export const problemEvidenceRepresentation = pgEnum(
-  "problem_evidence_representation",
-  ["quote", "paraphrase", "structured_extraction"],
-);
-
+// /**
+//  * Observation 분석 결과의 전체 판정.
+//  *
+//  * - problem: 하나 이상의 의미 있는 문제 신호가 발견됨
+//  * - insight: 문제 증거는 아니지만 재사용 가능한 인사이트가 발견됨
+//  * - mixed: 문제 신호와 비문제 인사이트가 함께 발견됨
+//  * - noise: 저장할 가치가 없는 키워드 일치, 일반론, 중복 등의 노이즈
+//  * - unclear: 추가 문맥 없이는 안전하게 판단하기 어려움
+//  */
+// export const observationAnalysisDisposition = pgEnum(
+//   "observation_analysis_disposition",
+//   ["problem", "insight", "mixed", "noise", "unclear"],
+// );
+//
+// /**
+//  * 분석이 추출한 증거의 강도.
+//  *
+//  * 증거가 없는 noise 또는 판단 불가능한 unclear에서는
+//  * 해당 컬럼을 nullable로 두는 것을 권장한다.
+//  */
+// export const evidenceStrength = pgEnum("evidence_strength", [
+//   "weak",
+//   "moderate",
+//   "strong",
+// ]);
+//
+// /**
+//  * Problem의 검증 및 관리 상태.
+//  *
+//  * open은 의미가 모호하므로, 아직 검증되지 않은 초기 상태를
+//  * 명확히 표현하는 candidate를 사용한다.
+//  */
+// export const problemStatus = pgEnum("problem_status", [
+//   "candidate",
+//   "investigating",
+//   "validated",
+//   "dismissed",
+//   "archived",
+// ]);
+//
+// /**
+//  * Problem과 Observation 증거 사이의 의미적 관계.
+//  *
+//  * - supports: 문제의 존재 또는 설명을 뒷받침함
+//  * - exemplifies: 해당 문제의 구체적인 실제 사례임
+//  * - contradicts: 문제에 대한 기존 해석이나 가설에 반대되는 증거임
+//  * - contextualizes: 문제를 직접 증명하지는 않지만 이해에 필요한 문맥을 제공함
+//  */
+// export const problemEvidenceRelationship = pgEnum(
+//   "problem_evidence_relationship",
+//   ["supports", "exemplifies", "contradicts", "contextualizes"],
+// );
+//
+// /**
+//  * 증거가 어떤 성격의 관찰인지 나타낸다.
+//  *
+//  * quote/paraphrase 같은 표현 형식과
+//  * first-person/direct-report 같은 증거 성격을 혼합하지 않는다.
+//  */
+// export const problemEvidenceType = pgEnum("problem_evidence_type", [
+//   "first_person_experience",
+//   "direct_report",
+//   "observed_behavior",
+//   "operational_observation",
+//   "third_party_claim",
+//   "general_opinion",
+// ]);
+//
+// /**
+//  * 증거가 DB에 어떤 형태로 보존되었는지 나타낸다.
+//  *
+//  * 증거의 신뢰 성격과는 별개의 개념이다.
+//  */
+// export const problemEvidenceRepresentation = pgEnum(
+//   "problem_evidence_representation",
+//   ["quote", "paraphrase", "structured_extraction"],
+// );
 
 /* =========================================================
    RLS Helper: Admin only
@@ -347,174 +346,321 @@ export const collectionPresets = pgTable(
   ],
 );
 
+// /* =========================================================
+//    4) observation_analyses (Observation 단위 LLM/규칙 분석)
+//    ========================================================= */
+// export const observationAnalyses = pgTable(
+//   "observation_analyses",
+//   {
+//     id: uuid("id").defaultRandom().primaryKey(),
+//     observation_id: uuid("observation_id")
+//       .notNull()
+//       .references(() => observations.id, { onDelete: "cascade" }),
+//     disposition: observationAnalysisDisposition("disposition").notNull(),
+//     /** PROBLEM_SIGNALS id 등 — 예: ["time-waste", "tool-friction"] */
+//     signal_types: text("signal_types").array().notNull().default([]),
+//     summary: text("summary").notNull(),
+//     confidence: numeric("confidence", { precision: 5, scale: 4 }).notNull(),
+//     evidence_strength: evidenceStrength("evidence_strength").notNull(),
+//     extracted_data: jsonb("extracted_data"),
+//     model: text("model").notNull(),
+//     prompt_version: text("prompt_version").notNull(),
+//     analyzed_at: timestamp("analyzed_at", { withTimezone: true })
+//       .defaultNow()
+//       .notNull(),
+//   },
+//   (table) => [
+//     index("idx_observation_analyses_observation_id").on(table.observation_id),
+//     index("idx_observation_analyses_disposition").on(table.disposition),
+//     index("idx_observation_analyses_analyzed_at").on(table.analyzed_at),
+//     index("idx_observation_analyses_evidence_strength").on(
+//       table.evidence_strength,
+//     ),
+//
+//     pgPolicy("oa_select", {
+//       for: "select",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//     }),
+//     pgPolicy("oa_insert", {
+//       for: "insert",
+//       to: authenticatedRole,
+//       withCheck: isAdmin,
+//     }),
+//     pgPolicy("oa_update", {
+//       for: "update",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//       withCheck: isAdmin,
+//     }),
+//     pgPolicy("oa_delete", {
+//       for: "delete",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//     }),
+//   ],
+// );
+//
+// /* =========================================================
+//    5) problems (여러 Observation에서 집계된 문제)
+//    ========================================================= */
+// export const problems = pgTable(
+//   "problems",
+//   {
+//     id: uuid("id").defaultRandom().primaryKey(),
+//     title: text("title").notNull(),
+//     description: text("description").notNull(),
+//     /** 영향을 받는 사용자/세그먼트 설명 */
+//     affected_users: text("affected_users"),
+//     /** 문제가 나타나는 맥락 (도메인·상황 등) */
+//     context: text("context"),
+//     root_cause_hypotheses: text("root_cause_hypotheses")
+//       .array()
+//       .notNull()
+//       .default([]),
+//     first_seen_at: timestamp("first_seen_at", { withTimezone: true }).notNull(),
+//     last_seen_at: timestamp("last_seen_at", { withTimezone: true }).notNull(),
+//     evidence_count: integer("evidence_count").notNull().default(0),
+//     source_count: integer("source_count").notNull().default(0),
+//     status: problemStatus("status").notNull().default("candidate"),
+//     confidence: numeric("confidence", { precision: 5, scale: 4 }).notNull(),
+//   },
+//   (table) => [
+//     index("idx_problems_status").on(table.status),
+//     index("idx_problems_last_seen_at").on(table.last_seen_at),
+//     index("idx_problems_first_seen_at").on(table.first_seen_at),
+//     index("idx_problems_confidence").on(table.confidence),
+//
+//     pgPolicy("prob_select", {
+//       for: "select",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//     }),
+//     pgPolicy("prob_insert", {
+//       for: "insert",
+//       to: authenticatedRole,
+//       withCheck: isAdmin,
+//     }),
+//     pgPolicy("prob_update", {
+//       for: "update",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//       withCheck: isAdmin,
+//     }),
+//     pgPolicy("prob_delete", {
+//       for: "delete",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//     }),
+//   ],
+// );
+//
+// /* =========================================================
+//    6) problem_evidence (Problem ↔ Observation 증거 링크)
+//    ========================================================= */
+// export const problemEvidence = pgTable(
+//   "problem_evidence",
+//   {
+//     id: uuid("id").defaultRandom().primaryKey(),
+//     problem_id: uuid("problem_id")
+//       .notNull()
+//       .references(() => problems.id, { onDelete: "cascade" }),
+//     observation_id: uuid("observation_id")
+//       .notNull()
+//       .references(() => observations.id, { onDelete: "cascade" }),
+//     observation_analysis_id: uuid("observation_analysis_id").references(
+//       () => observationAnalyses.id,
+//       { onDelete: "set null" },
+//     ),
+//     relationship: problemEvidenceRelationship("relationship").notNull(),
+//     relevance_score: numeric("relevance_score", {
+//       precision: 5,
+//       scale: 4,
+//     }).notNull(),
+//     evidence_type: problemEvidenceType("evidence_type").notNull(),
+//     created_at: timestamp("created_at", { withTimezone: true })
+//       .defaultNow()
+//       .notNull(),
+//   },
+//   (table) => [
+//     uniqueIndex("problem_evidence_problem_observation_unique").on(
+//       table.problem_id,
+//       table.observation_id,
+//     ),
+//     index("idx_problem_evidence_problem_id").on(table.problem_id),
+//     index("idx_problem_evidence_observation_id").on(table.observation_id),
+//     index("idx_problem_evidence_analysis_id").on(
+//       table.observation_analysis_id,
+//     ),
+//     index("idx_problem_evidence_relationship").on(table.relationship),
+//
+//     pgPolicy("pe_select", {
+//       for: "select",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//     }),
+//     pgPolicy("pe_insert", {
+//       for: "insert",
+//       to: authenticatedRole,
+//       withCheck: isAdmin,
+//     }),
+//     pgPolicy("pe_update", {
+//       for: "update",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//       withCheck: isAdmin,
+//     }),
+//     pgPolicy("pe_delete", {
+//       for: "delete",
+//       to: authenticatedRole,
+//       using: isAdmin,
+//     }),
+//   ],
+// );
+
+
 /* =========================================================
-   4) observation_analyses (Observation 단위 LLM/규칙 분석)
+   observation_insight_reports
+   복수 Observation을 분석한 단순 MVP 결과
    ========================================================= */
-export const observationAnalyses = pgTable(
-  "observation_analyses",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    observation_id: uuid("observation_id")
-      .notNull()
-      .references(() => observations.id, { onDelete: "cascade" }),
-    disposition: observationAnalysisDisposition("disposition").notNull(),
-    /** PROBLEM_SIGNALS id 등 — 예: ["time-waste", "tool-friction"] */
-    signal_types: text("signal_types").array().notNull().default([]),
-    summary: text("summary").notNull(),
-    confidence: numeric("confidence", { precision: 5, scale: 4 }).notNull(),
-    evidence_strength: evidenceStrength("evidence_strength").notNull(),
-    extracted_data: jsonb("extracted_data"),
-    model: text("model").notNull(),
-    prompt_version: text("prompt_version").notNull(),
-    analyzed_at: timestamp("analyzed_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    index("idx_observation_analyses_observation_id").on(table.observation_id),
-    index("idx_observation_analyses_disposition").on(table.disposition),
-    index("idx_observation_analyses_analyzed_at").on(table.analyzed_at),
-    index("idx_observation_analyses_evidence_strength").on(
-      table.evidence_strength,
-    ),
 
-    pgPolicy("oa_select", {
-      for: "select",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-    pgPolicy("oa_insert", {
-      for: "insert",
-      to: authenticatedRole,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("oa_update", {
-      for: "update",
-      to: authenticatedRole,
-      using: isAdmin,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("oa_delete", {
-      for: "delete",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-  ],
-);
-
-/* =========================================================
-   5) problems (여러 Observation에서 집계된 문제)
-   ========================================================= */
-export const problems = pgTable(
-  "problems",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    title: text("title").notNull(),
-    description: text("description").notNull(),
-    /** 영향을 받는 사용자/세그먼트 설명 */
-    affected_users: text("affected_users"),
-    /** 문제가 나타나는 맥락 (도메인·상황 등) */
-    context: text("context"),
-    root_cause_hypotheses: text("root_cause_hypotheses")
-      .array()
-      .notNull()
-      .default([]),
-    first_seen_at: timestamp("first_seen_at", { withTimezone: true }).notNull(),
-    last_seen_at: timestamp("last_seen_at", { withTimezone: true }).notNull(),
-    evidence_count: integer("evidence_count").notNull().default(0),
-    source_count: integer("source_count").notNull().default(0),
-    status: problemStatus("status").notNull().default("candidate"),
-    confidence: numeric("confidence", { precision: 5, scale: 4 }).notNull(),
-  },
-  (table) => [
-    index("idx_problems_status").on(table.status),
-    index("idx_problems_last_seen_at").on(table.last_seen_at),
-    index("idx_problems_first_seen_at").on(table.first_seen_at),
-    index("idx_problems_confidence").on(table.confidence),
-
-    pgPolicy("prob_select", {
-      for: "select",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-    pgPolicy("prob_insert", {
-      for: "insert",
-      to: authenticatedRole,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("prob_update", {
-      for: "update",
-      to: authenticatedRole,
-      using: isAdmin,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("prob_delete", {
-      for: "delete",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-  ],
-);
-
-/* =========================================================
-   6) problem_evidence (Problem ↔ Observation 증거 링크)
-   ========================================================= */
-export const problemEvidence = pgTable(
-  "problem_evidence",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    problem_id: uuid("problem_id")
-      .notNull()
-      .references(() => problems.id, { onDelete: "cascade" }),
-    observation_id: uuid("observation_id")
-      .notNull()
-      .references(() => observations.id, { onDelete: "cascade" }),
-    observation_analysis_id: uuid("observation_analysis_id").references(
-      () => observationAnalyses.id,
-      { onDelete: "set null" },
-    ),
-    relationship: problemEvidenceRelationship("relationship").notNull(),
-    relevance_score: numeric("relevance_score", {
-      precision: 5,
-      scale: 4,
-    }).notNull(),
-    evidence_type: problemEvidenceType("evidence_type").notNull(),
-    created_at: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    uniqueIndex("problem_evidence_problem_observation_unique").on(
-      table.problem_id,
-      table.observation_id,
-    ),
-    index("idx_problem_evidence_problem_id").on(table.problem_id),
-    index("idx_problem_evidence_observation_id").on(table.observation_id),
-    index("idx_problem_evidence_analysis_id").on(
-      table.observation_analysis_id,
-    ),
-    index("idx_problem_evidence_relationship").on(table.relationship),
-
-    pgPolicy("pe_select", {
-      for: "select",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-    pgPolicy("pe_insert", {
-      for: "insert",
-      to: authenticatedRole,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("pe_update", {
-      for: "update",
-      to: authenticatedRole,
-      using: isAdmin,
-      withCheck: isAdmin,
-    }),
-    pgPolicy("pe_delete", {
-      for: "delete",
-      to: authenticatedRole,
-      using: isAdmin,
-    }),
-  ],
-);
+   export const observationInsightReports = pgTable(
+    "observation_insight_reports",
+    {
+      id: uuid("id").defaultRandom().primaryKey(),
+  
+      /**
+       * 분석 대상 collection_runs.
+       *
+       * MVP에서는 빠른 구현을 위해 UUID 배열로 저장한다.
+       * 실제 Collection Run 데이터는 기존 collection_runs 테이블에 존재한다.
+       */
+      collection_run_ids: uuid("collection_run_ids")
+        .array()
+        .notNull()
+        .default([]),
+  
+      /**
+       * 실제 분석에 포함된 Observation ID.
+       *
+       * 나중에 어떤 원문을 이용해 결과가 만들어졌는지 추적하기 위한 값.
+       */
+      observation_ids: uuid("observation_ids")
+        .array()
+        .notNull()
+        .default([]),
+  
+      /**
+       * 유용하지 않은 데이터를 제외한 전체 분석 요약.
+       */
+      summary: text("summary").notNull(),
+  
+      /**
+       * 여러 Observation을 연결해서 발견한 의미 있는 흐름.
+       *
+       * 예:
+       * [
+       *   {
+       *     "title": "...",
+       *     "summary": "...",
+       *     "observation_ids": ["..."]
+       *   }
+       * ]
+       */
+      stories: jsonb("stories")
+        .$type<
+          Array<{
+            title: string;
+            summary: string;
+            observation_ids: string[];
+          }>
+        >()
+        .notNull()
+        .default([]),
+  
+      /**
+       * 분석 과정에서 발견한 문제.
+       *
+       * 아직 장기 Problem DB로 정규화하지 않는다.
+       */
+      problems: jsonb("problems")
+        .$type<
+          Array<{
+            title: string;
+            description: string;
+            observation_ids: string[];
+          }>
+        >()
+        .notNull()
+        .default([]),
+  
+      /**
+       * 발견된 문제를 서비스로 발전시킨 간단한 예시.
+       *
+       * 사업성 검증이나 MVP 명세가 아니라
+       * 창업자의 사고를 돕는 가벼운 아이디어다.
+       */
+      service_ideas: jsonb("service_ideas")
+        .$type<
+          Array<{
+            title: string;
+            description: string;
+            related_problem: string | null;
+          }>
+        >()
+        .notNull()
+        .default([]),
+  
+      /**
+       * 제외된 Observation 수.
+       * 어떤 항목을 왜 제외했는지까지는 MVP에서 저장하지 않는다.
+       */
+      excluded_observation_count: integer("excluded_observation_count")
+        .notNull()
+        .default(0),
+  
+      /**
+       * Agent 응답 원본.
+       *
+       * 출력 구조를 변경하거나 프롬프트를 개선할 때
+       * 기존 결과를 다시 검토하기 위한 안전장치.
+       */
+      raw_output: jsonb("raw_output"),
+  
+      model: text("model").notNull(),
+      prompt_version: text("prompt_version").notNull(),
+  
+      created_at: timestamp("created_at", {
+        withTimezone: true,
+      })
+        .defaultNow()
+        .notNull(),
+    },
+    (table) => [
+      index("idx_observation_insight_reports_created_at").on(
+        table.created_at,
+      ),
+  
+      pgPolicy("oir_select", {
+        for: "select",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+      pgPolicy("oir_insert", {
+        for: "insert",
+        to: authenticatedRole,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("oir_update", {
+        for: "update",
+        to: authenticatedRole,
+        using: isAdmin,
+        withCheck: isAdmin,
+      }),
+      pgPolicy("oir_delete", {
+        for: "delete",
+        to: authenticatedRole,
+        using: isAdmin,
+      }),
+    ],
+  );
