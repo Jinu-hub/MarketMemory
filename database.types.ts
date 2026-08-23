@@ -170,6 +170,117 @@ export type Database = {
         }
         Relationships: []
       }
+      content_audio: {
+        Row: {
+          audio_type: Database["public"]["Enums"]["audio_type"]
+          content_type: Database["public"]["Enums"]["market_memory_content_type"]
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          lang_code: string
+          market_date: string | null
+          metadata: Json | null
+          model_info: Json | null
+          script: string | null
+          status: Database["public"]["Enums"]["content_audio_status"]
+          storage_key: string | null
+          storage_provider: string | null
+          target_id: string
+          target_type: Database["public"]["Enums"]["content_target_type"]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          audio_type: Database["public"]["Enums"]["audio_type"]
+          content_type: Database["public"]["Enums"]["market_memory_content_type"]
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          lang_code: string
+          market_date?: string | null
+          metadata?: Json | null
+          model_info?: Json | null
+          script?: string | null
+          status?: Database["public"]["Enums"]["content_audio_status"]
+          storage_key?: string | null
+          storage_provider?: string | null
+          target_id: string
+          target_type: Database["public"]["Enums"]["content_target_type"]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audio_type?: Database["public"]["Enums"]["audio_type"]
+          content_type?: Database["public"]["Enums"]["market_memory_content_type"]
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          lang_code?: string
+          market_date?: string | null
+          metadata?: Json | null
+          model_info?: Json | null
+          script?: string | null
+          status?: Database["public"]["Enums"]["content_audio_status"]
+          storage_key?: string | null
+          storage_provider?: string | null
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["content_target_type"]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_briefs: {
+        Row: {
+          brief_type: Database["public"]["Enums"]["brief_type"]
+          content: string
+          content_type: Database["public"]["Enums"]["market_memory_content_type"]
+          created_at: string
+          id: string
+          lang_code: string
+          market_date: string | null
+          metadata: Json | null
+          model_info: Json | null
+          status: Database["public"]["Enums"]["content_brief_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["content_target_type"]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          brief_type: Database["public"]["Enums"]["brief_type"]
+          content: string
+          content_type: Database["public"]["Enums"]["market_memory_content_type"]
+          created_at?: string
+          id?: string
+          lang_code: string
+          market_date?: string | null
+          metadata?: Json | null
+          model_info?: Json | null
+          status?: Database["public"]["Enums"]["content_brief_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["content_target_type"]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          brief_type?: Database["public"]["Enums"]["brief_type"]
+          content?: string
+          content_type?: Database["public"]["Enums"]["market_memory_content_type"]
+          created_at?: string
+          id?: string
+          lang_code?: string
+          market_date?: string | null
+          metadata?: Json | null
+          model_info?: Json | null
+          status?: Database["public"]["Enums"]["content_brief_status"]
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["content_target_type"]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_posts: {
         Row: {
           content: string
@@ -1103,6 +1214,122 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      market_signal_items: {
+        Row: {
+          change_rate: number | null
+          created_at: string
+          current_count: number | null
+          display_name: string
+          id: string
+          metadata: Json | null
+          previous_count: number | null
+          rank: number | null
+          signal_key: string
+          signal_strength: number | null
+          signal_type: Database["public"]["Enums"]["market_signal_type"]
+          snapshot_id: string
+          trend_type:
+            | Database["public"]["Enums"]["market_signal_trend_type"]
+            | null
+          updated_at: string
+        }
+        Insert: {
+          change_rate?: number | null
+          created_at?: string
+          current_count?: number | null
+          display_name: string
+          id?: string
+          metadata?: Json | null
+          previous_count?: number | null
+          rank?: number | null
+          signal_key: string
+          signal_strength?: number | null
+          signal_type: Database["public"]["Enums"]["market_signal_type"]
+          snapshot_id: string
+          trend_type?:
+            | Database["public"]["Enums"]["market_signal_trend_type"]
+            | null
+          updated_at?: string
+        }
+        Update: {
+          change_rate?: number | null
+          created_at?: string
+          current_count?: number | null
+          display_name?: string
+          id?: string
+          metadata?: Json | null
+          previous_count?: number | null
+          rank?: number | null
+          signal_key?: string
+          signal_strength?: number | null
+          signal_type?: Database["public"]["Enums"]["market_signal_type"]
+          snapshot_id?: string
+          trend_type?:
+            | Database["public"]["Enums"]["market_signal_trend_type"]
+            | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_signal_items_snapshot_id_market_signal_snapshots_id_fk"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "market_signal_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_signal_snapshots: {
+        Row: {
+          created_at: string
+          generated_at: string | null
+          id: string
+          metadata: Json | null
+          model_info: Json | null
+          period_end: string
+          period_key: string
+          period_start: string
+          period_type: Database["public"]["Enums"]["market_signal_period_type"]
+          scope_key: string | null
+          scope_type: Database["public"]["Enums"]["market_signal_scope_type"]
+          source_count: number
+          status: Database["public"]["Enums"]["market_signal_snapshot_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          generated_at?: string | null
+          id?: string
+          metadata?: Json | null
+          model_info?: Json | null
+          period_end: string
+          period_key: string
+          period_start: string
+          period_type: Database["public"]["Enums"]["market_signal_period_type"]
+          scope_key?: string | null
+          scope_type: Database["public"]["Enums"]["market_signal_scope_type"]
+          source_count?: number
+          status?: Database["public"]["Enums"]["market_signal_snapshot_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          generated_at?: string | null
+          id?: string
+          metadata?: Json | null
+          model_info?: Json | null
+          period_end?: string
+          period_key?: string
+          period_start?: string
+          period_type?: Database["public"]["Enums"]["market_signal_period_type"]
+          scope_key?: string | null
+          scope_type?: Database["public"]["Enums"]["market_signal_scope_type"]
+          source_count?: number
+          status?: Database["public"]["Enums"]["market_signal_snapshot_status"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       normalized_documents: {
         Row: {
@@ -2093,6 +2320,12 @@ export type Database = {
     }
     Enums: {
       api_mode: "responses" | "streaming"
+      audio_type: "market_talk" | "brief_30s" | "read_aloud" | "deep_dive"
+      brief_type:
+        | "today_30s"
+        | "short_summary"
+        | "key_points"
+        | "executive_summary"
       category:
         | "foundation"
         | "issue"
@@ -2110,10 +2343,43 @@ export type Database = {
         | "completed"
         | "failed"
         | "partial"
+      content_audio_status: "script_ready" | "generated" | "failed"
+      content_brief_status: "draft" | "final"
+      content_target_type: "item_report" | "daily_market_memory"
       content_type: "summary" | "md_summary" | "source_text"
       i18n_status: "ready" | "done" | "partial"
       item_status: "ready" | "running" | "done" | "failed"
       lang_code: "ko" | "ja" | "en"
+      market_memory_content_type:
+        | "global_market_issues"
+        | "daily_market_issues"
+        | "weekly_market_issues"
+        | "weekly_ai_issues"
+        | "analysis_report"
+        | "thesis_report"
+        | "timeline_report"
+        | "briefing_report"
+        | "daily_market_memory"
+        | "weekly_market_memory"
+        | "monthly_market_memory"
+      market_signal_period_type: "daily" | "weekly" | "monthly"
+      market_signal_scope_type: "content_type" | "global"
+      market_signal_snapshot_status: "draft" | "final"
+      market_signal_trend_type: "rising" | "falling" | "new" | "stable"
+      market_signal_type:
+        | "tag"
+        | "entity"
+        | "theme"
+        | "industry"
+        | "company"
+        | "person"
+        | "asset"
+        | "region"
+        | "country"
+        | "indicator"
+        | "technology"
+        | "institution"
+        | "product"
       observation_content_type: "post" | "comment"
       observation_source: "hacker_news" | "github" | "reddit"
       ocr_job_status: "queued" | "running" | "success" | "failed" | "partial"
@@ -2295,6 +2561,13 @@ export const Constants = {
   public: {
     Enums: {
       api_mode: ["responses", "streaming"],
+      audio_type: ["market_talk", "brief_30s", "read_aloud", "deep_dive"],
+      brief_type: [
+        "today_30s",
+        "short_summary",
+        "key_points",
+        "executive_summary",
+      ],
       category: [
         "foundation",
         "issue",
@@ -2314,10 +2587,45 @@ export const Constants = {
         "failed",
         "partial",
       ],
+      content_audio_status: ["script_ready", "generated", "failed"],
+      content_brief_status: ["draft", "final"],
+      content_target_type: ["item_report", "daily_market_memory"],
       content_type: ["summary", "md_summary", "source_text"],
       i18n_status: ["ready", "done", "partial"],
       item_status: ["ready", "running", "done", "failed"],
       lang_code: ["ko", "ja", "en"],
+      market_memory_content_type: [
+        "global_market_issues",
+        "daily_market_issues",
+        "weekly_market_issues",
+        "weekly_ai_issues",
+        "analysis_report",
+        "thesis_report",
+        "timeline_report",
+        "briefing_report",
+        "daily_market_memory",
+        "weekly_market_memory",
+        "monthly_market_memory",
+      ],
+      market_signal_period_type: ["daily", "weekly", "monthly"],
+      market_signal_scope_type: ["content_type", "global"],
+      market_signal_snapshot_status: ["draft", "final"],
+      market_signal_trend_type: ["rising", "falling", "new", "stable"],
+      market_signal_type: [
+        "tag",
+        "entity",
+        "theme",
+        "industry",
+        "company",
+        "person",
+        "asset",
+        "region",
+        "country",
+        "indicator",
+        "technology",
+        "institution",
+        "product",
+      ],
       observation_content_type: ["post", "comment"],
       observation_source: ["hacker_news", "github", "reddit"],
       ocr_job_status: ["queued", "running", "success", "failed", "partial"],
