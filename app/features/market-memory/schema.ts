@@ -29,8 +29,11 @@ import { authenticatedRole } from "drizzle-orm/supabase";
 
 /** Representation / Signal 공통 — 원본 DB 객체 종류 (admin.targetType 과 별개) */
 export const contentTargetType = pgEnum("content_target_type", [
-  "item_report",
-  "daily_market_memory",
+  "analysis-report",
+  "thesis-report",
+  "timeline-report",
+  "briefing-report",
+  "daily-market-memory",
 ]);
 
 /**
@@ -38,17 +41,14 @@ export const contentTargetType = pgEnum("content_target_type", [
  * MVP: global_market_issues — 향후 daily/weekly/monthly market memory 등 확장.
  */
 export const marketMemoryContentType = pgEnum("market_memory_content_type", [
-  "global_market_issues",
-  "daily_market_issues",
-  "weekly_market_issues",
-  "weekly_ai_issues",
-  "analysis_report",
-  "thesis_report",
-  "timeline_report",
-  "briefing_report",
-  "daily_market_memory",
-  "weekly_market_memory",
-  "monthly_market_memory",
+  "global-market-issues",
+  "daily-market-issues",
+  "report-summary",
+  "weekly-market-issues",
+  "weekly-ai-issues",
+  "daily-market-memory",
+  "weekly-market-memory",
+  "monthly-market-memory",
 ]);
 
 /** Brief Representation 종류 — MVP: today_30s (UI: "Today in 30 Seconds") */

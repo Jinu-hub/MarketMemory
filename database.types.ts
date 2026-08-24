@@ -2345,23 +2345,25 @@ export type Database = {
         | "partial"
       content_audio_status: "script_ready" | "generated" | "failed"
       content_brief_status: "draft" | "final"
-      content_target_type: "item_report" | "daily_market_memory"
+      content_target_type:
+        | "analysis-report"
+        | "thesis-report"
+        | "timeline-report"
+        | "briefing-report"
+        | "daily-market-memory"
       content_type: "summary" | "md_summary" | "source_text"
       i18n_status: "ready" | "done" | "partial"
       item_status: "ready" | "running" | "done" | "failed"
       lang_code: "ko" | "ja" | "en"
       market_memory_content_type:
-        | "global_market_issues"
-        | "daily_market_issues"
-        | "weekly_market_issues"
-        | "weekly_ai_issues"
-        | "analysis_report"
-        | "thesis_report"
-        | "timeline_report"
-        | "briefing_report"
-        | "daily_market_memory"
-        | "weekly_market_memory"
-        | "monthly_market_memory"
+        | "global-market-issues"
+        | "daily-market-issues"
+        | "report-summary"
+        | "weekly-market-issues"
+        | "weekly-ai-issues"
+        | "daily-market-memory"
+        | "weekly-market-memory"
+        | "monthly-market-memory"
       market_signal_period_type: "daily" | "weekly" | "monthly"
       market_signal_scope_type: "content_type" | "global"
       market_signal_snapshot_status: "draft" | "final"
@@ -2589,23 +2591,26 @@ export const Constants = {
       ],
       content_audio_status: ["script_ready", "generated", "failed"],
       content_brief_status: ["draft", "final"],
-      content_target_type: ["item_report", "daily_market_memory"],
+      content_target_type: [
+        "analysis-report",
+        "thesis-report",
+        "timeline-report",
+        "briefing-report",
+        "daily-market-memory",
+      ],
       content_type: ["summary", "md_summary", "source_text"],
       i18n_status: ["ready", "done", "partial"],
       item_status: ["ready", "running", "done", "failed"],
       lang_code: ["ko", "ja", "en"],
       market_memory_content_type: [
-        "global_market_issues",
-        "daily_market_issues",
-        "weekly_market_issues",
-        "weekly_ai_issues",
-        "analysis_report",
-        "thesis_report",
-        "timeline_report",
-        "briefing_report",
-        "daily_market_memory",
-        "weekly_market_memory",
-        "monthly_market_memory",
+        "global-market-issues",
+        "daily-market-issues",
+        "report-summary",
+        "weekly-market-issues",
+        "weekly-ai-issues",
+        "daily-market-memory",
+        "weekly-market-memory",
+        "monthly-market-memory",
       ],
       market_signal_period_type: ["daily", "weekly", "monthly"],
       market_signal_scope_type: ["content_type", "global"],
