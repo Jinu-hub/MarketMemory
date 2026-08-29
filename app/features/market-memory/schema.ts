@@ -30,6 +30,7 @@ import { authenticatedRole } from "drizzle-orm/supabase";
 /** Representation / Signal 공통 — 원본 DB 객체 종류 (admin.targetType 과 별개) */
 export const contentTargetType = pgEnum("content_target_type", [
   "analysis-report",
+  "digest-report",
   "thesis-report",
   "timeline-report",
   "briefing-report",
@@ -54,6 +55,7 @@ export const marketMemoryContentType = pgEnum("market_memory_content_type", [
 /** Brief Representation 종류 — MVP: today_30s (UI: "Today in 30 Seconds") */
 export const briefType = pgEnum("brief_type", [
   "today_30s",
+  "brief_30s",
   "short_summary",
   "key_points",
   "executive_summary",

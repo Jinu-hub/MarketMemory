@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -2323,6 +2323,7 @@ export type Database = {
       audio_type: "market_talk" | "brief_30s" | "read_aloud" | "deep_dive"
       brief_type:
         | "today_30s"
+        | "brief_30s"
         | "short_summary"
         | "key_points"
         | "executive_summary"
@@ -2347,6 +2348,7 @@ export type Database = {
       content_brief_status: "draft" | "final"
       content_target_type:
         | "analysis-report"
+        | "digest-report"
         | "thesis-report"
         | "timeline-report"
         | "briefing-report"
@@ -2566,6 +2568,7 @@ export const Constants = {
       audio_type: ["market_talk", "brief_30s", "read_aloud", "deep_dive"],
       brief_type: [
         "today_30s",
+        "brief_30s",
         "short_summary",
         "key_points",
         "executive_summary",
@@ -2593,6 +2596,7 @@ export const Constants = {
       content_brief_status: ["draft", "final"],
       content_target_type: [
         "analysis-report",
+        "digest-report",
         "thesis-report",
         "timeline-report",
         "briefing-report",
