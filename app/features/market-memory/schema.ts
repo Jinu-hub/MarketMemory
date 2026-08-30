@@ -76,7 +76,9 @@ export const contentBriefStatus = pgEnum("content_brief_status", [
 
 export const contentAudioStatus = pgEnum("content_audio_status", [
   "script_ready",
-  "generated",
+  "generating",
+  "completed",
+  "cancelled",
   "failed",
 ]);
 

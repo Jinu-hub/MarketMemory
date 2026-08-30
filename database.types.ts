@@ -2344,7 +2344,12 @@ export type Database = {
         | "completed"
         | "failed"
         | "partial"
-      content_audio_status: "script_ready" | "generated" | "failed"
+      content_audio_status:
+        | "script_ready"
+        | "generating"
+        | "completed"
+        | "cancelled"
+        | "failed"
       content_brief_status: "draft" | "final"
       content_target_type:
         | "analysis-report"
@@ -2592,7 +2597,13 @@ export const Constants = {
         "failed",
         "partial",
       ],
-      content_audio_status: ["script_ready", "generated", "failed"],
+      content_audio_status: [
+        "script_ready",
+        "generating",
+        "completed",
+        "cancelled",
+        "failed",
+      ],
       content_brief_status: ["draft", "final"],
       content_target_type: [
         "analysis-report",
