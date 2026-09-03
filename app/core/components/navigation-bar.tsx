@@ -258,7 +258,7 @@ export function NavigationBar({
             height={28}
             className="size-7 shrink-0"
           />
-          <h1 className="text-lg font-extrabold">{t("home.title")}</h1>
+          <span className="text-lg font-extrabold">{t("home.title")}</span>
         </Link>
         
         {/* Desktop navigation menu (hidden on mobile) */}
