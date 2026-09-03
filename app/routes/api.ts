@@ -18,6 +18,7 @@ export const apiRoutes = prefix("/api", [
     route("/market-snapshot", "features/cron/api/market-snapshot.tsx"),
     route("/daily-market-memory", "features/cron/api/daily-market-memory.tsx"),
     route("/item-content-i18n", "features/cron/api/item-content-i18n.tsx"),
+    route("/market-signal", "features/cron/api/market-signal.tsx"),
   ]),
   ...prefix("/admin", [
     route("/observations/collect", "features/founder-os/api/collect.tsx"),

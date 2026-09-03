@@ -414,6 +414,20 @@
       "when": 1788083753380,
       "tag": "0058_acoustic_zaladane",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1788355360420,
+      "tag": "0059_flimsy_nitro",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1788358208072,
+      "tag": "0060_rich_loki",
+      "breakpoints": true
     }
   ]
 }

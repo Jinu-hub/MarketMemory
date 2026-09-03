@@ -1280,6 +1280,47 @@ export type Database = {
           },
         ]
       }
+      market_signal_snapshot_sources: {
+        Row: {
+          created_at: string
+          id: string
+          input_hash: string | null
+          market_date: string | null
+          report_type: string | null
+          snapshot_id: string
+          source_id: string
+          source_kind: Database["public"]["Enums"]["market_signal_source_kind"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          market_date?: string | null
+          report_type?: string | null
+          snapshot_id: string
+          source_id: string
+          source_kind: Database["public"]["Enums"]["market_signal_source_kind"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          input_hash?: string | null
+          market_date?: string | null
+          report_type?: string | null
+          snapshot_id?: string
+          source_id?: string
+          source_kind?: Database["public"]["Enums"]["market_signal_source_kind"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_signal_snapshot_sources_snapshot_id_market_signal_snapsh"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "market_signal_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_signal_snapshots: {
         Row: {
           created_at: string
@@ -2371,9 +2412,14 @@ export type Database = {
         | "daily-market-memory"
         | "weekly-market-memory"
         | "monthly-market-memory"
-      market_signal_period_type: "daily" | "weekly" | "monthly"
+      market_signal_period_type: "daily" | "weekly" | "monthly" | "yearly"
       market_signal_scope_type: "content_type" | "global"
       market_signal_snapshot_status: "draft" | "final"
+      market_signal_source_kind:
+        | "item_content"
+        | "daily_market_memory"
+        | "weekly_snapshot"
+        | "monthly_snapshot"
       market_signal_trend_type: "rising" | "falling" | "new" | "stable"
       market_signal_type:
         | "tag"
@@ -2457,12 +2503,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2486,11 +2532,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2511,11 +2557,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2536,11 +2582,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2553,11 +2599,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2627,9 +2673,15 @@ export const Constants = {
         "weekly-market-memory",
         "monthly-market-memory",
       ],
-      market_signal_period_type: ["daily", "weekly", "monthly"],
+      market_signal_period_type: ["daily", "weekly", "monthly", "yearly"],
       market_signal_scope_type: ["content_type", "global"],
       market_signal_snapshot_status: ["draft", "final"],
+      market_signal_source_kind: [
+        "item_content",
+        "daily_market_memory",
+        "weekly_snapshot",
+        "monthly_snapshot",
+      ],
       market_signal_trend_type: ["rising", "falling", "new", "stable"],
       market_signal_type: [
         "tag",

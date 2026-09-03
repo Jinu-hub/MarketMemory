@@ -92,6 +92,7 @@ export const marketSignalPeriodType = pgEnum("market_signal_period_type", [
   "daily",
   "weekly",
   "monthly",
+  "yearly",
 ]);
 
 export const marketSignalSnapshotStatus = pgEnum("market_signal_snapshot_status", [
@@ -121,6 +122,14 @@ export const marketSignalTrendType = pgEnum("market_signal_trend_type", [
   "falling",
   "new",
   "stable",
+]);
+
+/** Signal snapshot 집계 원본 종류 — item_contents / daily_market_memories 등 */
+export const marketSignalSourceKind = pgEnum("market_signal_source_kind", [
+  "item_content",
+  "daily_market_memory",
+  "weekly_snapshot",
+  "monthly_snapshot",
 ]);
 
 /* =========================================================
@@ -379,6 +388,60 @@ export const marketSignalItems = pgTable(
       withCheck: isAdmin,
     }),
     pgPolicy("msi_delete", {
+      for: "delete",
+      to: authenticatedRole,
+      using: isAdmin,
+    }),
+  ],
+);
+
+/* =========================================================
+   market_signal_snapshot_sources — Snapshot ↔ 원본 집계 이력
+   ========================================================= */
+export const marketSignalSnapshotSources = pgTable(
+  "market_signal_snapshot_sources",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    snapshot_id: uuid("snapshot_id")
+      .notNull()
+      .references(() => marketSignalSnapshots.id, { onDelete: "cascade" }),
+    source_kind: marketSignalSourceKind("source_kind").notNull(),
+    /** item_content → item_contents.id; weekly_snapshot → market_signal_snapshots.id (weekly) */
+    source_id: uuid("source_id").notNull(),
+    market_date: date("market_date"),
+    report_type: text("report_type"),
+    input_hash: text("input_hash"),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("msss_snapshot_source_unique").on(
+      table.snapshot_id,
+      table.source_kind,
+      table.source_id,
+    ),
+    index("idx_msss_snapshot_id").on(table.snapshot_id),
+    index("idx_msss_source").on(table.source_kind, table.source_id),
+    index("idx_msss_market_date").on(desc(table.market_date)),
+
+    pgPolicy("msss_select", {
+      for: "select",
+      to: authenticatedRole,
+      using: sql`true`,
+    }),
+    pgPolicy("msss_insert", {
+      for: "insert",
+      to: authenticatedRole,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("msss_update", {
+      for: "update",
+      to: authenticatedRole,
+      using: isAdmin,
+      withCheck: isAdmin,
+    }),
+    pgPolicy("msss_delete", {
       for: "delete",
       to: authenticatedRole,
       using: isAdmin,
