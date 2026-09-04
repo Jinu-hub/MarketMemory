@@ -24,6 +24,12 @@ export const privateRoutes = layout(
         index("features/weekly-market-issues/screens/list.tsx"),
         route("/:id", "features/weekly-market-issues/screens/detail.tsx"),
       ]),
+      ...prefix("/insights", [
+        route(
+          "/market-signals",
+          "features/market-signals/screens/list.tsx",
+        ),
+      ]),
     ]),
     ...prefix("/admin", [
       layout("features/admin/layouts/admin.layout.tsx", [

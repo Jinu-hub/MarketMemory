@@ -26,7 +26,7 @@ export default function DashboardSidebar({
   };
   isAdmin?: boolean;
 }) {
-  const { teams, navMain, adminNav, series } = useDashboardSidebarData();
+  const { teams, navMain, adminNav, series } = useDashboardSidebarData(isAdmin);
   const items = isAdmin ? [adminNav, ...navMain] : navMain;
 
   return (

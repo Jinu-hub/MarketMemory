@@ -1,6 +1,7 @@
 import type { Translation } from "./types";
 import authPages from "./auth/en";
 import itemReports from "./item-reports/en";
+import marketSignals from "./market-signals/en";
 import weeklyAiIssueDigest from "./weekly-ai-issue-digest/en";
 import weeklyMarketIssues from "./weekly-market-issues/en";
 
@@ -332,6 +333,7 @@ const en: Translation = {
     },
   },
   itemReports,
+  marketSignals,
   weeklyAiIssueDigest,
   weeklyMarketIssues,
   account: {
@@ -435,6 +437,7 @@ const en: Translation = {
       insights: {
         title: "Insights",
         marketMemory: "Market Memory",
+        marketSignals: "Market Signals",
         entityExplore: "Entity Explorer",
       },
       admin: {

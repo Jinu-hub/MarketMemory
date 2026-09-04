@@ -10,9 +10,28 @@ import {
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { SidebarNavItem } from "./sidebar-nav";
+import { MARKET_SIGNAL_VISIBILITY } from "~/features/market-signals/lib/visibility";
 
-export function useDashboardSidebarData() {
+import type { SidebarNavItem, SidebarNavSubItem } from "./sidebar-nav";
+
+function filterNavForViewer(
+  items: SidebarNavItem[],
+  isAdmin: boolean,
+): SidebarNavItem[] {
+  const filtered: SidebarNavItem[] = [];
+  for (const item of items) {
+    if (item.adminOnly && !isAdmin) {
+      continue;
+    }
+    filtered.push({
+      ...item,
+      items: item.items?.filter((sub) => !sub.adminOnly || isAdmin),
+    });
+  }
+  return filtered;
+}
+
+export function useDashboardSidebarData(isAdmin = false) {
   const { t } = useTranslation();
 
   return useMemo(() => {
@@ -21,6 +40,25 @@ export function useDashboardSidebarData() {
         name: t("dashboardSidebar.teamSwitcher.defaultTeamName"),
         logo: GalleryVerticalEndIcon,
         plan: t("dashboardSidebar.teamSwitcher.basicPlan"),
+      },
+    ];
+
+    const insightsItems: SidebarNavSubItem[] = [
+      {
+        title: t("dashboardSidebar.nav.insights.marketMemory"),
+        url: "/insights/market-memory",
+        soon: true,
+      },
+      {
+        title: t("dashboardSidebar.nav.insights.marketSignals"),
+        url: "/insights/market-signals",
+        // Flip MARKET_SIGNAL_VISIBILITY to open beyond admins.
+        adminOnly: MARKET_SIGNAL_VISIBILITY === "admin",
+      },
+      {
+        title: t("dashboardSidebar.nav.insights.entityExplore"),
+        url: "/insights/entity-explore",
+        soon: true,
       },
     ];
 
@@ -69,18 +107,7 @@ export function useDashboardSidebarData() {
         title: t("dashboardSidebar.nav.insights.title"),
         url: "/insights",
         icon: BrainIcon,
-        items: [
-          {
-            title: t("dashboardSidebar.nav.insights.marketMemory"),
-            url: "/insights/market-memory",
-            soon: true,
-          },
-          {
-            title: t("dashboardSidebar.nav.insights.entityExplore"),
-            url: "/insights/entity-explore",
-            soon: true,
-          },
-        ],
+        items: insightsItems,
       },
     ];
 
@@ -131,6 +158,11 @@ export function useDashboardSidebarData() {
       },
     ];
 
-    return { teams, navMain, adminNav, series };
-  }, [t]);
+    return {
+      teams,
+      navMain: filterNavForViewer(navMain, isAdmin),
+      adminNav,
+      series,
+    };
+  }, [t, isAdmin]);
 }

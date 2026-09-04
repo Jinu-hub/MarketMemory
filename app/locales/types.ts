@@ -1,5 +1,6 @@
 import type { AuthTranslation } from "./auth/types";
 import type { ItemReportsTranslation } from "./item-reports/types";
+import type { MarketSignalsTranslation } from "./market-signals/types";
 import type { WeeklyAiIssueDigestTranslation } from "./weekly-ai-issue-digest/types";
 import type { WeeklyMarketIssuesTranslation } from "./weekly-market-issues/types";
 
@@ -301,6 +302,7 @@ export type Translation = {
     };
   };
   itemReports: ItemReportsTranslation;
+  marketSignals: MarketSignalsTranslation;
   weeklyAiIssueDigest: WeeklyAiIssueDigestTranslation;
   weeklyMarketIssues: WeeklyMarketIssuesTranslation;
   account: {
@@ -401,6 +403,7 @@ export type Translation = {
       insights: {
         title: string;
         marketMemory: string;
+        marketSignals: string;
         entityExplore: string;
       };
       admin: {

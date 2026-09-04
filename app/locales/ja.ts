@@ -1,6 +1,7 @@
 import type { Translation } from "./types";
 import authPages from "./auth/ja";
 import itemReports from "./item-reports/ja";
+import marketSignals from "./market-signals/ja";
 import weeklyAiIssueDigest from "./weekly-ai-issue-digest/ja";
 import weeklyMarketIssues from "./weekly-market-issues/ja";
 
@@ -332,6 +333,7 @@ const ja: Translation = {
     },
   },
   itemReports,
+  marketSignals,
   weeklyAiIssueDigest,
   weeklyMarketIssues,
   account: {
@@ -435,6 +437,7 @@ const ja: Translation = {
       insights: {
         title: "インサイト",
         marketMemory: "市場メモリ",
+        marketSignals: "マーケットシグナル",
         entityExplore: "エンティティ探索",
       },
       admin: {

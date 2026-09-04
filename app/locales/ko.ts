@@ -1,6 +1,7 @@
 import type { Translation } from "./types";
 import authPages from "./auth/ko";
 import itemReports from "./item-reports/ko";
+import marketSignals from "./market-signals/ko";
 import weeklyAiIssueDigest from "./weekly-ai-issue-digest/ko";
 import weeklyMarketIssues from "./weekly-market-issues/ko";
 
@@ -332,6 +333,7 @@ const ko: Translation = {
     },
   },
   itemReports,
+  marketSignals,
   weeklyAiIssueDigest,
   weeklyMarketIssues,
   account: {
@@ -435,6 +437,7 @@ const ko: Translation = {
       insights: {
         title: "인사이트",
         marketMemory: "마켓 메모리",
+        marketSignals: "마켓 시그널",
         entityExplore: "엔티티 탐색",
       },
       admin: {
