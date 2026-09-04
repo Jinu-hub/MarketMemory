@@ -46,6 +46,16 @@ const marketSignalsJa: MarketSignalsTranslation = {
     risingCount: "上昇 {{count}}",
     newCount: "新規 {{count}}",
   },
+  view: {
+    list: "リスト",
+    bubble: "バブル",
+    toggleAria: "シグナル表示モード",
+  },
+  bubble: {
+    insightTitle: "バブルマップ",
+    insightBody:
+      "円の大きさ＝出現回数、色＝トレンド（上昇・下落・新規・横ばい）。円を選ぶと詳細が表示されます。",
+  },
 };
 
 export default marketSignalsJa;

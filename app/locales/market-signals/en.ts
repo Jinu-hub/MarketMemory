@@ -46,6 +46,16 @@ const marketSignalsEn: MarketSignalsTranslation = {
     risingCount: "{{count}} rising",
     newCount: "{{count}} new",
   },
+  view: {
+    list: "List",
+    bubble: "Bubble",
+    toggleAria: "Signal view mode",
+  },
+  bubble: {
+    insightTitle: "Bubble map",
+    insightBody:
+      "Bubble size = count, color = trend (rising / falling / new / stable). Select a bubble for details.",
+  },
 };
 
 export default marketSignalsEn;

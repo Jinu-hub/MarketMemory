@@ -44,6 +44,16 @@ const marketSignalsKo = {
     risingCount: "상승 추세 {{count}}개",
     newCount: "신규 {{count}}개",
   },
+  view: {
+    list: "리스트",
+    bubble: "버블",
+    toggleAria: "시그널 보기 방식",
+  },
+  bubble: {
+    insightTitle: "버블 맵",
+    insightBody:
+      "원 크기 = 출현 횟수, 색 = 추세(상승·하락·신규·유지). 원을 선택하면 상세가 표시됩니다.",
+  },
 } as const;
 
 export default marketSignalsKo;
