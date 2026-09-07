@@ -17,6 +17,11 @@ import type { Route } from "./+types/list";
 import { SignalBubblePack } from "../components/signal-bubble-pack";
 import { SignalRankRow } from "../components/signal-rank-row";
 import {
+  filterItemsByLayer,
+  parseSignalLayer,
+  type SignalLayer,
+} from "../lib/signal-layers";
+import {
   canViewMarketSignals,
   MARKET_SIGNAL_DEFAULT_SCOPE_KEY,
 } from "../lib/visibility";
@@ -30,6 +35,9 @@ import {
 } from "../queries.server";
 
 type SignalView = "bubble" | "list";
+
+const ITEM_FETCH_LIMIT = 200;
+const ITEM_DISPLAY_LIMIT = 50;
 
 export const meta: Route.MetaFunction = ({ data }) => [
   {
@@ -52,6 +60,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const requestedKey = url.searchParams.get("periodKey")?.trim() || null;
   const view: SignalView =
     url.searchParams.get("view") === "list" ? "list" : "bubble";
+  const layer = parseSignalLayer(url.searchParams.get("layer"));
 
   const snapshots = await listMarketSignalSnapshots(client, {
     scopeKey: MARKET_SIGNAL_DEFAULT_SCOPE_KEY,
@@ -71,10 +80,12 @@ export async function loader({ request }: Route.LoaderArgs) {
     selected = snapshots[0] ?? null;
   }
 
-  let items: MarketSignalItemRow[] = [];
+  let allItems: MarketSignalItemRow[] = [];
   if (selected) {
-    items = await listMarketSignalItems(client, selected.id, 50);
+    allItems = await listMarketSignalItems(client, selected.id, ITEM_FETCH_LIMIT);
   }
+
+  const items = filterItemsByLayer(allItems, layer, ITEM_DISPLAY_LIMIT);
 
   const t = await i18next.getFixedT(
     await i18next.getLocale(request),
@@ -85,6 +96,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     title: t("marketSignals.title"),
     periodType,
     view,
+    layer,
     snapshots,
     selected,
     items,
@@ -96,6 +108,7 @@ function hrefFor(params: {
   periodType: string;
   periodKey?: string | null;
   view?: SignalView;
+  layer?: SignalLayer;
 }) {
   const search = new URLSearchParams({ periodType: params.periodType });
   if (params.periodKey) {
@@ -104,6 +117,9 @@ function hrefFor(params: {
   if (params.view === "list") {
     search.set("view", "list");
   }
+  if (params.layer === "geo") {
+    search.set("layer", "geo");
+  }
   return `/insights/market-signals?${search.toString()}`;
 }
 
@@ -111,7 +127,7 @@ export default function MarketSignalsListScreen({
   loaderData,
 }: Route.ComponentProps) {
   const { t } = useTranslation();
-  const { periodType, view, snapshots, selected, items } = loaderData;
+  const { periodType, view, layer, snapshots, selected, items } = loaderData;
 
   const maxCount = Math.max(0, ...items.map((item) => item.currentCount ?? 0));
   const risingCount = items.filter((item) => item.trendType === "rising").length;
@@ -150,11 +166,13 @@ export default function MarketSignalsListScreen({
               periodType,
               periodKey: selected?.periodKey,
               view: "bubble",
+              layer,
             })}
             listHref={hrefFor({
               periodType,
               periodKey: selected?.periodKey,
               view: "list",
+              layer,
             })}
             bubbleLabel={t("marketSignals.view.bubble")}
             listLabel={t("marketSignals.view.list")}
@@ -163,30 +181,51 @@ export default function MarketSignalsListScreen({
         </div>
       </header>
 
-      <div
-        className="border-border bg-muted/30 flex flex-wrap gap-1 rounded-xl border p-1"
-        role="tablist"
-        aria-label={t("marketSignals.title")}
-      >
-        {periodTypes.map((type) => {
-          const active = periodType === type;
-          return (
-            <Link
-              key={type}
-              to={hrefFor({ periodType: type, view })}
-              role="tab"
-              aria-selected={active}
-              className={cn(
-                "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                active
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t(`marketSignals.periodTypes.${type}`)}
-            </Link>
-          );
-        })}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          className="border-border bg-muted/30 flex flex-wrap gap-1 rounded-xl border p-1"
+          role="tablist"
+          aria-label={t("marketSignals.title")}
+        >
+          {periodTypes.map((type) => {
+            const active = periodType === type;
+            return (
+              <Link
+                key={type}
+                to={hrefFor({ periodType: type, view, layer })}
+                role="tab"
+                aria-selected={active}
+                className={cn(
+                  "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {t(`marketSignals.periodTypes.${type}`)}
+              </Link>
+            );
+          })}
+        </div>
+
+        <LayerToggle
+          layer={layer}
+          themeHref={hrefFor({
+            periodType,
+            periodKey: selected?.periodKey,
+            view,
+            layer: "theme",
+          })}
+          geoHref={hrefFor({
+            periodType,
+            periodKey: selected?.periodKey,
+            view,
+            layer: "geo",
+          })}
+          themeLabel={t("marketSignals.layers.theme")}
+          geoLabel={t("marketSignals.layers.geo")}
+          toggleAria={t("marketSignals.layers.toggleAria")}
+        />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)_240px]">
@@ -203,6 +242,7 @@ export default function MarketSignalsListScreen({
                     periodType,
                     periodKey: snap.periodKey,
                     view,
+                    layer,
                   })}
                   className={cn(
                     "rounded-lg border px-3 py-2.5 text-sm transition-colors",
@@ -363,6 +403,54 @@ export default function MarketSignalsListScreen({
           )}
         </aside>
       </div>
+    </div>
+  );
+}
+
+function LayerToggle({
+  layer,
+  themeHref,
+  geoHref,
+  themeLabel,
+  geoLabel,
+  toggleAria,
+}: {
+  layer: SignalLayer;
+  themeHref: string;
+  geoHref: string;
+  themeLabel: string;
+  geoLabel: string;
+  toggleAria: string;
+}) {
+  const items = [
+    { value: "theme" as const, href: themeHref, label: themeLabel },
+    { value: "geo" as const, href: geoHref, label: geoLabel },
+  ];
+
+  return (
+    <div
+      role="group"
+      aria-label={toggleAria}
+      className="border-border bg-muted/50 inline-flex shrink-0 items-center gap-0.5 rounded-md border p-0.5"
+    >
+      {items.map((item) => {
+        const active = layer === item.value;
+        return (
+          <Link
+            key={item.value}
+            to={item.href}
+            className={cn(
+              "rounded-[5px] px-2.5 py-1.5 text-xs font-medium transition-colors",
+              active
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            aria-current={active ? "page" : undefined}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
     </div>
   );
 }

@@ -49,6 +49,11 @@ const marketSignalsKo = {
     bubble: "버블",
     toggleAria: "시그널 보기 방식",
   },
+  layers: {
+    theme: "테마·엔티티",
+    geo: "지역",
+    toggleAria: "시그널 레이어",
+  },
   bubble: {
     insightTitle: "버블 맵",
     insightBody:

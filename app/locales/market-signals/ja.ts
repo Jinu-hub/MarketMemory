@@ -51,6 +51,11 @@ const marketSignalsJa: MarketSignalsTranslation = {
     bubble: "バブル",
     toggleAria: "シグナル表示モード",
   },
+  layers: {
+    theme: "テーマ・エンティティ",
+    geo: "地域",
+    toggleAria: "シグナルレイヤー",
+  },
   bubble: {
     insightTitle: "バブルマップ",
     insightBody:

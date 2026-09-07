@@ -51,6 +51,11 @@ const marketSignalsEn: MarketSignalsTranslation = {
     bubble: "Bubble",
     toggleAria: "Signal view mode",
   },
+  layers: {
+    theme: "Theme · Entity",
+    geo: "Region",
+    toggleAria: "Signal layer",
+  },
   bubble: {
     insightTitle: "Bubble map",
     insightBody:
