@@ -18,6 +18,9 @@ import adminClient from "~/core/lib/supa-admin-client.server";
 const MAILER_BATCH_SIZE_DEFAULT = 3;
 const MAILER_BATCH_SIZE_MAX = 10;
 
+/** TEMP: set to false to resume sending */
+const MAILER_SEND_DISABLED = true;
+
 const subjectByLocale = {
   ko: "Market Memory에 오신 것을 환영합니다!",
   en: "Welcome to Market Memory!",
@@ -151,6 +154,12 @@ export async function action({ request }: Route.LoaderArgs) {
     request.headers.get("Authorization") !== process.env.CRON_SECRET
   ) {
     return data(null, { status: 401 });
+  }
+
+  // TEMP: skip sending emails while cron keeps hitting this endpoint
+  if (MAILER_SEND_DISABLED) {
+    console.log("[cron] Mailer temporarily disabled — skipping send");
+    return data(null, { status: 200 });
   }
 
   const batchSize = resolveMailerBatchSize();
