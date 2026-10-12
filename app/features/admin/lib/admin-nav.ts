@@ -4,6 +4,7 @@ import {
   ActivityIcon,
   ClipboardListIcon,
   GitBranchIcon,
+  BoxesIcon,
   HomeIcon,
   LanguagesIcon,
   PackageIcon,
@@ -37,7 +38,13 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     to: "/admin/agents",
     label: "에이전트",
     icon: SparklesIcon,
-    dashboardDescription: "에이전트 키와 표시 이름을 관리합니다.",
+    dashboardDescription: "에이전트 키·소유 서비스·표시 이름을 관리합니다.",
+  },
+  {
+    to: "/admin/services",
+    label: "서비스",
+    icon: BoxesIcon,
+    dashboardDescription: "에이전트·프롬프트를 쓰는 서비스와 공용(shared) 소유를 정의합니다.",
   },
   {
     to: "/admin/prompts",
@@ -49,7 +56,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     to: "/admin/prompt-releases",
     label: "프롬프트 릴리스",
     icon: PackageIcon,
-    dashboardDescription: "환경별 활성 프롬프트를 고정합니다.",
+    dashboardDescription: "서비스·환경별 활성 프롬프트를 고정합니다.",
   },
   {
     to: "/admin/founder-os",

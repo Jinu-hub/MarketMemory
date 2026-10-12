@@ -158,6 +158,44 @@ export type AdminAgentOption = {
   display_name: string | null;
 };
 
+export type AdminServiceOption = {
+  service_key: string;
+  display_name: string | null;
+};
+
+export function AdminServiceSelect({
+  services,
+  name = "owner_service",
+  defaultValue = "market_memory",
+  ariaLabel = "서비스 선택",
+  form,
+}: {
+  services: AdminServiceOption[];
+  name?: string;
+  defaultValue?: string;
+  ariaLabel?: string;
+  /** 테이블 행처럼 select가 Form 바깥에 있을 때 연결할 form id */
+  form?: string;
+}) {
+  return (
+    <select
+      name={name}
+      required
+      defaultValue={defaultValue}
+      form={form}
+      className={adminSelectClassName}
+      aria-label={ariaLabel}
+    >
+      {services.map((s) => (
+        <option key={s.service_key} value={s.service_key}>
+          {s.service_key}
+          {s.display_name ? ` — ${s.display_name}` : ""}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 /**
  * Native select + instant filter (agent_key / display_name). Filter field is not submitted.
  * Select is controlled so the choice resets when it falls outside the filtered set.

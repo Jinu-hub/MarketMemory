@@ -15,8 +15,8 @@ import {
   AdminSection,
   AdminSortAffix,
   AdminTableShell,
+  AdminServiceSelect,
   EnvironmentBadge,
-  adminSelectClassName,
   adminSortColumnButtonClass,
   adminTdClass,
 } from "../components/admin-ui";
@@ -249,21 +249,11 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
               <AdminAgentSelectWithFilter agents={agents} selectAriaLabel="에이전트 선택" />
             </div>
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-foreground font-medium">서비스</span>
-              <select
+              <span className="text-foreground font-medium">사용 서비스</span>
+              <AdminServiceSelect
+                services={services.filter((s) => s.service_key !== "shared")}
                 name="service_key"
-                required
-                defaultValue="market_memory"
-                className={adminSelectClassName}
-                aria-label="서비스 선택"
-              >
-                {services.map((s) => (
-                  <option key={s.service_key} value={s.service_key}>
-                    {s.service_key}
-                    {s.display_name ? ` — ${s.display_name}` : ""}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
             <NexInput
               name="environment"

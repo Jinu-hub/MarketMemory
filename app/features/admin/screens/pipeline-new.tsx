@@ -8,15 +8,18 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminSection,
+  AdminServiceSelect,
   adminSelectClassName,
 } from "../components/admin-ui";
 import { NexButton, NexInput } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { createPipeline } from "../mutations";
+import { listServices } from "../queries";
 
 const createSchema = z.object({
   pipeline_key: z.string().min(1, "pipeline_key 필수"),
+  owner_service: z.string().min(1),
   name: z.string().min(1, "이름 필수"),
   description: z.string().optional(),
   status: z.enum(["draft", "active", "deprecated"]),
@@ -26,8 +29,10 @@ export const meta: Route.MetaFunction = () => [
   { title: `새 파이프라인 | ${import.meta.env.VITE_APP_NAME}` },
 ];
 
-export async function loader() {
-  return {};
+export async function loader({ request }: Route.LoaderArgs) {
+  const [client] = makeServerClient(request);
+  const { data: services } = await listServices(client);
+  return { services: services ?? [] };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -47,6 +52,7 @@ export async function action({ request }: Route.ActionArgs) {
   const v = parsed.data;
   const { error } = await createPipeline(client, {
     pipeline_key: v.pipeline_key.trim(),
+    owner_service: v.owner_service,
     name: v.name.trim(),
     description: v.description?.trim() || null,
     status: v.status,
@@ -58,7 +64,8 @@ export async function action({ request }: Route.ActionArgs) {
   return redirect(`/admin/pipelines/${encodeURIComponent(v.pipeline_key.trim())}`);
 }
 
-export default function PipelineNew() {
+export default function PipelineNew({ loaderData }: Route.ComponentProps) {
+  const { services } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
@@ -86,6 +93,10 @@ export default function PipelineNew() {
         <AdminPanel padding="lg" className="max-w-xl">
           <Form method="post" className="grid gap-5">
             <NexInput name="pipeline_key" label="pipeline_key" required placeholder="예: ingest_v1" />
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="text-foreground font-medium">소유 서비스</span>
+              <AdminServiceSelect services={services} />
+            </label>
             <NexInput name="name" label="이름" required />
             <NexInput name="description" label="설명" placeholder="선택" />
             <label className="flex flex-col gap-2 text-sm">

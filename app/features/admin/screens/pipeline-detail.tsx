@@ -9,6 +9,7 @@ import {
   AdminErrorAlert,
   AdminPanel,
   AdminSection,
+  AdminServiceSelect,
   AdminTableShell,
   PipelineStatusBadge,
   TargetTypeBadge,
@@ -42,6 +43,7 @@ import {
   listPipelineStepsByKey,
   listPipelinesForSelector,
   listPromptTemplatesForSelector,
+  listServices,
 } from "../queries";
 
 export const meta: Route.MetaFunction = () => [
@@ -51,6 +53,7 @@ export const meta: Route.MetaFunction = () => [
 const updatePipelineSchema = z.object({
   intent: z.literal("update_pipeline"),
   pipeline_key: z.string().min(1),
+  owner_service: z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
   status: z.enum(["draft", "active", "deprecated"]),
@@ -88,13 +91,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
   const pipelineKey = decodeURIComponent(params.pipelineKey ?? "");
 
-  const [{ data: pipeline, error: pe }, agentsResult, pipelinesResult, templatesResult] =
-    await Promise.all([
-      getPipelineByKey(client, pipelineKey),
-      listAgentsWithDisplayName(client),
-      listPipelinesForSelector(client),
-      listPromptTemplatesForSelector(client),
-    ]);
+  const [
+    { data: pipeline, error: pe },
+    agentsResult,
+    pipelinesResult,
+    templatesResult,
+    servicesResult,
+  ] = await Promise.all([
+    getPipelineByKey(client, pipelineKey),
+    listAgentsWithDisplayName(client),
+    listPipelinesForSelector(client),
+    listPromptTemplatesForSelector(client),
+    listServices(client),
+  ]);
 
   if (pe || !pipeline) {
     throw data(null, { status: 404 });
@@ -112,6 +121,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     agents: agentsResult.data ?? [],
     pipelinesList: pipelinesResult.data ?? [],
     promptTemplates: templatesResult.data ?? [],
+    services: servicesResult.data ?? [],
   };
 }
 
@@ -139,6 +149,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       return data({ message: "pipeline_key 불일치" }, { status: 400 });
     }
     const { error } = await updatePipelineByKey(client, pipeline_key, {
+      owner_service: v.owner_service,
       name: v.name.trim(),
       description: v.description?.trim() || null,
       status: v.status,
@@ -221,7 +232,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function PipelineDetail({ loaderData }: Route.ComponentProps) {
-  const { pipeline, steps, agents, pipelinesList, promptTemplates } = loaderData;
+  const { pipeline, steps, agents, pipelinesList, promptTemplates, services } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
@@ -287,12 +298,16 @@ export default function PipelineDetail({ loaderData }: Route.ComponentProps) {
 
       <AdminSection
         title="메타데이터"
-        description="표시 이름과 설명, 상태만 수정합니다. pipeline_key는 변경하지 않습니다."
+        description="소유 서비스, 표시 이름, 설명, 상태만 수정합니다. pipeline_key는 변경하지 않습니다."
       >
         <AdminPanel padding="lg" className="max-w-xl">
           <Form method="post" className="grid gap-5">
             <input type="hidden" name="intent" value="update_pipeline" />
             <input type="hidden" name="pipeline_key" value={pipeline.pipeline_key} />
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="text-foreground font-medium">소유 서비스</span>
+              <AdminServiceSelect services={services} defaultValue={pipeline.owner_service} />
+            </label>
             <NexInput name="name" label="이름" required defaultValue={pipeline.name} />
             <NexInput name="description" label="설명" defaultValue={pipeline.description ?? ""} />
             <label className="flex flex-col gap-2 text-sm">

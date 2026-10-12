@@ -8,14 +8,17 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminSection,
+  AdminServiceSelect,
 } from "../components/admin-ui";
 import { NexButton, NexInput } from "~/core/components/nex";
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { createAgent } from "../mutations";
+import { listServices } from "../queries";
 
 const createSchema = z.object({
   agent_key: z.string().min(1, "agent_key 필수"),
+  owner_service: z.string().min(1),
   display_name: z.string().optional(),
 });
 
@@ -23,8 +26,10 @@ export const meta: Route.MetaFunction = () => [
   { title: `새 에이전트 | ${import.meta.env.VITE_APP_NAME}` },
 ];
 
-export async function loader() {
-  return {};
+export async function loader({ request }: Route.LoaderArgs) {
+  const [client] = makeServerClient(request);
+  const { data: services } = await listServices(client);
+  return { services: services ?? [] };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -44,6 +49,7 @@ export async function action({ request }: Route.ActionArgs) {
   const v = parsed.data;
   const { error } = await createAgent(client, {
     agent_key: v.agent_key.trim(),
+    owner_service: v.owner_service,
     display_name: v.display_name?.trim() || null,
   });
   if (error) {
@@ -52,7 +58,8 @@ export async function action({ request }: Route.ActionArgs) {
   return redirect("/admin/agents");
 }
 
-export default function AgentNew() {
+export default function AgentNew({ loaderData }: Route.ComponentProps) {
+  const { services } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
@@ -85,6 +92,13 @@ export default function AgentNew() {
               required
               placeholder="예: summarize_agent"
             />
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="text-foreground font-medium">소유 서비스</span>
+              <AdminServiceSelect services={services} />
+              <span className="text-muted-foreground text-xs">
+                여러 서비스가 함께 쓰는 에이전트는 shared를 선택하세요.
+              </span>
+            </label>
             <NexInput name="display_name" label="표시 이름" placeholder="선택" />
             <div className="flex flex-wrap gap-2 pt-1">
               <NexButton type="submit" variant="primary" loading={busy} disabled={busy}>

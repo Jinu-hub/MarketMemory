@@ -97,6 +97,7 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
       list = pipelines.filter((p) => {
         const blob = [
           p.pipeline_key,
+          p.owner_service,
           p.name,
           p.description ?? "",
           p.status,
@@ -146,7 +147,7 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
       <AdminSection title="등록된 파이프라인" description="편집으로 단계·메타데이터를 수정합니다.">
         <div className="space-y-4">
             <NexInput
-              placeholder="pipeline_key, 이름, 설명, 상태…"
+              placeholder="pipeline_key, 소유 서비스, 이름, 설명, 상태…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               leftIcon={<SearchIcon className="size-4 opacity-70" aria-hidden />}
@@ -175,6 +176,14 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
                     pipeline_key
                     <AdminSortAffix active={sortKey === "pipeline_key"} dir={sortDir} />
                   </button>
+                </TableHead>
+                <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
+                  <div
+                    className="text-muted-foreground flex min-h-[3rem] items-center px-4 py-3.5 text-xs font-semibold tracking-wider uppercase"
+                    role="columnheader"
+                  >
+                    소유 서비스
+                  </div>
                 </TableHead>
                 <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                   <button
@@ -223,7 +232,7 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
             <TableBody>
               {pipelines.length === 0 ? (
                 <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={4} className={cn(adminTdClass, "py-16")}>
+                  <TableCell colSpan={5} className={cn(adminTdClass, "py-16")}>
                     <p className="text-muted-foreground text-center text-sm">
                       아직 파이프라인이 없습니다. 상단의 「새 파이프라인」으로 추가하세요.
                     </p>
@@ -231,7 +240,7 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
                 </TableRow>
               ) : filteredSorted.length === 0 ? (
                 <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={4} className={cn(adminTdClass, "py-14")}>
+                  <TableCell colSpan={5} className={cn(adminTdClass, "py-14")}>
                     <p className="text-muted-foreground text-center text-sm">
                       검색 조건에 맞는 파이프라인이 없습니다.
                     </p>
@@ -247,6 +256,11 @@ export default function AdminPipelines({ loaderData }: Route.ComponentProps) {
                       >
                         {p.pipeline_key}
                       </Link>
+                    </TableCell>
+                    <TableCell className={cn(adminTdClass, "align-middle")}>
+                      <span className="text-muted-foreground font-mono text-[13px]">
+                        {p.owner_service}
+                      </span>
                     </TableCell>
                     <TableCell className={cn(adminTdClass, "text-foreground align-middle")}>
                       {p.name}

@@ -6,6 +6,7 @@ export async function createPipeline(
   client: AdminDb,
   values: {
     pipeline_key: string;
+    owner_service: string;
     name: string;
     description: string | null;
     status: Database["public"]["Enums"]["pipeline_status"];
@@ -19,6 +20,7 @@ export async function updatePipelineByKey(
   client: AdminDb,
   pipelineKey: string,
   values: {
+    owner_service: string;
     name: string;
     description: string | null;
     status: Database["public"]["Enums"]["pipeline_status"];

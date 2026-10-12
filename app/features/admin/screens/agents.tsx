@@ -10,6 +10,7 @@ import {
   AdminErrorAlert,
   AdminPageHeader,
   AdminSection,
+  AdminServiceSelect,
   AdminSortAffix,
   AdminTableShell,
   adminSortColumnButtonClass,
@@ -28,8 +29,8 @@ import {
 import { requireAdmin, requireMethod } from "~/core/lib/guards.server";
 import makeServerClient from "~/core/lib/supa-client.server";
 import { cn } from "~/core/lib/utils";
-import { deleteAgentByKey, updateAgentDisplayName } from "../mutations";
-import { listAgents } from "../queries";
+import { deleteAgentByKey, updateAgent } from "../mutations";
+import { listAgents, listServices } from "../queries";
 
 export const meta: Route.MetaFunction = () => [
   { title: `에이전트 | ${import.meta.env.VITE_APP_NAME}` },
@@ -38,6 +39,7 @@ export const meta: Route.MetaFunction = () => [
 const updateSchema = z.object({
   intent: z.literal("update"),
   agent_key: z.string().min(1),
+  owner_service: z.string().min(1),
   display_name: z.string().optional(),
 });
 
@@ -50,17 +52,27 @@ const actionSchema = z.discriminatedUnion("intent", [updateSchema, deleteSchema]
 
 type AdminAgentsLoaderData = {
   agents: Database["public"]["Tables"]["agents"]["Row"][];
+  services: Pick<
+    Database["public"]["Tables"]["services"]["Row"],
+    "service_key" | "display_name"
+  >[];
 };
 
-type SortKey = "agent_key" | "display_name";
+type SortKey = "agent_key" | "owner_service" | "display_name";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
-  const { data: rows, error } = await listAgents(client);
+  const [{ data: rows, error }, { data: services }] = await Promise.all([
+    listAgents(client),
+    listServices(client),
+  ]);
   if (error) {
     throw new Error(error.message);
   }
-  const payload: AdminAgentsLoaderData = { agents: rows ?? [] };
+  const payload: AdminAgentsLoaderData = {
+    agents: rows ?? [],
+    services: services ?? [],
+  };
   return payload;
 }
 
@@ -77,8 +89,9 @@ export async function action({ request }: Route.ActionArgs) {
 
   const v = parsed.data;
   if (v.intent === "update") {
-    const { error } = await updateAgentDisplayName(client, {
+    const { error } = await updateAgent(client, {
       agent_key: v.agent_key,
+      owner_service: v.owner_service,
       display_name: v.display_name?.trim() || null,
     });
     if (error) {
@@ -97,7 +110,7 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
   if (!loaderData) {
     return null;
   }
-  const { agents } = loaderData as AdminAgentsLoaderData;
+  const { agents, services } = loaderData as AdminAgentsLoaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
@@ -113,7 +126,9 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
     let list = agents;
     if (q.length > 0) {
       list = agents.filter((a) => {
-        const blob = [a.agent_key, a.display_name ?? ""].join(" ").toLowerCase();
+        const blob = [a.agent_key, a.owner_service, a.display_name ?? ""]
+          .join(" ")
+          .toLowerCase();
         return blob.includes(q);
       });
     }
@@ -122,6 +137,8 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
       switch (sortKey) {
         case "agent_key":
           return a.agent_key.localeCompare(b.agent_key) * m;
+        case "owner_service":
+          return a.owner_service.localeCompare(b.owner_service) * m;
         case "display_name": {
           const an = a.display_name ?? "";
           const bn = b.display_name ?? "";
@@ -157,11 +174,11 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
 
       <AdminSection
         title="등록된 에이전트"
-        description="표시 이름은 인라인에서 저장할 수 있습니다. 프롬프트·릴리스가 연결된 키는 삭제가 거부될 수 있습니다."
+        description="소유 서비스와 표시 이름은 인라인에서 저장할 수 있습니다. shared는 여러 서비스가 공용으로 쓰는 에이전트입니다. 프롬프트·릴리스가 연결된 키는 삭제가 거부될 수 있습니다."
       >
         <div className="space-y-4">
           <NexInput
-            placeholder="agent_key, 표시 이름…"
+            placeholder="agent_key, 소유 서비스, 표시 이름…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             leftIcon={<SearchIcon className="size-4 opacity-70" aria-hidden />}
@@ -195,6 +212,23 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
                     <button
                       type="button"
                       className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
+                      onClick={() => toggleSort("owner_service")}
+                      aria-sort={
+                        sortKey === "owner_service"
+                          ? sortDir === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
+                    >
+                      소유 서비스
+                      <AdminSortAffix active={sortKey === "owner_service"} dir={sortDir} />
+                    </button>
+                  </TableHead>
+                  <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
+                    <button
+                      type="button"
+                      className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
                       onClick={() => toggleSort("display_name")}
                       aria-sort={
                         sortKey === "display_name"
@@ -221,7 +255,7 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
               <TableBody>
                 {agents.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={3} className={cn(adminTdClass, "py-16")}>
+                    <TableCell colSpan={4} className={cn(adminTdClass, "py-16")}>
                       <p className="text-muted-foreground text-center text-sm">
                         등록된 에이전트가 없습니다. 상단의 「새 에이전트」로 추가하세요.
                       </p>
@@ -229,7 +263,7 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
                   </TableRow>
                 ) : filteredSorted.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={3} className={cn(adminTdClass, "py-14")}>
+                    <TableCell colSpan={4} className={cn(adminTdClass, "py-14")}>
                       <p className="text-muted-foreground text-center text-sm">
                         검색 조건에 맞는 에이전트가 없습니다.
                       </p>
@@ -243,8 +277,20 @@ export default function AdminAgents({ loaderData }: Route.ComponentProps) {
                           {a.agent_key}
                         </span>
                       </TableCell>
+                      <TableCell className={cn(adminTdClass, "min-w-[180px] align-top")}>
+                        <AdminServiceSelect
+                          services={services}
+                          defaultValue={a.owner_service}
+                          form={`agent-update-${a.agent_key}`}
+                          ariaLabel={`${a.agent_key} 소유 서비스`}
+                        />
+                      </TableCell>
                       <TableCell className={cn(adminTdClass, "align-top")}>
-                        <Form method="post" className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <Form
+                          id={`agent-update-${a.agent_key}`}
+                          method="post"
+                          className="flex flex-col gap-3 sm:flex-row sm:items-center"
+                        >
                           <input type="hidden" name="intent" value="update" />
                           <input type="hidden" name="agent_key" value={a.agent_key} />
                           <input

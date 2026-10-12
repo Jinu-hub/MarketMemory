@@ -7,6 +7,7 @@ export async function createAgent(
   client: AdminDb,
   values: {
     agent_key: string;
+    owner_service: string;
     display_name: string | null;
   },
 ) {
@@ -14,18 +15,20 @@ export async function createAgent(
 }
 
 /**
- * `agent_key` 기준으로 에이전트 표시 이름만 수정한다.
+ * `agent_key` 기준으로 에이전트 표시 이름·소유 서비스를 수정한다.
  */
-export async function updateAgentDisplayName(
+export async function updateAgent(
   client: AdminDb,
   values: {
     agent_key: string;
+    owner_service: string;
     display_name: string | null;
   },
 ) {
   return client
     .from("agents")
     .update({
+      owner_service: values.owner_service,
       display_name: values.display_name,
     })
     .eq("agent_key", values.agent_key);

@@ -3,8 +3,14 @@ export type { AdminDb } from "./types";
 export {
   createAgent,
   deleteAgentByKey,
-  updateAgentDisplayName,
+  updateAgent,
 } from "./agents";
+
+export {
+  createService,
+  deleteServiceByKey,
+  updateServiceDisplayName,
+} from "./services";
 
 export {
   createPipeline,
