@@ -7,3 +7,7 @@ export async function listAgents(client: AdminQueryClient) {
 export async function listAgentsWithDisplayName(client: AdminQueryClient) {
   return client.from("agents").select("agent_key, display_name").order("agent_key");
 }
+
+export async function listServices(client: AdminQueryClient) {
+  return client.from("services").select("service_key, display_name").order("service_key");
+}

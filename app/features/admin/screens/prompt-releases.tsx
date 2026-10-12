@@ -16,6 +16,7 @@ import {
   AdminSortAffix,
   AdminTableShell,
   EnvironmentBadge,
+  adminSelectClassName,
   adminSortColumnButtonClass,
   adminTdClass,
 } from "../components/admin-ui";
@@ -37,6 +38,7 @@ import {
   listAgentsWithDisplayName,
   listPromptReleases,
   listPromptTemplatesForSelector,
+  listServices,
 } from "../queries";
 
 export const meta: Route.MetaFunction = () => [
@@ -46,6 +48,7 @@ export const meta: Route.MetaFunction = () => [
 const upsertSchema = z.object({
   intent: z.literal("upsert"),
   agent_key: z.string().min(1),
+  service_key: z.string().min(1),
   environment: z.string().min(1),
   active_prompt_id: z.string().uuid(),
   release_note: z.string().optional(),
@@ -64,6 +67,10 @@ type PromptReleasesLoaderData = {
     Database["public"]["Tables"]["agents"]["Row"],
     "agent_key" | "display_name"
   >[];
+  services: Pick<
+    Database["public"]["Tables"]["services"]["Row"],
+    "service_key" | "display_name"
+  >[];
   templates: Pick<
     Database["public"]["Tables"]["prompt_templates"]["Row"],
     "id" | "name" | "version" | "agent_key"
@@ -74,12 +81,17 @@ type PromptReleasesLoaderData = {
 export async function loader({ request }: Route.LoaderArgs) {
   const [client] = makeServerClient(request);
 
-  const [{ data: releases, error: re }, { data: agents }, { data: templates }] =
-    await Promise.all([
-      listPromptReleases(client),
-      listAgentsWithDisplayName(client),
-      listPromptTemplatesForSelector(client),
-    ]);
+  const [
+    { data: releases, error: re },
+    { data: agents },
+    { data: services },
+    { data: templates },
+  ] = await Promise.all([
+    listPromptReleases(client),
+    listAgentsWithDisplayName(client),
+    listServices(client),
+    listPromptTemplatesForSelector(client),
+  ]);
 
   if (re) {
     throw new Error(re.message);
@@ -95,6 +107,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const payload: PromptReleasesLoaderData = {
     releases: releases ?? [],
     agents: agents ?? [],
+    services: services ?? [],
     templates: templates ?? [],
     templateLabel,
   };
@@ -127,6 +140,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const row = {
     agent_key: v.agent_key.trim(),
+    service_key: v.service_key,
     environment: v.environment.trim(),
     active_prompt_id: v.active_prompt_id,
     release_note: v.release_note?.trim() || null,
@@ -148,7 +162,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
   if (!loaderData) {
     return null;
   }
-  const { releases, agents, templates, templateLabel } =
+  const { releases, agents, services, templates, templateLabel } =
     loaderData as PromptReleasesLoaderData;
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
@@ -168,6 +182,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
           templateLabel[r.active_prompt_id] ?? r.active_prompt_id;
         const blob = [
           r.agent_key,
+          r.service_key,
           r.environment,
           templateLabelText,
           r.active_prompt_id,
@@ -203,6 +218,10 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
       if (byAgent !== 0) {
         return byAgent;
       }
+      const byService = a.service_key.localeCompare(b.service_key) * m;
+      if (byService !== 0) {
+        return byService;
+      }
       return a.environment.localeCompare(b.environment, "ko") * m;
     });
   }, [releases, tableQuery, sortKey, sortDir, templateLabel]);
@@ -211,7 +230,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
     <div className="mx-auto flex w-full max-w-none min-w-0 flex-col gap-10">
       <AdminPageHeader
         title="프롬프트 릴리스"
-        description="에이전트와 배포 환경별로 활성 프롬프트 템플릿을 고정합니다. 같은 에이전트·환경 조합은 새로 저장할 때 덮어씁니다."
+        description="에이전트·서비스·배포 환경별로 활성 프롬프트 템플릿을 고정합니다. 같은 에이전트라도 서비스마다 다른 버전을 쓸 수 있으며, 같은 에이전트·서비스·환경 조합은 새로 저장할 때 덮어씁니다."
       />
 
       {actionData && "message" in actionData && actionData.message && (
@@ -220,7 +239,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
 
       <AdminSection
         title="릴리스 등록"
-        description="드롭다운에서 에이전트와 템플릿을 선택한 뒤 환경 이름을 입력하세요."
+        description="드롭다운에서 에이전트·서비스·템플릿을 선택한 뒤 환경 이름을 입력하세요."
       >
         <AdminPanel padding="lg" className="w-full min-w-0">
           <Form method="post" className="grid w-full min-w-0 gap-5">
@@ -229,6 +248,23 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
               <span className="text-foreground font-medium">에이전트</span>
               <AdminAgentSelectWithFilter agents={agents} selectAriaLabel="에이전트 선택" />
             </div>
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="text-foreground font-medium">서비스</span>
+              <select
+                name="service_key"
+                required
+                defaultValue="market_memory"
+                className={adminSelectClassName}
+                aria-label="서비스 선택"
+              >
+                {services.map((s) => (
+                  <option key={s.service_key} value={s.service_key}>
+                    {s.service_key}
+                    {s.display_name ? ` — ${s.display_name}` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
             <NexInput
               name="environment"
               label="환경"
@@ -254,11 +290,11 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
 
       <AdminSection
         title="현재 고정"
-        description="각 행은 한 에이전트가 특정 환경에서 사용 중인 프롬프트 버전을 나타냅니다."
+        description="각 행은 한 에이전트가 특정 서비스·환경에서 사용 중인 프롬프트 버전을 나타냅니다."
       >
         <div className="space-y-4">
           <NexInput
-            placeholder="에이전트, 환경, 활성 템플릿, 릴리스 노트…"
+            placeholder="에이전트, 서비스, 환경, 활성 템플릿, 릴리스 노트…"
             value={tableQuery}
             onChange={(e) => setTableQuery(e.target.value)}
             leftIcon={<SearchIcon className="size-4 opacity-70" aria-hidden />}
@@ -290,6 +326,14 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                       에이전트
                       <AdminSortAffix active={sortKey === "agent_key"} dir={sortDir} />
                     </button>
+                  </TableHead>
+                  <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
+                    <div
+                      className="text-muted-foreground flex min-h-[3rem] items-center px-4 py-3.5 text-xs font-semibold tracking-wider uppercase"
+                      role="columnheader"
+                    >
+                      서비스
+                    </div>
                   </TableHead>
                   <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                     <button
@@ -344,7 +388,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
               <TableBody>
                 {releases.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={4} className={cn(adminTdClass, "py-16")}>
+                    <TableCell colSpan={5} className={cn(adminTdClass, "py-16")}>
                       <p className="text-muted-foreground text-center text-sm">
                         아직 등록된 릴리스가 없습니다. 위 양식으로 첫 고정을 추가하세요.
                       </p>
@@ -352,7 +396,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                   </TableRow>
                 ) : filteredSortedReleases.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={4} className={cn(adminTdClass, "py-14")}>
+                    <TableCell colSpan={5} className={cn(adminTdClass, "py-14")}>
                       <p className="text-muted-foreground text-center text-sm">
                         검색 조건에 맞는 릴리스가 없습니다.
                       </p>
@@ -384,11 +428,16 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                         }}
                         tabIndex={0}
                         role="link"
-                        aria-label={`${r.agent_key} ${r.environment} 프롬프트 상세로 이동`}
+                        aria-label={`${r.agent_key} ${r.service_key} ${r.environment} 프롬프트 상세로 이동`}
                       >
                         <TableCell className={cn(adminTdClass, "align-top")}>
                           <span className="text-foreground font-mono text-[13px] leading-snug font-medium">
                             {r.agent_key}
+                          </span>
+                        </TableCell>
+                        <TableCell className={cn(adminTdClass, "align-top")}>
+                          <span className="text-muted-foreground font-mono text-[13px] leading-snug">
+                            {r.service_key}
                           </span>
                         </TableCell>
                         <TableCell className={cn(adminTdClass, "align-top")}>
@@ -416,7 +465,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                               className="border-destructive/30 text-destructive hover:bg-destructive/10"
                               loading={busy}
                               disabled={busy}
-                              aria-label={`${r.agent_key} ${r.environment} 릴리스 삭제`}
+                              aria-label={`${r.agent_key} ${r.service_key} ${r.environment} 릴리스 삭제`}
                             >
                               삭제
                             </NexButton>

@@ -19,18 +19,29 @@ export type Database = {
           agent_key: string
           created_at: string
           display_name: string | null
+          owner_service: string
         }
         Insert: {
           agent_key: string
           created_at?: string
           display_name?: string | null
+          owner_service?: string
         }
         Update: {
           agent_key?: string
           created_at?: string
           display_name?: string | null
+          owner_service?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agents_owner_service_services_service_key_fk"
+            columns: ["owner_service"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["service_key"]
+          },
+        ]
       }
       collection_presets: {
         Row: {
@@ -1745,6 +1756,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          owner_service: string
           pipeline_key: string
           status: Database["public"]["Enums"]["pipeline_status"]
           updated_at: string
@@ -1754,6 +1766,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          owner_service?: string
           pipeline_key: string
           status?: Database["public"]["Enums"]["pipeline_status"]
           updated_at?: string
@@ -1763,11 +1776,20 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          owner_service?: string
           pipeline_key?: string
           status?: Database["public"]["Enums"]["pipeline_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pipelines_owner_service_services_service_key_fk"
+            columns: ["owner_service"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["service_key"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1810,6 +1832,7 @@ export type Database = {
           id: string
           release_note: string | null
           released_by: string | null
+          service_key: string
           updated_at: string
         }
         Insert: {
@@ -1819,6 +1842,7 @@ export type Database = {
           id?: string
           release_note?: string | null
           released_by?: string | null
+          service_key?: string
           updated_at?: string
         }
         Update: {
@@ -1828,6 +1852,7 @@ export type Database = {
           id?: string
           release_note?: string | null
           released_by?: string | null
+          service_key?: string
           updated_at?: string
         }
         Relationships: [
@@ -1844,6 +1869,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "agents"
             referencedColumns: ["agent_key"]
+          },
+          {
+            foreignKeyName: "prompt_releases_service_key_services_service_key_fk"
+            columns: ["service_key"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["service_key"]
           },
         ]
       }
@@ -2159,6 +2191,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      services: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          service_key: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          service_key: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          service_key?: string
+        }
+        Relationships: []
       }
       structured_metric_facts: {
         Row: {

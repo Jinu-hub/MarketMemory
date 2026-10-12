@@ -1,5 +1,7 @@
 # Market Signal — Expansion Brief (for LLM / future implementers)
 
+> Korean: [`EXPANSION.ko.md`](./EXPANSION.ko.md)
+
 ## 0. Product context
 
 Market Memory is a **content + data intelligence** product (reading + insight), not a CRUD/admin dashboard.

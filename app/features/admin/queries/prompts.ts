@@ -35,5 +35,6 @@ export async function listPromptReleases(client: AdminQueryClient) {
     .from("prompt_releases")
     .select("*")
     .order("agent_key", { ascending: true })
+    .order("service_key", { ascending: true })
     .order("environment", { ascending: true });
 }

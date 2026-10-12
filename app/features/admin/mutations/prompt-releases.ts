@@ -4,6 +4,7 @@ export async function upsertPromptRelease(
   client: AdminDb,
   values: {
     agent_key: string;
+    service_key: string;
     environment: string;
     active_prompt_id: string;
     release_note: string | null;
@@ -12,7 +13,7 @@ export async function upsertPromptRelease(
   },
 ) {
   return client.from("prompt_releases").upsert(values, {
-    onConflict: "agent_key,environment",
+    onConflict: "agent_key,service_key,environment",
   });
 }
 

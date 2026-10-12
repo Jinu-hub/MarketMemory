@@ -3,6 +3,7 @@ export type { AdminQueryClient } from "./db";
 export {
   listAgents,
   listAgentsWithDisplayName,
+  listServices,
 } from "./agents";
 
 export {
