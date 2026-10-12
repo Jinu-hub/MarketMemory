@@ -1,6 +1,7 @@
 import type { Route } from "./+types/prompt-new";
 import type { Database } from "database.types";
 
+import { useState } from "react";
 import { Form, Link, data, redirect, useActionData, useNavigation } from "react-router";
 import { z } from "zod";
 
@@ -28,6 +29,8 @@ const createSchema = z.object({
   template: z.string().min(1),
   status: z.enum(["draft", "active", "deprecated", "archived"]),
   thinking_level: z.union([z.literal("inherit"), z.literal(""), z.enum(THINKING_LEVELS)]),
+  default_provider: z.string().optional(),
+  default_model: z.string().optional(),
   changelog: z.string().optional(),
 });
 
@@ -89,8 +92,8 @@ export async function action({ request }: Route.ActionArgs) {
         : v.thinking_level || null,
     input_schema: prevTemplate?.input_schema ?? null,
     output_schema: prevTemplate?.output_schema ?? null,
-    default_provider: prevTemplate?.default_provider ?? null,
-    default_model: prevTemplate?.default_model ?? null,
+    default_provider: v.default_provider?.trim() || prevTemplate?.default_provider || null,
+    default_model: v.default_model?.trim() || prevTemplate?.default_model || null,
     default_params: prevTemplate?.default_params ?? null,
     is_backward_compatible: prevTemplate?.is_backward_compatible ?? true,
     changelog: v.changelog?.trim() || null,
@@ -112,6 +115,8 @@ export default function PromptNew({ loaderData }: Route.ComponentProps) {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
+  const [name, setName] = useState("");
+  const [autoName, setAutoName] = useState("");
 
   return (
     <div className="mx-auto flex w-full max-w-none min-w-0 flex-col gap-10">
@@ -124,7 +129,7 @@ export default function PromptNew({ loaderData }: Route.ComponentProps) {
         </Link>
         <AdminPageHeader
           title="새 템플릿 버전"
-          description="에이전트를 고르고 이름·본문·상태를 입력합니다. 해당 에이전트의 다음 버전 번호가 자동으로 부여됩니다. 하이퍼파라미터는 저장 후 편집 화면에서 조정할 수 있습니다."
+          description="에이전트를 고르고 이름·본문·상태를 입력합니다. 해당 에이전트의 다음 버전 번호가 자동으로 부여됩니다. thinking_level·프로바이더·모델은 여기서 지정하거나 이전 버전 값을 물려받고, 나머지 하이퍼파라미터는 저장 후 편집 화면에서 조정할 수 있습니다."
         />
       </div>
 
@@ -137,9 +142,26 @@ export default function PromptNew({ loaderData }: Route.ComponentProps) {
           <Form method="post" className="grid w-full min-w-0 gap-5">
             <div className="flex flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">에이전트</span>
-              <AdminAgentSelectWithFilter agents={agents} selectAriaLabel="에이전트" />
+              <AdminAgentSelectWithFilter
+                agents={agents}
+                selectAriaLabel="에이전트"
+                onAgentChange={(agent) => {
+                  const next = agent ? (agent.display_name ?? agent.agent_key) : "";
+                  // 사용자가 직접 고친 이름은 덮어쓰지 않음
+                  if (name === autoName) {
+                    setName(next);
+                  }
+                  setAutoName(next);
+                }}
+              />
             </div>
-            <NexInput name="name" label="이름" required />
+            <NexInput
+              name="name"
+              label="이름"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
             <label className="flex min-w-0 w-full flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">템플릿 본문</span>
               <textarea
@@ -176,6 +198,16 @@ export default function PromptNew({ loaderData }: Route.ComponentProps) {
                 <ThinkingLevelOptions />
               </select>
             </label>
+            <NexInput
+              name="default_provider"
+              label="default_provider (선택)"
+              placeholder="예: openai, gemini, anthropic — 비우면 이전 버전 값 유지"
+            />
+            <NexInput
+              name="default_model"
+              label="default_model (선택)"
+              placeholder="예: gpt-5, gemini-2.5-pro — 비우면 이전 버전 값 유지"
+            />
             <NexInput name="changelog" label="변경 요약 (선택)" />
             <div className="flex flex-wrap gap-2 pt-1">
               <NexButton type="submit" variant="primary" loading={busy} disabled={busy}>

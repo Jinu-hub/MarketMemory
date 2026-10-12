@@ -223,11 +223,13 @@ export function AdminAgentSelectWithFilter({
   selectName = "agent_key",
   selectAriaLabel = "에이전트",
   filterPlaceholder = "에이전트 검색…",
+  onAgentChange,
 }: {
   agents: AdminAgentOption[];
   selectName?: string;
   selectAriaLabel?: string;
   filterPlaceholder?: string;
+  onAgentChange?: (agent: AdminAgentOption | undefined) => void;
 }) {
   const [filter, setFilter] = useState("");
   const [agentKey, setAgentKey] = useState("");
@@ -256,7 +258,10 @@ export function AdminAgentSelectWithFilter({
           name={selectName}
           required
           value={agentKey}
-          onChange={(e) => setAgentKey(e.target.value)}
+          onChange={(e) => {
+            setAgentKey(e.target.value);
+            onAgentChange?.(agents.find((a) => a.agent_key === e.target.value));
+          }}
           className={adminSelectClassName}
           aria-label={selectAriaLabel}
         >
