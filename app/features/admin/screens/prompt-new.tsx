@@ -10,6 +10,8 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminSection,
+  THINKING_LEVELS,
+  ThinkingLevelOptions,
   adminSelectClassName,
   adminTextareaClassName,
 } from "../components/admin-ui";
@@ -25,6 +27,7 @@ const createSchema = z.object({
   name: z.string().min(1),
   template: z.string().min(1),
   status: z.enum(["draft", "active", "deprecated", "archived"]),
+  thinking_level: z.union([z.literal("inherit"), z.literal(""), z.enum(THINKING_LEVELS)]),
   changelog: z.string().optional(),
 });
 
@@ -80,6 +83,10 @@ export async function action({ request }: Route.ActionArgs) {
     status: v.status,
     temperature: prevTemplate?.temperature ?? null,
     api_mode: prevTemplate?.api_mode ?? "responses",
+    thinking_level:
+      v.thinking_level === "inherit"
+        ? (prevTemplate?.thinking_level ?? null)
+        : v.thinking_level || null,
     input_schema: prevTemplate?.input_schema ?? null,
     output_schema: prevTemplate?.output_schema ?? null,
     default_provider: prevTemplate?.default_provider ?? null,
@@ -155,6 +162,18 @@ export default function PromptNew({ loaderData }: Route.ComponentProps) {
                 <option value="active">active</option>
                 <option value="deprecated">deprecated</option>
                 <option value="archived">archived</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="text-foreground font-medium">thinking_level</span>
+              <select
+                name="thinking_level"
+                className={adminSelectClassName}
+                defaultValue="inherit"
+                aria-label="추론 강도"
+              >
+                <option value="inherit">이전 버전 값 유지</option>
+                <ThinkingLevelOptions />
               </select>
             </label>
             <NexInput name="changelog" label="변경 요약 (선택)" />

@@ -12,6 +12,7 @@ export async function createPromptTemplate(
     status: Database["public"]["Enums"]["prompt_status"];
     temperature: number | null;
     api_mode: Database["public"]["Enums"]["api_mode"];
+    thinking_level: Database["public"]["Enums"]["thinking_level"] | null;
     input_schema: Json | null;
     output_schema: Json | null;
     default_provider: string | null;
@@ -35,6 +36,7 @@ export async function updatePromptTemplateById(
     status: Database["public"]["Enums"]["prompt_status"];
     temperature: number | null;
     api_mode: Database["public"]["Enums"]["api_mode"];
+    thinking_level: Database["public"]["Enums"]["thinking_level"] | null;
     changelog: string | null;
     default_provider: string | null;
     default_model: string | null;

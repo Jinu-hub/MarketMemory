@@ -22,7 +22,7 @@ export async function getLatestPromptTemplateByAgentKey(client: AdminQueryClient
   return client
     .from("prompt_templates")
     .select(
-      "version, temperature, api_mode, input_schema, output_schema, default_provider, default_model, default_params, is_backward_compatible",
+      "version, temperature, api_mode, thinking_level, input_schema, output_schema, default_provider, default_model, default_params, is_backward_compatible",
     )
     .eq("agent_key", agentKey)
     .order("version", { ascending: false })

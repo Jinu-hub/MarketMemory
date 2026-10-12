@@ -91,6 +91,7 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
           t.agent_key,
           t.name,
           t.status,
+          t.thinking_level ?? "",
           String(t.version),
           t.changelog ?? "",
           formatUpdatedAt(t.updated_at),
@@ -143,7 +144,7 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
       >
         <div className="space-y-4">
           <NexInput
-            placeholder="에이전트, 이름, 버전, 상태, 변경 요약…"
+            placeholder="에이전트, 이름, 버전, 상태, thinking, 변경 요약…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             leftIcon={<SearchIcon className="size-4 opacity-70" aria-hidden />}
@@ -225,6 +226,14 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
                     </button>
                   </TableHead>
                   <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
+                    <div
+                      className="text-muted-foreground flex min-h-[3rem] items-center px-4 py-3.5 text-xs font-semibold tracking-wider uppercase"
+                      role="columnheader"
+                    >
+                      thinking
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-muted-foreground h-auto !p-0 align-middle">
                     <button
                       type="button"
                       className={cn(adminSortColumnButtonClass, "justify-start px-4 py-3.5 text-left")}
@@ -254,7 +263,7 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
               <TableBody>
                 {templates.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className={cn(adminTdClass, "py-16")}>
+                    <TableCell colSpan={7} className={cn(adminTdClass, "py-16")}>
                       <p className="text-muted-foreground text-center text-sm">
                         표시할 템플릿이 없습니다. 상단의 「새 템플릿」으로 추가하세요.
                       </p>
@@ -262,7 +271,7 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
                   </TableRow>
                 ) : filteredSorted.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className={cn(adminTdClass, "py-14")}>
+                    <TableCell colSpan={7} className={cn(adminTdClass, "py-14")}>
                       <p className="text-muted-foreground text-center text-sm">
                         검색 조건에 맞는 템플릿이 없습니다.
                       </p>
@@ -284,6 +293,9 @@ export default function AdminPrompts({ loaderData }: Route.ComponentProps) {
                       </TableCell>
                       <TableCell className={adminTdClass}>
                         <PromptStatusBadge status={t.status} />
+                      </TableCell>
+                      <TableCell className={cn(adminTdClass, "text-muted-foreground font-mono text-[13px]")}>
+                        {t.thinking_level ?? "기본"}
                       </TableCell>
                       <TableCell
                         className={cn(

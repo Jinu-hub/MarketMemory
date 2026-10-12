@@ -1897,6 +1897,7 @@ export type Database = {
           status: Database["public"]["Enums"]["prompt_status"]
           temperature: number | null
           template: string
+          thinking_level: Database["public"]["Enums"]["thinking_level"] | null
           updated_at: string
           version: number
         }
@@ -1917,6 +1918,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["prompt_status"]
           temperature?: number | null
           template: string
+          thinking_level?: Database["public"]["Enums"]["thinking_level"] | null
           updated_at?: string
           version: number
         }
@@ -1937,6 +1939,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["prompt_status"]
           temperature?: number | null
           template?: string
+          thinking_level?: Database["public"]["Enums"]["thinking_level"] | null
           updated_at?: string
           version?: number
         }
@@ -2538,6 +2541,7 @@ export type Database = {
       similarity_status: "ready" | "done" | "nothing" | "pending"
       tag_source: "ai" | "manual"
       target_type: "agent" | "pipeline" | "prompt_template"
+      thinking_level: "off" | "minimal" | "low" | "medium" | "high"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2803,6 +2807,7 @@ export const Constants = {
       similarity_status: ["ready", "done", "nothing", "pending"],
       tag_source: ["ai", "manual"],
       target_type: ["agent", "pipeline", "prompt_template"],
+      thinking_level: ["off", "minimal", "low", "medium", "high"],
     },
   },
 } as const

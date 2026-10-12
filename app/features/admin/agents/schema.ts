@@ -5,6 +5,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -44,6 +45,15 @@ export const targetType = pgEnum("target_type", [
   "agent",
   "pipeline",
   "prompt_template",
+]);
+
+/** 제공사 중립 추론 강도 — 실행기가 제공사별 파라미터로 매핑 (null = 모델 기본값) */
+export const thinkingLevel = pgEnum("thinking_level", [
+  "off",
+  "minimal",
+  "low",
+  "medium",
+  "high",
 ]);
 
 /* =========================================================
@@ -250,6 +260,7 @@ export const promptTemplates = pgTable(
     template: text("template").notNull(),
     temperature: numeric("temperature", { precision: 5, scale: 4 }),
     api_mode: apiMode("api_mode").default("responses"),
+    thinking_level: thinkingLevel("thinking_level"),
     input_schema: jsonb("input_schema"),
     output_schema: jsonb("output_schema"),
     default_provider: text("default_provider"),
@@ -335,6 +346,10 @@ export const promptReleases = pgTable(
       table.agent_key,
       table.service_key,
       table.environment,
+    ),
+    check(
+      "prompt_releases_environment_check",
+      sql`${table.environment} in ('default', 'production', 'dev')`,
     ),
 
     pgPolicy("pr_select", {

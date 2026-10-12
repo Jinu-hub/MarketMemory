@@ -11,6 +11,8 @@ import {
   SearchIcon,
 } from "lucide-react";
 
+import { Constants } from "database.types";
+
 import { parseAdminErrorMessage } from "../lib/admin-error";
 
 import { NexBadge, NexCard, NexInput } from "~/core/components/nex";
@@ -157,6 +159,22 @@ export type AdminAgentOption = {
   agent_key: string;
   display_name: string | null;
 };
+
+export const THINKING_LEVELS = Constants.public.Enums.thinking_level;
+
+/** `<select>` 안에 넣는 thinking_level 옵션 — 빈 값("")은 모델 기본값(null) */
+export function ThinkingLevelOptions() {
+  return (
+    <>
+      <option value="">모델 기본값</option>
+      {THINKING_LEVELS.map((level) => (
+        <option key={level} value={level}>
+          {level}
+        </option>
+      ))}
+    </>
+  );
+}
 
 export type AdminServiceOption = {
   service_key: string;
@@ -402,6 +420,8 @@ export function EnvironmentBadge({ env }: { env: string }) {
   let variant: ComponentProps<typeof NexBadge>["variant"] = "outline";
   if (e === "production" || e === "prod") {
     variant = "success";
+  } else if (e === "default") {
+    variant = "secondary";
   } else if (e === "staging" || e === "stage" || e === "stg") {
     variant = "warning";
   } else if (

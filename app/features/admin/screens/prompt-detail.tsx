@@ -15,6 +15,8 @@ import {
   AdminPanel,
   AdminSection,
   PromptStatusBadge,
+  THINKING_LEVELS,
+  ThinkingLevelOptions,
   adminSelectClassName,
   adminTextareaClassName,
 } from "../components/admin-ui";
@@ -44,6 +46,7 @@ const updateSchema = z.object({
   status: z.enum(["draft", "active", "deprecated", "archived"]),
   temperature: z.string().optional(),
   api_mode: z.enum(["responses", "streaming"]),
+  thinking_level: z.union([z.literal(""), z.enum(THINKING_LEVELS)]),
   changelog: z.string().optional(),
   default_provider: z.string().optional(),
   default_model: z.string().optional(),
@@ -129,6 +132,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     status: v.status,
     temperature: temp,
     api_mode: v.api_mode,
+    thinking_level: v.thinking_level || null,
     changelog: v.changelog?.trim() || null,
     default_provider: v.default_provider?.trim() || null,
     default_model: v.default_model?.trim() || null,
@@ -325,6 +329,21 @@ export default function PromptDetail({ loaderData }: Route.ComponentProps) {
                 <option value="responses">responses</option>
                 <option value="streaming">streaming</option>
               </select>
+            </label>
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="text-foreground font-medium">thinking_level</span>
+              <select
+                name="thinking_level"
+                className={adminSelectClassName}
+                defaultValue={template.thinking_level ?? ""}
+                aria-label="추론 강도"
+                disabled={!canEdit}
+              >
+                <ThinkingLevelOptions />
+              </select>
+              <span className="text-muted-foreground text-xs">
+                제공사 중립 값입니다. 실행기에서 OpenAI reasoning_effort, Gemini thinkingLevel 등으로 변환합니다.
+              </span>
             </label>
             <NexInput
               name="changelog"

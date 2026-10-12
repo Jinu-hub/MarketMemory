@@ -17,6 +17,7 @@ import {
   AdminTableShell,
   AdminServiceSelect,
   EnvironmentBadge,
+  adminSelectClassName,
   adminSortColumnButtonClass,
   adminTdClass,
 } from "../components/admin-ui";
@@ -45,11 +46,14 @@ export const meta: Route.MetaFunction = () => [
   { title: `프롬프트 릴리스 | ${import.meta.env.VITE_APP_NAME}` },
 ];
 
+/** 실행기 조회 규칙: 현재 환경과 일치하는 행 우선, 없으면 default */
+const RELEASE_ENVIRONMENTS = ["default", "production", "dev"] as const;
+
 const upsertSchema = z.object({
   intent: z.literal("upsert"),
   agent_key: z.string().min(1),
   service_key: z.string().min(1),
-  environment: z.string().min(1),
+  environment: z.enum(RELEASE_ENVIRONMENTS),
   active_prompt_id: z.string().uuid(),
   release_note: z.string().optional(),
 });
@@ -141,7 +145,7 @@ export async function action({ request }: Route.ActionArgs) {
   const row = {
     agent_key: v.agent_key.trim(),
     service_key: v.service_key,
-    environment: v.environment.trim(),
+    environment: v.environment,
     active_prompt_id: v.active_prompt_id,
     release_note: v.release_note?.trim() || null,
     released_by: user?.id ?? null,
@@ -239,7 +243,7 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
 
       <AdminSection
         title="릴리스 등록"
-        description="드롭다운에서 에이전트·서비스·템플릿을 선택한 뒤 환경 이름을 입력하세요."
+        description="드롭다운에서 에이전트·서비스·환경·템플릿을 선택하세요."
       >
         <AdminPanel padding="lg" className="w-full min-w-0">
           <Form method="post" className="grid w-full min-w-0 gap-5">
@@ -255,12 +259,25 @@ export default function PromptReleases({ loaderData }: Route.ComponentProps) {
                 name="service_key"
               />
             </label>
-            <NexInput
-              name="environment"
-              label="환경"
-              required
-              placeholder="예: production, staging, dev"
-            />
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="text-foreground font-medium">환경</span>
+              <select
+                name="environment"
+                required
+                defaultValue="default"
+                className={adminSelectClassName}
+                aria-label="환경 선택"
+              >
+                {RELEASE_ENVIRONMENTS.map((env) => (
+                  <option key={env} value={env}>
+                    {env}
+                  </option>
+                ))}
+              </select>
+              <span className="text-muted-foreground text-xs">
+                default는 개발·배포 양쪽에 쓰이며, production 또는 dev 행이 있으면 그쪽이 우선합니다.
+              </span>
+            </label>
             <div className="flex flex-col gap-2 text-sm">
               <span className="text-foreground font-medium">활성 프롬프트 템플릿</span>
               <AdminPromptTemplateSelectWithFilter
